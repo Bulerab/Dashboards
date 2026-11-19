@@ -50,6 +50,13 @@
         .search:focus { border-color: #1976d2; }
         details summary::-webkit-details-marker { color: #888; }
         details[open] summary { border-bottom: 1px solid #333; margin-bottom: 10px; background: #2a2a2a; padding-bottom: 8px; }
+        details.sec > summary.sec-title { cursor: pointer; font-size: 1.5em; font-weight: bold; color: #fff; padding-bottom: 8px; border-bottom: 2px solid #333; user-select: none; }
+        details.sec[open] > summary.sec-title { background: none; margin-bottom: 12px; }
+        details.sec:not([open]) > summary.sec-title { border-bottom-color: transparent; padding-bottom: 0; }
+        .sec-count { color: #888; font-size: 14px; font-weight: normal; margin-left: 6px; }
+        .sp { display: inline-block; padding: 1px 8px; margin: 1px 4px 1px 0; border-radius: 10px; font-size: 11px; font-weight: 600; background: rgba(76, 175, 80, 0.15); color: #a5d6a7; border: 1px solid #388e3c; white-space: nowrap; }
+        .sp-none { color: #888; font-size: 12px; font-style: italic; }
+        .attribution { color: #666; font-size: 11px; margin-top: 8px; }
         @media (max-width: 800px) {
             body { padding: 12px; }
             .breakdown-layout { grid-template-columns: 1fr; }
@@ -63,7 +70,7 @@
 <body>
 <div class="container">
     <h1>&#127902; Movie Library Index</h1>
-    <p class="generated">Generated 2026-11-19 08:05 &bull; E:\Movies, P:\Movies &bull; running time known for 379 of 384 videos</p>
+    <p class="generated">Generated 2026-11-19 11:10 &bull; E:\Movies, P:\Movies &bull; running time known for 379 of 384 videos</p>
 
     <!-- Summary / Library Overview -->
     <h2>&#128200; Library Overview</h2>
@@ -88,49 +95,52 @@
 
     <!-- Issues & Alerts Overview Grid -->
     <div class="card">
-        <h2>&#9888;&#65039; Issues & Alerts Overview</h2>
-        <div class="stats-grid" style="margin-bottom: 0;">
-            <div class="stat-box" style="border-left-color: #d32f2f;">
-                <h3>Naming Issues</h3>
-                <p>2</p>
+        <details class="sec" open>
+            <summary class="sec-title">&#9888;&#65039; Issues & Alerts Overview <span class="sec-count"></span></summary>
+            <div class="stats-grid" style="margin-bottom: 0;">
+                <div class="stat-box" style="border-left-color: #d32f2f;">
+                    <h3>Naming Issues</h3>
+                    <p>2</p>
+                </div>
+                <div class="stat-box" style="border-left-color: #d32f2f;">
+                    <h3>File Conflicts</h3>
+                    <p>0</p>
+                </div>
+                <div class="stat-box" style="border-left-color: #ff9800;">
+                    <h3>Folder Duplicates</h3>
+                    <p>0</p>
+                </div>
+                <div class="stat-box" style="border-left-color: #e57373;">
+                    <h3>Oversized Files</h3>
+                    <p>0</p>
+                </div>
+                <div class="stat-box" style="border-left-color: #e57373;">
+                    <h3>Fake / Too Small</h3>
+                    <p>10</p>
+                </div>
+                <div class="stat-box" style="border-left-color: #ff9800;">
+                    <h3>DV-Only Titles</h3>
+                    <p>53</p>
+                </div>
             </div>
-            <div class="stat-box" style="border-left-color: #d32f2f;">
-                <h3>File Conflicts</h3>
-                <p>0</p>
-            </div>
-            <div class="stat-box" style="border-left-color: #ff9800;">
-                <h3>Folder Duplicates</h3>
-                <p>0</p>
-            </div>
-            <div class="stat-box" style="border-left-color: #e57373;">
-                <h3>Oversized Files</h3>
-                <p>0</p>
-            </div>
-            <div class="stat-box" style="border-left-color: #e57373;">
-                <h3>Fake / Too Small</h3>
-                <p>10</p>
-            </div>
-            <div class="stat-box" style="border-left-color: #ff9800;">
-                <h3>DV-Only Titles</h3>
-                <p>53</p>
-            </div>
-        </div>
+        </details>
     </div>
 
     <!-- Quality & Format Breakdowns Card -->
     <div class="card">
-        <h2>&#128202; Quality & Format Breakdown</h2>
-        <div class="breakdown-layout">
-            <div class="breakdown-stack">
-                <div class="breakdown-box">
-                    <h4>Resolution Distribution</h4>
-                    <table>
-                        <tr>
-                            <th style="padding: 6px 8px; font-size: 12px;">Resolution</th>
-                            <th style="padding: 6px 8px; font-size: 12px; text-align: center;">Count</th>
-                            <th style="padding: 6px 8px; font-size: 12px; text-align: right;">Avg Size</th>
-                        </tr>
-                        <tr>
+        <details class="sec" open>
+            <summary class="sec-title">&#128202; Quality & Format Breakdown <span class="sec-count"></span></summary>
+            <div class="breakdown-layout">
+                <div class="breakdown-stack">
+                    <div class="breakdown-box">
+                        <h4>Resolution Distribution</h4>
+                        <table>
+                            <tr>
+                                <th style="padding: 6px 8px; font-size: 12px;">Resolution</th>
+                                <th style="padding: 6px 8px; font-size: 12px; text-align: center;">Count</th>
+                                <th style="padding: 6px 8px; font-size: 12px; text-align: right;">Avg Size</th>
+                            </tr>
+                            <tr>
         <td><strong>2160p</strong></td>
         <td style='text-align: center;'>104</td>
         <td style='text-align: right;'>19.10 GB</td>
@@ -150,17 +160,17 @@
         <td style='text-align: center;'>1</td>
         <td style='text-align: right;'>1.02 GB</td>
      </tr>
-                    </table>
-                </div>
-                <div class="breakdown-box">
-                    <h4>Video Range / HDR Format</h4>
-                    <table>
-                        <tr>
-                            <th style="padding: 6px 8px; font-size: 12px;">Format</th>
-                            <th style="padding: 6px 8px; font-size: 12px; text-align: center;">Count</th>
-                            <th style="padding: 6px 8px; font-size: 12px; text-align: right;">Avg Size</th>
-                        </tr>
-                        <tr>
+                        </table>
+                    </div>
+                    <div class="breakdown-box">
+                        <h4>Video Range / HDR Format</h4>
+                        <table>
+                            <tr>
+                                <th style="padding: 6px 8px; font-size: 12px;">Format</th>
+                                <th style="padding: 6px 8px; font-size: 12px; text-align: center;">Count</th>
+                                <th style="padding: 6px 8px; font-size: 12px; text-align: right;">Avg Size</th>
+                            </tr>
+                            <tr>
         <td><strong>Dolby Vision</strong></td>
         <td style='text-align: center;'>71</td>
         <td style='text-align: right;'>18.39 GB</td>
@@ -180,18 +190,18 @@
         <td style='text-align: center;'>193</td>
         <td style='text-align: right;'>6.88 GB</td>
      </tr>
-                    </table>
-                </div>
-                <div class="breakdown-box">
-                    <h4>Drive Storage Capacity</h4>
-                    <ul>
-                        <li style='margin-bottom: 12px; white-space: nowrap;'>
+                        </table>
+                    </div>
+                    <div class="breakdown-box">
+                        <h4>Drive Storage Capacity</h4>
+                        <ul>
+                            <li style='margin-bottom: 12px; white-space: nowrap;'>
         <div style='display: flex; justify-content: space-between; font-size: 13px; margin-bottom: 3px;'>
-            <span><strong>Favorites</strong> (E:\): 820.31 GB used / 931.51 GB total</span>
-            <span style='font-weight: bold; color: #fff;'>88.1%</span>
+            <span><strong>Favorites</strong> (E:\): 761.59 GB used / 931.51 GB total</span>
+            <span style='font-weight: bold; color: #fff;'>81.8%</span>
         </div>
         <div style='background: #1a1a1a; border-radius: 4px; height: 12px; width: 100%; overflow: hidden; border: 1px solid #333;'>
-            <div style='background: #f57c00; width: 88.1%; height: 100%; border-radius: 3px;'></div>
+            <div style='background: #f57c00; width: 81.8%; height: 100%; border-radius: 3px;'></div>
         </div>
     </li>
 <li style='margin-bottom: 12px; white-space: nowrap;'>
@@ -214,20 +224,20 @@
     </li>
 <li style='margin-bottom: 12px; white-space: nowrap;'>
         <div style='display: flex; justify-content: space-between; font-size: 13px; margin-bottom: 3px;'>
-            <span><strong>Nuc Stalled</strong> (S:\): 103.94 GB used / 456.35 GB total</span>
+            <span><strong>Nuc Stalled</strong> (S:\): 103.93 GB used / 456.35 GB total</span>
             <span style='font-weight: bold; color: #fff;'>22.8%</span>
         </div>
         <div style='background: #1a1a1a; border-radius: 4px; height: 12px; width: 100%; overflow: hidden; border: 1px solid #333;'>
             <div style='background: #1976d2; width: 22.8%; height: 100%; border-radius: 3px;'></div>
         </div>
     </li>
-                    </ul>
+                        </ul>
+                    </div>
                 </div>
-            </div>
-            <div class="breakdown-box">
-                <h4>Top 13 Largest Media Files</h4>
-                <ul style="list-style-type: disc; padding-left: 20px;">
-                    <li><strong style='color: #fff;' title='The Chronicles of Riddick (2004) [2160p x265 Dolby Vision DTS-HD MA].mkv'>The Chronicles of Riddick (2004) [2160p x265 Dolby Vision DTS-HD MA].mkv</strong><br><span style='color: #888; font-size: 13px;'><strong>80.13 GB</strong> &bull; <span style='color: #4fc3f7;'>2160p</span> &bull; <span>&#128193; P:\Movies\The Chronicles of Riddick (2004)</span></span></li>
+                <div class="breakdown-box">
+                    <h4>Top 13 Largest Media Files</h4>
+                    <ul style="list-style-type: disc; padding-left: 20px;">
+                        <li><strong style='color: #fff;' title='The Chronicles of Riddick (2004) [2160p x265 Dolby Vision DTS-HD MA].mkv'>The Chronicles of Riddick (2004) [2160p x265 Dolby Vision DTS-HD MA].mkv</strong><br><span style='color: #888; font-size: 13px;'><strong>80.13 GB</strong> &bull; <span style='color: #4fc3f7;'>2160p</span> &bull; <span>&#128193; P:\Movies\The Chronicles of Riddick (2004)</span></span></li>
 <li><strong style='color: #fff;' title='Ender&#39;s Game (2013) [2160p x265 Dolby Vision TrueHD Atmos].mkv'>Ender&#39;s Game (2013) [2160p x265 Dolby Vision TrueHD Atmos].mkv</strong><br><span style='color: #888; font-size: 13px;'><strong>53.26 GB</strong> &bull; <span style='color: #4fc3f7;'>2160p</span> &bull; <span>&#128193; P:\Movies\Ender&#39;s Game (2013)</span></span></li>
 <li><strong style='color: #fff;' title='The Matrix (1999) [2160p x265 Dolby Vision TrueHD Atmos].mkv'>The Matrix (1999) [2160p x265 Dolby Vision TrueHD Atmos].mkv</strong><br><span style='color: #888; font-size: 13px;'><strong>52.91 GB</strong> &bull; <span style='color: #4fc3f7;'>2160p</span> &bull; <span>&#128193; P:\Movies\The Matrix (1999)</span></span></li>
 <li><strong style='color: #fff;' title='The Matrix Revolutions (2003) [2160p x265 Dolby Vision TrueHD Atmos].mkv'>The Matrix Revolutions (2003) [2160p x265 Dolby Vision TrueHD Atmos].mkv</strong><br><span style='color: #888; font-size: 13px;'><strong>51.07 GB</strong> &bull; <span style='color: #4fc3f7;'>2160p</span> &bull; <span>&#128193; P:\Movies\The Matrix Revolutions (2003)</span></span></li>
@@ -240,56 +250,66 @@
 <li><strong style='color: #fff;' title='Hobbs &amp; Shaw (2019) [1080p x264 SDR TrueHD Atmos].mkv'>Hobbs &amp; Shaw (2019) [1080p x264 SDR TrueHD Atmos].mkv</strong><br><span style='color: #888; font-size: 13px;'><strong>37.43 GB</strong> &bull; <span style='color: #4fc3f7;'>1080p</span> &bull; <span>&#128193; P:\Movies\Hobbs &amp; Shaw (2019)</span></span></li>
 <li><strong style='color: #fff;' title='The Matrix Resurrections (2021) [2160p x265 HDR10].mkv'>The Matrix Resurrections (2021) [2160p x265 HDR10].mkv</strong><br><span style='color: #888; font-size: 13px;'><strong>34.95 GB</strong> &bull; <span style='color: #4fc3f7;'>2160p</span> &bull; <span>&#128193; P:\Movies\The Matrix Resurrections (2021)</span></span></li>
 <li><strong style='color: #fff;' title='Zack Snyder&#39;s Justice League (2021) [2160p x265 HDR10] {Edition-Justice Is Gray}.mkv'>Zack Snyder&#39;s Justice League (2021) [2160p x265 HDR10] {Edition-Justice Is Gray}.mkv</strong><br><span style='color: #888; font-size: 13px;'><strong>34.41 GB</strong> &bull; <span style='color: #4fc3f7;'>2160p</span> &bull; <span>&#128193; P:\Movies\Zack Snyder&#39;s Justice League (2021)</span></span></li>
-                </ul>
+                    </ul>
+                </div>
             </div>
-        </div>
+        </details>
     </div>
 
     <!-- Naming Format Issues Card -->
     <div class="card">
-        <h2>&#9888;&#65039; Naming Format Issues & Non-Compliant Files</h2>
-        <p class="hint">Green lines show the name CleanupMedia would give the file.</p>
-        <table>
-            <tr><th>Library</th><th>File Name</th><th>Detected Issue(s)</th><th>Directory</th><th>Size (GB)</th></tr>
-            <tr><td><span class="lib-tag">Plex</span></td><td><strong>Wonder Woman (1984) [2160p x265 HDR10].mkv</strong></td><td><span style="color: #ff9800; font-weight: bold;">File title doesn&#39;t match its folder</span></td><td style="color: #888; font-family: monospace; font-size: 12px;">P:\Movies\Wonder Woman 1984 (2020)</td><td style='white-space: nowrap;'>21.55 GB</td></tr>
+        <details class="sec">
+            <summary class="sec-title">&#9888;&#65039; Naming Format Issues & Non-Compliant Files <span class="sec-count"></span></summary>
+            <p class="hint">Green lines show the name CleanupMedia would give the file.</p>
+            <table>
+                <tr><th>Library</th><th>File Name</th><th>Detected Issue(s)</th><th>Directory</th><th>Size (GB)</th></tr>
+                <tr><td><span class="lib-tag">Plex</span></td><td><strong>Wonder Woman (1984) [2160p x265 HDR10].mkv</strong></td><td><span style="color: #ff9800; font-weight: bold;">File title doesn&#39;t match its folder</span></td><td style="color: #888; font-family: monospace; font-size: 12px;">P:\Movies\Wonder Woman 1984 (2020)</td><td style='white-space: nowrap;'>21.55 GB</td></tr>
 <tr><td><span class="lib-tag">Plex</span></td><td><strong>X-Men First Class (2011) [1080p x265 HDR10].mkv</strong></td><td><span style="color: #ff9800; font-weight: bold;">File title doesn&#39;t match its folder</span></td><td style="color: #888; font-family: monospace; font-size: 12px;">P:\Movies\X-Men - First Class (2001)</td><td style='white-space: nowrap;'>5.08 GB</td></tr>
-        </table>
+            </table>
+        </details>
     </div>
 
     <!-- Potential Conflicts Card -->
     <div class="card">
-        <h2>&#9888;&#65039; Potential Same Movie Names / File Conflicts</h2>
-        <p class="hint">Copies of the same movie (same edition and part). CleanupMedia keeps the best copy, plus one easy-to-play backup when the best is 4K or HDR / Dolby Vision; the rest are extra.</p>
-        <table>
-            <tr><th>Library</th><th>Movie / File Name</th><th>Extension</th><th>Directory</th><th>Size (GB)</th></tr>
-            <tr><td colspan='5' style='color: #888; text-align: center; padding: 14px;'>No extra copies - every title has one copy, or a best copy plus one backup.</td></tr>
-        </table>
+        <details class="sec">
+            <summary class="sec-title">&#9888;&#65039; Potential Same Movie Names / File Conflicts <span class="sec-count"></span></summary>
+            <p class="hint">Copies of the same movie (same edition and part). CleanupMedia keeps the best copy, plus one easy-to-play backup when the best is 4K or HDR / Dolby Vision; the rest are extra.</p>
+            <table>
+                <tr><th>Library</th><th>Movie / File Name</th><th>Extension</th><th>Directory</th><th>Size (GB)</th></tr>
+                <tr><td colspan='5' style='color: #888; text-align: center; padding: 14px;'>No extra copies - every title has one copy, or a best copy plus one backup.</td></tr>
+            </table>
+        </details>
     </div>
 
     <!-- Duplicate Movie Folders Card -->
     <div class="card">
-        <h2>&#128193; Duplicate Movie Folders (Cleanup Targets)</h2>
-        <table>
-            <tr><th>Normalized Title Match</th><th>Matching Folders</th><th>Directory</th></tr>
-            <tr><td colspan='3' style='color: #888; text-align: center; padding: 14px;'>No movie has more than one folder.</td></tr>
-        </table>
+        <details class="sec">
+            <summary class="sec-title">&#128193; Duplicate Movie Folders (Cleanup Targets) <span class="sec-count"></span></summary>
+            <table>
+                <tr><th>Normalized Title Match</th><th>Matching Folders</th><th>Directory</th></tr>
+                <tr><td colspan='3' style='color: #888; text-align: center; padding: 14px;'>No movie has more than one folder.</td></tr>
+            </table>
+        </details>
     </div>
 
     <!-- Oversized For Quality Card -->
     <div class="card">
-        <h2>&#128200; Oversized Files For Quality</h2>
-        <table>
-            <tr><th>Library</th><th>File Name</th><th>Resolution</th><th>Directory</th><th>Size (GB)</th></tr>
-            <tr><td colspan='5' style='color: #888; text-align: center; padding: 14px;'>Nothing is larger than its resolution needs.</td></tr>
-        </table>
+        <details class="sec">
+            <summary class="sec-title">&#128200; Oversized Files For Quality <span class="sec-count"></span></summary>
+            <table>
+                <tr><th>Library</th><th>File Name</th><th>Resolution</th><th>Directory</th><th>Size (GB)</th></tr>
+                <tr><td colspan='5' style='color: #888; text-align: center; padding: 14px;'>Nothing is larger than its resolution needs.</td></tr>
+            </table>
+        </details>
     </div>
 
     <!-- Potentially Fake / Too Small Card -->
     <div class="card">
-        <h2>&#128680; Potentially Fake / Too Small Files</h2>
-        <table>
-            <tr><th>Library</th><th>File Name</th><th>Resolution</th><th>Directory</th><th>Size (GB)</th></tr>
-            <tr><td><span class="lib-tag">Plex</span></td><td><strong>No Time to Die (2021) [2160p x265 SDR].mkv</strong><br><span class='hint'>2h 43m, about 6.4 Mbps - normal is 6.7-66.7 Mbps</span></td><td style='white-space: nowrap;'><span style="color: #e57373; font-weight: bold;">2160p</span><br><span class='hint'>SDR</span></td><td style="color: #888; font-family: monospace; font-size: 12px;">&#128193; P:\Movies\No Time to Die (2021)</td><td style='white-space: nowrap;'><strong style="color: #e57373;">7.29 GB</strong></td></tr>
+        <details class="sec">
+            <summary class="sec-title">&#128680; Potentially Fake / Too Small Files <span class="sec-count"></span></summary>
+            <table>
+                <tr><th>Library</th><th>File Name</th><th>Resolution</th><th>Directory</th><th>Size (GB)</th></tr>
+                <tr><td><span class="lib-tag">Plex</span></td><td><strong>No Time to Die (2021) [2160p x265 SDR].mkv</strong><br><span class='hint'>2h 43m, about 6.4 Mbps - normal is 6.7-66.7 Mbps</span></td><td style='white-space: nowrap;'><span style="color: #e57373; font-weight: bold;">2160p</span><br><span class='hint'>SDR</span></td><td style="color: #888; font-family: monospace; font-size: 12px;">&#128193; P:\Movies\No Time to Die (2021)</td><td style='white-space: nowrap;'><strong style="color: #e57373;">7.29 GB</strong></td></tr>
 <tr><td><span class="lib-tag">Plex</span></td><td><strong>Aquaman and the Lost Kingdom (2023) [2160p x265 Dolby Vision Atmos].mkv</strong><br><span class='hint'>2h 04m, about 8.4 Mbps - normal is 8.9-100 Mbps</span></td><td style='white-space: nowrap;'><span style="color: #e57373; font-weight: bold;">2160p</span><br><span class='hint'>Dolby Vision</span></td><td style="color: #888; font-family: monospace; font-size: 12px;">&#128193; P:\Movies\Aquaman and the Lost Kingdom (2023)</td><td style='white-space: nowrap;'><strong style="color: #e57373;">7.28 GB</strong></td></tr>
 <tr><td><span class="lib-tag">Plex</span></td><td><strong>Batman Returns (1992) [2160p x265 Dolby Vision].mkv</strong><br><span class='hint'>2h 06m, about 6 Mbps - normal is 6.7-100 Mbps (lowered for a 1992 film)</span></td><td style='white-space: nowrap;'><span style="color: #e57373; font-weight: bold;">2160p</span><br><span class='hint'>Dolby Vision</span></td><td style="color: #888; font-family: monospace; font-size: 12px;">&#128193; P:\Movies\Batman Returns (1992)</td><td style='white-space: nowrap;'><strong style="color: #e57373;">5.28 GB</strong></td></tr>
 <tr><td><span class="lib-tag">Plex</span></td><td><strong>The Dark Knight Rises (2012) [2160p x265 Dolby Vision].mkv</strong><br><span class='hint'>2h 44m, about 4.5 Mbps - normal is 8.9-100 Mbps</span></td><td style='white-space: nowrap;'><span style="color: #e57373; font-weight: bold;">2160p</span><br><span class='hint'>Dolby Vision</span></td><td style="color: #888; font-family: monospace; font-size: 12px;">&#128193; P:\Movies\The Dark Knight Rises (2012)</td><td style='white-space: nowrap;'><strong style="color: #e57373;">5.21 GB</strong></td></tr>
@@ -299,7 +319,8 @@
 <tr><td><span class="lib-tag">Plex</span></td><td><strong>Fantastic Beasts The Secrets of Dumbledore (2022) [2160p x265 Dolby Vision Atmos].mkv</strong><br><span class='hint'>2h 22m, about 3.5 Mbps - normal is 8.9-100 Mbps</span></td><td style='white-space: nowrap;'><span style="color: #e57373; font-weight: bold;">2160p</span><br><span class='hint'>Dolby Vision</span></td><td style="color: #888; font-family: monospace; font-size: 12px;">&#128193; P:\Movies\Fantastic Beasts The Secrets of Dumbledore (2022)</td><td style='white-space: nowrap;'><strong style="color: #e57373;">3.44 GB</strong></td></tr>
 <tr><td><span class="lib-tag">Plex</span></td><td><strong>8-Bit Christmas (2021) [1080p x265 SDR AAC].mkv</strong><br><span class='hint'>1h 37m, about 1.4 Mbps - normal is 1.7-50 Mbps</span></td><td style='white-space: nowrap;'><span style="color: #e57373; font-weight: bold;">1080p</span><br><span class='hint'>SDR</span></td><td style="color: #888; font-family: monospace; font-size: 12px;">&#128193; P:\Movies\8-Bit Christmas (2021)</td><td style='white-space: nowrap;'><strong style="color: #e57373;">0.97 GB</strong></td></tr>
 <tr><td><span class="lib-tag">Plex</span></td><td><strong>Straight Outta Compton (2015) [1080p x265 SDR].mkv</strong><br><span class='hint'>2h 26m, about 0.9 Mbps - normal is 1.7-50 Mbps</span></td><td style='white-space: nowrap;'><span style="color: #e57373; font-weight: bold;">1080p</span><br><span class='hint'>SDR</span></td><td style="color: #888; font-family: monospace; font-size: 12px;">&#128193; P:\Movies\Straight Outta Compton (2015)</td><td style='white-space: nowrap;'><strong style="color: #e57373;">0.94 GB</strong></td></tr>
-        </table>
+            </table>
+        </details>
     </div>
 
     <!-- Multi-Part Files Report Card (Collapsible, Directory-Grouped Sections) -->
@@ -496,11 +517,12 @@
             </summary>
             <div style="margin-top: 15px;">
                 <table>
-                    <tr><th>Library</th><th>Movie / File Name</th><th>Current Format</th><th>Directory</th><th>Size (GB)</th></tr>
+                    <tr><th>Library</th><th>Movie / File Name</th><th>Current Format</th><th>Streaming (subscription)</th><th>Directory</th><th>Size (GB)</th></tr>
                     <tr>
         <td><span class="lib-tag">Plex</span></td>
         <td><strong>Aquaman and the Lost Kingdom (2023)</strong><br><span style="color: #888; font-size: 12px;">Aquaman and the Lost Kingdom (2023) [2160p x265 Dolby Vision Atmos].mkv</span></td>
         <td style='white-space: nowrap;'><span style='color: #4fc3f7;'>2160p x265 / Dolby Vision</span><br><span style='color: #aaa; font-size: 12px;'>Dolby Atmos</span></td>
+        <td><span class='sp'>HBO Max</span></td>
         <td style="color: #888; font-family: monospace; font-size: 12px;">&#128193; P:\Movies\Aquaman and the Lost Kingdom (2023)</td>
         <td style='white-space: nowrap;'>7.28 GB</td>
      </tr>
@@ -508,6 +530,7 @@
         <td><span class="lib-tag">Plex</span></td>
         <td><strong>Avatar - Fire and Ash (2025)</strong><br><span style="color: #888; font-size: 12px;">Avatar - Fire and Ash (2025) [2160p x265 Dolby Vision Atmos].mkv</span></td>
         <td style='white-space: nowrap;'><span style='color: #4fc3f7;'>2160p x265 / Dolby Vision</span><br><span style='color: #aaa; font-size: 12px;'>Dolby Atmos</span></td>
+        <td><span class='sp'>Disney Plus</span></td>
         <td style="color: #888; font-family: monospace; font-size: 12px;">&#128193; P:\Movies\Avatar - Fire and Ash (2025)</td>
         <td style='white-space: nowrap;'>23.99 GB</td>
      </tr>
@@ -515,6 +538,7 @@
         <td><span class="lib-tag">Plex</span></td>
         <td><strong>Avatar - The Way of Water (2022)</strong><br><span style="color: #888; font-size: 12px;">Avatar - The Way of Water (2022) [2160p x265 Dolby Vision Atmos].mkv</span></td>
         <td style='white-space: nowrap;'><span style='color: #4fc3f7;'>2160p x265 / Dolby Vision</span><br><span style='color: #aaa; font-size: 12px;'>Dolby Atmos</span></td>
+        <td><span class='sp'>Disney Plus</span></td>
         <td style="color: #888; font-family: monospace; font-size: 12px;">&#128193; P:\Movies\Avatar - The Way of Water (2022)</td>
         <td style='white-space: nowrap;'>23.30 GB</td>
      </tr>
@@ -522,6 +546,7 @@
         <td><span class="lib-tag">Plex</span></td>
         <td><strong>Avatar (2009)</strong><br><span style="color: #888; font-size: 12px;">Avatar (2009) [2160p x265 Dolby Vision Atmos].mkv</span></td>
         <td style='white-space: nowrap;'><span style='color: #4fc3f7;'>2160p x265 / Dolby Vision</span><br><span style='color: #aaa; font-size: 12px;'>Dolby Atmos</span></td>
+        <td><span class='sp'>Disney Plus</span></td>
         <td style="color: #888; font-family: monospace; font-size: 12px;">&#128193; P:\Movies\Avatar (2009)</td>
         <td style='white-space: nowrap;'>19.80 GB</td>
      </tr>
@@ -529,6 +554,7 @@
         <td><span class="lib-tag">Plex</span></td>
         <td><strong>Batman Forever (1995)</strong><br><span style="color: #888; font-size: 12px;">Batman Forever (1995) [2160p x265 Dolby Vision].mkv</span></td>
         <td style='white-space: nowrap;'><span style='color: #4fc3f7;'>2160p x265 / Dolby Vision</span><br><span style='color: #aaa; font-size: 12px;'>Audio not tagged</span></td>
+        <td><span class='sp'>HBO Max</span></td>
         <td style="color: #888; font-family: monospace; font-size: 12px;">&#128193; P:\Movies\Batman Forever (1995)</td>
         <td style='white-space: nowrap;'>7.26 GB</td>
      </tr>
@@ -536,6 +562,7 @@
         <td><span class="lib-tag">Plex</span></td>
         <td><strong>Batman Returns (1992)</strong><br><span style="color: #888; font-size: 12px;">Batman Returns (1992) [2160p x265 Dolby Vision].mkv</span></td>
         <td style='white-space: nowrap;'><span style='color: #4fc3f7;'>2160p x265 / Dolby Vision</span><br><span style='color: #aaa; font-size: 12px;'>Audio not tagged</span></td>
+        <td><span class='sp'>HBO Max</span></td>
         <td style="color: #888; font-family: monospace; font-size: 12px;">&#128193; P:\Movies\Batman Returns (1992)</td>
         <td style='white-space: nowrap;'>5.28 GB</td>
      </tr>
@@ -543,6 +570,7 @@
         <td><span class="lib-tag">Plex</span></td>
         <td><strong>Batman v Superman - Dawn of Justice (2016)</strong><br><span style="color: #888; font-size: 12px;">Batman v Superman - Dawn of Justice (2016) [2160p x265 Dolby Vision Atmos].mkv</span></td>
         <td style='white-space: nowrap;'><span style='color: #4fc3f7;'>2160p x265 / Dolby Vision</span><br><span style='color: #aaa; font-size: 12px;'>Dolby Atmos</span></td>
+        <td><span class='sp'>HBO Max</span></td>
         <td style="color: #888; font-family: monospace; font-size: 12px;">&#128193; P:\Movies\Batman v Superman - Dawn of Justice (2016)</td>
         <td style='white-space: nowrap;'>26.24 GB</td>
      </tr>
@@ -550,6 +578,7 @@
         <td><span class="lib-tag">Plex</span></td>
         <td><strong>Beetlejuice Beetlejuice (2024)</strong><br><span style="color: #888; font-size: 12px;">Beetlejuice Beetlejuice (2024) [2160p x265 Dolby Vision Atmos].mkv</span></td>
         <td style='white-space: nowrap;'><span style='color: #4fc3f7;'>2160p x265 / Dolby Vision</span><br><span style='color: #aaa; font-size: 12px;'>Dolby Atmos</span></td>
+        <td><span class='sp'>HBO Max</span></td>
         <td style="color: #888; font-family: monospace; font-size: 12px;">&#128193; P:\Movies\Beetlejuice Beetlejuice (2024)</td>
         <td style='white-space: nowrap;'>15.10 GB</td>
      </tr>
@@ -557,6 +586,7 @@
         <td><span class="lib-tag">Plex</span></td>
         <td><strong>Deadpool &amp; Wolverine (2024)</strong><br><span style="color: #888; font-size: 12px;">Deadpool &amp; Wolverine (2024) [2160p x265 Dolby Vision Atmos].mkv</span></td>
         <td style='white-space: nowrap;'><span style='color: #4fc3f7;'>2160p x265 / Dolby Vision</span><br><span style='color: #aaa; font-size: 12px;'>Dolby Atmos</span></td>
+        <td><span class='sp'>Disney Plus</span></td>
         <td style="color: #888; font-family: monospace; font-size: 12px;">&#128193; P:\Movies\Deadpool &amp; Wolverine (2024)</td>
         <td style='white-space: nowrap;'>15.52 GB</td>
      </tr>
@@ -564,6 +594,7 @@
         <td><span class="lib-tag">Plex</span></td>
         <td><strong>Deadpool (2016)</strong><br><span style="color: #888; font-size: 12px;">Deadpool (2016) [2160p x265 Dolby Vision Atmos].mkv</span></td>
         <td style='white-space: nowrap;'><span style='color: #4fc3f7;'>2160p x265 / Dolby Vision</span><br><span style='color: #aaa; font-size: 12px;'>Dolby Atmos</span></td>
+        <td><span class='sp'>Disney Plus</span></td>
         <td style="color: #888; font-family: monospace; font-size: 12px;">&#128193; P:\Movies\Deadpool (2016)</td>
         <td style='white-space: nowrap;'>13.01 GB</td>
      </tr>
@@ -571,6 +602,7 @@
         <td><span class="lib-tag">Plex</span></td>
         <td><strong>Deadwood - The Movie (2019)</strong><br><span style="color: #888; font-size: 12px;">Deadwood - The Movie (2019) [2160p x265 Dolby Vision].mkv</span></td>
         <td style='white-space: nowrap;'><span style='color: #4fc3f7;'>2160p x265 / Dolby Vision</span><br><span style='color: #aaa; font-size: 12px;'>Audio not tagged</span></td>
+        <td><span class='sp'>HBO Max</span></td>
         <td style="color: #888; font-family: monospace; font-size: 12px;">&#128193; P:\Movies\Deadwood - The Movie (2019)</td>
         <td style='white-space: nowrap;'>9.04 GB</td>
      </tr>
@@ -578,6 +610,7 @@
         <td><span class="lib-tag">Plex</span></td>
         <td><strong>Dune - Part Two (2024)</strong><br><span style="color: #888; font-size: 12px;">Dune - Part Two (2024) [2160p x265 Dolby Vision Atmos].mkv</span></td>
         <td style='white-space: nowrap;'><span style='color: #4fc3f7;'>2160p x265 / Dolby Vision</span><br><span style='color: #aaa; font-size: 12px;'>Dolby Atmos</span></td>
+        <td><span class='sp'>HBO Max</span></td>
         <td style="color: #888; font-family: monospace; font-size: 12px;">&#128193; P:\Movies\Dune - Part Two (2024)</td>
         <td style='white-space: nowrap;'>15.77 GB</td>
      </tr>
@@ -585,6 +618,7 @@
         <td><span class="lib-tag">Plex</span></td>
         <td><strong>Dune (2021)</strong><br><span style="color: #888; font-size: 12px;">Dune (2021) [2160p x265 Dolby Vision Atmos].mkv</span></td>
         <td style='white-space: nowrap;'><span style='color: #4fc3f7;'>2160p x265 / Dolby Vision</span><br><span style='color: #aaa; font-size: 12px;'>Dolby Atmos</span></td>
+        <td><span class='sp'>HBO Max</span></td>
         <td style="color: #888; font-family: monospace; font-size: 12px;">&#128193; P:\Movies\Dune (2021)</td>
         <td style='white-space: nowrap;'>18.81 GB</td>
      </tr>
@@ -592,6 +626,7 @@
         <td><span class="lib-tag">Plex</span></td>
         <td><strong>Eddington (2025)</strong><br><span style="color: #888; font-size: 12px;">Eddington (2025) [2160p x265 Dolby Vision].mkv</span></td>
         <td style='white-space: nowrap;'><span style='color: #4fc3f7;'>2160p x265 / Dolby Vision</span><br><span style='color: #aaa; font-size: 12px;'>Audio not tagged</span></td>
+        <td><span class='sp'>HBO Max</span></td>
         <td style="color: #888; font-family: monospace; font-size: 12px;">&#128193; P:\Movies\Eddington (2025)</td>
         <td style='white-space: nowrap;'>4.74 GB</td>
      </tr>
@@ -599,6 +634,7 @@
         <td><span class="lib-tag">Plex</span></td>
         <td><strong>Elf (2003)</strong><br><span style="color: #888; font-size: 12px;">Elf (2003) [2160p x265 Dolby Vision].mkv</span></td>
         <td style='white-space: nowrap;'><span style='color: #4fc3f7;'>2160p x265 / Dolby Vision</span><br><span style='color: #aaa; font-size: 12px;'>Audio not tagged</span></td>
+        <td><span class='sp'>Amazon Prime Video</span><span class='sp'>HBO Max</span></td>
         <td style="color: #888; font-family: monospace; font-size: 12px;">&#128193; P:\Movies\Elf (2003)</td>
         <td style='white-space: nowrap;'>14.92 GB</td>
      </tr>
@@ -606,6 +642,7 @@
         <td><span class="lib-tag">Plex</span></td>
         <td><strong>Ender&#39;s Game (2013)</strong><br><span style="color: #888; font-size: 12px;">Ender&#39;s Game (2013) [2160p x265 Dolby Vision TrueHD Atmos].mkv</span></td>
         <td style='white-space: nowrap;'><span style='color: #4fc3f7;'>2160p x265 / Dolby Vision</span><br><span style='color: #aaa; font-size: 12px;'>Dolby Atmos / TrueHD (Lossless)</span></td>
+        <td><span class='sp'>Angel Studios</span></td>
         <td style="color: #888; font-family: monospace; font-size: 12px;">&#128193; P:\Movies\Ender&#39;s Game (2013)</td>
         <td style='white-space: nowrap;'>53.26 GB</td>
      </tr>
@@ -613,6 +650,7 @@
         <td><span class="lib-tag">Plex</span></td>
         <td><strong>Fantastic Beasts and Where to Find Them (2016)</strong><br><span style="color: #888; font-size: 12px;">Fantastic Beasts and Where to Find Them (2016) [2160p x265 Dolby Vision Atmos].mkv</span></td>
         <td style='white-space: nowrap;'><span style='color: #4fc3f7;'>2160p x265 / Dolby Vision</span><br><span style='color: #aaa; font-size: 12px;'>Dolby Atmos</span></td>
+        <td><span class='sp'>Peacock Premium</span><span class='sp'>HBO Max</span><span class='sp'>Peacock Premium Plus</span></td>
         <td style="color: #888; font-family: monospace; font-size: 12px;">&#128193; P:\Movies\Fantastic Beasts and Where to Find Them (2016)</td>
         <td style='white-space: nowrap;'>11.95 GB</td>
      </tr>
@@ -620,6 +658,7 @@
         <td><span class="lib-tag">Plex</span></td>
         <td><strong>Fantastic Beasts The Secrets of Dumbledore (2022)</strong><br><span style="color: #888; font-size: 12px;">Fantastic Beasts The Secrets of Dumbledore (2022) [2160p x265 Dolby Vision Atmos].mkv</span></td>
         <td style='white-space: nowrap;'><span style='color: #4fc3f7;'>2160p x265 / Dolby Vision</span><br><span style='color: #aaa; font-size: 12px;'>Dolby Atmos</span></td>
+        <td><span class='sp'>Peacock Premium</span><span class='sp'>HBO Max</span><span class='sp'>Peacock Premium Plus</span></td>
         <td style="color: #888; font-family: monospace; font-size: 12px;">&#128193; P:\Movies\Fantastic Beasts The Secrets of Dumbledore (2022)</td>
         <td style='white-space: nowrap;'>3.44 GB</td>
      </tr>
@@ -627,6 +666,7 @@
         <td><span class="lib-tag">Plex</span></td>
         <td><strong>Furiosa - A Mad Max Saga (2024)</strong><br><span style="color: #888; font-size: 12px;">Furiosa - A Mad Max Saga (2024) [2160p x265 Dolby Vision Atmos].mkv</span></td>
         <td style='white-space: nowrap;'><span style='color: #4fc3f7;'>2160p x265 / Dolby Vision</span><br><span style='color: #aaa; font-size: 12px;'>Dolby Atmos</span></td>
+        <td><span class='sp'>HBO Max</span></td>
         <td style="color: #888; font-family: monospace; font-size: 12px;">&#128193; P:\Movies\Furiosa - A Mad Max Saga (2024)</td>
         <td style='white-space: nowrap;'>21.34 GB</td>
      </tr>
@@ -634,6 +674,7 @@
         <td><span class="lib-tag">Plex</span></td>
         <td><strong>Grease (1978)</strong><br><span style="color: #888; font-size: 12px;">Grease (1978) [1080p x265 Dolby Vision EAC3].mkv</span></td>
         <td style='white-space: nowrap;'><span style='color: #4fc3f7;'>1080p x265 / Dolby Vision</span><br><span style='color: #aaa; font-size: 12px;'>Dolby Digital Plus (EAC3)</span></td>
+        <td><span class='sp-none'>not on a subscription service</span></td>
         <td style="color: #888; font-family: monospace; font-size: 12px;">&#128193; P:\Movies\Grease (1978)</td>
         <td style='white-space: nowrap;'>6.30 GB</td>
      </tr>
@@ -641,6 +682,7 @@
         <td><span class="lib-tag">Plex</span></td>
         <td><strong>Guardians of the Galaxy (2014)</strong><br><span style="color: #888; font-size: 12px;">Guardians of the Galaxy (2014) [2160p x265 Dolby Vision Atmos].mkv</span></td>
         <td style='white-space: nowrap;'><span style='color: #4fc3f7;'>2160p x265 / Dolby Vision</span><br><span style='color: #aaa; font-size: 12px;'>Dolby Atmos</span></td>
+        <td><span class='sp'>Disney Plus</span></td>
         <td style="color: #888; font-family: monospace; font-size: 12px;">&#128193; P:\Movies\Guardians of the Galaxy (2014)</td>
         <td style='white-space: nowrap;'>14.65 GB</td>
      </tr>
@@ -648,6 +690,7 @@
         <td><span class="lib-tag">Plex</span></td>
         <td><strong>Guardians of the Galaxy Vol. 2 (2017)</strong><br><span style="color: #888; font-size: 12px;">Guardians of the Galaxy Vol. 2 (2017) [2160p x265 Dolby Vision Atmos].mkv</span></td>
         <td style='white-space: nowrap;'><span style='color: #4fc3f7;'>2160p x265 / Dolby Vision</span><br><span style='color: #aaa; font-size: 12px;'>Dolby Atmos</span></td>
+        <td><span class='sp'>Disney Plus</span></td>
         <td style="color: #888; font-family: monospace; font-size: 12px;">&#128193; P:\Movies\Guardians of the Galaxy Vol. 2 (2017)</td>
         <td style='white-space: nowrap;'>16.35 GB</td>
      </tr>
@@ -655,6 +698,7 @@
         <td><span class="lib-tag">Plex</span></td>
         <td><strong>Guardians of the Galaxy Vol. 3 (2023)</strong><br><span style="color: #888; font-size: 12px;">Guardians of the Galaxy Vol. 3 (2023) [2160p x265 Dolby Vision Atmos].mkv</span></td>
         <td style='white-space: nowrap;'><span style='color: #4fc3f7;'>2160p x265 / Dolby Vision</span><br><span style='color: #aaa; font-size: 12px;'>Dolby Atmos</span></td>
+        <td><span class='sp'>Disney Plus</span></td>
         <td style="color: #888; font-family: monospace; font-size: 12px;">&#128193; P:\Movies\Guardians of the Galaxy Vol. 3 (2023)</td>
         <td style='white-space: nowrap;'>18.17 GB</td>
      </tr>
@@ -662,6 +706,7 @@
         <td><span class="lib-tag">Plex</span></td>
         <td><strong>Harry Potter and the Chamber of Secrets (2002)</strong><br><span style="color: #888; font-size: 12px;">Harry Potter and the Chamber of Secrets (2002) [2160p x265 Dolby Vision].mkv</span></td>
         <td style='white-space: nowrap;'><span style='color: #4fc3f7;'>2160p x265 / Dolby Vision</span><br><span style='color: #aaa; font-size: 12px;'>Audio not tagged</span></td>
+        <td><span class='sp'>Peacock Premium</span><span class='sp'>HBO Max</span><span class='sp'>Peacock Premium Plus</span></td>
         <td style="color: #888; font-family: monospace; font-size: 12px;">&#128193; P:\Movies\Harry Potter and the Chamber of Secrets (2002)</td>
         <td style='white-space: nowrap;'>12.41 GB</td>
      </tr>
@@ -669,6 +714,7 @@
         <td><span class="lib-tag">Plex</span></td>
         <td><strong>Harry Potter and the Deathly Hallows Part 1 (2010)</strong><br><span style="color: #888; font-size: 12px;">Harry Potter and the Deathly Hallows Part 1 (2010) [2160p x265 Dolby Vision].mkv</span></td>
         <td style='white-space: nowrap;'><span style='color: #4fc3f7;'>2160p x265 / Dolby Vision</span><br><span style='color: #aaa; font-size: 12px;'>Audio not tagged</span></td>
+        <td><span class='sp'>Peacock Premium</span><span class='sp'>HBO Max</span><span class='sp'>Peacock Premium Plus</span></td>
         <td style="color: #888; font-family: monospace; font-size: 12px;">&#128193; P:\Movies\Harry Potter and the Deathly Hallows Part 1 (2010)</td>
         <td style='white-space: nowrap;'>10.74 GB</td>
      </tr>
@@ -676,6 +722,7 @@
         <td><span class="lib-tag">Plex</span></td>
         <td><strong>Harry Potter and the Deathly Hallows Part 2 (2011)</strong><br><span style="color: #888; font-size: 12px;">Harry Potter and the Deathly Hallows Part 2 (2011) [2160p x265 Dolby Vision].mkv</span></td>
         <td style='white-space: nowrap;'><span style='color: #4fc3f7;'>2160p x265 / Dolby Vision</span><br><span style='color: #aaa; font-size: 12px;'>Audio not tagged</span></td>
+        <td><span class='sp'>Peacock Premium</span><span class='sp'>HBO Max</span><span class='sp'>Peacock Premium Plus</span></td>
         <td style="color: #888; font-family: monospace; font-size: 12px;">&#128193; P:\Movies\Harry Potter and the Deathly Hallows Part 2 (2011)</td>
         <td style='white-space: nowrap;'>17.75 GB</td>
      </tr>
@@ -683,6 +730,7 @@
         <td><span class="lib-tag">Plex</span></td>
         <td><strong>Harry Potter and the Half-Blood Prince (2009)</strong><br><span style="color: #888; font-size: 12px;">Harry Potter and the Half-Blood Prince (2009) [2160p x265 Dolby Vision].mkv</span></td>
         <td style='white-space: nowrap;'><span style='color: #4fc3f7;'>2160p x265 / Dolby Vision</span><br><span style='color: #aaa; font-size: 12px;'>Audio not tagged</span></td>
+        <td><span class='sp'>Peacock Premium</span><span class='sp'>HBO Max</span><span class='sp'>Peacock Premium Plus</span></td>
         <td style="color: #888; font-family: monospace; font-size: 12px;">&#128193; P:\Movies\Harry Potter and the Half-Blood Prince (2009)</td>
         <td style='white-space: nowrap;'>9.03 GB</td>
      </tr>
@@ -690,6 +738,7 @@
         <td><span class="lib-tag">Plex</span></td>
         <td><strong>Harry Potter and the Prisoner of Azkaban (2004)</strong><br><span style="color: #888; font-size: 12px;">Harry Potter and the Prisoner of Azkaban (2004) [2160p x265 Dolby Vision].mkv</span></td>
         <td style='white-space: nowrap;'><span style='color: #4fc3f7;'>2160p x265 / Dolby Vision</span><br><span style='color: #aaa; font-size: 12px;'>Audio not tagged</span></td>
+        <td><span class='sp'>Peacock Premium</span><span class='sp'>HBO Max</span><span class='sp'>Peacock Premium Plus</span></td>
         <td style="color: #888; font-family: monospace; font-size: 12px;">&#128193; P:\Movies\Harry Potter and the Prisoner of Azkaban (2004)</td>
         <td style='white-space: nowrap;'>15.52 GB</td>
      </tr>
@@ -697,6 +746,7 @@
         <td><span class="lib-tag">Plex</span></td>
         <td><strong>National Lampoon&#39;s Christmas Vacation (1989)</strong><br><span style="color: #888; font-size: 12px;">National Lampoon&#39;s Christmas Vacation (1989) [2160p x265 Dolby Vision].mkv</span></td>
         <td style='white-space: nowrap;'><span style='color: #4fc3f7;'>2160p x265 / Dolby Vision</span><br><span style='color: #aaa; font-size: 12px;'>Audio not tagged</span></td>
+        <td><span class='sp'>HBO Max</span></td>
         <td style="color: #888; font-family: monospace; font-size: 12px;">&#128193; P:\Movies\National Lampoon&#39;s Christmas Vacation (1989)</td>
         <td style='white-space: nowrap;'>14.91 GB</td>
      </tr>
@@ -704,6 +754,7 @@
         <td><span class="lib-tag">Plex</span></td>
         <td><strong>Natural Born Killers (1994)</strong><br><span style="color: #888; font-size: 12px;">Natural Born Killers (1994) [1080p x265 Dolby Vision EAC3].mkv</span></td>
         <td style='white-space: nowrap;'><span style='color: #4fc3f7;'>1080p x265 / Dolby Vision</span><br><span style='color: #aaa; font-size: 12px;'>Dolby Digital Plus (EAC3)</span></td>
+        <td><span class='sp-none'>not on a subscription service</span></td>
         <td style="color: #888; font-family: monospace; font-size: 12px;">&#128193; P:\Movies\Natural Born Killers (1994)</td>
         <td style='white-space: nowrap;'>6.98 GB</td>
      </tr>
@@ -711,6 +762,7 @@
         <td><span class="lib-tag">Plex</span></td>
         <td><strong>Riddick (2013)</strong><br><span style="color: #888; font-size: 12px;">Riddick (2013) [1080p x265 Dolby Vision EAC3].mkv</span></td>
         <td style='white-space: nowrap;'><span style='color: #4fc3f7;'>1080p x265 / Dolby Vision</span><br><span style='color: #aaa; font-size: 12px;'>Dolby Digital Plus (EAC3)</span></td>
+        <td><span class='sp-none'>not on a subscription service</span></td>
         <td style="color: #888; font-family: monospace; font-size: 12px;">&#128193; P:\Movies\Riddick (2013)</td>
         <td style='white-space: nowrap;'>6.91 GB</td>
      </tr>
@@ -718,6 +770,7 @@
         <td><span class="lib-tag">Plex</span></td>
         <td><strong>Speed (1994)</strong><br><span style="color: #888; font-size: 12px;">Speed (1994) [1080p x265 Dolby Vision EAC3].mkv</span></td>
         <td style='white-space: nowrap;'><span style='color: #4fc3f7;'>1080p x265 / Dolby Vision</span><br><span style='color: #aaa; font-size: 12px;'>Dolby Digital Plus (EAC3)</span></td>
+        <td><span class='sp-none'>not on a subscription service</span></td>
         <td style="color: #888; font-family: monospace; font-size: 12px;">&#128193; P:\Movies\Speed (1994)</td>
         <td style='white-space: nowrap;'>6.83 GB</td>
      </tr>
@@ -725,6 +778,7 @@
         <td><span class="lib-tag">Plex</span></td>
         <td><strong>Star Wars - A New Hope (1977)</strong><br><span style="color: #888; font-size: 12px;">Star Wars - A New Hope (1977) [2160p x265 Dolby Vision Atmos].mkv</span></td>
         <td style='white-space: nowrap;'><span style='color: #4fc3f7;'>2160p x265 / Dolby Vision</span><br><span style='color: #aaa; font-size: 12px;'>Dolby Atmos</span></td>
+        <td><span class='sp-none'>not found on TMDB</span></td>
         <td style="color: #888; font-family: monospace; font-size: 12px;">&#128193; P:\Movies\Star Wars - A New Hope (1977)</td>
         <td style='white-space: nowrap;'>15.12 GB</td>
      </tr>
@@ -732,6 +786,7 @@
         <td><span class="lib-tag">Plex</span></td>
         <td><strong>Star Wars - Attack of the Clones (2002)</strong><br><span style="color: #888; font-size: 12px;">Star Wars - Attack of the Clones (2002) [2160p x265 Dolby Vision Atmos].mkv</span></td>
         <td style='white-space: nowrap;'><span style='color: #4fc3f7;'>2160p x265 / Dolby Vision</span><br><span style='color: #aaa; font-size: 12px;'>Dolby Atmos</span></td>
+        <td><span class='sp-none'>not found on TMDB</span></td>
         <td style="color: #888; font-family: monospace; font-size: 12px;">&#128193; P:\Movies\Star Wars - Attack of the Clones (2002)</td>
         <td style='white-space: nowrap;'>17.25 GB</td>
      </tr>
@@ -739,6 +794,7 @@
         <td><span class="lib-tag">Plex</span></td>
         <td><strong>Star Wars - Return of the Jedi (1983)</strong><br><span style="color: #888; font-size: 12px;">Star Wars - Return of the Jedi (1983) [2160p x265 Dolby Vision Atmos].mkv</span></td>
         <td style='white-space: nowrap;'><span style='color: #4fc3f7;'>2160p x265 / Dolby Vision</span><br><span style='color: #aaa; font-size: 12px;'>Dolby Atmos</span></td>
+        <td><span class='sp-none'>not found on TMDB</span></td>
         <td style="color: #888; font-family: monospace; font-size: 12px;">&#128193; P:\Movies\Star Wars - Return of the Jedi (1983)</td>
         <td style='white-space: nowrap;'>16.21 GB</td>
      </tr>
@@ -746,6 +802,7 @@
         <td><span class="lib-tag">Plex</span></td>
         <td><strong>Star Wars - Revenge of the Sith (2005)</strong><br><span style="color: #888; font-size: 12px;">Star Wars - Revenge of the Sith (2005) [2160p x265 Dolby Vision Atmos].mkv</span></td>
         <td style='white-space: nowrap;'><span style='color: #4fc3f7;'>2160p x265 / Dolby Vision</span><br><span style='color: #aaa; font-size: 12px;'>Dolby Atmos</span></td>
+        <td><span class='sp-none'>not found on TMDB</span></td>
         <td style="color: #888; font-family: monospace; font-size: 12px;">&#128193; P:\Movies\Star Wars - Revenge of the Sith (2005)</td>
         <td style='white-space: nowrap;'>16.80 GB</td>
      </tr>
@@ -753,6 +810,7 @@
         <td><span class="lib-tag">Plex</span></td>
         <td><strong>Star Wars - Rogue One (2016)</strong><br><span style="color: #888; font-size: 12px;">Star Wars - Rogue One (2016) [2160p x265 Dolby Vision Atmos].mkv</span></td>
         <td style='white-space: nowrap;'><span style='color: #4fc3f7;'>2160p x265 / Dolby Vision</span><br><span style='color: #aaa; font-size: 12px;'>Dolby Atmos</span></td>
+        <td><span class='sp-none'>not found on TMDB</span></td>
         <td style="color: #888; font-family: monospace; font-size: 12px;">&#128193; P:\Movies\Star Wars - Rogue One (2016)</td>
         <td style='white-space: nowrap;'>16.21 GB</td>
      </tr>
@@ -760,6 +818,7 @@
         <td><span class="lib-tag">Plex</span></td>
         <td><strong>Star Wars - Solo (2018)</strong><br><span style="color: #888; font-size: 12px;">Star Wars - Solo (2018) [2160p x265 Dolby Vision Atmos].mkv</span></td>
         <td style='white-space: nowrap;'><span style='color: #4fc3f7;'>2160p x265 / Dolby Vision</span><br><span style='color: #aaa; font-size: 12px;'>Dolby Atmos</span></td>
+        <td><span class='sp-none'>not found on TMDB</span></td>
         <td style="color: #888; font-family: monospace; font-size: 12px;">&#128193; P:\Movies\Star Wars - Solo (2018)</td>
         <td style='white-space: nowrap;'>16.11 GB</td>
      </tr>
@@ -767,6 +826,7 @@
         <td><span class="lib-tag">Plex</span></td>
         <td><strong>Star Wars - The Empire Strikes Back (1980)</strong><br><span style="color: #888; font-size: 12px;">Star Wars - The Empire Strikes Back (1980) [2160p x265 Dolby Vision Atmos].mkv</span></td>
         <td style='white-space: nowrap;'><span style='color: #4fc3f7;'>2160p x265 / Dolby Vision</span><br><span style='color: #aaa; font-size: 12px;'>Dolby Atmos</span></td>
+        <td><span class='sp-none'>not found on TMDB</span></td>
         <td style="color: #888; font-family: monospace; font-size: 12px;">&#128193; P:\Movies\Star Wars - The Empire Strikes Back (1980)</td>
         <td style='white-space: nowrap;'>15.37 GB</td>
      </tr>
@@ -774,6 +834,7 @@
         <td><span class="lib-tag">Plex</span></td>
         <td><strong>The Dark Knight (2008)</strong><br><span style="color: #888; font-size: 12px;">The Dark Knight (2008) [2160p x265 Dolby Vision].mkv</span></td>
         <td style='white-space: nowrap;'><span style='color: #4fc3f7;'>2160p x265 / Dolby Vision</span><br><span style='color: #aaa; font-size: 12px;'>Audio not tagged</span></td>
+        <td><span class='sp'>HBO Max</span></td>
         <td style="color: #888; font-family: monospace; font-size: 12px;">&#128193; P:\Movies\The Dark Knight (2008)</td>
         <td style='white-space: nowrap;'>8.09 GB</td>
      </tr>
@@ -781,6 +842,7 @@
         <td><span class="lib-tag">Plex</span></td>
         <td><strong>The Dark Knight Rises (2012)</strong><br><span style="color: #888; font-size: 12px;">The Dark Knight Rises (2012) [2160p x265 Dolby Vision].mkv</span></td>
         <td style='white-space: nowrap;'><span style='color: #4fc3f7;'>2160p x265 / Dolby Vision</span><br><span style='color: #aaa; font-size: 12px;'>Audio not tagged</span></td>
+        <td><span class='sp'>HBO Max</span></td>
         <td style="color: #888; font-family: monospace; font-size: 12px;">&#128193; P:\Movies\The Dark Knight Rises (2012)</td>
         <td style='white-space: nowrap;'>5.21 GB</td>
      </tr>
@@ -788,6 +850,7 @@
         <td><span class="lib-tag">Plex</span></td>
         <td><strong>The Equalizer 2 (2018)</strong><br><span style="color: #888; font-size: 12px;">The Equalizer 2 (2018) [2160p x265 Dolby Vision TrueHD Atmos].mkv</span></td>
         <td style='white-space: nowrap;'><span style='color: #4fc3f7;'>2160p x265 / Dolby Vision</span><br><span style='color: #aaa; font-size: 12px;'>Dolby Atmos / TrueHD (Lossless)</span></td>
+        <td><span class='sp'>Paramount Plus Premium</span><span class='sp'>Paramount Plus Essential</span></td>
         <td style="color: #888; font-family: monospace; font-size: 12px;">&#128193; P:\Movies\The Equalizer 2 (2018)</td>
         <td style='white-space: nowrap;'>44.49 GB</td>
      </tr>
@@ -795,6 +858,7 @@
         <td><span class="lib-tag">Plex</span></td>
         <td><strong>The Equalizer 3 (2023)</strong><br><span style="color: #888; font-size: 12px;">The Equalizer 3 (2023) [2160p x265 Dolby Vision TrueHD Atmos].mkv</span></td>
         <td style='white-space: nowrap;'><span style='color: #4fc3f7;'>2160p x265 / Dolby Vision</span><br><span style='color: #aaa; font-size: 12px;'>Dolby Atmos / TrueHD (Lossless)</span></td>
+        <td><span class='sp'>Hulu</span><span class='sp'>FXNow</span><span class='sp'>HBO Max</span></td>
         <td style="color: #888; font-family: monospace; font-size: 12px;">&#128193; P:\Movies\The Equalizer 3 (2023)</td>
         <td style='white-space: nowrap;'>43.04 GB</td>
      </tr>
@@ -802,6 +866,7 @@
         <td><span class="lib-tag">Plex</span></td>
         <td><strong>The Fate of the Furious (2017)</strong><br><span style="color: #888; font-size: 12px;">The Fate of the Furious (2017) [2160p x265 Dolby Vision].mkv</span></td>
         <td style='white-space: nowrap;'><span style='color: #4fc3f7;'>2160p x265 / Dolby Vision</span><br><span style='color: #aaa; font-size: 12px;'>Audio not tagged</span></td>
+        <td><span class='sp'>Netflix</span><span class='sp'>FXNow</span></td>
         <td style="color: #888; font-family: monospace; font-size: 12px;">&#128193; P:\Movies\The Fate of the Furious (2017)</td>
         <td style='white-space: nowrap;'>45.14 GB</td>
      </tr>
@@ -809,6 +874,7 @@
         <td><span class="lib-tag">Plex</span></td>
         <td><strong>The Hobbit An Unexpected Journey (2012)</strong><br><span style="color: #888; font-size: 12px;">The Hobbit An Unexpected Journey (2012) [2160p x265 Dolby Vision Atmos].mkv</span></td>
         <td style='white-space: nowrap;'><span style='color: #4fc3f7;'>2160p x265 / Dolby Vision</span><br><span style='color: #aaa; font-size: 12px;'>Dolby Atmos</span></td>
+        <td><span class='sp'>HBO Max</span></td>
         <td style="color: #888; font-family: monospace; font-size: 12px;">&#128193; P:\Movies\The Hobbit An Unexpected Journey (2012)</td>
         <td style='white-space: nowrap;'>19.23 GB</td>
      </tr>
@@ -816,6 +882,7 @@
         <td><span class="lib-tag">Plex</span></td>
         <td><strong>The Hunger Games (2012)</strong><br><span style="color: #888; font-size: 12px;">The Hunger Games (2012) [2160p x265 Dolby Vision TrueHD Atmos].mkv</span></td>
         <td style='white-space: nowrap;'><span style='color: #4fc3f7;'>2160p x265 / Dolby Vision</span><br><span style='color: #aaa; font-size: 12px;'>Dolby Atmos / TrueHD (Lossless)</span></td>
+        <td><span class='sp'>Hulu</span><span class='sp'>Peacock Premium</span><span class='sp'>Peacock Premium Plus</span></td>
         <td style="color: #888; font-family: monospace; font-size: 12px;">&#128193; P:\Movies\The Hunger Games (2012)</td>
         <td style='white-space: nowrap;'>24.49 GB</td>
      </tr>
@@ -823,6 +890,7 @@
         <td><span class="lib-tag">Plex</span></td>
         <td><strong>The Lord of the Rings Return of the King (2003)</strong><br><span style="color: #888; font-size: 12px;">The Lord of the Rings Return of the King (2003) [2160p x265 Dolby Vision Atmos] {Edition-Extended}.mkv</span></td>
         <td style='white-space: nowrap;'><span style='color: #4fc3f7;'>2160p x265 / Dolby Vision</span><br><span style='color: #aaa; font-size: 12px;'>Dolby Atmos</span></td>
+        <td><span class='sp-none'>not found on TMDB</span></td>
         <td style="color: #888; font-family: monospace; font-size: 12px;">&#128193; P:\Movies\The Lord of the Rings Return of the King (2003)</td>
         <td style='white-space: nowrap;'>26.20 GB</td>
      </tr>
@@ -830,6 +898,7 @@
         <td><span class="lib-tag">Plex</span></td>
         <td><strong>The Lord of the Rings Return of the King (2003)</strong><br><span style="color: #888; font-size: 12px;">The Lord of the Rings Return of the King (2003) [2160p x265 Dolby Vision Atmos].mkv</span></td>
         <td style='white-space: nowrap;'><span style='color: #4fc3f7;'>2160p x265 / Dolby Vision</span><br><span style='color: #aaa; font-size: 12px;'>Dolby Atmos</span></td>
+        <td></td>
         <td style="color: #888; font-family: monospace; font-size: 12px;">&#128193; P:\Movies\The Lord of the Rings Return of the King (2003)</td>
         <td style='white-space: nowrap;'>23.46 GB</td>
      </tr>
@@ -837,6 +906,7 @@
         <td><span class="lib-tag">Plex</span></td>
         <td><strong>The Lord of the Rings The Fellowship of the Ring (2001)</strong><br><span style="color: #888; font-size: 12px;">The Lord of the Rings The Fellowship of the Ring (2001) [2160p x265 Dolby Vision Atmos] {Edition-Extended}.mkv</span></td>
         <td style='white-space: nowrap;'><span style='color: #4fc3f7;'>2160p x265 / Dolby Vision</span><br><span style='color: #aaa; font-size: 12px;'>Dolby Atmos</span></td>
+        <td><span class='sp'>HBO Max</span></td>
         <td style="color: #888; font-family: monospace; font-size: 12px;">&#128193; P:\Movies\The Lord of the Rings The Fellowship of the Ring (2001)</td>
         <td style='white-space: nowrap;'>17.05 GB</td>
      </tr>
@@ -844,6 +914,7 @@
         <td><span class="lib-tag">Plex</span></td>
         <td><strong>The Lord of the Rings The Fellowship of the Ring (2001)</strong><br><span style="color: #888; font-size: 12px;">The Lord of the Rings The Fellowship of the Ring (2001) [2160p x265 Dolby Vision Atmos].mkv</span></td>
         <td style='white-space: nowrap;'><span style='color: #4fc3f7;'>2160p x265 / Dolby Vision</span><br><span style='color: #aaa; font-size: 12px;'>Dolby Atmos</span></td>
+        <td></td>
         <td style="color: #888; font-family: monospace; font-size: 12px;">&#128193; P:\Movies\The Lord of the Rings The Fellowship of the Ring (2001)</td>
         <td style='white-space: nowrap;'>15.05 GB</td>
      </tr>
@@ -851,6 +922,7 @@
         <td><span class="lib-tag">Plex</span></td>
         <td><strong>The Matrix (1999)</strong><br><span style="color: #888; font-size: 12px;">The Matrix (1999) [2160p x265 Dolby Vision TrueHD Atmos].mkv</span></td>
         <td style='white-space: nowrap;'><span style='color: #4fc3f7;'>2160p x265 / Dolby Vision</span><br><span style='color: #aaa; font-size: 12px;'>Dolby Atmos / TrueHD (Lossless)</span></td>
+        <td><span class='sp-none'>not on a subscription service</span></td>
         <td style="color: #888; font-family: monospace; font-size: 12px;">&#128193; P:\Movies\The Matrix (1999)</td>
         <td style='white-space: nowrap;'>52.91 GB</td>
      </tr>
@@ -858,6 +930,7 @@
         <td><span class="lib-tag">Plex</span></td>
         <td><strong>The Matrix Revolutions (2003)</strong><br><span style="color: #888; font-size: 12px;">The Matrix Revolutions (2003) [2160p x265 Dolby Vision TrueHD Atmos].mkv</span></td>
         <td style='white-space: nowrap;'><span style='color: #4fc3f7;'>2160p x265 / Dolby Vision</span><br><span style='color: #aaa; font-size: 12px;'>Dolby Atmos / TrueHD (Lossless)</span></td>
+        <td><span class='sp-none'>not on a subscription service</span></td>
         <td style="color: #888; font-family: monospace; font-size: 12px;">&#128193; P:\Movies\The Matrix Revolutions (2003)</td>
         <td style='white-space: nowrap;'>51.07 GB</td>
      </tr>
@@ -865,6 +938,7 @@
         <td><span class="lib-tag">Plex</span></td>
         <td><strong>Tommy Boy (1995)</strong><br><span style="color: #888; font-size: 12px;">Tommy Boy (1995) [2160p x265 Dolby Vision TrueHD].mkv</span></td>
         <td style='white-space: nowrap;'><span style='color: #4fc3f7;'>2160p x265 / Dolby Vision</span><br><span style='color: #aaa; font-size: 12px;'>TrueHD (Lossless)</span></td>
+        <td><span class='sp'>Paramount Plus Premium</span><span class='sp'>Paramount Plus Essential</span></td>
         <td style="color: #888; font-family: monospace; font-size: 12px;">&#128193; P:\Movies\Tommy Boy (1995)</td>
         <td style='white-space: nowrap;'>20.42 GB</td>
      </tr>
@@ -872,6 +946,7 @@
         <td><span class="lib-tag">Plex</span></td>
         <td><strong>Top Gun Maverick (2022)</strong><br><span style="color: #888; font-size: 12px;">Top Gun Maverick (2022) [2160p x265 Dolby Vision Atmos].mkv</span></td>
         <td style='white-space: nowrap;'><span style='color: #4fc3f7;'>2160p x265 / Dolby Vision</span><br><span style='color: #aaa; font-size: 12px;'>Dolby Atmos</span></td>
+        <td><span class='sp'>Netflix</span><span class='sp'>Paramount Plus Premium</span><span class='sp'>Paramount Plus Essential</span></td>
         <td style="color: #888; font-family: monospace; font-size: 12px;">&#128193; P:\Movies\Top Gun Maverick (2022)</td>
         <td style='white-space: nowrap;'>13.69 GB</td>
      </tr>
@@ -879,6 +954,7 @@
         <td><span class="lib-tag">Plex</span></td>
         <td><strong>Top Gun Maverick (2022)</strong><br><span style="color: #888; font-size: 12px;">Top Gun Maverick (2022) [1080p x265 Dolby Vision].mkv</span></td>
         <td style='white-space: nowrap;'><span style='color: #4fc3f7;'>1080p x265 / Dolby Vision</span><br><span style='color: #aaa; font-size: 12px;'>Audio not tagged</span></td>
+        <td></td>
         <td style="color: #888; font-family: monospace; font-size: 12px;">&#128193; P:\Movies\Top Gun Maverick (2022)</td>
         <td style='white-space: nowrap;'>2.17 GB</td>
      </tr>
@@ -886,10 +962,12 @@
         <td><span class="lib-tag">Plex</span></td>
         <td><strong>Wonder Woman (2017)</strong><br><span style="color: #888; font-size: 12px;">Wonder Woman (2017) [2160p x265 Dolby Vision Atmos].mkv</span></td>
         <td style='white-space: nowrap;'><span style='color: #4fc3f7;'>2160p x265 / Dolby Vision</span><br><span style='color: #aaa; font-size: 12px;'>Dolby Atmos</span></td>
+        <td><span class='sp'>HBO Max</span></td>
         <td style="color: #888; font-family: monospace; font-size: 12px;">&#128193; P:\Movies\Wonder Woman (2017)</td>
         <td style='white-space: nowrap;'>11.81 GB</td>
      </tr>
                 </table>
+                <p class='attribution'>Streaming: services that include it with a subscription in US (no rent / buy, no ad plans). Data from JustWatch via TMDB.</p>
             </div>
         </details>
     </div>
@@ -9847,6 +9925,23 @@ function filterInventory(input) {
     var counter = document.getElementById('inventoryCount');
     if (counter) counter.textContent = filter ? (shown + ' of ' + items.length + ' shown') : '';
 }
+// Collapsible sections: show how many items each holds next to its title, so a closed section still says
+// whether there's anything in it. Counts the section's own collapsible entries if it has them, else table rows
+// (not headings, group rows or the "nothing found" row). Overview sections show no count.
+document.querySelectorAll('details.sec').forEach(function (sec) {
+    var label = sec.querySelector(':scope > summary .sec-count');
+    if (!label || sec.querySelector('.stats-grid, .breakdown-layout')) return;
+    var n = 0, inner = sec.querySelectorAll('details');
+    for (var i = 0; i < inner.length; i++) { if (inner[i].parentElement.closest('details') === sec) n++; }
+    if (n === 0) {
+        sec.querySelectorAll('table tr').forEach(function (r) {
+            if (r.querySelector('th') || r.classList.contains('group-row') || r.querySelector('td[colspan]')) return;
+            n++;
+        });
+    }
+    label.textContent = '(' + n + ')';
+    if (n === 0) label.style.color = '#66bb6a';
+});
 </script>
 </body>
 </html>
