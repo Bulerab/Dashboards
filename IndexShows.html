@@ -50,6 +50,13 @@
         .search:focus { border-color: #1976d2; }
         details summary::-webkit-details-marker { color: #888; }
         details[open] summary { border-bottom: 1px solid #333; margin-bottom: 10px; background: #2a2a2a; padding-bottom: 8px; }
+        details.sec > summary.sec-title { cursor: pointer; font-size: 1.5em; font-weight: bold; color: #fff; padding-bottom: 8px; border-bottom: 2px solid #333; user-select: none; }
+        details.sec[open] > summary.sec-title { background: none; margin-bottom: 12px; }
+        details.sec:not([open]) > summary.sec-title { border-bottom-color: transparent; padding-bottom: 0; }
+        .sec-count { color: #888; font-size: 14px; font-weight: normal; margin-left: 6px; }
+        .sp { display: inline-block; padding: 1px 8px; margin: 1px 4px 1px 0; border-radius: 10px; font-size: 11px; font-weight: 600; background: rgba(76, 175, 80, 0.15); color: #a5d6a7; border: 1px solid #388e3c; white-space: nowrap; }
+        .sp-none { color: #888; font-size: 12px; font-style: italic; }
+        .attribution { color: #666; font-size: 11px; margin-top: 8px; }
         @media (max-width: 800px) {
             body { padding: 12px; }
             .breakdown-layout { grid-template-columns: 1fr; }
@@ -63,7 +70,7 @@
 <body>
 <div class="container">
     <h1>&#128250; TV Show Library Index</h1>
-    <p class="generated">Generated 2026-11-19 08:05 &bull; E:\Shows, P:\Shows &bull; running time known for 3459 of 3468 files</p>
+    <p class="generated">Generated 2026-11-19 11:10 &bull; E:\Shows, P:\Shows &bull; running time known for 3459 of 3468 files</p>
 
     <!-- Library Overview -->
     <h2>&#128200; Library Overview</h2>
@@ -88,53 +95,56 @@
 
     <!-- Issues & Alerts Overview Grid -->
     <div class="card">
-        <h2>&#9888;&#65039; Issues & Alerts Overview</h2>
-        <div class="stats-grid" style="margin-bottom: 0;">
-            <div class="stat-box" style="border-left-color: #ff9800;">
-                <h3>Sparse Seasons</h3>
-                <p>4</p>
+        <details class="sec" open>
+            <summary class="sec-title">&#9888;&#65039; Issues & Alerts Overview <span class="sec-count"></span></summary>
+            <div class="stats-grid" style="margin-bottom: 0;">
+                <div class="stat-box" style="border-left-color: #ff9800;">
+                    <h3>Sparse Seasons</h3>
+                    <p>4</p>
+                </div>
+                <div class="stat-box" style="border-left-color: #d32f2f;">
+                    <h3>Missing Seasons</h3>
+                    <p>2</p>
+                </div>
+                <div class="stat-box" style="border-left-color: #d32f2f;">
+                    <h3>Naming Issues</h3>
+                    <p>0</p>
+                </div>
+                <div class="stat-box" style="border-left-color: #d32f2f;">
+                    <h3>Extra Copies</h3>
+                    <p>0</p>
+                </div>
+                <div class="stat-box" style="border-left-color: #e57373;">
+                    <h3>Oversized Files</h3>
+                    <p>0</p>
+                </div>
+                <div class="stat-box" style="border-left-color: #e57373;">
+                    <h3>Fake / Too Small</h3>
+                    <p>0</p>
+                </div>
+                <div class="stat-box" style="border-left-color: #ff9800;">
+                    <h3>DV-Only Seasons</h3>
+                    <p>17</p>
+                </div>
             </div>
-            <div class="stat-box" style="border-left-color: #d32f2f;">
-                <h3>Missing Seasons</h3>
-                <p>2</p>
-            </div>
-            <div class="stat-box" style="border-left-color: #d32f2f;">
-                <h3>Naming Issues</h3>
-                <p>0</p>
-            </div>
-            <div class="stat-box" style="border-left-color: #d32f2f;">
-                <h3>Extra Copies</h3>
-                <p>0</p>
-            </div>
-            <div class="stat-box" style="border-left-color: #e57373;">
-                <h3>Oversized Files</h3>
-                <p>0</p>
-            </div>
-            <div class="stat-box" style="border-left-color: #e57373;">
-                <h3>Fake / Too Small</h3>
-                <p>0</p>
-            </div>
-            <div class="stat-box" style="border-left-color: #ff9800;">
-                <h3>DV-Only Seasons</h3>
-                <p>17</p>
-            </div>
-        </div>
+        </details>
     </div>
 
     <!-- Quality & Format Breakdowns Card -->
     <div class="card">
-        <h2>&#128202; Quality & Format Breakdown</h2>
-        <div class="breakdown-layout">
-            <div class="breakdown-stack">
-                <div class="breakdown-box">
-                    <h4>Resolution Distribution</h4>
-                    <table>
-                        <tr>
-                            <th style="padding: 6px 8px; font-size: 12px;">Resolution</th>
-                            <th style="padding: 6px 8px; font-size: 12px; text-align: center;">Count</th>
-                            <th style="padding: 6px 8px; font-size: 12px; text-align: right;">Avg Size</th>
-                        </tr>
-                        <tr>
+        <details class="sec" open>
+            <summary class="sec-title">&#128202; Quality & Format Breakdown <span class="sec-count"></span></summary>
+            <div class="breakdown-layout">
+                <div class="breakdown-stack">
+                    <div class="breakdown-box">
+                        <h4>Resolution Distribution</h4>
+                        <table>
+                            <tr>
+                                <th style="padding: 6px 8px; font-size: 12px;">Resolution</th>
+                                <th style="padding: 6px 8px; font-size: 12px; text-align: center;">Count</th>
+                                <th style="padding: 6px 8px; font-size: 12px; text-align: right;">Avg Size</th>
+                            </tr>
+                            <tr>
         <td><strong>2160p</strong></td>
         <td style='text-align: center;'>127</td>
         <td style='text-align: right;'>7.18 GB</td>
@@ -154,17 +164,17 @@
         <td style='text-align: center;'>289</td>
         <td style='text-align: right;'>0.65 GB</td>
      </tr>
-                    </table>
-                </div>
-                <div class="breakdown-box">
-                    <h4>Video Range / HDR Format</h4>
-                    <table>
-                        <tr>
-                            <th style="padding: 6px 8px; font-size: 12px;">Format</th>
-                            <th style="padding: 6px 8px; font-size: 12px; text-align: center;">Count</th>
-                            <th style="padding: 6px 8px; font-size: 12px; text-align: right;">Avg Size</th>
-                        </tr>
-                        <tr>
+                        </table>
+                    </div>
+                    <div class="breakdown-box">
+                        <h4>Video Range / HDR Format</h4>
+                        <table>
+                            <tr>
+                                <th style="padding: 6px 8px; font-size: 12px;">Format</th>
+                                <th style="padding: 6px 8px; font-size: 12px; text-align: center;">Count</th>
+                                <th style="padding: 6px 8px; font-size: 12px; text-align: right;">Avg Size</th>
+                            </tr>
+                            <tr>
         <td><strong>Dolby Vision</strong></td>
         <td style='text-align: center;'>106</td>
         <td style='text-align: right;'>6.53 GB</td>
@@ -179,18 +189,18 @@
         <td style='text-align: center;'>2977</td>
         <td style='text-align: right;'>1.24 GB</td>
      </tr>
-                    </table>
-                </div>
-                <div class="breakdown-box">
-                    <h4>Drive Storage Capacity</h4>
-                    <ul>
-                        <li style='margin-bottom: 12px; white-space: nowrap;'>
+                        </table>
+                    </div>
+                    <div class="breakdown-box">
+                        <h4>Drive Storage Capacity</h4>
+                        <ul>
+                            <li style='margin-bottom: 12px; white-space: nowrap;'>
         <div style='display: flex; justify-content: space-between; font-size: 13px; margin-bottom: 3px;'>
-            <span><strong>Favorites</strong> (E:\): 820.31 GB used / 931.51 GB total</span>
-            <span style='font-weight: bold; color: #fff;'>88.1%</span>
+            <span><strong>Favorites</strong> (E:\): 761.59 GB used / 931.51 GB total</span>
+            <span style='font-weight: bold; color: #fff;'>81.8%</span>
         </div>
         <div style='background: #1a1a1a; border-radius: 4px; height: 12px; width: 100%; overflow: hidden; border: 1px solid #333;'>
-            <div style='background: #f57c00; width: 88.1%; height: 100%; border-radius: 3px;'></div>
+            <div style='background: #f57c00; width: 81.8%; height: 100%; border-radius: 3px;'></div>
         </div>
     </li>
 <li style='margin-bottom: 12px; white-space: nowrap;'>
@@ -213,19 +223,19 @@
     </li>
 <li style='margin-bottom: 12px; white-space: nowrap;'>
         <div style='display: flex; justify-content: space-between; font-size: 13px; margin-bottom: 3px;'>
-            <span><strong>Nuc Stalled</strong> (S:\): 103.94 GB used / 456.35 GB total</span>
+            <span><strong>Nuc Stalled</strong> (S:\): 103.93 GB used / 456.35 GB total</span>
             <span style='font-weight: bold; color: #fff;'>22.8%</span>
         </div>
         <div style='background: #1a1a1a; border-radius: 4px; height: 12px; width: 100%; overflow: hidden; border: 1px solid #333;'>
             <div style='background: #1976d2; width: 22.8%; height: 100%; border-radius: 3px;'></div>
         </div>
     </li>
-                    </ul>
+                        </ul>
+                    </div>
                 </div>
-            </div>
-            <div class="breakdown-box">
-                <h4>Top 13 Largest Season Folders</h4>
-                    <details style="background: #252525; margin-bottom: 8px; border-radius: 6px; border: 1px solid #333; overflow: hidden;">
+                <div class="breakdown-box">
+                    <h4>Top 13 Largest Season Folders</h4>
+                        <details style="background: #252525; margin-bottom: 8px; border-radius: 6px; border: 1px solid #333; overflow: hidden;">
         <summary style="cursor: pointer; padding: 10px 14px; font-weight: bold; color: #fff; display: flex; justify-content: space-between; align-items: center; gap: 10px; user-select: none;">
             <span>&#127942; Game of Thrones (2011)</span>
             <span style="color: #4fc3f7; font-size: 13px; white-space: nowrap;">263.08 GB total (4 heavy season(s))</span>
@@ -1225,27 +1235,31 @@
         </details>
         </div>
     </details>
+                </div>
             </div>
-        </div>
+        </details>
     </div>
 
     <!-- Naming Format Issues Card -->
     <div class="card">
-        <h2>&#9888;&#65039; Naming Format Issues & Non-Compliant Files</h2>
-        <p class="hint">Green lines show where CleanupMedia would put the file and what it would call it (relative to the library).</p>
-        <table>
-            <tr><th>Library</th><th>File Name & Directory</th><th>Detected Issue(s)</th><th>Size (GB)</th></tr>
-            <tr><td colspan='4' style='color: #888; text-align: center; padding: 14px;'>Every episode already has a standard Plex name and folder.</td></tr>
-        </table>
+        <details class="sec">
+            <summary class="sec-title">&#9888;&#65039; Naming Format Issues & Non-Compliant Files <span class="sec-count"></span></summary>
+            <p class="hint">Green lines show where CleanupMedia would put the file and what it would call it (relative to the library).</p>
+            <table>
+                <tr><th>Library</th><th>File Name & Directory</th><th>Detected Issue(s)</th><th>Size (GB)</th></tr>
+                <tr><td colspan='4' style='color: #888; text-align: center; padding: 14px;'>Every episode already has a standard Plex name and folder.</td></tr>
+            </table>
+        </details>
     </div>
 
     <!-- Sparse / Incomplete Seasons Card -->
     <div class="card">
-        <h2>&#9888;&#65039; Sparse / Incomplete Seasons</h2>
-        <p class="hint">Episodes missing between E01 and the highest episode found. Episodes missing after the last one you have can't be detected from the files alone.</p>
-        <table>
-            <tr><th>Library</th><th>Show Name</th><th>Season</th><th>Episode Count</th><th style="text-align: right;">Issue Type</th><th style="text-align: left; padding-left: 20px;">Details</th></tr>
-            <tr>
+        <details class="sec">
+            <summary class="sec-title">&#9888;&#65039; Sparse / Incomplete Seasons <span class="sec-count"></span></summary>
+            <p class="hint">Episodes missing between E01 and the highest episode found. Episodes missing after the last one you have can't be detected from the files alone.</p>
+            <table>
+                <tr><th>Library</th><th>Show Name</th><th>Season</th><th>Episode Count</th><th style="text-align: right;">Issue Type</th><th style="text-align: left; padding-left: 20px;">Details</th></tr>
+                <tr>
         <td style='vertical-align: middle; white-space: nowrap;'><span class="lib-tag">Plex</span></td>
         <td style='vertical-align: middle; white-space: nowrap;'><strong>Severance (2022)</strong></td>
         <td style='vertical-align: middle; white-space: nowrap;'><span style="color: #4fc3f7;">Season 02</span></td>
@@ -1283,15 +1297,15 @@
         <td style='vertical-align: middle; text-align: left;'><div style='padding: 3px 0; color: #bbb; text-align: left;'>E01-E03</div>
 <div style='padding: 3px 0; color: #bbb; text-align: left;'>Only 1 episode(s) found for a multi-episode season.</div></td>
      </tr>
-        </table>
+            </table>
 
-        <!-- Sub-section: Pulled / Banned Episodes Audit -->
-        <div style="margin-top: 25px; padding-top: 15px; border-top: 1px dashed #444;">
-            <h4 style="color: #ff9800; margin-bottom: 8px; font-size: 15px;">&#128683; Known Pulled / Banned Content Status (South Park)</h4>
-            <p style="color: #aaa; font-size: 13px; margin-bottom: 12px;">Tracks episodes officially removed from syndication and streaming platforms to verify if they are present or missing in your library. These are never counted as missing episodes above.</p>
-            <table>
-                <tr><th>Library</th><th>Show Name</th><th>Season</th><th>Episode</th><th>Episode Title</th><th style="text-align: right;">Library Status</th></tr>
-                <tr>
+            <!-- Sub-section: Pulled / Banned Episodes Audit -->
+            <div style="margin-top: 25px; padding-top: 15px; border-top: 1px dashed #444;">
+                <h4 style="color: #ff9800; margin-bottom: 8px; font-size: 15px;">&#128683; Known Pulled / Banned Content Status (South Park)</h4>
+                <p style="color: #aaa; font-size: 13px; margin-bottom: 12px;">Tracks episodes officially removed from syndication and streaming platforms to verify if they are present or missing in your library. These are never counted as missing episodes above.</p>
+                <table>
+                    <tr><th>Library</th><th>Show Name</th><th>Season</th><th>Episode</th><th>Episode Title</th><th style="text-align: right;">Library Status</th></tr>
+                    <tr>
         <td style='vertical-align: middle; white-space: nowrap;'><span class="lib-tag">N/A</span></td>
         <td style='vertical-align: middle;'><strong>South Park</strong></td>
         <td style='vertical-align: middle; white-space: nowrap;'><span style="color: #4fc3f7;">Season 05</span></td>
@@ -1331,16 +1345,18 @@
         <td style='vertical-align: middle;'>201</td>
         <td style='vertical-align: middle; white-space: nowrap; text-align: right;'><span style='color: #e57373; font-weight: bold;'>Confirmed Missing (Pulled Content)</span></td>
      </tr>
-            </table>
-        </div>
+                </table>
+            </div>
+        </details>
     </div>
 
     <!-- Missing Seasons Card -->
     <div class="card">
-        <h2>&#128270; Missing Earlier Seasons</h2>
-        <table>
-            <tr><th>Library</th><th>Show Name</th><th>Status</th><th>Library Presence</th><th style="text-align: right;">Issue Type</th><th style="text-align: left; padding-left: 20px;">Details</th></tr>
-            <tr>
+        <details class="sec">
+            <summary class="sec-title">&#128270; Missing Earlier Seasons <span class="sec-count"></span></summary>
+            <table>
+                <tr><th>Library</th><th>Show Name</th><th>Status</th><th>Library Presence</th><th style="text-align: right;">Issue Type</th><th style="text-align: left; padding-left: 20px;">Details</th></tr>
+                <tr>
         <td style='vertical-align: middle; white-space: nowrap;'><span class="lib-tag">Plex</span></td>
         <td style='vertical-align: middle; white-space: nowrap;'><strong>Severance (2025)</strong></td>
         <td style='vertical-align: middle; white-space: nowrap;'><span style="color: #4fc3f7;">Highest: S02</span></td>
@@ -1356,35 +1372,42 @@
         <td style='vertical-align: middle; text-align: right; white-space: nowrap;'><div style='padding: 3px 0; font-weight: bold; color: #ff9800; white-space: nowrap;'>Missing Seasons:</div></td>
         <td style='vertical-align: middle; text-align: left;'><div style='padding: 3px 0; color: #bbb; text-align: left;'>S01</div></td>
      </tr>
-        </table>
+            </table>
+        </details>
     </div>
 
     <!-- Extra Episode Copies Card -->
     <div class="card">
-        <h2>&#9888;&#65039; Extra Episode Copies</h2>
-        <p class="hint">Copies of the same episode. CleanupMedia keeps the best copy, plus one easy-to-play backup when the best is 4K or HDR / Dolby Vision; the rest are extra.</p>
-        <table>
-            <tr><th>Library</th><th>Episode File Name & Directory</th><th>Quality & Profile</th><th>Size (GB)</th></tr>
-            <tr><td colspan='4' style='color: #888; text-align: center; padding: 14px;'>No extra copies - every episode has one copy, or a best copy plus one backup.</td></tr>
-        </table>
+        <details class="sec">
+            <summary class="sec-title">&#9888;&#65039; Extra Episode Copies <span class="sec-count"></span></summary>
+            <p class="hint">Copies of the same episode. CleanupMedia keeps the best copy, plus one easy-to-play backup when the best is 4K or HDR / Dolby Vision; the rest are extra.</p>
+            <table>
+                <tr><th>Library</th><th>Episode File Name & Directory</th><th>Quality & Profile</th><th>Size (GB)</th></tr>
+                <tr><td colspan='4' style='color: #888; text-align: center; padding: 14px;'>No extra copies - every episode has one copy, or a best copy plus one backup.</td></tr>
+            </table>
+        </details>
     </div>
 
     <!-- Oversized For Quality Card -->
     <div class="card">
-        <h2>&#128200; Oversized Files For Quality</h2>
-        <table>
-            <tr><th>Library</th><th>File Name & Directory</th><th>Resolution</th><th>Size (GB)</th></tr>
-            <tr><td colspan='4' style='color: #888; text-align: center; padding: 14px;'>Nothing is larger than its resolution needs.</td></tr>
-        </table>
+        <details class="sec">
+            <summary class="sec-title">&#128200; Oversized Files For Quality <span class="sec-count"></span></summary>
+            <table>
+                <tr><th>Library</th><th>File Name & Directory</th><th>Resolution</th><th>Size (GB)</th></tr>
+                <tr><td colspan='4' style='color: #888; text-align: center; padding: 14px;'>Nothing is larger than its resolution needs.</td></tr>
+            </table>
+        </details>
     </div>
 
     <!-- Potentially Fake / Too Small Card -->
     <div class="card">
-        <h2>&#128680; Potentially Fake / Too Small Files</h2>
-        <table>
-            <tr><th>Library</th><th>File Name & Directory</th><th>Resolution</th><th>Size (GB)</th></tr>
-            <tr><td colspan='4' style='color: #888; text-align: center; padding: 14px;'>Nothing is suspiciously small for its resolution.</td></tr>
-        </table>
+        <details class="sec">
+            <summary class="sec-title">&#128680; Potentially Fake / Too Small Files <span class="sec-count"></span></summary>
+            <table>
+                <tr><th>Library</th><th>File Name & Directory</th><th>Resolution</th><th>Size (GB)</th></tr>
+                <tr><td colspan='4' style='color: #888; text-align: center; padding: 14px;'>Nothing is suspiciously small for its resolution.</td></tr>
+            </table>
+        </details>
     </div>
 
     <!-- DV-Only / Missing Backup Seasons Card (Collapsible) -->
@@ -1399,6 +1422,7 @@
             <div>
                 <span class="lib-tag">Plex</span>
                 <span style="margin-left: 8px;">&#127916; Game of Thrones (2011) &bull; <span style="color: #4fc3f7;">Season 01</span></span>
+                <div style="margin-top: 4px; font-weight: normal;"><span class='sp'>HBO Max</span></div>
             </div>
             <span style="color: #e57373; font-size: 13px; white-space: nowrap;">71.32 GB &bull; all 10 episode(s) DV-only</span>
         </summary>
@@ -1467,6 +1491,7 @@
             <div>
                 <span class="lib-tag">Plex</span>
                 <span style="margin-left: 8px;">&#127916; Game of Thrones (2011) &bull; <span style="color: #4fc3f7;">Season 02</span></span>
+                <div style="margin-top: 4px; font-weight: normal;"><span class='sp'>HBO Max</span></div>
             </div>
             <span style="color: #e57373; font-size: 13px; white-space: nowrap;">65.24 GB &bull; all 10 episode(s) DV-only</span>
         </summary>
@@ -1535,6 +1560,7 @@
             <div>
                 <span class="lib-tag">Plex</span>
                 <span style="margin-left: 8px;">&#127916; Game of Thrones (2011) &bull; <span style="color: #4fc3f7;">Season 03</span></span>
+                <div style="margin-top: 4px; font-weight: normal;"><span class='sp'>HBO Max</span></div>
             </div>
             <span style="color: #e57373; font-size: 13px; white-space: nowrap;">61.22 GB &bull; 9 of 10 episode(s) DV-only</span>
         </summary>
@@ -1598,6 +1624,7 @@
             <div>
                 <span class="lib-tag">Plex</span>
                 <span style="margin-left: 8px;">&#127916; Game of Thrones (2011) &bull; <span style="color: #4fc3f7;">Season 04</span></span>
+                <div style="margin-top: 4px; font-weight: normal;"><span class='sp'>HBO Max</span></div>
             </div>
             <span style="color: #e57373; font-size: 13px; white-space: nowrap;">62.89 GB &bull; all 10 episode(s) DV-only</span>
         </summary>
@@ -1666,6 +1693,7 @@
             <div>
                 <span class="lib-tag">Plex</span>
                 <span style="margin-left: 8px;">&#127916; Game of Thrones (2011) &bull; <span style="color: #4fc3f7;">Season 05</span></span>
+                <div style="margin-top: 4px; font-weight: normal;"><span class='sp'>HBO Max</span></div>
             </div>
             <span style="color: #e57373; font-size: 13px; white-space: nowrap;">60.82 GB &bull; 9 of 10 episode(s) DV-only</span>
         </summary>
@@ -1729,6 +1757,7 @@
             <div>
                 <span class="lib-tag">Plex</span>
                 <span style="margin-left: 8px;">&#127916; Game of Thrones (2011) &bull; <span style="color: #4fc3f7;">Season 06</span></span>
+                <div style="margin-top: 4px; font-weight: normal;"><span class='sp'>HBO Max</span></div>
             </div>
             <span style="color: #e57373; font-size: 13px; white-space: nowrap;">62.56 GB &bull; 9 of 10 episode(s) DV-only</span>
         </summary>
@@ -1792,6 +1821,7 @@
             <div>
                 <span class="lib-tag">Plex</span>
                 <span style="margin-left: 8px;">&#127916; Game of Thrones (2011) &bull; <span style="color: #4fc3f7;">Season 07</span></span>
+                <div style="margin-top: 4px; font-weight: normal;"><span class='sp'>HBO Max</span></div>
             </div>
             <span style="color: #e57373; font-size: 13px; white-space: nowrap;">50.09 GB &bull; all 7 episode(s) DV-only</span>
         </summary>
@@ -1845,6 +1875,7 @@
             <div>
                 <span class="lib-tag">Plex</span>
                 <span style="margin-left: 8px;">&#127916; Game of Thrones (2011) &bull; <span style="color: #4fc3f7;">Season 08</span></span>
+                <div style="margin-top: 4px; font-weight: normal;"><span class='sp'>HBO Max</span></div>
             </div>
             <span style="color: #e57373; font-size: 13px; white-space: nowrap;">43.74 GB &bull; 5 of 6 episode(s) DV-only</span>
         </summary>
@@ -1888,6 +1919,7 @@
             <div>
                 <span class="lib-tag">Plex</span>
                 <span style="margin-left: 8px;">&#127916; House of the Dragon &bull; <span style="color: #4fc3f7;">Season 01</span></span>
+                <div style="margin-top: 4px; font-weight: normal;"><span class='sp'>HBO Max</span></div>
             </div>
             <span style="color: #e57373; font-size: 13px; white-space: nowrap;">66.44 GB &bull; all 10 episode(s) DV-only</span>
         </summary>
@@ -1956,6 +1988,7 @@
             <div>
                 <span class="lib-tag">Plex</span>
                 <span style="margin-left: 8px;">&#127916; House of the Dragon &bull; <span style="color: #4fc3f7;">Season 02</span></span>
+                <div style="margin-top: 4px; font-weight: normal;"><span class='sp'>HBO Max</span></div>
             </div>
             <span style="color: #e57373; font-size: 13px; white-space: nowrap;">55.91 GB &bull; all 8 episode(s) DV-only</span>
         </summary>
@@ -2014,6 +2047,7 @@
             <div>
                 <span class="lib-tag">Plex</span>
                 <span style="margin-left: 8px;">&#127916; House of the Dragon &bull; <span style="color: #4fc3f7;">Season 03</span></span>
+                <div style="margin-top: 4px; font-weight: normal;"><span class='sp'>HBO Max</span></div>
             </div>
             <span style="color: #e57373; font-size: 13px; white-space: nowrap;">59.01 GB &bull; all 8 episode(s) DV-only</span>
         </summary>
@@ -2072,6 +2106,7 @@
             <div>
                 <span class="lib-tag">Plex</span>
                 <span style="margin-left: 8px;">&#127916; MobLand (2025) &bull; <span style="color: #4fc3f7;">Season 01</span></span>
+                <div style="margin-top: 4px; font-weight: normal;"><span class='sp'>Paramount Plus Premium</span><span class='sp'>Paramount Plus Essential</span></div>
             </div>
             <span style="color: #e57373; font-size: 13px; white-space: nowrap;">28.56 GB &bull; 6 of 10 episode(s) DV-only</span>
         </summary>
@@ -2120,6 +2155,7 @@
             <div>
                 <span class="lib-tag">Plex</span>
                 <span style="margin-left: 8px;">&#127916; South Park (1997) &bull; <span style="color: #4fc3f7;">Season 04</span></span>
+                <div style="margin-top: 4px; font-weight: normal;"><span class='sp'>Paramount Plus Premium</span><span class='sp'>Paramount Plus Essential</span></div>
             </div>
             <span style="color: #e57373; font-size: 13px; white-space: nowrap;">0.70 GB &bull; 1 of 17 episode(s) DV-only</span>
         </summary>
@@ -2143,6 +2179,7 @@
             <div>
                 <span class="lib-tag">Plex</span>
                 <span style="margin-left: 8px;">&#127916; South Park (1997) &bull; <span style="color: #4fc3f7;">Season 19</span></span>
+                <div style="margin-top: 4px; font-weight: normal;"><span class='sp'>Paramount Plus Premium</span><span class='sp'>Paramount Plus Essential</span></div>
             </div>
             <span style="color: #e57373; font-size: 13px; white-space: nowrap;">0.70 GB &bull; 1 of 10 episode(s) DV-only</span>
         </summary>
@@ -2166,6 +2203,7 @@
             <div>
                 <span class="lib-tag">Plex</span>
                 <span style="margin-left: 8px;">&#127916; Star Wars - Skeleton Crew (2024) &bull; <span style="color: #4fc3f7;">Season 01</span></span>
+                <div style="margin-top: 4px; font-weight: normal;"><span class='sp'>Disney Plus</span></div>
             </div>
             <span style="color: #e57373; font-size: 13px; white-space: nowrap;">1.48 GB &bull; 1 of 8 episode(s) DV-only</span>
         </summary>
@@ -2189,6 +2227,7 @@
             <div>
                 <span class="lib-tag">Plex</span>
                 <span style="margin-left: 8px;">&#127916; The Big Bang Theory (2007) &bull; <span style="color: #4fc3f7;">Season 01</span></span>
+                <div style="margin-top: 4px; font-weight: normal;"><span class='sp'>HBO Max</span></div>
             </div>
             <span style="color: #e57373; font-size: 13px; white-space: nowrap;">0.60 GB &bull; 1 of 17 episode(s) DV-only</span>
         </summary>
@@ -2212,6 +2251,7 @@
             <div>
                 <span class="lib-tag">Plex</span>
                 <span style="margin-left: 8px;">&#127916; Westworld (2016) &bull; <span style="color: #4fc3f7;">Season 01</span></span>
+                <div style="margin-top: 4px; font-weight: normal;"><span class='sp-none'>not on a subscription service</span></div>
             </div>
             <span style="color: #e57373; font-size: 13px; white-space: nowrap;">0.89 GB &bull; 1 of 10 episode(s) DV-only</span>
         </summary>
@@ -2230,6 +2270,7 @@
                 </table>
         </div>
     </details>
+<p class='attribution'>Streaming: services that include it with a subscription in US (no rent / buy, no ad plans). Data from JustWatch via TMDB.</p>
             </div>
         </details>
     </div>
@@ -28860,6 +28901,23 @@ function filterInventory(input) {
     var counter = document.getElementById('inventoryCount');
     if (counter) counter.textContent = filter ? (shown + ' of ' + items.length + ' shown') : '';
 }
+// Collapsible sections: show how many items each holds next to its title, so a closed section still says
+// whether there's anything in it. Counts the section's own collapsible entries if it has them, else table rows
+// (not headings, group rows or the "nothing found" row). Overview sections show no count.
+document.querySelectorAll('details.sec').forEach(function (sec) {
+    var label = sec.querySelector(':scope > summary .sec-count');
+    if (!label || sec.querySelector('.stats-grid, .breakdown-layout')) return;
+    var n = 0, inner = sec.querySelectorAll('details');
+    for (var i = 0; i < inner.length; i++) { if (inner[i].parentElement.closest('details') === sec) n++; }
+    if (n === 0) {
+        sec.querySelectorAll('table tr').forEach(function (r) {
+            if (r.querySelector('th') || r.classList.contains('group-row') || r.querySelector('td[colspan]')) return;
+            n++;
+        });
+    }
+    label.textContent = '(' + n + ')';
+    if (n === 0) label.style.color = '#66bb6a';
+});
 </script>
 </body>
 </html>
