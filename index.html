@@ -3,39 +3,17 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Media Dashboards</title>
+    <title>Kona Media Hub</title>
+    <!-- The site's front door: GitHub Pages opens index.html for the bare address, so send visitors to the Hub. -->
+    <meta http-equiv="refresh" content="0; url=IndexHome.html">
+    <link rel="canonical" href="IndexHome.html">
+    <script>location.replace('IndexHome.html' + location.search + location.hash);</script>
     <style>
-        body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; background-color: #121212; color: #e0e0e0; margin: 0; padding: 20px; }
-        h1, h2 { color: #ffffff; border-bottom: 2px solid #333; padding-bottom: 8px; }
-        .container { max-width: 1100px; margin: auto; }
-        .card { background: #1e1e1e; padding: 20px; border-radius: 8px; margin-bottom: 25px; box-shadow: 0 4px 6px rgba(0,0,0,0.3); }
-        .grid-links { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 15px; margin-top: 15px; }
-        .tile { background: #252525; padding: 20px; border-radius: 6px; border: 1px solid #333; text-decoration: none; color: #fff; display: flex; flex-direction: column; transition: 0.2s; }
-        .tile:hover { background: #2a2a2a; border-color: #1976d2; transform: translateY(-2px); }
-        .tile h3 { margin: 0 0 6px 0; color: #4fc3f7; font-size: 16px; }
-        .tile span { color: #999; font-size: 12px; line-height: 1.4; }
-        .badge { background: #2a2a2a; color: #cccccc; padding: 2px 8px; border-radius: 4px; font-size: 11px; border: 1px solid #444; font-weight: 500; width: fit-content; margin-bottom: 10px; }
-        @media (max-width: 800px) { body { padding: 12px; } }
+        body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; background-color: #121212; color: #e0e0e0; margin: 0; padding: 40px 20px; text-align: center; }
+        a { color: #4fc3f7; }
     </style>
 </head>
 <body>
-<div class="container">
-    <h1>&#127968; Media Dashboards</h1>
-    <div class="card">
-        <h2>&#128202; Library Indices &amp; Analytics</h2>
-        <div class="grid-links">
-            <a href="IndexShows.html" class="tile">
-                <span class="badge">Dashboard</span>
-                <h3>&#128250; TV Show Library Index</h3>
-                <span>Browse inventory, missing seasons, sparse episodes, and naming issues.</span>
-            </a>
-            <a href="IndexMovies.html" class="tile">
-                <span class="badge">Dashboard</span>
-                <h3>&#127916; Movie Library Index</h3>
-                <span>Browse movie inventory, duplicate conflicts, and storage breakdowns.</span>
-            </a>
-        </div>
-    </div>
-</div>
+    <p>Opening the <a href="IndexHome.html">Kona Media Hub</a>&hellip;</p>
 </body>
 </html>
