@@ -52,6 +52,7 @@
         .breakdown-row.breakdown-two { grid-template-columns: repeat(2, minmax(0, 1fr)); margin-top: 20px; }
         /* Issues & Alerts: one column per group, its tiles stacked under the heading (movie dashboard) */
         .issue-cols { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 20px; margin-bottom: 20px; }
+        .issue-cols.issue-cols-4 { grid-template-columns: repeat(4, minmax(0, 1fr)); }   /* the show dashboard's four groups */
         .issue-col { display: flex; flex-direction: column; gap: 12px; }
         .issue-col .subhead { margin: 4px 0 0; }
         /* tabs: one list shown at a time (movie dashboard collections) */
@@ -87,7 +88,7 @@
         .attribution { color: #666; font-size: 11px; margin-top: 8px; }
         @media (max-width: 800px) {
             body { padding: 12px; }
-            .breakdown-layout, .breakdown-row, .breakdown-row.breakdown-two, .issue-cols { grid-template-columns: 1fr; }
+            .breakdown-layout, .breakdown-row, .breakdown-row.breakdown-two, .issue-cols, .issue-cols.issue-cols-4 { grid-template-columns: 1fr; }
             .card { padding: 14px; overflow-x: auto; }
             .breakdown-box li { white-space: normal !important; }
             summary { flex-wrap: wrap; }
@@ -98,7 +99,7 @@
 <body>
 <div class="container">
     <h1>&#128250; TV Show Library Index</h1>
-    <p class="generated">Generated 2026-11-21 11:43 &bull; E:\Shows, P:\Shows &bull; running time known for 3611 of 3620 files</p>
+    <p class="generated">Generated 2026-11-21 11:45 &bull; E:\Shows, P:\Shows &bull; running time known for 3611 of 3620 files</p>
 
     <!-- Library Overview -->
     <h2>&#128200; Library Overview</h2>
@@ -123,32 +124,34 @@
 
     <!-- Issues & Alerts Overview (laid out like Library Overview, not collapsible) -->
     <h2>&#9888;&#65039; Issues & Alerts Overview</h2>
-    <h4 class="subhead">Seasons</h4>
-    <div class="stats-grid">
+    <!-- four columns, each group's tiles stacked under its heading -->
+    <div class="issue-cols issue-cols-4">
+        <div class="issue-col">
+            <h4 class="subhead">Seasons</h4>
             <div class="stat-box" style="border-left-color: #ff9800;"><h3>Sparse Seasons</h3><p>2</p></div>
-            <div class="stat-box" style="border-left-color: #d32f2f;"><h3>Missing Seasons</h3><p>0</p></div>
-    </div>
-    <h4 class="subhead">Naming &amp; copies</h4>
-    <div class="stats-grid">
-            <div class="stat-box" style="border-left-color: #d32f2f;"><h3>Naming Issues</h3><p>14</p></div>
+            <div class="stat-box" style="border-left-color: #ff9800;"><h3>Missing Seasons</h3><p>0</p></div>
+        </div>
+        <div class="issue-col">
+            <h4 class="subhead">Naming &amp; copies</h4>
+            <div class="stat-box" style="border-left-color: #d32f2f;"><h3>Naming Issues</h3><p>0</p></div>
             <div class="stat-box" style="border-left-color: #d32f2f;"><h3>Extra Copies</h3><p>0</p></div>
-    </div>
-    <h4 class="subhead">Size &amp; quality</h4>
-    <div class="stats-grid">
+        </div>
+        <div class="issue-col">
+            <h4 class="subhead">Size &amp; quality</h4>
             <div class="stat-box" style="border-left-color: #e57373;"><h3>Oversized Files</h3><p>0</p></div>
             <div class="stat-box" style="border-left-color: #e57373;"><h3>Fake / Too Small</h3><p>0</p></div>
-    </div>
-    <h4 class="subhead">Playback (Dolby Vision only)</h4>
-    <div class="stats-grid">
+        </div>
+        <div class="issue-col">
+            <h4 class="subhead">Playback (Dolby Vision only)</h4>
             <div class="stat-box" style="border-left-color: #ff9800;"><h3>DV-Only Seasons</h3><p>1</p></div>
             <div class='stat-box' style='border-left-color: #66bb6a;'><h3>On your streaming services</h3><p>0 <small>seasons</small></p></div><div class='stat-box' style='border-left-color: #ffc230;'><h3>Get with Sonarr</h3><p>1 <small>seasons</small></p></div>
+        </div>
     </div>
 
     <!-- Quality & Format Breakdowns Card -->
     <div class="card">
         <h2>&#128202; Quality & Format Breakdown</h2>
-            <div class="breakdown-layout">
-                <div class="breakdown-stack">
+            <div class="breakdown-row">
                     <div class="breakdown-box">
                         <h4>Resolution Distribution</h4>
                         <table>
@@ -240,1390 +243,46 @@
 <li style='margin-bottom: 12px;'>
         <div style='display: flex; justify-content: space-between; gap: 8px; font-size: 13px; margin-bottom: 3px;'>
             <span><strong>Nuc Stalled</strong> <span style='color: #888;'>(S:\)</span></span>
-            <span style='font-weight: bold; color: #fff; white-space: nowrap;'>13.8%</span>
+            <span style='font-weight: bold; color: #fff; white-space: nowrap;'>16.6%</span>
         </div>
         <div style='background: #1a1a1a; border-radius: 4px; height: 12px; width: 100%; overflow: hidden; border: 1px solid #333;'>
-            <div style='background: #1976d2; width: 13.8%; height: 100%; border-radius: 3px;'></div>
+            <div style='background: #1976d2; width: 16.6%; height: 100%; border-radius: 3px;'></div>
         </div>
-        <div style='color: #888; font-size: 12px; margin-top: 3px;'>62.93 GB used of 456.35 GB</div>
+        <div style='color: #888; font-size: 12px; margin-top: 3px;'>75.96 GB used of 456.35 GB</div>
     </li>
                         </ul>
                     </div>
+            </div>
+            <div class="breakdown-row breakdown-two">
+                <div class="breakdown-box">
+                    <h4>Largest Dolby Vision Seasons</h4>
+                    <table>
+                        <tr><th style="padding: 6px 8px; font-size: 12px;">Show / Season</th><th style="padding: 6px 8px; font-size: 12px;">Quality</th><th style="padding: 6px 8px; font-size: 12px; text-align: right;">Size</th></tr>
+                        <tr><td title='P:\Shows\Game of Thrones (2011) {tmdb-1399}\Season 01'><strong>Game of Thrones (2011)</strong><br><span class='hint'>Season 01 &bull; 10 episode file(s)</span></td><td><span class='qchips'><span class='qchip q-dv' title='2160p x265 / Dolby Vision / Dolby Atmos (10 file(s))'>2160p Dolby Vision Atmos</span></span></td><td style='text-align: right; white-space: nowrap;'><strong>71.32 GB</strong></td></tr>
+<tr><td title='P:\Shows\House of the Dragon (2022) {tmdb-94997}\Season 01'><strong>House of the Dragon (2022)</strong><br><span class='hint'>Season 01 &bull; 10 episode file(s)</span></td><td><span class='qchips'><span class='qchip q-dv' title='2160p x265 / Dolby Vision / Dolby Atmos (10 file(s))'>2160p Dolby Vision Atmos</span></span></td><td style='text-align: right; white-space: nowrap;'><strong>66.44 GB</strong></td></tr>
+<tr><td title='P:\Shows\Game of Thrones (2011) {tmdb-1399}\Season 02'><strong>Game of Thrones (2011)</strong><br><span class='hint'>Season 02 &bull; 10 episode file(s)</span></td><td><span class='qchips'><span class='qchip q-dv' title='2160p x265 / Dolby Vision / Dolby Atmos (10 file(s))'>2160p Dolby Vision Atmos</span></span></td><td style='text-align: right; white-space: nowrap;'><strong>65.24 GB</strong></td></tr>
+<tr><td title='P:\Shows\Game of Thrones (2011) {tmdb-1399}\Season 04'><strong>Game of Thrones (2011)</strong><br><span class='hint'>Season 04 &bull; 10 episode file(s)</span></td><td><span class='qchips'><span class='qchip q-dv' title='2160p x265 / Dolby Vision / Dolby Atmos (10 file(s))'>2160p Dolby Vision Atmos</span></span></td><td style='text-align: right; white-space: nowrap;'><strong>62.89 GB</strong></td></tr>
+<tr><td title='P:\Shows\Game of Thrones (2011) {tmdb-1399}\Season 06'><strong>Game of Thrones (2011)</strong><br><span class='hint'>Season 06 &bull; 9 episode file(s)</span></td><td><span class='qchips'><span class='qchip q-dv' title='2160p x265 / Dolby Vision / Dolby Atmos (9 file(s))'>2160p Dolby Vision Atmos</span></span></td><td style='text-align: right; white-space: nowrap;'><strong>62.56 GB</strong></td></tr>
+<tr><td title='P:\Shows\Game of Thrones (2011) {tmdb-1399}\Season 03'><strong>Game of Thrones (2011)</strong><br><span class='hint'>Season 03 &bull; 9 episode file(s)</span></td><td><span class='qchips'><span class='qchip q-dv' title='2160p x265 / Dolby Vision / Dolby Atmos (9 file(s))'>2160p Dolby Vision Atmos</span></span></td><td style='text-align: right; white-space: nowrap;'><strong>61.22 GB</strong></td></tr>
+                    </table>
                 </div>
                 <div class="breakdown-box">
-                    <h4>Top 13 Largest Season Folders</h4>
-                        <details style="background: #252525; margin-bottom: 8px; border-radius: 6px; border: 1px solid #333; overflow: hidden;">
-        <summary style="cursor: pointer; padding: 10px 14px; font-weight: bold; color: #fff; display: flex; justify-content: space-between; align-items: center; gap: 10px; user-select: none;">
-            <span>&#127942; Game of Thrones (2011)</span>
-            <span style="color: #4fc3f7; font-size: 13px; white-space: nowrap;">643.87 GB total (6 heavy season(s))</span>
-        </summary>
-        <div style="padding: 10px 14px; border-top: 1px solid #333; background: #1e1e1e;">
-                    <details style="background: #1e1e1e; margin-bottom: 6px; border-radius: 4px; border: 1px solid #444; overflow: hidden;">
-            <summary style="cursor: pointer; padding: 8px 12px; font-weight: bold; color: #ccc; display: flex; justify-content: space-between; align-items: center; gap: 10px; user-select: none; font-size: 13px;">
-                <span>&#128194; Season 01 <span class="lib-tag">Plex</span></span>
-                <span style="color: #4fc3f7; font-size: 12px; white-space: nowrap;">111.35 GB &bull; 20 episode file(s)</span>
-            </summary>
-            <div style="padding: 8px 12px; border-top: 1px solid #333; background: #161616;">
-                <span style='color: #888; font-size: 11px; font-family: monospace;'>&#128193; P:\Shows\Game of Thrones (2011) {tmdb-1399}\Season 01</span>
-                                <table>
-                    <tr>
-                        <th style="vertical-align: middle;">Episode File Name & Directory</th>
-                        <th style="vertical-align: middle; white-space: nowrap;">Quality & Profile</th>
-                        <th style="vertical-align: middle; white-space: nowrap;">Size (GB)</th>
-                    </tr>
-                    <tr>
-                <td style='vertical-align: middle;'><strong>S01E01 - Winter Is Coming</strong><br><span style='color: #777; font-size: 11px;'>Game of Thrones (2011) - S01E01 - Winter Is Coming [1080p x265 SDR EAC3].mkv</span></td>
-                <td style='vertical-align: middle; white-space: nowrap;'><span style='color: #4fc3f7; line-height: 1.4;'>1080p x265 / SDR<br><span style='color: #aaa; font-size: 11px;'>Dolby Digital Plus (EAC3)</span></span></td>
-                <td style='vertical-align: middle; white-space: nowrap;'><strong>1.50 GB</strong></td>
-             </tr>
-<tr>
-                <td style='vertical-align: middle;'><strong>S01E01 - Winter Is Coming</strong><br><span style='color: #777; font-size: 11px;'>Game of Thrones (2011) - S01E01 - Winter Is Coming [2160p x265 Dolby Vision Atmos].mkv</span></td>
-                <td style='vertical-align: middle; white-space: nowrap;'><span style='color: #4fc3f7; line-height: 1.4;'>2160p x265 / Dolby Vision<br><span style='color: #aaa; font-size: 11px;'>Dolby Atmos</span></span></td>
-                <td style='vertical-align: middle; white-space: nowrap;'><strong>8.81 GB</strong></td>
-             </tr>
-<tr>
-                <td style='vertical-align: middle;'><strong>S01E02 - The Kingsroad</strong><br><span style='color: #777; font-size: 11px;'>Game of Thrones (2011) - S01E02 - The Kingsroad [1080p x265 SDR EAC3].mkv</span></td>
-                <td style='vertical-align: middle; white-space: nowrap;'><span style='color: #4fc3f7; line-height: 1.4;'>1080p x265 / SDR<br><span style='color: #aaa; font-size: 11px;'>Dolby Digital Plus (EAC3)</span></span></td>
-                <td style='vertical-align: middle; white-space: nowrap;'><strong>1.16 GB</strong></td>
-             </tr>
-<tr>
-                <td style='vertical-align: middle;'><strong>S01E02 - The Kingsroad</strong><br><span style='color: #777; font-size: 11px;'>Game of Thrones (2011) - S01E02 - The Kingsroad [2160p x265 Dolby Vision Atmos].mkv</span></td>
-                <td style='vertical-align: middle; white-space: nowrap;'><span style='color: #4fc3f7; line-height: 1.4;'>2160p x265 / Dolby Vision<br><span style='color: #aaa; font-size: 11px;'>Dolby Atmos</span></span></td>
-                <td style='vertical-align: middle; white-space: nowrap;'><strong>7.94 GB</strong></td>
-             </tr>
-<tr>
-                <td style='vertical-align: middle;'><strong>S01E03 - Lord Snow</strong><br><span style='color: #777; font-size: 11px;'>Game of Thrones (2011) - S01E03 - Lord Snow [2160p x265 Dolby Vision Atmos].mkv</span></td>
-                <td style='vertical-align: middle; white-space: nowrap;'><span style='color: #4fc3f7; line-height: 1.4;'>2160p x265 / Dolby Vision<br><span style='color: #aaa; font-size: 11px;'>Dolby Atmos</span></span></td>
-                <td style='vertical-align: middle; white-space: nowrap;'><strong>7.12 GB</strong></td>
-             </tr>
-<tr>
-                <td style='vertical-align: middle;'><strong>S01E03 - Lord Snow</strong><br><span style='color: #777; font-size: 11px;'>Game of Thrones (2011) - S01E03 - Lord Snow [2160p x265 SDR EAC3].mkv</span></td>
-                <td style='vertical-align: middle; white-space: nowrap;'><span style='color: #4fc3f7; line-height: 1.4;'>2160p x265 / SDR<br><span style='color: #aaa; font-size: 11px;'>Dolby Digital Plus (EAC3)</span></span></td>
-                <td style='vertical-align: middle; white-space: nowrap;'><strong>7.04 GB</strong></td>
-             </tr>
-<tr>
-                <td style='vertical-align: middle;'><strong>S01E04 - Cripples, Bastards, and Broken Things</strong><br><span style='color: #777; font-size: 11px;'>Game of Thrones (2011) - S01E04 - Cripples, Bastards, and Broken Things [2160p x265 Dolby Vision Atmos].mkv</span></td>
-                <td style='vertical-align: middle; white-space: nowrap;'><span style='color: #4fc3f7; line-height: 1.4;'>2160p x265 / Dolby Vision<br><span style='color: #aaa; font-size: 11px;'>Dolby Atmos</span></span></td>
-                <td style='vertical-align: middle; white-space: nowrap;'><strong>5.23 GB</strong></td>
-             </tr>
-<tr>
-                <td style='vertical-align: middle;'><strong>S01E04 - Cripples, Bastards, and Broken Things</strong><br><span style='color: #777; font-size: 11px;'>Game of Thrones (2011) - S01E04 - Cripples, Bastards, and Broken Things [2160p x265 SDR EAC3].mkv</span></td>
-                <td style='vertical-align: middle; white-space: nowrap;'><span style='color: #4fc3f7; line-height: 1.4;'>2160p x265 / SDR<br><span style='color: #aaa; font-size: 11px;'>Dolby Digital Plus (EAC3)</span></span></td>
-                <td style='vertical-align: middle; white-space: nowrap;'><strong>5.17 GB</strong></td>
-             </tr>
-<tr>
-                <td style='vertical-align: middle;'><strong>S01E05 - The Wolf and the Lion</strong><br><span style='color: #777; font-size: 11px;'>Game of Thrones (2011) - S01E05 - The Wolf and the Lion [2160p x265 Dolby Vision Atmos].mkv</span></td>
-                <td style='vertical-align: middle; white-space: nowrap;'><span style='color: #4fc3f7; line-height: 1.4;'>2160p x265 / Dolby Vision<br><span style='color: #aaa; font-size: 11px;'>Dolby Atmos</span></span></td>
-                <td style='vertical-align: middle; white-space: nowrap;'><strong>6.12 GB</strong></td>
-             </tr>
-<tr>
-                <td style='vertical-align: middle;'><strong>S01E05 - The Wolf and the Lion</strong><br><span style='color: #777; font-size: 11px;'>Game of Thrones (2011) - S01E05 - The Wolf and the Lion [2160p x265 SDR EAC3].mkv</span></td>
-                <td style='vertical-align: middle; white-space: nowrap;'><span style='color: #4fc3f7; line-height: 1.4;'>2160p x265 / SDR<br><span style='color: #aaa; font-size: 11px;'>Dolby Digital Plus (EAC3)</span></span></td>
-                <td style='vertical-align: middle; white-space: nowrap;'><strong>6.06 GB</strong></td>
-             </tr>
-<tr>
-                <td style='vertical-align: middle;'><strong>S01E06 - A Golden Crown</strong><br><span style='color: #777; font-size: 11px;'>Game of Thrones (2011) - S01E06 - A Golden Crown [1080p x265 SDR EAC3].mkv</span></td>
-                <td style='vertical-align: middle; white-space: nowrap;'><span style='color: #4fc3f7; line-height: 1.4;'>1080p x265 / SDR<br><span style='color: #aaa; font-size: 11px;'>Dolby Digital Plus (EAC3)</span></span></td>
-                <td style='vertical-align: middle; white-space: nowrap;'><strong>0.98 GB</strong></td>
-             </tr>
-<tr>
-                <td style='vertical-align: middle;'><strong>S01E06 - A Golden Crown</strong><br><span style='color: #777; font-size: 11px;'>Game of Thrones (2011) - S01E06 - A Golden Crown [2160p x265 Dolby Vision Atmos].mkv</span></td>
-                <td style='vertical-align: middle; white-space: nowrap;'><span style='color: #4fc3f7; line-height: 1.4;'>2160p x265 / Dolby Vision<br><span style='color: #aaa; font-size: 11px;'>Dolby Atmos</span></span></td>
-                <td style='vertical-align: middle; white-space: nowrap;'><strong>7.06 GB</strong></td>
-             </tr>
-<tr>
-                <td style='vertical-align: middle;'><strong>S01E07 - You Win or You Die</strong><br><span style='color: #777; font-size: 11px;'>Game of Thrones (2011) - S01E07 - You Win or You Die [1080p x265 SDR EAC3].mkv</span></td>
-                <td style='vertical-align: middle; white-space: nowrap;'><span style='color: #4fc3f7; line-height: 1.4;'>1080p x265 / SDR<br><span style='color: #aaa; font-size: 11px;'>Dolby Digital Plus (EAC3)</span></span></td>
-                <td style='vertical-align: middle; white-space: nowrap;'><strong>1.42 GB</strong></td>
-             </tr>
-<tr>
-                <td style='vertical-align: middle;'><strong>S01E07 - You Win or You Die</strong><br><span style='color: #777; font-size: 11px;'>Game of Thrones (2011) - S01E07 - You Win or You Die [2160p x265 Dolby Vision Atmos].mkv</span></td>
-                <td style='vertical-align: middle; white-space: nowrap;'><span style='color: #4fc3f7; line-height: 1.4;'>2160p x265 / Dolby Vision<br><span style='color: #aaa; font-size: 11px;'>Dolby Atmos</span></span></td>
-                <td style='vertical-align: middle; white-space: nowrap;'><strong>8.15 GB</strong></td>
-             </tr>
-<tr>
-                <td style='vertical-align: middle;'><strong>S01E08 - The Pointy End</strong><br><span style='color: #777; font-size: 11px;'>Game of Thrones (2011) - S01E08 - The Pointy End [2160p x265 Dolby Vision Atmos].mkv</span></td>
-                <td style='vertical-align: middle; white-space: nowrap;'><span style='color: #4fc3f7; line-height: 1.4;'>2160p x265 / Dolby Vision<br><span style='color: #aaa; font-size: 11px;'>Dolby Atmos</span></span></td>
-                <td style='vertical-align: middle; white-space: nowrap;'><strong>8.35 GB</strong></td>
-             </tr>
-<tr>
-                <td style='vertical-align: middle;'><strong>S01E08 - The Pointy End</strong><br><span style='color: #777; font-size: 11px;'>Game of Thrones (2011) - S01E08 - The Pointy End [2160p x265 SDR EAC3].mkv</span></td>
-                <td style='vertical-align: middle; white-space: nowrap;'><span style='color: #4fc3f7; line-height: 1.4;'>2160p x265 / SDR<br><span style='color: #aaa; font-size: 11px;'>Dolby Digital Plus (EAC3)</span></span></td>
-                <td style='vertical-align: middle; white-space: nowrap;'><strong>8.27 GB</strong></td>
-             </tr>
-<tr>
-                <td style='vertical-align: middle;'><strong>S01E09 - Baelor</strong><br><span style='color: #777; font-size: 11px;'>Game of Thrones (2011) - S01E09 - Baelor [2160p x265 Dolby Vision Atmos].mkv</span></td>
-                <td style='vertical-align: middle; white-space: nowrap;'><span style='color: #4fc3f7; line-height: 1.4;'>2160p x265 / Dolby Vision<br><span style='color: #aaa; font-size: 11px;'>Dolby Atmos</span></span></td>
-                <td style='vertical-align: middle; white-space: nowrap;'><strong>7.73 GB</strong></td>
-             </tr>
-<tr>
-                <td style='vertical-align: middle;'><strong>S01E09 - Baelor</strong><br><span style='color: #777; font-size: 11px;'>Game of Thrones (2011) - S01E09 - Baelor [2160p x265 SDR EAC3].mkv</span></td>
-                <td style='vertical-align: middle; white-space: nowrap;'><span style='color: #4fc3f7; line-height: 1.4;'>2160p x265 / SDR<br><span style='color: #aaa; font-size: 11px;'>Dolby Digital Plus (EAC3)</span></span></td>
-                <td style='vertical-align: middle; white-space: nowrap;'><strong>7.64 GB</strong></td>
-             </tr>
-<tr>
-                <td style='vertical-align: middle;'><strong>S01E10 - Fire and Blood</strong><br><span style='color: #777; font-size: 11px;'>Game of Thrones (2011) - S01E10 - Fire and Blood [1080p x265 SDR EAC3].mkv</span></td>
-                <td style='vertical-align: middle; white-space: nowrap;'><span style='color: #4fc3f7; line-height: 1.4;'>1080p x265 / SDR<br><span style='color: #aaa; font-size: 11px;'>Dolby Digital Plus (EAC3)</span></span></td>
-                <td style='vertical-align: middle; white-space: nowrap;'><strong>0.80 GB</strong></td>
-             </tr>
-<tr>
-                <td style='vertical-align: middle;'><strong>S01E10 - Fire and Blood</strong><br><span style='color: #777; font-size: 11px;'>Game of Thrones (2011) - S01E10 - Fire and Blood [2160p x265 Dolby Vision Atmos].mkv</span></td>
-                <td style='vertical-align: middle; white-space: nowrap;'><span style='color: #4fc3f7; line-height: 1.4;'>2160p x265 / Dolby Vision<br><span style='color: #aaa; font-size: 11px;'>Dolby Atmos</span></span></td>
-                <td style='vertical-align: middle; white-space: nowrap;'><strong>4.81 GB</strong></td>
-             </tr>
-                </table>
-            </div>
-        </details>
-        <details style="background: #1e1e1e; margin-bottom: 6px; border-radius: 4px; border: 1px solid #444; overflow: hidden;">
-            <summary style="cursor: pointer; padding: 8px 12px; font-weight: bold; color: #ccc; display: flex; justify-content: space-between; align-items: center; gap: 10px; user-select: none; font-size: 13px;">
-                <span>&#128194; Season 02 <span class="lib-tag">Plex</span></span>
-                <span style="color: #4fc3f7; font-size: 12px; white-space: nowrap;">115.39 GB &bull; 20 episode file(s)</span>
-            </summary>
-            <div style="padding: 8px 12px; border-top: 1px solid #333; background: #161616;">
-                <span style='color: #888; font-size: 11px; font-family: monospace;'>&#128193; P:\Shows\Game of Thrones (2011) {tmdb-1399}\Season 02</span>
-                                <table>
-                    <tr>
-                        <th style="vertical-align: middle;">Episode File Name & Directory</th>
-                        <th style="vertical-align: middle; white-space: nowrap;">Quality & Profile</th>
-                        <th style="vertical-align: middle; white-space: nowrap;">Size (GB)</th>
-                    </tr>
-                    <tr>
-                <td style='vertical-align: middle;'><strong>S02E01 - The North Remembers</strong><br><span style='color: #777; font-size: 11px;'>Game of Thrones (2011) - S02E01 - The North Remembers [2160p x265 Dolby Vision Atmos].mkv</span></td>
-                <td style='vertical-align: middle; white-space: nowrap;'><span style='color: #4fc3f7; line-height: 1.4;'>2160p x265 / Dolby Vision<br><span style='color: #aaa; font-size: 11px;'>Dolby Atmos</span></span></td>
-                <td style='vertical-align: middle; white-space: nowrap;'><strong>7.53 GB</strong></td>
-             </tr>
-<tr>
-                <td style='vertical-align: middle;'><strong>S02E01 - The North Remembers</strong><br><span style='color: #777; font-size: 11px;'>Game of Thrones (2011) - S02E01 - The North Remembers [2160p x265 SDR EAC3].mkv</span></td>
-                <td style='vertical-align: middle; white-space: nowrap;'><span style='color: #4fc3f7; line-height: 1.4;'>2160p x265 / SDR<br><span style='color: #aaa; font-size: 11px;'>Dolby Digital Plus (EAC3)</span></span></td>
-                <td style='vertical-align: middle; white-space: nowrap;'><strong>7.45 GB</strong></td>
-             </tr>
-<tr>
-                <td style='vertical-align: middle;'><strong>S02E02 - The Night Lands</strong><br><span style='color: #777; font-size: 11px;'>Game of Thrones (2011) - S02E02 - The Night Lands [2160p x265 Dolby Vision Atmos].mkv</span></td>
-                <td style='vertical-align: middle; white-space: nowrap;'><span style='color: #4fc3f7; line-height: 1.4;'>2160p x265 / Dolby Vision<br><span style='color: #aaa; font-size: 11px;'>Dolby Atmos</span></span></td>
-                <td style='vertical-align: middle; white-space: nowrap;'><strong>7.66 GB</strong></td>
-             </tr>
-<tr>
-                <td style='vertical-align: middle;'><strong>S02E02 - The Night Lands</strong><br><span style='color: #777; font-size: 11px;'>Game of Thrones (2011) - S02E02 - The Night Lands [2160p x265 SDR EAC3].mkv</span></td>
-                <td style='vertical-align: middle; white-space: nowrap;'><span style='color: #4fc3f7; line-height: 1.4;'>2160p x265 / SDR<br><span style='color: #aaa; font-size: 11px;'>Dolby Digital Plus (EAC3)</span></span></td>
-                <td style='vertical-align: middle; white-space: nowrap;'><strong>7.59 GB</strong></td>
-             </tr>
-<tr>
-                <td style='vertical-align: middle;'><strong>S02E03 - What Is Dead May Never Die</strong><br><span style='color: #777; font-size: 11px;'>Game of Thrones (2011) - S02E03 - What Is Dead May Never Die [2160p x265 Dolby Vision Atmos].mkv</span></td>
-                <td style='vertical-align: middle; white-space: nowrap;'><span style='color: #4fc3f7; line-height: 1.4;'>2160p x265 / Dolby Vision<br><span style='color: #aaa; font-size: 11px;'>Dolby Atmos</span></span></td>
-                <td style='vertical-align: middle; white-space: nowrap;'><strong>7.55 GB</strong></td>
-             </tr>
-<tr>
-                <td style='vertical-align: middle;'><strong>S02E03 - What Is Dead May Never Die</strong><br><span style='color: #777; font-size: 11px;'>Game of Thrones (2011) - S02E03 - What Is Dead May Never Die [2160p x265 SDR EAC3].mkv</span></td>
-                <td style='vertical-align: middle; white-space: nowrap;'><span style='color: #4fc3f7; line-height: 1.4;'>2160p x265 / SDR<br><span style='color: #aaa; font-size: 11px;'>Dolby Digital Plus (EAC3)</span></span></td>
-                <td style='vertical-align: middle; white-space: nowrap;'><strong>7.48 GB</strong></td>
-             </tr>
-<tr>
-                <td style='vertical-align: middle;'><strong>S02E04 - Garden of Bones</strong><br><span style='color: #777; font-size: 11px;'>Game of Thrones (2011) - S02E04 - Garden of Bones [2160p x265 Dolby Vision Atmos].mkv</span></td>
-                <td style='vertical-align: middle; white-space: nowrap;'><span style='color: #4fc3f7; line-height: 1.4;'>2160p x265 / Dolby Vision<br><span style='color: #aaa; font-size: 11px;'>Dolby Atmos</span></span></td>
-                <td style='vertical-align: middle; white-space: nowrap;'><strong>7.25 GB</strong></td>
-             </tr>
-<tr>
-                <td style='vertical-align: middle;'><strong>S02E04 - Garden of Bones</strong><br><span style='color: #777; font-size: 11px;'>Game of Thrones (2011) - S02E04 - Garden of Bones [2160p x265 SDR EAC3].mkv</span></td>
-                <td style='vertical-align: middle; white-space: nowrap;'><span style='color: #4fc3f7; line-height: 1.4;'>2160p x265 / SDR<br><span style='color: #aaa; font-size: 11px;'>Dolby Digital Plus (EAC3)</span></span></td>
-                <td style='vertical-align: middle; white-space: nowrap;'><strong>7.18 GB</strong></td>
-             </tr>
-<tr>
-                <td style='vertical-align: middle;'><strong>S02E05 - The Ghost of Harrenhal</strong><br><span style='color: #777; font-size: 11px;'>Game of Thrones (2011) - S02E05 - The Ghost of Harrenhal [2160p x265 Dolby Vision Atmos].mkv</span></td>
-                <td style='vertical-align: middle; white-space: nowrap;'><span style='color: #4fc3f7; line-height: 1.4;'>2160p x265 / Dolby Vision<br><span style='color: #aaa; font-size: 11px;'>Dolby Atmos</span></span></td>
-                <td style='vertical-align: middle; white-space: nowrap;'><strong>5.83 GB</strong></td>
-             </tr>
-<tr>
-                <td style='vertical-align: middle;'><strong>S02E05 - The Ghost of Harrenhal</strong><br><span style='color: #777; font-size: 11px;'>Game of Thrones (2011) - S02E05 - The Ghost of Harrenhal [2160p x265 SDR EAC3].mkv</span></td>
-                <td style='vertical-align: middle; white-space: nowrap;'><span style='color: #4fc3f7; line-height: 1.4;'>2160p x265 / SDR<br><span style='color: #aaa; font-size: 11px;'>Dolby Digital Plus (EAC3)</span></span></td>
-                <td style='vertical-align: middle; white-space: nowrap;'><strong>5.78 GB</strong></td>
-             </tr>
-<tr>
-                <td style='vertical-align: middle;'><strong>S02E06 - The Old Gods and the New</strong><br><span style='color: #777; font-size: 11px;'>Game of Thrones (2011) - S02E06 - The Old Gods and the New [1080p x265 SDR EAC3].mkv</span></td>
-                <td style='vertical-align: middle; white-space: nowrap;'><span style='color: #4fc3f7; line-height: 1.4;'>1080p x265 / SDR<br><span style='color: #aaa; font-size: 11px;'>Dolby Digital Plus (EAC3)</span></span></td>
-                <td style='vertical-align: middle; white-space: nowrap;'><strong>1.02 GB</strong></td>
-             </tr>
-<tr>
-                <td style='vertical-align: middle;'><strong>S02E06 - The Old Gods and the New</strong><br><span style='color: #777; font-size: 11px;'>Game of Thrones (2011) - S02E06 - The Old Gods and the New [2160p x265 Dolby Vision Atmos].mkv</span></td>
-                <td style='vertical-align: middle; white-space: nowrap;'><span style='color: #4fc3f7; line-height: 1.4;'>2160p x265 / Dolby Vision<br><span style='color: #aaa; font-size: 11px;'>Dolby Atmos</span></span></td>
-                <td style='vertical-align: middle; white-space: nowrap;'><strong>6.35 GB</strong></td>
-             </tr>
-<tr>
-                <td style='vertical-align: middle;'><strong>S02E07 - A Man Without Honor</strong><br><span style='color: #777; font-size: 11px;'>Game of Thrones (2011) - S02E07 - A Man Without Honor [2160p x265 Dolby Vision Atmos].mkv</span></td>
-                <td style='vertical-align: middle; white-space: nowrap;'><span style='color: #4fc3f7; line-height: 1.4;'>2160p x265 / Dolby Vision<br><span style='color: #aaa; font-size: 11px;'>Dolby Atmos</span></span></td>
-                <td style='vertical-align: middle; white-space: nowrap;'><strong>5.34 GB</strong></td>
-             </tr>
-<tr>
-                <td style='vertical-align: middle;'><strong>S02E07 - A Man Without Honor</strong><br><span style='color: #777; font-size: 11px;'>Game of Thrones (2011) - S02E07 - A Man Without Honor [2160p x265 SDR EAC3].mkv</span></td>
-                <td style='vertical-align: middle; white-space: nowrap;'><span style='color: #4fc3f7; line-height: 1.4;'>2160p x265 / SDR<br><span style='color: #aaa; font-size: 11px;'>Dolby Digital Plus (EAC3)</span></span></td>
-                <td style='vertical-align: middle; white-space: nowrap;'><strong>5.27 GB</strong></td>
-             </tr>
-<tr>
-                <td style='vertical-align: middle;'><strong>S02E08 - The Prince of Winterfell</strong><br><span style='color: #777; font-size: 11px;'>Game of Thrones (2011) - S02E08 - The Prince of Winterfell [1080p x265 SDR EAC3].mkv</span></td>
-                <td style='vertical-align: middle; white-space: nowrap;'><span style='color: #4fc3f7; line-height: 1.4;'>1080p x265 / SDR<br><span style='color: #aaa; font-size: 11px;'>Dolby Digital Plus (EAC3)</span></span></td>
-                <td style='vertical-align: middle; white-space: nowrap;'><strong>0.84 GB</strong></td>
-             </tr>
-<tr>
-                <td style='vertical-align: middle;'><strong>S02E08 - The Prince of Winterfell</strong><br><span style='color: #777; font-size: 11px;'>Game of Thrones (2011) - S02E08 - The Prince of Winterfell [2160p x265 Dolby Vision Atmos].mkv</span></td>
-                <td style='vertical-align: middle; white-space: nowrap;'><span style='color: #4fc3f7; line-height: 1.4;'>2160p x265 / Dolby Vision<br><span style='color: #aaa; font-size: 11px;'>Dolby Atmos</span></span></td>
-                <td style='vertical-align: middle; white-space: nowrap;'><strong>4.74 GB</strong></td>
-             </tr>
-<tr>
-                <td style='vertical-align: middle;'><strong>S02E09 - Blackwater</strong><br><span style='color: #777; font-size: 11px;'>Game of Thrones (2011) - S02E09 - Blackwater [1080p x265 SDR EAC3].mkv</span></td>
-                <td style='vertical-align: middle; white-space: nowrap;'><span style='color: #4fc3f7; line-height: 1.4;'>1080p x265 / SDR<br><span style='color: #aaa; font-size: 11px;'>Dolby Digital Plus (EAC3)</span></span></td>
-                <td style='vertical-align: middle; white-space: nowrap;'><strong>0.72 GB</strong></td>
-             </tr>
-<tr>
-                <td style='vertical-align: middle;'><strong>S02E09 - Blackwater</strong><br><span style='color: #777; font-size: 11px;'>Game of Thrones (2011) - S02E09 - Blackwater [2160p x265 Dolby Vision Atmos].mkv</span></td>
-                <td style='vertical-align: middle; white-space: nowrap;'><span style='color: #4fc3f7; line-height: 1.4;'>2160p x265 / Dolby Vision<br><span style='color: #aaa; font-size: 11px;'>Dolby Atmos</span></span></td>
-                <td style='vertical-align: middle; white-space: nowrap;'><strong>6.00 GB</strong></td>
-             </tr>
-<tr>
-                <td style='vertical-align: middle;'><strong>S02E10 - Valar Morghulis</strong><br><span style='color: #777; font-size: 11px;'>Game of Thrones (2011) - S02E10 - Valar Morghulis [2160p x265 Dolby Vision Atmos].mkv</span></td>
-                <td style='vertical-align: middle; white-space: nowrap;'><span style='color: #4fc3f7; line-height: 1.4;'>2160p x265 / Dolby Vision<br><span style='color: #aaa; font-size: 11px;'>Dolby Atmos</span></span></td>
-                <td style='vertical-align: middle; white-space: nowrap;'><strong>6.97 GB</strong></td>
-             </tr>
-<tr>
-                <td style='vertical-align: middle;'><strong>S02E10 - Valar Morghulis</strong><br><span style='color: #777; font-size: 11px;'>Game of Thrones (2011) - S02E10 - Valar Morghulis [2160p x265 SDR EAC3].mkv</span></td>
-                <td style='vertical-align: middle; white-space: nowrap;'><span style='color: #4fc3f7; line-height: 1.4;'>2160p x265 / SDR<br><span style='color: #aaa; font-size: 11px;'>Dolby Digital Plus (EAC3)</span></span></td>
-                <td style='vertical-align: middle; white-space: nowrap;'><strong>6.83 GB</strong></td>
-             </tr>
-                </table>
-            </div>
-        </details>
-        <details style="background: #1e1e1e; margin-bottom: 6px; border-radius: 4px; border: 1px solid #444; overflow: hidden;">
-            <summary style="cursor: pointer; padding: 8px 12px; font-weight: bold; color: #ccc; display: flex; justify-content: space-between; align-items: center; gap: 10px; user-select: none; font-size: 13px;">
-                <span>&#128194; Season 03 <span class="lib-tag">Plex</span></span>
-                <span style="color: #4fc3f7; font-size: 12px; white-space: nowrap;">109.18 GB &bull; 19 episode file(s)</span>
-            </summary>
-            <div style="padding: 8px 12px; border-top: 1px solid #333; background: #161616;">
-                <span style='color: #888; font-size: 11px; font-family: monospace;'>&#128193; P:\Shows\Game of Thrones (2011) {tmdb-1399}\Season 03</span>
-                                <table>
-                    <tr>
-                        <th style="vertical-align: middle;">Episode File Name & Directory</th>
-                        <th style="vertical-align: middle; white-space: nowrap;">Quality & Profile</th>
-                        <th style="vertical-align: middle; white-space: nowrap;">Size (GB)</th>
-                    </tr>
-                    <tr>
-                <td style='vertical-align: middle;'><strong>S03E01 - Valar Dohaeris</strong><br><span style='color: #777; font-size: 11px;'>Game of Thrones (2011) - S03E01 - Valar Dohaeris [2160p x265 Dolby Vision Atmos].mkv</span></td>
-                <td style='vertical-align: middle; white-space: nowrap;'><span style='color: #4fc3f7; line-height: 1.4;'>2160p x265 / Dolby Vision<br><span style='color: #aaa; font-size: 11px;'>Dolby Atmos</span></span></td>
-                <td style='vertical-align: middle; white-space: nowrap;'><strong>6.65 GB</strong></td>
-             </tr>
-<tr>
-                <td style='vertical-align: middle;'><strong>S03E01 - Valar Dohaeris</strong><br><span style='color: #777; font-size: 11px;'>Game of Thrones (2011) - S03E01 - Valar Dohaeris [2160p x265 SDR EAC3].mkv</span></td>
-                <td style='vertical-align: middle; white-space: nowrap;'><span style='color: #4fc3f7; line-height: 1.4;'>2160p x265 / SDR<br><span style='color: #aaa; font-size: 11px;'>Dolby Digital Plus (EAC3)</span></span></td>
-                <td style='vertical-align: middle; white-space: nowrap;'><strong>6.54 GB</strong></td>
-             </tr>
-<tr>
-                <td style='vertical-align: middle;'><strong>S03E02 - Dark Wings, Dark Words</strong><br><span style='color: #777; font-size: 11px;'>Game of Thrones (2011) - S03E02 - Dark Wings, Dark Words [2160p x265 Dolby Vision Atmos].mkv</span></td>
-                <td style='vertical-align: middle; white-space: nowrap;'><span style='color: #4fc3f7; line-height: 1.4;'>2160p x265 / Dolby Vision<br><span style='color: #aaa; font-size: 11px;'>Dolby Atmos</span></span></td>
-                <td style='vertical-align: middle; white-space: nowrap;'><strong>4.63 GB</strong></td>
-             </tr>
-<tr>
-                <td style='vertical-align: middle;'><strong>S03E02 - Dark Wings, Dark Words</strong><br><span style='color: #777; font-size: 11px;'>Game of Thrones (2011) - S03E02 - Dark Wings, Dark Words [2160p x265 SDR EAC3].mkv</span></td>
-                <td style='vertical-align: middle; white-space: nowrap;'><span style='color: #4fc3f7; line-height: 1.4;'>2160p x265 / SDR<br><span style='color: #aaa; font-size: 11px;'>Dolby Digital Plus (EAC3)</span></span></td>
-                <td style='vertical-align: middle; white-space: nowrap;'><strong>4.57 GB</strong></td>
-             </tr>
-<tr>
-                <td style='vertical-align: middle;'><strong>S03E03 - Walk of Punishment</strong><br><span style='color: #777; font-size: 11px;'>Game of Thrones (2011) - S03E03 - Walk of Punishment [2160p x265 Dolby Vision Atmos].mkv</span></td>
-                <td style='vertical-align: middle; white-space: nowrap;'><span style='color: #4fc3f7; line-height: 1.4;'>2160p x265 / Dolby Vision<br><span style='color: #aaa; font-size: 11px;'>Dolby Atmos</span></span></td>
-                <td style='vertical-align: middle; white-space: nowrap;'><strong>7.55 GB</strong></td>
-             </tr>
-<tr>
-                <td style='vertical-align: middle;'><strong>S03E03 - Walk of Punishment</strong><br><span style='color: #777; font-size: 11px;'>Game of Thrones (2011) - S03E03 - Walk of Punishment [2160p x265 SDR EAC3].mkv</span></td>
-                <td style='vertical-align: middle; white-space: nowrap;'><span style='color: #4fc3f7; line-height: 1.4;'>2160p x265 / SDR<br><span style='color: #aaa; font-size: 11px;'>Dolby Digital Plus (EAC3)</span></span></td>
-                <td style='vertical-align: middle; white-space: nowrap;'><strong>7.46 GB</strong></td>
-             </tr>
-<tr>
-                <td style='vertical-align: middle;'><strong>S03E04 - And Now His Watch Is Ended</strong><br><span style='color: #777; font-size: 11px;'>Game of Thrones (2011) - S03E04 - And Now His Watch Is Ended [1080p x265 SDR EAC3].mkv</span></td>
-                <td style='vertical-align: middle; white-space: nowrap;'><span style='color: #4fc3f7; line-height: 1.4;'>1080p x265 / SDR<br><span style='color: #aaa; font-size: 11px;'>Dolby Digital Plus (EAC3)</span></span></td>
-                <td style='vertical-align: middle; white-space: nowrap;'><strong>0.68 GB</strong></td>
-             </tr>
-<tr>
-                <td style='vertical-align: middle;'><strong>S03E04 - And Now His Watch Is Ended</strong><br><span style='color: #777; font-size: 11px;'>Game of Thrones (2011) - S03E04 - And Now His Watch Is Ended [2160p x265 Dolby Vision Atmos].mkv</span></td>
-                <td style='vertical-align: middle; white-space: nowrap;'><span style='color: #4fc3f7; line-height: 1.4;'>2160p x265 / Dolby Vision<br><span style='color: #aaa; font-size: 11px;'>Dolby Atmos</span></span></td>
-                <td style='vertical-align: middle; white-space: nowrap;'><strong>7.14 GB</strong></td>
-             </tr>
-<tr>
-                <td style='vertical-align: middle;'><strong>S03E05 - Kissed by Fire</strong><br><span style='color: #777; font-size: 11px;'>Game of Thrones (2011) - S03E05 - Kissed by Fire [2160p x265 Dolby Vision Atmos].mkv</span></td>
-                <td style='vertical-align: middle; white-space: nowrap;'><span style='color: #4fc3f7; line-height: 1.4;'>2160p x265 / Dolby Vision<br><span style='color: #aaa; font-size: 11px;'>Dolby Atmos</span></span></td>
-                <td style='vertical-align: middle; white-space: nowrap;'><strong>8.25 GB</strong></td>
-             </tr>
-<tr>
-                <td style='vertical-align: middle;'><strong>S03E05 - Kissed by Fire</strong><br><span style='color: #777; font-size: 11px;'>Game of Thrones (2011) - S03E05 - Kissed by Fire [2160p x265 SDR EAC3].mkv</span></td>
-                <td style='vertical-align: middle; white-space: nowrap;'><span style='color: #4fc3f7; line-height: 1.4;'>2160p x265 / SDR<br><span style='color: #aaa; font-size: 11px;'>Dolby Digital Plus (EAC3)</span></span></td>
-                <td style='vertical-align: middle; white-space: nowrap;'><strong>8.15 GB</strong></td>
-             </tr>
-<tr>
-                <td style='vertical-align: middle;'><strong>S03E06 - The Climb</strong><br><span style='color: #777; font-size: 11px;'>Game of Thrones (2011) - S03E06 - The Climb [1080p x265 SDR EAC3].mkv</span></td>
-                <td style='vertical-align: middle; white-space: nowrap;'><span style='color: #4fc3f7; line-height: 1.4;'>1080p x265 / SDR<br><span style='color: #aaa; font-size: 11px;'>Dolby Digital Plus (EAC3)</span></span></td>
-                <td style='vertical-align: middle; white-space: nowrap;'><strong>0.68 GB</strong></td>
-             </tr>
-<tr>
-                <td style='vertical-align: middle;'><strong>S03E06 - The Climb</strong><br><span style='color: #777; font-size: 11px;'>Game of Thrones (2011) - S03E06 - The Climb [2160p x265 Dolby Vision Atmos].mkv</span></td>
-                <td style='vertical-align: middle; white-space: nowrap;'><span style='color: #4fc3f7; line-height: 1.4;'>2160p x265 / Dolby Vision<br><span style='color: #aaa; font-size: 11px;'>Dolby Atmos</span></span></td>
-                <td style='vertical-align: middle; white-space: nowrap;'><strong>7.61 GB</strong></td>
-             </tr>
-<tr>
-                <td style='vertical-align: middle;'><strong>S03E07 - The Bear and the Maiden Fair</strong><br><span style='color: #777; font-size: 11px;'>Game of Thrones (2011) - S03E07 - The Bear and the Maiden Fair [2160p x265 Dolby Vision Atmos].mkv</span></td>
-                <td style='vertical-align: middle; white-space: nowrap;'><span style='color: #4fc3f7; line-height: 1.4;'>2160p x265 / Dolby Vision<br><span style='color: #aaa; font-size: 11px;'>Dolby Atmos</span></span></td>
-                <td style='vertical-align: middle; white-space: nowrap;'><strong>8.23 GB</strong></td>
-             </tr>
-<tr>
-                <td style='vertical-align: middle;'><strong>S03E07 - The Bear and the Maiden Fair</strong><br><span style='color: #777; font-size: 11px;'>Game of Thrones (2011) - S03E07 - The Bear and the Maiden Fair [2160p x265 SDR EAC3].mkv</span></td>
-                <td style='vertical-align: middle; white-space: nowrap;'><span style='color: #4fc3f7; line-height: 1.4;'>2160p x265 / SDR<br><span style='color: #aaa; font-size: 11px;'>Dolby Digital Plus (EAC3)</span></span></td>
-                <td style='vertical-align: middle; white-space: nowrap;'><strong>8.16 GB</strong></td>
-             </tr>
-<tr>
-                <td style='vertical-align: middle;'><strong>S03E08 - Second Sons</strong><br><span style='color: #777; font-size: 11px;'>Game of Thrones (2011) - S03E08 - Second Sons [1080p x265 SDR EAC3].mkv</span></td>
-                <td style='vertical-align: middle; white-space: nowrap;'><span style='color: #4fc3f7; line-height: 1.4;'>1080p x265 / SDR<br><span style='color: #aaa; font-size: 11px;'>Dolby Digital Plus (EAC3)</span></span></td>
-                <td style='vertical-align: middle; white-space: nowrap;'><strong>0.70 GB</strong></td>
-             </tr>
-<tr>
-                <td style='vertical-align: middle;'><strong>S03E09 - The Rains of Castamere</strong><br><span style='color: #777; font-size: 11px;'>Game of Thrones (2011) - S03E09 - The Rains of Castamere [2160p x265 Dolby Vision Atmos].mkv</span></td>
-                <td style='vertical-align: middle; white-space: nowrap;'><span style='color: #4fc3f7; line-height: 1.4;'>2160p x265 / Dolby Vision<br><span style='color: #aaa; font-size: 11px;'>Dolby Atmos</span></span></td>
-                <td style='vertical-align: middle; white-space: nowrap;'><strong>6.02 GB</strong></td>
-             </tr>
-<tr>
-                <td style='vertical-align: middle;'><strong>S03E09 - The Rains of Castamere</strong><br><span style='color: #777; font-size: 11px;'>Game of Thrones (2011) - S03E09 - The Rains of Castamere [2160p x265 SDR EAC3].mkv</span></td>
-                <td style='vertical-align: middle; white-space: nowrap;'><span style='color: #4fc3f7; line-height: 1.4;'>2160p x265 / SDR<br><span style='color: #aaa; font-size: 11px;'>Dolby Digital Plus (EAC3)</span></span></td>
-                <td style='vertical-align: middle; white-space: nowrap;'><strong>5.96 GB</strong></td>
-             </tr>
-<tr>
-                <td style='vertical-align: middle;'><strong>S03E10 - Mhysa</strong><br><span style='color: #777; font-size: 11px;'>Game of Thrones (2011) - S03E10 - Mhysa [2160p x265 Dolby Vision Atmos].mkv</span></td>
-                <td style='vertical-align: middle; white-space: nowrap;'><span style='color: #4fc3f7; line-height: 1.4;'>2160p x265 / Dolby Vision<br><span style='color: #aaa; font-size: 11px;'>Dolby Atmos</span></span></td>
-                <td style='vertical-align: middle; white-space: nowrap;'><strong>5.13 GB</strong></td>
-             </tr>
-<tr>
-                <td style='vertical-align: middle;'><strong>S03E10 - Mhysa</strong><br><span style='color: #777; font-size: 11px;'>Game of Thrones (2011) - S03E10 - Mhysa [2160p x265 SDR EAC3].mkv</span></td>
-                <td style='vertical-align: middle; white-space: nowrap;'><span style='color: #4fc3f7; line-height: 1.4;'>2160p x265 / SDR<br><span style='color: #aaa; font-size: 11px;'>Dolby Digital Plus (EAC3)</span></span></td>
-                <td style='vertical-align: middle; white-space: nowrap;'><strong>5.06 GB</strong></td>
-             </tr>
-                </table>
-            </div>
-        </details>
-        <details style="background: #1e1e1e; margin-bottom: 6px; border-radius: 4px; border: 1px solid #444; overflow: hidden;">
-            <summary style="cursor: pointer; padding: 8px 12px; font-weight: bold; color: #ccc; display: flex; justify-content: space-between; align-items: center; gap: 10px; user-select: none; font-size: 13px;">
-                <span>&#128194; Season 04 <span class="lib-tag">Plex</span></span>
-                <span style="color: #4fc3f7; font-size: 12px; white-space: nowrap;">98.03 GB &bull; 20 episode file(s)</span>
-            </summary>
-            <div style="padding: 8px 12px; border-top: 1px solid #333; background: #161616;">
-                <span style='color: #888; font-size: 11px; font-family: monospace;'>&#128193; P:\Shows\Game of Thrones (2011) {tmdb-1399}\Season 04</span>
-                                <table>
-                    <tr>
-                        <th style="vertical-align: middle;">Episode File Name & Directory</th>
-                        <th style="vertical-align: middle; white-space: nowrap;">Quality & Profile</th>
-                        <th style="vertical-align: middle; white-space: nowrap;">Size (GB)</th>
-                    </tr>
-                    <tr>
-                <td style='vertical-align: middle;'><strong>S04E01 - Two Swords</strong><br><span style='color: #777; font-size: 11px;'>Game of Thrones (2011) - S04E01 - Two Swords [2160p x265 Dolby Vision Atmos].mkv</span></td>
-                <td style='vertical-align: middle; white-space: nowrap;'><span style='color: #4fc3f7; line-height: 1.4;'>2160p x265 / Dolby Vision<br><span style='color: #aaa; font-size: 11px;'>Dolby Atmos</span></span></td>
-                <td style='vertical-align: middle; white-space: nowrap;'><strong>5.27 GB</strong></td>
-             </tr>
-<tr>
-                <td style='vertical-align: middle;'><strong>S04E01 - Two Swords</strong><br><span style='color: #777; font-size: 11px;'>Game of Thrones (2011) - S04E01 - Two Swords [2160p x265 SDR EAC3].mkv</span></td>
-                <td style='vertical-align: middle; white-space: nowrap;'><span style='color: #4fc3f7; line-height: 1.4;'>2160p x265 / SDR<br><span style='color: #aaa; font-size: 11px;'>Dolby Digital Plus (EAC3)</span></span></td>
-                <td style='vertical-align: middle; white-space: nowrap;'><strong>5.21 GB</strong></td>
-             </tr>
-<tr>
-                <td style='vertical-align: middle;'><strong>S04E02 - The Lion and the Rose</strong><br><span style='color: #777; font-size: 11px;'>Game of Thrones (2011) - S04E02 - The Lion and the Rose [2160p x265 Dolby Vision Atmos].mkv</span></td>
-                <td style='vertical-align: middle; white-space: nowrap;'><span style='color: #4fc3f7; line-height: 1.4;'>2160p x265 / Dolby Vision<br><span style='color: #aaa; font-size: 11px;'>Dolby Atmos</span></span></td>
-                <td style='vertical-align: middle; white-space: nowrap;'><strong>4.87 GB</strong></td>
-             </tr>
-<tr>
-                <td style='vertical-align: middle;'><strong>S04E02 - The Lion and the Rose</strong><br><span style='color: #777; font-size: 11px;'>Game of Thrones (2011) - S04E02 - The Lion and the Rose [2160p x265 SDR EAC3].mkv</span></td>
-                <td style='vertical-align: middle; white-space: nowrap;'><span style='color: #4fc3f7; line-height: 1.4;'>2160p x265 / SDR<br><span style='color: #aaa; font-size: 11px;'>Dolby Digital Plus (EAC3)</span></span></td>
-                <td style='vertical-align: middle; white-space: nowrap;'><strong>4.82 GB</strong></td>
-             </tr>
-<tr>
-                <td style='vertical-align: middle;'><strong>S04E03 - Breaker of Chains</strong><br><span style='color: #777; font-size: 11px;'>Game of Thrones (2011) - S04E03 - Breaker of Chains [2160p x265 Dolby Vision Atmos].mkv</span></td>
-                <td style='vertical-align: middle; white-space: nowrap;'><span style='color: #4fc3f7; line-height: 1.4;'>2160p x265 / Dolby Vision<br><span style='color: #aaa; font-size: 11px;'>Dolby Atmos</span></span></td>
-                <td style='vertical-align: middle; white-space: nowrap;'><strong>7.87 GB</strong></td>
-             </tr>
-<tr>
-                <td style='vertical-align: middle;'><strong>S04E03 - Breaker of Chains</strong><br><span style='color: #777; font-size: 11px;'>Game of Thrones (2011) - S04E03 - Breaker of Chains [2160p x265 SDR EAC3].mkv</span></td>
-                <td style='vertical-align: middle; white-space: nowrap;'><span style='color: #4fc3f7; line-height: 1.4;'>2160p x265 / SDR<br><span style='color: #aaa; font-size: 11px;'>Dolby Digital Plus (EAC3)</span></span></td>
-                <td style='vertical-align: middle; white-space: nowrap;'><strong>7.77 GB</strong></td>
-             </tr>
-<tr>
-                <td style='vertical-align: middle;'><strong>S04E04 - Oathkeeper</strong><br><span style='color: #777; font-size: 11px;'>Game of Thrones (2011) - S04E04 - Oathkeeper [1080p x265 SDR EAC3].mkv</span></td>
-                <td style='vertical-align: middle; white-space: nowrap;'><span style='color: #4fc3f7; line-height: 1.4;'>1080p x265 / SDR<br><span style='color: #aaa; font-size: 11px;'>Dolby Digital Plus (EAC3)</span></span></td>
-                <td style='vertical-align: middle; white-space: nowrap;'><strong>0.73 GB</strong></td>
-             </tr>
-<tr>
-                <td style='vertical-align: middle;'><strong>S04E04 - Oathkeeper</strong><br><span style='color: #777; font-size: 11px;'>Game of Thrones (2011) - S04E04 - Oathkeeper [2160p x265 Dolby Vision Atmos].mkv</span></td>
-                <td style='vertical-align: middle; white-space: nowrap;'><span style='color: #4fc3f7; line-height: 1.4;'>2160p x265 / Dolby Vision<br><span style='color: #aaa; font-size: 11px;'>Dolby Atmos</span></span></td>
-                <td style='vertical-align: middle; white-space: nowrap;'><strong>5.53 GB</strong></td>
-             </tr>
-<tr>
-                <td style='vertical-align: middle;'><strong>S04E05 - First of His Name</strong><br><span style='color: #777; font-size: 11px;'>Game of Thrones (2011) - S04E05 - First of His Name [1080p x265 SDR EAC3].mkv</span></td>
-                <td style='vertical-align: middle; white-space: nowrap;'><span style='color: #4fc3f7; line-height: 1.4;'>1080p x265 / SDR<br><span style='color: #aaa; font-size: 11px;'>Dolby Digital Plus (EAC3)</span></span></td>
-                <td style='vertical-align: middle; white-space: nowrap;'><strong>0.89 GB</strong></td>
-             </tr>
-<tr>
-                <td style='vertical-align: middle;'><strong>S04E05 - First of His Name</strong><br><span style='color: #777; font-size: 11px;'>Game of Thrones (2011) - S04E05 - First of His Name [2160p x265 Dolby Vision Atmos].mkv</span></td>
-                <td style='vertical-align: middle; white-space: nowrap;'><span style='color: #4fc3f7; line-height: 1.4;'>2160p x265 / Dolby Vision<br><span style='color: #aaa; font-size: 11px;'>Dolby Atmos</span></span></td>
-                <td style='vertical-align: middle; white-space: nowrap;'><strong>6.16 GB</strong></td>
-             </tr>
-<tr>
-                <td style='vertical-align: middle;'><strong>S04E06 - The Laws of Gods and Men</strong><br><span style='color: #777; font-size: 11px;'>Game of Thrones (2011) - S04E06 - The Laws of Gods and Men [1080p x265 SDR EAC3].mkv</span></td>
-                <td style='vertical-align: middle; white-space: nowrap;'><span style='color: #4fc3f7; line-height: 1.4;'>1080p x265 / SDR<br><span style='color: #aaa; font-size: 11px;'>Dolby Digital Plus (EAC3)</span></span></td>
-                <td style='vertical-align: middle; white-space: nowrap;'><strong>0.76 GB</strong></td>
-             </tr>
-<tr>
-                <td style='vertical-align: middle;'><strong>S04E06 - The Laws of Gods and Men</strong><br><span style='color: #777; font-size: 11px;'>Game of Thrones (2011) - S04E06 - The Laws of Gods and Men [2160p x265 Dolby Vision Atmos].mkv</span></td>
-                <td style='vertical-align: middle; white-space: nowrap;'><span style='color: #4fc3f7; line-height: 1.4;'>2160p x265 / Dolby Vision<br><span style='color: #aaa; font-size: 11px;'>Dolby Atmos</span></span></td>
-                <td style='vertical-align: middle; white-space: nowrap;'><strong>7.25 GB</strong></td>
-             </tr>
-<tr>
-                <td style='vertical-align: middle;'><strong>S04E07 - Mockingbird</strong><br><span style='color: #777; font-size: 11px;'>Game of Thrones (2011) - S04E07 - Mockingbird [1080p x265 SDR EAC3].mkv</span></td>
-                <td style='vertical-align: middle; white-space: nowrap;'><span style='color: #4fc3f7; line-height: 1.4;'>1080p x265 / SDR<br><span style='color: #aaa; font-size: 11px;'>Dolby Digital Plus (EAC3)</span></span></td>
-                <td style='vertical-align: middle; white-space: nowrap;'><strong>0.67 GB</strong></td>
-             </tr>
-<tr>
-                <td style='vertical-align: middle;'><strong>S04E07 - Mockingbird</strong><br><span style='color: #777; font-size: 11px;'>Game of Thrones (2011) - S04E07 - Mockingbird [2160p x265 Dolby Vision Atmos].mkv</span></td>
-                <td style='vertical-align: middle; white-space: nowrap;'><span style='color: #4fc3f7; line-height: 1.4;'>2160p x265 / Dolby Vision<br><span style='color: #aaa; font-size: 11px;'>Dolby Atmos</span></span></td>
-                <td style='vertical-align: middle; white-space: nowrap;'><strong>5.14 GB</strong></td>
-             </tr>
-<tr>
-                <td style='vertical-align: middle;'><strong>S04E08 - The Mountain and the Viper</strong><br><span style='color: #777; font-size: 11px;'>Game of Thrones (2011) - S04E08 - The Mountain and the Viper [2160p x265 Dolby Vision Atmos].mkv</span></td>
-                <td style='vertical-align: middle; white-space: nowrap;'><span style='color: #4fc3f7; line-height: 1.4;'>2160p x265 / Dolby Vision<br><span style='color: #aaa; font-size: 11px;'>Dolby Atmos</span></span></td>
-                <td style='vertical-align: middle; white-space: nowrap;'><strong>6.35 GB</strong></td>
-             </tr>
-<tr>
-                <td style='vertical-align: middle;'><strong>S04E08 - The Mountain and the Viper</strong><br><span style='color: #777; font-size: 11px;'>Game of Thrones (2011) - S04E08 - The Mountain and the Viper [2160p x265 SDR EAC3].mkv</span></td>
-                <td style='vertical-align: middle; white-space: nowrap;'><span style='color: #4fc3f7; line-height: 1.4;'>2160p x265 / SDR<br><span style='color: #aaa; font-size: 11px;'>Dolby Digital Plus (EAC3)</span></span></td>
-                <td style='vertical-align: middle; white-space: nowrap;'><strong>6.27 GB</strong></td>
-             </tr>
-<tr>
-                <td style='vertical-align: middle;'><strong>S04E09 - The Watchers on the Wall</strong><br><span style='color: #777; font-size: 11px;'>Game of Thrones (2011) - S04E09 - The Watchers on the Wall [2160p x265 Dolby Vision Atmos].mkv</span></td>
-                <td style='vertical-align: middle; white-space: nowrap;'><span style='color: #4fc3f7; line-height: 1.4;'>2160p x265 / Dolby Vision<br><span style='color: #aaa; font-size: 11px;'>Dolby Atmos</span></span></td>
-                <td style='vertical-align: middle; white-space: nowrap;'><strong>7.25 GB</strong></td>
-             </tr>
-<tr>
-                <td style='vertical-align: middle;'><strong>S04E09 - The Watchers on the Wall</strong><br><span style='color: #777; font-size: 11px;'>Game of Thrones (2011) - S04E09 - The Watchers on the Wall [2160p x265 SDR EAC3].mkv</span></td>
-                <td style='vertical-align: middle; white-space: nowrap;'><span style='color: #4fc3f7; line-height: 1.4;'>2160p x265 / SDR<br><span style='color: #aaa; font-size: 11px;'>Dolby Digital Plus (EAC3)</span></span></td>
-                <td style='vertical-align: middle; white-space: nowrap;'><strong>7.15 GB</strong></td>
-             </tr>
-<tr>
-                <td style='vertical-align: middle;'><strong>S04E10 - The Children</strong><br><span style='color: #777; font-size: 11px;'>Game of Thrones (2011) - S04E10 - The Children [1080p x265 SDR EAC3].mkv</span></td>
-                <td style='vertical-align: middle; white-space: nowrap;'><span style='color: #4fc3f7; line-height: 1.4;'>1080p x265 / SDR<br><span style='color: #aaa; font-size: 11px;'>Dolby Digital Plus (EAC3)</span></span></td>
-                <td style='vertical-align: middle; white-space: nowrap;'><strong>0.87 GB</strong></td>
-             </tr>
-<tr>
-                <td style='vertical-align: middle;'><strong>S04E10 - The Children</strong><br><span style='color: #777; font-size: 11px;'>Game of Thrones (2011) - S04E10 - The Children [2160p x265 Dolby Vision Atmos].mkv</span></td>
-                <td style='vertical-align: middle; white-space: nowrap;'><span style='color: #4fc3f7; line-height: 1.4;'>2160p x265 / Dolby Vision<br><span style='color: #aaa; font-size: 11px;'>Dolby Atmos</span></span></td>
-                <td style='vertical-align: middle; white-space: nowrap;'><strong>7.18 GB</strong></td>
-             </tr>
-                </table>
-            </div>
-        </details>
-        <details style="background: #1e1e1e; margin-bottom: 6px; border-radius: 4px; border: 1px solid #444; overflow: hidden;">
-            <summary style="cursor: pointer; padding: 8px 12px; font-weight: bold; color: #ccc; display: flex; justify-content: space-between; align-items: center; gap: 10px; user-select: none; font-size: 13px;">
-                <span>&#128194; Season 05 <span class="lib-tag">Plex</span></span>
-                <span style="color: #4fc3f7; font-size: 12px; white-space: nowrap;">112.55 GB &bull; 19 episode file(s)</span>
-            </summary>
-            <div style="padding: 8px 12px; border-top: 1px solid #333; background: #161616;">
-                <span style='color: #888; font-size: 11px; font-family: monospace;'>&#128193; P:\Shows\Game of Thrones (2011) {tmdb-1399}\Season 05</span>
-                                <table>
-                    <tr>
-                        <th style="vertical-align: middle;">Episode File Name & Directory</th>
-                        <th style="vertical-align: middle; white-space: nowrap;">Quality & Profile</th>
-                        <th style="vertical-align: middle; white-space: nowrap;">Size (GB)</th>
-                    </tr>
-                    <tr>
-                <td style='vertical-align: middle;'><strong>S05E01 - The Wars to Come</strong><br><span style='color: #777; font-size: 11px;'>Game of Thrones (2011) - S05E01 - The Wars to Come [1080p x265 SDR EAC3].mkv</span></td>
-                <td style='vertical-align: middle; white-space: nowrap;'><span style='color: #4fc3f7; line-height: 1.4;'>1080p x265 / SDR<br><span style='color: #aaa; font-size: 11px;'>Dolby Digital Plus (EAC3)</span></span></td>
-                <td style='vertical-align: middle; white-space: nowrap;'><strong>0.67 GB</strong></td>
-             </tr>
-<tr>
-                <td style='vertical-align: middle;'><strong>S05E02 - The House of Black and White</strong><br><span style='color: #777; font-size: 11px;'>Game of Thrones (2011) - S05E02 - The House of Black and White [2160p x265 Dolby Vision Atmos].mkv</span></td>
-                <td style='vertical-align: middle; white-space: nowrap;'><span style='color: #4fc3f7; line-height: 1.4;'>2160p x265 / Dolby Vision<br><span style='color: #aaa; font-size: 11px;'>Dolby Atmos</span></span></td>
-                <td style='vertical-align: middle; white-space: nowrap;'><strong>7.95 GB</strong></td>
-             </tr>
-<tr>
-                <td style='vertical-align: middle;'><strong>S05E02 - The House of Black and White</strong><br><span style='color: #777; font-size: 11px;'>Game of Thrones (2011) - S05E02 - The House of Black and White [2160p x265 SDR EAC3].mkv</span></td>
-                <td style='vertical-align: middle; white-space: nowrap;'><span style='color: #4fc3f7; line-height: 1.4;'>2160p x265 / SDR<br><span style='color: #aaa; font-size: 11px;'>Dolby Digital Plus (EAC3)</span></span></td>
-                <td style='vertical-align: middle; white-space: nowrap;'><strong>7.87 GB</strong></td>
-             </tr>
-<tr>
-                <td style='vertical-align: middle;'><strong>S05E03 - High Sparrow</strong><br><span style='color: #777; font-size: 11px;'>Game of Thrones (2011) - S05E03 - High Sparrow [2160p x265 Dolby Vision Atmos].mkv</span></td>
-                <td style='vertical-align: middle; white-space: nowrap;'><span style='color: #4fc3f7; line-height: 1.4;'>2160p x265 / Dolby Vision<br><span style='color: #aaa; font-size: 11px;'>Dolby Atmos</span></span></td>
-                <td style='vertical-align: middle; white-space: nowrap;'><strong>5.47 GB</strong></td>
-             </tr>
-<tr>
-                <td style='vertical-align: middle;'><strong>S05E03 - High Sparrow</strong><br><span style='color: #777; font-size: 11px;'>Game of Thrones (2011) - S05E03 - High Sparrow [2160p x265 SDR EAC3].mkv</span></td>
-                <td style='vertical-align: middle; white-space: nowrap;'><span style='color: #4fc3f7; line-height: 1.4;'>2160p x265 / SDR<br><span style='color: #aaa; font-size: 11px;'>Dolby Digital Plus (EAC3)</span></span></td>
-                <td style='vertical-align: middle; white-space: nowrap;'><strong>8.40 GB</strong></td>
-             </tr>
-<tr>
-                <td style='vertical-align: middle;'><strong>S05E04 - Sons of the Harpy</strong><br><span style='color: #777; font-size: 11px;'>Game of Thrones (2011) - S05E04 - Sons of the Harpy [1080p x265 SDR EAC3].mkv</span></td>
-                <td style='vertical-align: middle; white-space: nowrap;'><span style='color: #4fc3f7; line-height: 1.4;'>1080p x265 / SDR<br><span style='color: #aaa; font-size: 11px;'>Dolby Digital Plus (EAC3)</span></span></td>
-                <td style='vertical-align: middle; white-space: nowrap;'><strong>0.91 GB</strong></td>
-             </tr>
-<tr>
-                <td style='vertical-align: middle;'><strong>S05E04 - Sons of the Harpy</strong><br><span style='color: #777; font-size: 11px;'>Game of Thrones (2011) - S05E04 - Sons of the Harpy [2160p x265 Dolby Vision Atmos].mkv</span></td>
-                <td style='vertical-align: middle; white-space: nowrap;'><span style='color: #4fc3f7; line-height: 1.4;'>2160p x265 / Dolby Vision<br><span style='color: #aaa; font-size: 11px;'>Dolby Atmos</span></span></td>
-                <td style='vertical-align: middle; white-space: nowrap;'><strong>7.23 GB</strong></td>
-             </tr>
-<tr>
-                <td style='vertical-align: middle;'><strong>S05E05 - Kill the Boy</strong><br><span style='color: #777; font-size: 11px;'>Game of Thrones (2011) - S05E05 - Kill the Boy [2160p x265 Dolby Vision Atmos].mkv</span></td>
-                <td style='vertical-align: middle; white-space: nowrap;'><span style='color: #4fc3f7; line-height: 1.4;'>2160p x265 / Dolby Vision<br><span style='color: #aaa; font-size: 11px;'>Dolby Atmos</span></span></td>
-                <td style='vertical-align: middle; white-space: nowrap;'><strong>8.15 GB</strong></td>
-             </tr>
-<tr>
-                <td style='vertical-align: middle;'><strong>S05E05 - Kill the Boy</strong><br><span style='color: #777; font-size: 11px;'>Game of Thrones (2011) - S05E05 - Kill the Boy [2160p x265 SDR EAC3].mkv</span></td>
-                <td style='vertical-align: middle; white-space: nowrap;'><span style='color: #4fc3f7; line-height: 1.4;'>2160p x265 / SDR<br><span style='color: #aaa; font-size: 11px;'>Dolby Digital Plus (EAC3)</span></span></td>
-                <td style='vertical-align: middle; white-space: nowrap;'><strong>8.03 GB</strong></td>
-             </tr>
-<tr>
-                <td style='vertical-align: middle;'><strong>S05E06 - Unbowed, Unbent, Unbroken</strong><br><span style='color: #777; font-size: 11px;'>Game of Thrones (2011) - S05E06 - Unbowed, Unbent, Unbroken [2160p x265 Dolby Vision Atmos].mkv</span></td>
-                <td style='vertical-align: middle; white-space: nowrap;'><span style='color: #4fc3f7; line-height: 1.4;'>2160p x265 / Dolby Vision<br><span style='color: #aaa; font-size: 11px;'>Dolby Atmos</span></span></td>
-                <td style='vertical-align: middle; white-space: nowrap;'><strong>6.49 GB</strong></td>
-             </tr>
-<tr>
-                <td style='vertical-align: middle;'><strong>S05E06 - Unbowed, Unbent, Unbroken</strong><br><span style='color: #777; font-size: 11px;'>Game of Thrones (2011) - S05E06 - Unbowed, Unbent, Unbroken [2160p x265 SDR EAC3].mkv</span></td>
-                <td style='vertical-align: middle; white-space: nowrap;'><span style='color: #4fc3f7; line-height: 1.4;'>2160p x265 / SDR<br><span style='color: #aaa; font-size: 11px;'>Dolby Digital Plus (EAC3)</span></span></td>
-                <td style='vertical-align: middle; white-space: nowrap;'><strong>6.41 GB</strong></td>
-             </tr>
-<tr>
-                <td style='vertical-align: middle;'><strong>S05E07 - The Gift</strong><br><span style='color: #777; font-size: 11px;'>Game of Thrones (2011) - S05E07 - The Gift [2160p x265 Dolby Vision Atmos].mkv</span></td>
-                <td style='vertical-align: middle; white-space: nowrap;'><span style='color: #4fc3f7; line-height: 1.4;'>2160p x265 / Dolby Vision<br><span style='color: #aaa; font-size: 11px;'>Dolby Atmos</span></span></td>
-                <td style='vertical-align: middle; white-space: nowrap;'><strong>6.87 GB</strong></td>
-             </tr>
-<tr>
-                <td style='vertical-align: middle;'><strong>S05E07 - The Gift</strong><br><span style='color: #777; font-size: 11px;'>Game of Thrones (2011) - S05E07 - The Gift [2160p x265 SDR EAC3].mkv</span></td>
-                <td style='vertical-align: middle; white-space: nowrap;'><span style='color: #4fc3f7; line-height: 1.4;'>2160p x265 / SDR<br><span style='color: #aaa; font-size: 11px;'>Dolby Digital Plus (EAC3)</span></span></td>
-                <td style='vertical-align: middle; white-space: nowrap;'><strong>6.79 GB</strong></td>
-             </tr>
-<tr>
-                <td style='vertical-align: middle;'><strong>S05E08 - Hardhome</strong><br><span style='color: #777; font-size: 11px;'>Game of Thrones (2011) - S05E08 - Hardhome [2160p x265 Dolby Vision Atmos].mkv</span></td>
-                <td style='vertical-align: middle; white-space: nowrap;'><span style='color: #4fc3f7; line-height: 1.4;'>2160p x265 / Dolby Vision<br><span style='color: #aaa; font-size: 11px;'>Dolby Atmos</span></span></td>
-                <td style='vertical-align: middle; white-space: nowrap;'><strong>6.99 GB</strong></td>
-             </tr>
-<tr>
-                <td style='vertical-align: middle;'><strong>S05E08 - Hardhome</strong><br><span style='color: #777; font-size: 11px;'>Game of Thrones (2011) - S05E08 - Hardhome [2160p x265 SDR EAC3].mkv</span></td>
-                <td style='vertical-align: middle; white-space: nowrap;'><span style='color: #4fc3f7; line-height: 1.4;'>2160p x265 / SDR<br><span style='color: #aaa; font-size: 11px;'>Dolby Digital Plus (EAC3)</span></span></td>
-                <td style='vertical-align: middle; white-space: nowrap;'><strong>6.89 GB</strong></td>
-             </tr>
-<tr>
-                <td style='vertical-align: middle;'><strong>S05E09 - The Dance of Dragons</strong><br><span style='color: #777; font-size: 11px;'>Game of Thrones (2011) - S05E09 - The Dance of Dragons [2160p x265 Dolby Vision Atmos].mkv</span></td>
-                <td style='vertical-align: middle; white-space: nowrap;'><span style='color: #4fc3f7; line-height: 1.4;'>2160p x265 / Dolby Vision<br><span style='color: #aaa; font-size: 11px;'>Dolby Atmos</span></span></td>
-                <td style='vertical-align: middle; white-space: nowrap;'><strong>4.51 GB</strong></td>
-             </tr>
-<tr>
-                <td style='vertical-align: middle;'><strong>S05E09 - The Dance of Dragons</strong><br><span style='color: #777; font-size: 11px;'>Game of Thrones (2011) - S05E09 - The Dance of Dragons [2160p x265 SDR EAC3].mkv</span></td>
-                <td style='vertical-align: middle; white-space: nowrap;'><span style='color: #4fc3f7; line-height: 1.4;'>2160p x265 / SDR<br><span style='color: #aaa; font-size: 11px;'>Dolby Digital Plus (EAC3)</span></span></td>
-                <td style='vertical-align: middle; white-space: nowrap;'><strong>4.47 GB</strong></td>
-             </tr>
-<tr>
-                <td style='vertical-align: middle;'><strong>S05E10 - Mother&#39;s Mercy</strong><br><span style='color: #777; font-size: 11px;'>Game of Thrones (2011) - S05E10 - Mother&#39;s Mercy [1080p x265 SDR EAC3].mkv</span></td>
-                <td style='vertical-align: middle; white-space: nowrap;'><span style='color: #4fc3f7; line-height: 1.4;'>1080p x265 / SDR<br><span style='color: #aaa; font-size: 11px;'>Dolby Digital Plus (EAC3)</span></span></td>
-                <td style='vertical-align: middle; white-space: nowrap;'><strong>1.29 GB</strong></td>
-             </tr>
-<tr>
-                <td style='vertical-align: middle;'><strong>S05E10 - Mother&#39;s Mercy</strong><br><span style='color: #777; font-size: 11px;'>Game of Thrones (2011) - S05E10 - Mother&#39;s Mercy [2160p x265 Dolby Vision Atmos].mkv</span></td>
-                <td style='vertical-align: middle; white-space: nowrap;'><span style='color: #4fc3f7; line-height: 1.4;'>2160p x265 / Dolby Vision<br><span style='color: #aaa; font-size: 11px;'>Dolby Atmos</span></span></td>
-                <td style='vertical-align: middle; white-space: nowrap;'><strong>7.16 GB</strong></td>
-             </tr>
-                </table>
-            </div>
-        </details>
-        <details style="background: #1e1e1e; margin-bottom: 6px; border-radius: 4px; border: 1px solid #444; overflow: hidden;">
-            <summary style="cursor: pointer; padding: 8px 12px; font-weight: bold; color: #ccc; display: flex; justify-content: space-between; align-items: center; gap: 10px; user-select: none; font-size: 13px;">
-                <span>&#128194; Season 06 <span class="lib-tag">Plex</span></span>
-                <span style="color: #4fc3f7; font-size: 12px; white-space: nowrap;">97.38 GB &bull; 19 episode file(s)</span>
-            </summary>
-            <div style="padding: 8px 12px; border-top: 1px solid #333; background: #161616;">
-                <span style='color: #888; font-size: 11px; font-family: monospace;'>&#128193; P:\Shows\Game of Thrones (2011) {tmdb-1399}\Season 06</span>
-                                <table>
-                    <tr>
-                        <th style="vertical-align: middle;">Episode File Name & Directory</th>
-                        <th style="vertical-align: middle; white-space: nowrap;">Quality & Profile</th>
-                        <th style="vertical-align: middle; white-space: nowrap;">Size (GB)</th>
-                    </tr>
-                    <tr>
-                <td style='vertical-align: middle;'><strong>S06E01 - The Red Woman</strong><br><span style='color: #777; font-size: 11px;'>Game of Thrones (2011) - S06E01 - The Red Woman [1080p x265 SDR EAC3].mkv</span></td>
-                <td style='vertical-align: middle; white-space: nowrap;'><span style='color: #4fc3f7; line-height: 1.4;'>1080p x265 / SDR<br><span style='color: #aaa; font-size: 11px;'>Dolby Digital Plus (EAC3)</span></span></td>
-                <td style='vertical-align: middle; white-space: nowrap;'><strong>0.96 GB</strong></td>
-             </tr>
-<tr>
-                <td style='vertical-align: middle;'><strong>S06E01 - The Red Woman</strong><br><span style='color: #777; font-size: 11px;'>Game of Thrones (2011) - S06E01 - The Red Woman [2160p x265 Dolby Vision Atmos].mkv</span></td>
-                <td style='vertical-align: middle; white-space: nowrap;'><span style='color: #4fc3f7; line-height: 1.4;'>2160p x265 / Dolby Vision<br><span style='color: #aaa; font-size: 11px;'>Dolby Atmos</span></span></td>
-                <td style='vertical-align: middle; white-space: nowrap;'><strong>6.37 GB</strong></td>
-             </tr>
-<tr>
-                <td style='vertical-align: middle;'><strong>S06E02 - Home</strong><br><span style='color: #777; font-size: 11px;'>Game of Thrones (2011) - S06E02 - Home [1080p x265 SDR EAC3].mkv</span></td>
-                <td style='vertical-align: middle; white-space: nowrap;'><span style='color: #4fc3f7; line-height: 1.4;'>1080p x265 / SDR<br><span style='color: #aaa; font-size: 11px;'>Dolby Digital Plus (EAC3)</span></span></td>
-                <td style='vertical-align: middle; white-space: nowrap;'><strong>0.67 GB</strong></td>
-             </tr>
-<tr>
-                <td style='vertical-align: middle;'><strong>S06E03 - Oathbreaker</strong><br><span style='color: #777; font-size: 11px;'>Game of Thrones (2011) - S06E03 - Oathbreaker [2160p x265 Dolby Vision Atmos].mkv</span></td>
-                <td style='vertical-align: middle; white-space: nowrap;'><span style='color: #4fc3f7; line-height: 1.4;'>2160p x265 / Dolby Vision<br><span style='color: #aaa; font-size: 11px;'>Dolby Atmos</span></span></td>
-                <td style='vertical-align: middle; white-space: nowrap;'><strong>7.10 GB</strong></td>
-             </tr>
-<tr>
-                <td style='vertical-align: middle;'><strong>S06E03 - Oathbreaker</strong><br><span style='color: #777; font-size: 11px;'>Game of Thrones (2011) - S06E03 - Oathbreaker [2160p x265 SDR EAC3].mkv</span></td>
-                <td style='vertical-align: middle; white-space: nowrap;'><span style='color: #4fc3f7; line-height: 1.4;'>2160p x265 / SDR<br><span style='color: #aaa; font-size: 11px;'>Dolby Digital Plus (EAC3)</span></span></td>
-                <td style='vertical-align: middle; white-space: nowrap;'><strong>7.03 GB</strong></td>
-             </tr>
-<tr>
-                <td style='vertical-align: middle;'><strong>S06E04 - Book of the Stranger</strong><br><span style='color: #777; font-size: 11px;'>Game of Thrones (2011) - S06E04 - Book of the Stranger [1080p x265 SDR EAC3].mkv</span></td>
-                <td style='vertical-align: middle; white-space: nowrap;'><span style='color: #4fc3f7; line-height: 1.4;'>1080p x265 / SDR<br><span style='color: #aaa; font-size: 11px;'>Dolby Digital Plus (EAC3)</span></span></td>
-                <td style='vertical-align: middle; white-space: nowrap;'><strong>0.94 GB</strong></td>
-             </tr>
-<tr>
-                <td style='vertical-align: middle;'><strong>S06E04 - Book of the Stranger</strong><br><span style='color: #777; font-size: 11px;'>Game of Thrones (2011) - S06E04 - Book of the Stranger [2160p x265 Dolby Vision Atmos].mkv</span></td>
-                <td style='vertical-align: middle; white-space: nowrap;'><span style='color: #4fc3f7; line-height: 1.4;'>2160p x265 / Dolby Vision<br><span style='color: #aaa; font-size: 11px;'>Dolby Atmos</span></span></td>
-                <td style='vertical-align: middle; white-space: nowrap;'><strong>8.41 GB</strong></td>
-             </tr>
-<tr>
-                <td style='vertical-align: middle;'><strong>S06E05 - The Door</strong><br><span style='color: #777; font-size: 11px;'>Game of Thrones (2011) - S06E05 - The Door [2160p x265 Dolby Vision Atmos].mkv</span></td>
-                <td style='vertical-align: middle; white-space: nowrap;'><span style='color: #4fc3f7; line-height: 1.4;'>2160p x265 / Dolby Vision<br><span style='color: #aaa; font-size: 11px;'>Dolby Atmos</span></span></td>
-                <td style='vertical-align: middle; white-space: nowrap;'><strong>4.95 GB</strong></td>
-             </tr>
-<tr>
-                <td style='vertical-align: middle;'><strong>S06E05 - The Door</strong><br><span style='color: #777; font-size: 11px;'>Game of Thrones (2011) - S06E05 - The Door [2160p x265 SDR EAC3].mkv</span></td>
-                <td style='vertical-align: middle; white-space: nowrap;'><span style='color: #4fc3f7; line-height: 1.4;'>2160p x265 / SDR<br><span style='color: #aaa; font-size: 11px;'>Dolby Digital Plus (EAC3)</span></span></td>
-                <td style='vertical-align: middle; white-space: nowrap;'><strong>4.89 GB</strong></td>
-             </tr>
-<tr>
-                <td style='vertical-align: middle;'><strong>S06E06 - Blood of My Blood</strong><br><span style='color: #777; font-size: 11px;'>Game of Thrones (2011) - S06E06 - Blood of My Blood [1080p x265 SDR EAC3].mkv</span></td>
-                <td style='vertical-align: middle; white-space: nowrap;'><span style='color: #4fc3f7; line-height: 1.4;'>1080p x265 / SDR<br><span style='color: #aaa; font-size: 11px;'>Dolby Digital Plus (EAC3)</span></span></td>
-                <td style='vertical-align: middle; white-space: nowrap;'><strong>0.83 GB</strong></td>
-             </tr>
-<tr>
-                <td style='vertical-align: middle;'><strong>S06E06 - Blood of My Blood</strong><br><span style='color: #777; font-size: 11px;'>Game of Thrones (2011) - S06E06 - Blood of My Blood [2160p x265 Dolby Vision Atmos].mkv</span></td>
-                <td style='vertical-align: middle; white-space: nowrap;'><span style='color: #4fc3f7; line-height: 1.4;'>2160p x265 / Dolby Vision<br><span style='color: #aaa; font-size: 11px;'>Dolby Atmos</span></span></td>
-                <td style='vertical-align: middle; white-space: nowrap;'><strong>4.75 GB</strong></td>
-             </tr>
-<tr>
-                <td style='vertical-align: middle;'><strong>S06E07 - The Broken Man</strong><br><span style='color: #777; font-size: 11px;'>Game of Thrones (2011) - S06E07 - The Broken Man [1080p x265 SDR EAC3].mkv</span></td>
-                <td style='vertical-align: middle; white-space: nowrap;'><span style='color: #4fc3f7; line-height: 1.4;'>1080p x265 / SDR<br><span style='color: #aaa; font-size: 11px;'>Dolby Digital Plus (EAC3)</span></span></td>
-                <td style='vertical-align: middle; white-space: nowrap;'><strong>0.59 GB</strong></td>
-             </tr>
-<tr>
-                <td style='vertical-align: middle;'><strong>S06E07 - The Broken Man</strong><br><span style='color: #777; font-size: 11px;'>Game of Thrones (2011) - S06E07 - The Broken Man [2160p x265 Dolby Vision Atmos].mkv</span></td>
-                <td style='vertical-align: middle; white-space: nowrap;'><span style='color: #4fc3f7; line-height: 1.4;'>2160p x265 / Dolby Vision<br><span style='color: #aaa; font-size: 11px;'>Dolby Atmos</span></span></td>
-                <td style='vertical-align: middle; white-space: nowrap;'><strong>5.80 GB</strong></td>
-             </tr>
-<tr>
-                <td style='vertical-align: middle;'><strong>S06E08 - No One</strong><br><span style='color: #777; font-size: 11px;'>Game of Thrones (2011) - S06E08 - No One [1080p x265 SDR EAC3].mkv</span></td>
-                <td style='vertical-align: middle; white-space: nowrap;'><span style='color: #4fc3f7; line-height: 1.4;'>1080p x265 / SDR<br><span style='color: #aaa; font-size: 11px;'>Dolby Digital Plus (EAC3)</span></span></td>
-                <td style='vertical-align: middle; white-space: nowrap;'><strong>0.87 GB</strong></td>
-             </tr>
-<tr>
-                <td style='vertical-align: middle;'><strong>S06E08 - No One</strong><br><span style='color: #777; font-size: 11px;'>Game of Thrones (2011) - S06E08 - No One [2160p x265 Dolby Vision Atmos].mkv</span></td>
-                <td style='vertical-align: middle; white-space: nowrap;'><span style='color: #4fc3f7; line-height: 1.4;'>2160p x265 / Dolby Vision<br><span style='color: #aaa; font-size: 11px;'>Dolby Atmos</span></span></td>
-                <td style='vertical-align: middle; white-space: nowrap;'><strong>7.13 GB</strong></td>
-             </tr>
-<tr>
-                <td style='vertical-align: middle;'><strong>S06E09 - Battle of the Bastards</strong><br><span style='color: #777; font-size: 11px;'>Game of Thrones (2011) - S06E09 - Battle of the Bastards [2160p x265 Dolby Vision Atmos].mkv</span></td>
-                <td style='vertical-align: middle; white-space: nowrap;'><span style='color: #4fc3f7; line-height: 1.4;'>2160p x265 / Dolby Vision<br><span style='color: #aaa; font-size: 11px;'>Dolby Atmos</span></span></td>
-                <td style='vertical-align: middle; white-space: nowrap;'><strong>8.31 GB</strong></td>
-             </tr>
-<tr>
-                <td style='vertical-align: middle;'><strong>S06E09 - Battle of the Bastards</strong><br><span style='color: #777; font-size: 11px;'>Game of Thrones (2011) - S06E09 - Battle of the Bastards [2160p x265 SDR EAC3].mkv</span></td>
-                <td style='vertical-align: middle; white-space: nowrap;'><span style='color: #4fc3f7; line-height: 1.4;'>2160p x265 / SDR<br><span style='color: #aaa; font-size: 11px;'>Dolby Digital Plus (EAC3)</span></span></td>
-                <td style='vertical-align: middle; white-space: nowrap;'><strong>8.41 GB</strong></td>
-             </tr>
-<tr>
-                <td style='vertical-align: middle;'><strong>S06E10 - The Winds of Winter</strong><br><span style='color: #777; font-size: 11px;'>Game of Thrones (2011) - S06E10 - The Winds of Winter [2160p x265 Dolby Vision Atmos].mkv</span></td>
-                <td style='vertical-align: middle; white-space: nowrap;'><span style='color: #4fc3f7; line-height: 1.4;'>2160p x265 / Dolby Vision<br><span style='color: #aaa; font-size: 11px;'>Dolby Atmos</span></span></td>
-                <td style='vertical-align: middle; white-space: nowrap;'><strong>9.74 GB</strong></td>
-             </tr>
-<tr>
-                <td style='vertical-align: middle;'><strong>S06E10 - The Winds of Winter</strong><br><span style='color: #777; font-size: 11px;'>Game of Thrones (2011) - S06E10 - The Winds of Winter [2160p x265 SDR EAC3].mkv</span></td>
-                <td style='vertical-align: middle; white-space: nowrap;'><span style='color: #4fc3f7; line-height: 1.4;'>2160p x265 / SDR<br><span style='color: #aaa; font-size: 11px;'>Dolby Digital Plus (EAC3)</span></span></td>
-                <td style='vertical-align: middle; white-space: nowrap;'><strong>9.63 GB</strong></td>
-             </tr>
-                </table>
-            </div>
-        </details>
-        </div>
-    </details>
-    <details style="background: #252525; margin-bottom: 8px; border-radius: 6px; border: 1px solid #333; overflow: hidden;">
-        <summary style="cursor: pointer; padding: 10px 14px; font-weight: bold; color: #fff; display: flex; justify-content: space-between; align-items: center; gap: 10px; user-select: none;">
-            <span>&#127942; House of the Dragon (2022)</span>
-            <span style="color: #4fc3f7; font-size: 13px; white-space: nowrap;">319.47 GB total (3 heavy season(s))</span>
-        </summary>
-        <div style="padding: 10px 14px; border-top: 1px solid #333; background: #1e1e1e;">
-                    <details style="background: #1e1e1e; margin-bottom: 6px; border-radius: 4px; border: 1px solid #444; overflow: hidden;">
-            <summary style="cursor: pointer; padding: 8px 12px; font-weight: bold; color: #ccc; display: flex; justify-content: space-between; align-items: center; gap: 10px; user-select: none; font-size: 13px;">
-                <span>&#128194; Season 01 <span class="lib-tag">Plex</span></span>
-                <span style="color: #4fc3f7; font-size: 12px; white-space: nowrap;">90.09 GB &bull; 20 episode file(s)</span>
-            </summary>
-            <div style="padding: 8px 12px; border-top: 1px solid #333; background: #161616;">
-                <span style='color: #888; font-size: 11px; font-family: monospace;'>&#128193; P:\Shows\House of the Dragon (2022) {tmdb-94997}\Season 01</span>
-                                <table>
-                    <tr>
-                        <th style="vertical-align: middle;">Episode File Name & Directory</th>
-                        <th style="vertical-align: middle; white-space: nowrap;">Quality & Profile</th>
-                        <th style="vertical-align: middle; white-space: nowrap;">Size (GB)</th>
-                    </tr>
-                    <tr>
-                <td style='vertical-align: middle;'><strong>S01E01 - The Heirs of the Dragon</strong><br><span style='color: #777; font-size: 11px;'>House of the Dragon (2022) - S01E01 - The Heirs of the Dragon [2160p x265 Dolby Vision Atmos].mkv</span></td>
-                <td style='vertical-align: middle; white-space: nowrap;'><span style='color: #4fc3f7; line-height: 1.4;'>2160p x265 / Dolby Vision<br><span style='color: #aaa; font-size: 11px;'>Dolby Atmos</span></span></td>
-                <td style='vertical-align: middle; white-space: nowrap;'><strong>7.47 GB</strong></td>
-             </tr>
-<tr>
-                <td style='vertical-align: middle;'><strong>S01E01 - The Heirs of the Dragon</strong><br><span style='color: #777; font-size: 11px;'>House of the Dragon (2022) - S01E01 - The Heirs of the Dragon [2160p x265 SDR EAC3].mkv</span></td>
-                <td style='vertical-align: middle; white-space: nowrap;'><span style='color: #4fc3f7; line-height: 1.4;'>2160p x265 / SDR<br><span style='color: #aaa; font-size: 11px;'>Dolby Digital Plus (EAC3)</span></span></td>
-                <td style='vertical-align: middle; white-space: nowrap;'><strong>7.37 GB</strong></td>
-             </tr>
-<tr>
-                <td style='vertical-align: middle;'><strong>S01E02 - The Rogue Prince</strong><br><span style='color: #777; font-size: 11px;'>House of the Dragon (2022) - S01E02 - The Rogue Prince [1080p x265 SDR EAC3].mkv</span></td>
-                <td style='vertical-align: middle; white-space: nowrap;'><span style='color: #4fc3f7; line-height: 1.4;'>1080p x265 / SDR<br><span style='color: #aaa; font-size: 11px;'>Dolby Digital Plus (EAC3)</span></span></td>
-                <td style='vertical-align: middle; white-space: nowrap;'><strong>0.64 GB</strong></td>
-             </tr>
-<tr>
-                <td style='vertical-align: middle;'><strong>S01E02 - The Rogue Prince</strong><br><span style='color: #777; font-size: 11px;'>House of the Dragon (2022) - S01E02 - The Rogue Prince [2160p x265 Dolby Vision Atmos].mkv</span></td>
-                <td style='vertical-align: middle; white-space: nowrap;'><span style='color: #4fc3f7; line-height: 1.4;'>2160p x265 / Dolby Vision<br><span style='color: #aaa; font-size: 11px;'>Dolby Atmos</span></span></td>
-                <td style='vertical-align: middle; white-space: nowrap;'><strong>5.23 GB</strong></td>
-             </tr>
-<tr>
-                <td style='vertical-align: middle;'><strong>S01E03 - Second of His Name</strong><br><span style='color: #777; font-size: 11px;'>House of the Dragon (2022) - S01E03 - Second of His Name [1080p x265 SDR EAC3].mkv</span></td>
-                <td style='vertical-align: middle; white-space: nowrap;'><span style='color: #4fc3f7; line-height: 1.4;'>1080p x265 / SDR<br><span style='color: #aaa; font-size: 11px;'>Dolby Digital Plus (EAC3)</span></span></td>
-                <td style='vertical-align: middle; white-space: nowrap;'><strong>1.22 GB</strong></td>
-             </tr>
-<tr>
-                <td style='vertical-align: middle;'><strong>S01E03 - Second of His Name</strong><br><span style='color: #777; font-size: 11px;'>House of the Dragon (2022) - S01E03 - Second of His Name [2160p x265 Dolby Vision Atmos].mkv</span></td>
-                <td style='vertical-align: middle; white-space: nowrap;'><span style='color: #4fc3f7; line-height: 1.4;'>2160p x265 / Dolby Vision<br><span style='color: #aaa; font-size: 11px;'>Dolby Atmos</span></span></td>
-                <td style='vertical-align: middle; white-space: nowrap;'><strong>8.85 GB</strong></td>
-             </tr>
-<tr>
-                <td style='vertical-align: middle;'><strong>S01E04 - King of the Narrow Sea</strong><br><span style='color: #777; font-size: 11px;'>House of the Dragon (2022) - S01E04 - King of the Narrow Sea [1080p x265 SDR EAC3].mkv</span></td>
-                <td style='vertical-align: middle; white-space: nowrap;'><span style='color: #4fc3f7; line-height: 1.4;'>1080p x265 / SDR<br><span style='color: #aaa; font-size: 11px;'>Dolby Digital Plus (EAC3)</span></span></td>
-                <td style='vertical-align: middle; white-space: nowrap;'><strong>0.94 GB</strong></td>
-             </tr>
-<tr>
-                <td style='vertical-align: middle;'><strong>S01E04 - King of the Narrow Sea</strong><br><span style='color: #777; font-size: 11px;'>House of the Dragon (2022) - S01E04 - King of the Narrow Sea [2160p x265 Dolby Vision Atmos].mkv</span></td>
-                <td style='vertical-align: middle; white-space: nowrap;'><span style='color: #4fc3f7; line-height: 1.4;'>2160p x265 / Dolby Vision<br><span style='color: #aaa; font-size: 11px;'>Dolby Atmos</span></span></td>
-                <td style='vertical-align: middle; white-space: nowrap;'><strong>6.45 GB</strong></td>
-             </tr>
-<tr>
-                <td style='vertical-align: middle;'><strong>S01E05 - We Light the Way</strong><br><span style='color: #777; font-size: 11px;'>House of the Dragon (2022) - S01E05 - We Light the Way [1080p x265 SDR EAC3].mkv</span></td>
-                <td style='vertical-align: middle; white-space: nowrap;'><span style='color: #4fc3f7; line-height: 1.4;'>1080p x265 / SDR<br><span style='color: #aaa; font-size: 11px;'>Dolby Digital Plus (EAC3)</span></span></td>
-                <td style='vertical-align: middle; white-space: nowrap;'><strong>0.79 GB</strong></td>
-             </tr>
-<tr>
-                <td style='vertical-align: middle;'><strong>S01E05 - We Light the Way</strong><br><span style='color: #777; font-size: 11px;'>House of the Dragon (2022) - S01E05 - We Light the Way [2160p x265 Dolby Vision Atmos].mkv</span></td>
-                <td style='vertical-align: middle; white-space: nowrap;'><span style='color: #4fc3f7; line-height: 1.4;'>2160p x265 / Dolby Vision<br><span style='color: #aaa; font-size: 11px;'>Dolby Atmos</span></span></td>
-                <td style='vertical-align: middle; white-space: nowrap;'><strong>6.56 GB</strong></td>
-             </tr>
-<tr>
-                <td style='vertical-align: middle;'><strong>S01E06 - The Princess and the Queen</strong><br><span style='color: #777; font-size: 11px;'>House of the Dragon (2022) - S01E06 - The Princess and the Queen [1080p x265 SDR EAC3].mkv</span></td>
-                <td style='vertical-align: middle; white-space: nowrap;'><span style='color: #4fc3f7; line-height: 1.4;'>1080p x265 / SDR<br><span style='color: #aaa; font-size: 11px;'>Dolby Digital Plus (EAC3)</span></span></td>
-                <td style='vertical-align: middle; white-space: nowrap;'><strong>0.75 GB</strong></td>
-             </tr>
-<tr>
-                <td style='vertical-align: middle;'><strong>S01E06 - The Princess and the Queen</strong><br><span style='color: #777; font-size: 11px;'>House of the Dragon (2022) - S01E06 - The Princess and the Queen [2160p x265 Dolby Vision Atmos].mkv</span></td>
-                <td style='vertical-align: middle; white-space: nowrap;'><span style='color: #4fc3f7; line-height: 1.4;'>2160p x265 / Dolby Vision<br><span style='color: #aaa; font-size: 11px;'>Dolby Atmos</span></span></td>
-                <td style='vertical-align: middle; white-space: nowrap;'><strong>6.39 GB</strong></td>
-             </tr>
-<tr>
-                <td style='vertical-align: middle;'><strong>S01E07 - Driftmark</strong><br><span style='color: #777; font-size: 11px;'>House of the Dragon (2022) - S01E07 - Driftmark [2160p x265 Dolby Vision Atmos].mkv</span></td>
-                <td style='vertical-align: middle; white-space: nowrap;'><span style='color: #4fc3f7; line-height: 1.4;'>2160p x265 / Dolby Vision<br><span style='color: #aaa; font-size: 11px;'>Dolby Atmos</span></span></td>
-                <td style='vertical-align: middle; white-space: nowrap;'><strong>4.63 GB</strong></td>
-             </tr>
-<tr>
-                <td style='vertical-align: middle;'><strong>S01E07 - Driftmark</strong><br><span style='color: #777; font-size: 11px;'>House of the Dragon (2022) - S01E07 - Driftmark [2160p x265 SDR EAC3].mkv</span></td>
-                <td style='vertical-align: middle; white-space: nowrap;'><span style='color: #4fc3f7; line-height: 1.4;'>2160p x265 / SDR<br><span style='color: #aaa; font-size: 11px;'>Dolby Digital Plus (EAC3)</span></span></td>
-                <td style='vertical-align: middle; white-space: nowrap;'><strong>4.56 GB</strong></td>
-             </tr>
-<tr>
-                <td style='vertical-align: middle;'><strong>S01E08 - The Lord of the Tides</strong><br><span style='color: #777; font-size: 11px;'>House of the Dragon (2022) - S01E08 - The Lord of the Tides [1080p x265 SDR EAC3].mkv</span></td>
-                <td style='vertical-align: middle; white-space: nowrap;'><span style='color: #4fc3f7; line-height: 1.4;'>1080p x265 / SDR<br><span style='color: #aaa; font-size: 11px;'>Dolby Digital Plus (EAC3)</span></span></td>
-                <td style='vertical-align: middle; white-space: nowrap;'><strong>0.76 GB</strong></td>
-             </tr>
-<tr>
-                <td style='vertical-align: middle;'><strong>S01E08 - The Lord of the Tides</strong><br><span style='color: #777; font-size: 11px;'>House of the Dragon (2022) - S01E08 - The Lord of the Tides [2160p x265 Dolby Vision Atmos].mkv</span></td>
-                <td style='vertical-align: middle; white-space: nowrap;'><span style='color: #4fc3f7; line-height: 1.4;'>2160p x265 / Dolby Vision<br><span style='color: #aaa; font-size: 11px;'>Dolby Atmos</span></span></td>
-                <td style='vertical-align: middle; white-space: nowrap;'><strong>7.49 GB</strong></td>
-             </tr>
-<tr>
-                <td style='vertical-align: middle;'><strong>S01E09 - The Green Council</strong><br><span style='color: #777; font-size: 11px;'>House of the Dragon (2022) - S01E09 - The Green Council [2160p x265 Dolby Vision Atmos].mkv</span></td>
-                <td style='vertical-align: middle; white-space: nowrap;'><span style='color: #4fc3f7; line-height: 1.4;'>2160p x265 / Dolby Vision<br><span style='color: #aaa; font-size: 11px;'>Dolby Atmos</span></span></td>
-                <td style='vertical-align: middle; white-space: nowrap;'><strong>5.94 GB</strong></td>
-             </tr>
-<tr>
-                <td style='vertical-align: middle;'><strong>S01E09 - The Green Council</strong><br><span style='color: #777; font-size: 11px;'>House of the Dragon (2022) - S01E09 - The Green Council [2160p x265 SDR EAC3].mkv</span></td>
-                <td style='vertical-align: middle; white-space: nowrap;'><span style='color: #4fc3f7; line-height: 1.4;'>2160p x265 / SDR<br><span style='color: #aaa; font-size: 11px;'>Dolby Digital Plus (EAC3)</span></span></td>
-                <td style='vertical-align: middle; white-space: nowrap;'><strong>5.86 GB</strong></td>
-             </tr>
-<tr>
-                <td style='vertical-align: middle;'><strong>S01E10 - The Black Queen</strong><br><span style='color: #777; font-size: 11px;'>House of the Dragon (2022) - S01E10 - The Black Queen [1080p x265 SDR EAC3].mkv</span></td>
-                <td style='vertical-align: middle; white-space: nowrap;'><span style='color: #4fc3f7; line-height: 1.4;'>1080p x265 / SDR<br><span style='color: #aaa; font-size: 11px;'>Dolby Digital Plus (EAC3)</span></span></td>
-                <td style='vertical-align: middle; white-space: nowrap;'><strong>0.75 GB</strong></td>
-             </tr>
-<tr>
-                <td style='vertical-align: middle;'><strong>S01E10 - The Black Queen</strong><br><span style='color: #777; font-size: 11px;'>House of the Dragon (2022) - S01E10 - The Black Queen [2160p x265 Dolby Vision Atmos].mkv</span></td>
-                <td style='vertical-align: middle; white-space: nowrap;'><span style='color: #4fc3f7; line-height: 1.4;'>2160p x265 / Dolby Vision<br><span style='color: #aaa; font-size: 11px;'>Dolby Atmos</span></span></td>
-                <td style='vertical-align: middle; white-space: nowrap;'><strong>7.43 GB</strong></td>
-             </tr>
-                </table>
-            </div>
-        </details>
-        <details style="background: #1e1e1e; margin-bottom: 6px; border-radius: 4px; border: 1px solid #444; overflow: hidden;">
-            <summary style="cursor: pointer; padding: 8px 12px; font-weight: bold; color: #ccc; display: flex; justify-content: space-between; align-items: center; gap: 10px; user-select: none; font-size: 13px;">
-                <span>&#128194; Season 02 <span class="lib-tag">Plex</span></span>
-                <span style="color: #4fc3f7; font-size: 12px; white-space: nowrap;">118.65 GB &bull; 16 episode file(s)</span>
-            </summary>
-            <div style="padding: 8px 12px; border-top: 1px solid #333; background: #161616;">
-                <span style='color: #888; font-size: 11px; font-family: monospace;'>&#128193; P:\Shows\House of the Dragon (2022) {tmdb-94997}\Season 02</span>
-                                <table>
-                    <tr>
-                        <th style="vertical-align: middle;">Episode File Name & Directory</th>
-                        <th style="vertical-align: middle; white-space: nowrap;">Quality & Profile</th>
-                        <th style="vertical-align: middle; white-space: nowrap;">Size (GB)</th>
-                    </tr>
-                    <tr>
-                <td style='vertical-align: middle;'><strong>S02E01 - A Son for a Son</strong><br><span style='color: #777; font-size: 11px;'>House of the Dragon (2022) - S02E01 - A Son for a Son [2160p x265 Dolby Vision].mkv</span></td>
-                <td style='vertical-align: middle; white-space: nowrap;'><span style='color: #4fc3f7; line-height: 1.4;'>2160p x265 / Dolby Vision<br><span style='color: #aaa; font-size: 11px;'>Audio not tagged</span></span></td>
-                <td style='vertical-align: middle; white-space: nowrap;'><strong>6.09 GB</strong></td>
-             </tr>
-<tr>
-                <td style='vertical-align: middle;'><strong>S02E01 - A Son for a Son</strong><br><span style='color: #777; font-size: 11px;'>House of the Dragon (2022) - S02E01 - A Son for a Son [2160p x265 SDR EAC3].mkv</span></td>
-                <td style='vertical-align: middle; white-space: nowrap;'><span style='color: #4fc3f7; line-height: 1.4;'>2160p x265 / SDR<br><span style='color: #aaa; font-size: 11px;'>Dolby Digital Plus (EAC3)</span></span></td>
-                <td style='vertical-align: middle; white-space: nowrap;'><strong>6.15 GB</strong></td>
-             </tr>
-<tr>
-                <td style='vertical-align: middle;'><strong>S02E02 - Rhaenyra the Cruel</strong><br><span style='color: #777; font-size: 11px;'>House of the Dragon (2022) - S02E02 - Rhaenyra the Cruel [2160p x265 Dolby Vision Atmos].mkv</span></td>
-                <td style='vertical-align: middle; white-space: nowrap;'><span style='color: #4fc3f7; line-height: 1.4;'>2160p x265 / Dolby Vision<br><span style='color: #aaa; font-size: 11px;'>Dolby Atmos</span></span></td>
-                <td style='vertical-align: middle; white-space: nowrap;'><strong>5.69 GB</strong></td>
-             </tr>
-<tr>
-                <td style='vertical-align: middle;'><strong>S02E02 - Rhaenyra the Cruel</strong><br><span style='color: #777; font-size: 11px;'>House of the Dragon (2022) - S02E02 - Rhaenyra the Cruel [2160p x265 SDR EAC3].mkv</span></td>
-                <td style='vertical-align: middle; white-space: nowrap;'><span style='color: #4fc3f7; line-height: 1.4;'>2160p x265 / SDR<br><span style='color: #aaa; font-size: 11px;'>Dolby Digital Plus (EAC3)</span></span></td>
-                <td style='vertical-align: middle; white-space: nowrap;'><strong>8.68 GB</strong></td>
-             </tr>
-<tr>
-                <td style='vertical-align: middle;'><strong>S02E03 - The Burning Mill</strong><br><span style='color: #777; font-size: 11px;'>House of the Dragon (2022) - S02E03 - The Burning Mill [2160p x265 Dolby Vision].mkv</span></td>
-                <td style='vertical-align: middle; white-space: nowrap;'><span style='color: #4fc3f7; line-height: 1.4;'>2160p x265 / Dolby Vision<br><span style='color: #aaa; font-size: 11px;'>Audio not tagged</span></span></td>
-                <td style='vertical-align: middle; white-space: nowrap;'><strong>8.59 GB</strong></td>
-             </tr>
-<tr>
-                <td style='vertical-align: middle;'><strong>S02E03 - The Burning Mill</strong><br><span style='color: #777; font-size: 11px;'>House of the Dragon (2022) - S02E03 - The Burning Mill [2160p x265 SDR EAC3].mkv</span></td>
-                <td style='vertical-align: middle; white-space: nowrap;'><span style='color: #4fc3f7; line-height: 1.4;'>2160p x265 / SDR<br><span style='color: #aaa; font-size: 11px;'>Dolby Digital Plus (EAC3)</span></span></td>
-                <td style='vertical-align: middle; white-space: nowrap;'><strong>8.64 GB</strong></td>
-             </tr>
-<tr>
-                <td style='vertical-align: middle;'><strong>S02E04 - The Red Dragon and the Gold</strong><br><span style='color: #777; font-size: 11px;'>House of the Dragon (2022) - S02E04 - The Red Dragon and the Gold [2160p x265 Dolby Vision].mkv</span></td>
-                <td style='vertical-align: middle; white-space: nowrap;'><span style='color: #4fc3f7; line-height: 1.4;'>2160p x265 / Dolby Vision<br><span style='color: #aaa; font-size: 11px;'>Audio not tagged</span></span></td>
-                <td style='vertical-align: middle; white-space: nowrap;'><strong>6.29 GB</strong></td>
-             </tr>
-<tr>
-                <td style='vertical-align: middle;'><strong>S02E04 - The Red Dragon and the Gold</strong><br><span style='color: #777; font-size: 11px;'>House of the Dragon (2022) - S02E04 - The Red Dragon and the Gold [2160p x265 SDR EAC3].mkv</span></td>
-                <td style='vertical-align: middle; white-space: nowrap;'><span style='color: #4fc3f7; line-height: 1.4;'>2160p x265 / SDR<br><span style='color: #aaa; font-size: 11px;'>Dolby Digital Plus (EAC3)</span></span></td>
-                <td style='vertical-align: middle; white-space: nowrap;'><strong>6.29 GB</strong></td>
-             </tr>
-<tr>
-                <td style='vertical-align: middle;'><strong>S02E05 - Regent</strong><br><span style='color: #777; font-size: 11px;'>House of the Dragon (2022) - S02E05 - Regent [2160p x265 Dolby Vision Atmos].mkv</span></td>
-                <td style='vertical-align: middle; white-space: nowrap;'><span style='color: #4fc3f7; line-height: 1.4;'>2160p x265 / Dolby Vision<br><span style='color: #aaa; font-size: 11px;'>Dolby Atmos</span></span></td>
-                <td style='vertical-align: middle; white-space: nowrap;'><strong>7.73 GB</strong></td>
-             </tr>
-<tr>
-                <td style='vertical-align: middle;'><strong>S02E05 - Regent</strong><br><span style='color: #777; font-size: 11px;'>House of the Dragon (2022) - S02E05 - Regent [2160p x265 SDR EAC3].mkv</span></td>
-                <td style='vertical-align: middle; white-space: nowrap;'><span style='color: #4fc3f7; line-height: 1.4;'>2160p x265 / SDR<br><span style='color: #aaa; font-size: 11px;'>Dolby Digital Plus (EAC3)</span></span></td>
-                <td style='vertical-align: middle; white-space: nowrap;'><strong>7.63 GB</strong></td>
-             </tr>
-<tr>
-                <td style='vertical-align: middle;'><strong>S02E06 - Smallfolk</strong><br><span style='color: #777; font-size: 11px;'>House of the Dragon (2022) - S02E06 - Smallfolk [2160p x265 Dolby Vision].mkv</span></td>
-                <td style='vertical-align: middle; white-space: nowrap;'><span style='color: #4fc3f7; line-height: 1.4;'>2160p x265 / Dolby Vision<br><span style='color: #aaa; font-size: 11px;'>Audio not tagged</span></span></td>
-                <td style='vertical-align: middle; white-space: nowrap;'><strong>5.63 GB</strong></td>
-             </tr>
-<tr>
-                <td style='vertical-align: middle;'><strong>S02E06 - Smallfolk</strong><br><span style='color: #777; font-size: 11px;'>House of the Dragon (2022) - S02E06 - Smallfolk [2160p x265 SDR EAC3].mkv</span></td>
-                <td style='vertical-align: middle; white-space: nowrap;'><span style='color: #4fc3f7; line-height: 1.4;'>2160p x265 / SDR<br><span style='color: #aaa; font-size: 11px;'>Dolby Digital Plus (EAC3)</span></span></td>
-                <td style='vertical-align: middle; white-space: nowrap;'><strong>9.52 GB</strong></td>
-             </tr>
-<tr>
-                <td style='vertical-align: middle;'><strong>S02E07 - The Red Sowing</strong><br><span style='color: #777; font-size: 11px;'>House of the Dragon (2022) - S02E07 - The Red Sowing [2160p x265 Dolby Vision Atmos].mkv</span></td>
-                <td style='vertical-align: middle; white-space: nowrap;'><span style='color: #4fc3f7; line-height: 1.4;'>2160p x265 / Dolby Vision<br><span style='color: #aaa; font-size: 11px;'>Dolby Atmos</span></span></td>
-                <td style='vertical-align: middle; white-space: nowrap;'><strong>9.16 GB</strong></td>
-             </tr>
-<tr>
-                <td style='vertical-align: middle;'><strong>S02E07 - The Red Sowing</strong><br><span style='color: #777; font-size: 11px;'>House of the Dragon (2022) - S02E07 - The Red Sowing [2160p x265 SDR EAC3].mkv</span></td>
-                <td style='vertical-align: middle; white-space: nowrap;'><span style='color: #4fc3f7; line-height: 1.4;'>2160p x265 / SDR<br><span style='color: #aaa; font-size: 11px;'>Dolby Digital Plus (EAC3)</span></span></td>
-                <td style='vertical-align: middle; white-space: nowrap;'><strong>9.03 GB</strong></td>
-             </tr>
-<tr>
-                <td style='vertical-align: middle;'><strong>S02E08 - The Queen Who Ever Was</strong><br><span style='color: #777; font-size: 11px;'>House of the Dragon (2022) - S02E08 - The Queen Who Ever Was [2160p x265 Dolby Vision EAC3].mkv</span></td>
-                <td style='vertical-align: middle; white-space: nowrap;'><span style='color: #4fc3f7; line-height: 1.4;'>2160p x265 / Dolby Vision<br><span style='color: #aaa; font-size: 11px;'>Dolby Digital Plus (EAC3)</span></span></td>
-                <td style='vertical-align: middle; white-space: nowrap;'><strong>6.72 GB</strong></td>
-             </tr>
-<tr>
-                <td style='vertical-align: middle;'><strong>S02E08 - The Queen Who Ever Was</strong><br><span style='color: #777; font-size: 11px;'>House of the Dragon (2022) - S02E08 - The Queen Who Ever Was [2160p x265 SDR EAC3].mkv</span></td>
-                <td style='vertical-align: middle; white-space: nowrap;'><span style='color: #4fc3f7; line-height: 1.4;'>2160p x265 / SDR<br><span style='color: #aaa; font-size: 11px;'>Dolby Digital Plus (EAC3)</span></span></td>
-                <td style='vertical-align: middle; white-space: nowrap;'><strong>6.80 GB</strong></td>
-             </tr>
-                </table>
-            </div>
-        </details>
-        <details style="background: #1e1e1e; margin-bottom: 6px; border-radius: 4px; border: 1px solid #444; overflow: hidden;">
-            <summary style="cursor: pointer; padding: 8px 12px; font-weight: bold; color: #ccc; display: flex; justify-content: space-between; align-items: center; gap: 10px; user-select: none; font-size: 13px;">
-                <span>&#128194; Season 03 <span class="lib-tag">Plex</span></span>
-                <span style="color: #4fc3f7; font-size: 12px; white-space: nowrap;">110.73 GB &bull; 16 episode file(s)</span>
-            </summary>
-            <div style="padding: 8px 12px; border-top: 1px solid #333; background: #161616;">
-                <span style='color: #888; font-size: 11px; font-family: monospace;'>&#128193; P:\Shows\House of the Dragon (2022) {tmdb-94997}\Season 03</span>
-                                <table>
-                    <tr>
-                        <th style="vertical-align: middle;">Episode File Name & Directory</th>
-                        <th style="vertical-align: middle; white-space: nowrap;">Quality & Profile</th>
-                        <th style="vertical-align: middle; white-space: nowrap;">Size (GB)</th>
-                    </tr>
-                    <tr>
-                <td style='vertical-align: middle;'><strong>S03E01 - Salt and Sea, Fire and Blood</strong><br><span style='color: #777; font-size: 11px;'>House of the Dragon (2022) - S03E01 - Salt and Sea, Fire and Blood [2160p x265 Dolby Vision Atmos].mkv</span></td>
-                <td style='vertical-align: middle; white-space: nowrap;'><span style='color: #4fc3f7; line-height: 1.4;'>2160p x265 / Dolby Vision<br><span style='color: #aaa; font-size: 11px;'>Dolby Atmos</span></span></td>
-                <td style='vertical-align: middle; white-space: nowrap;'><strong>6.58 GB</strong></td>
-             </tr>
-<tr>
-                <td style='vertical-align: middle;'><strong>S03E01 - Salt and Sea, Fire and Blood</strong><br><span style='color: #777; font-size: 11px;'>House of the Dragon (2022) - S03E01 - Salt and Sea, Fire and Blood [2160p x265 SDR EAC3].mkv</span></td>
-                <td style='vertical-align: middle; white-space: nowrap;'><span style='color: #4fc3f7; line-height: 1.4;'>2160p x265 / SDR<br><span style='color: #aaa; font-size: 11px;'>Dolby Digital Plus (EAC3)</span></span></td>
-                <td style='vertical-align: middle; white-space: nowrap;'><strong>6.47 GB</strong></td>
-             </tr>
-<tr>
-                <td style='vertical-align: middle;'><strong>S03E02 - Queen&#39;s Landing</strong><br><span style='color: #777; font-size: 11px;'>House of the Dragon (2022) - S03E02 - Queen&#39;s Landing [2160p x265 Dolby Vision Atmos].mkv</span></td>
-                <td style='vertical-align: middle; white-space: nowrap;'><span style='color: #4fc3f7; line-height: 1.4;'>2160p x265 / Dolby Vision<br><span style='color: #aaa; font-size: 11px;'>Dolby Atmos</span></span></td>
-                <td style='vertical-align: middle; white-space: nowrap;'><strong>8.27 GB</strong></td>
-             </tr>
-<tr>
-                <td style='vertical-align: middle;'><strong>S03E02 - Queen&#39;s Landing</strong><br><span style='color: #777; font-size: 11px;'>House of the Dragon (2022) - S03E02 - Queen&#39;s Landing [2160p x265 SDR EAC3].mkv</span></td>
-                <td style='vertical-align: middle; white-space: nowrap;'><span style='color: #4fc3f7; line-height: 1.4;'>2160p x265 / SDR<br><span style='color: #aaa; font-size: 11px;'>Dolby Digital Plus (EAC3)</span></span></td>
-                <td style='vertical-align: middle; white-space: nowrap;'><strong>8.17 GB</strong></td>
-             </tr>
-<tr>
-                <td style='vertical-align: middle;'><strong>S03E03 - Rhaenyra Triumphant</strong><br><span style='color: #777; font-size: 11px;'>House of the Dragon (2022) - S03E03 - Rhaenyra Triumphant [2160p x265 Dolby Vision Atmos].mkv</span></td>
-                <td style='vertical-align: middle; white-space: nowrap;'><span style='color: #4fc3f7; line-height: 1.4;'>2160p x265 / Dolby Vision<br><span style='color: #aaa; font-size: 11px;'>Dolby Atmos</span></span></td>
-                <td style='vertical-align: middle; white-space: nowrap;'><strong>7.75 GB</strong></td>
-             </tr>
-<tr>
-                <td style='vertical-align: middle;'><strong>S03E03 - Rhaenyra Triumphant</strong><br><span style='color: #777; font-size: 11px;'>House of the Dragon (2022) - S03E03 - Rhaenyra Triumphant [2160p x265 SDR EAC3].mkv</span></td>
-                <td style='vertical-align: middle; white-space: nowrap;'><span style='color: #4fc3f7; line-height: 1.4;'>2160p x265 / SDR<br><span style='color: #aaa; font-size: 11px;'>Dolby Digital Plus (EAC3)</span></span></td>
-                <td style='vertical-align: middle; white-space: nowrap;'><strong>5.28 GB</strong></td>
-             </tr>
-<tr>
-                <td style='vertical-align: middle;'><strong>S03E04 - Tumbleton</strong><br><span style='color: #777; font-size: 11px;'>House of the Dragon (2022) - S03E04 - Tumbleton [2160p x265 Dolby Vision Atmos].mkv</span></td>
-                <td style='vertical-align: middle; white-space: nowrap;'><span style='color: #4fc3f7; line-height: 1.4;'>2160p x265 / Dolby Vision<br><span style='color: #aaa; font-size: 11px;'>Dolby Atmos</span></span></td>
-                <td style='vertical-align: middle; white-space: nowrap;'><strong>7.40 GB</strong></td>
-             </tr>
-<tr>
-                <td style='vertical-align: middle;'><strong>S03E04 - Tumbleton</strong><br><span style='color: #777; font-size: 11px;'>House of the Dragon (2022) - S03E04 - Tumbleton [2160p x265 SDR EAC3].mkv</span></td>
-                <td style='vertical-align: middle; white-space: nowrap;'><span style='color: #4fc3f7; line-height: 1.4;'>2160p x265 / SDR<br><span style='color: #aaa; font-size: 11px;'>Dolby Digital Plus (EAC3)</span></span></td>
-                <td style='vertical-align: middle; white-space: nowrap;'><strong>4.83 GB</strong></td>
-             </tr>
-<tr>
-                <td style='vertical-align: middle;'><strong>S03E05 - Unbowed and Unbent</strong><br><span style='color: #777; font-size: 11px;'>House of the Dragon (2022) - S03E05 - Unbowed and Unbent [2160p x265 Dolby Vision Atmos].mkv</span></td>
-                <td style='vertical-align: middle; white-space: nowrap;'><span style='color: #4fc3f7; line-height: 1.4;'>2160p x265 / Dolby Vision<br><span style='color: #aaa; font-size: 11px;'>Dolby Atmos</span></span></td>
-                <td style='vertical-align: middle; white-space: nowrap;'><strong>7.85 GB</strong></td>
-             </tr>
-<tr>
-                <td style='vertical-align: middle;'><strong>S03E05 - Unbowed and Unbent</strong><br><span style='color: #777; font-size: 11px;'>House of the Dragon (2022) - S03E05 - Unbowed and Unbent [2160p x265 SDR EAC3].mkv</span></td>
-                <td style='vertical-align: middle; white-space: nowrap;'><span style='color: #4fc3f7; line-height: 1.4;'>2160p x265 / SDR<br><span style='color: #aaa; font-size: 11px;'>Dolby Digital Plus (EAC3)</span></span></td>
-                <td style='vertical-align: middle; white-space: nowrap;'><strong>7.74 GB</strong></td>
-             </tr>
-<tr>
-                <td style='vertical-align: middle;'><strong>S03E06 - Faceless Men</strong><br><span style='color: #777; font-size: 11px;'>House of the Dragon (2022) - S03E06 - Faceless Men [2160p x265 Dolby Vision Atmos].mkv</span></td>
-                <td style='vertical-align: middle; white-space: nowrap;'><span style='color: #4fc3f7; line-height: 1.4;'>2160p x265 / Dolby Vision<br><span style='color: #aaa; font-size: 11px;'>Dolby Atmos</span></span></td>
-                <td style='vertical-align: middle; white-space: nowrap;'><strong>7.67 GB</strong></td>
-             </tr>
-<tr>
-                <td style='vertical-align: middle;'><strong>S03E06 - Faceless Men</strong><br><span style='color: #777; font-size: 11px;'>House of the Dragon (2022) - S03E06 - Faceless Men [2160p x265 SDR EAC3].mkv</span></td>
-                <td style='vertical-align: middle; white-space: nowrap;'><span style='color: #4fc3f7; line-height: 1.4;'>2160p x265 / SDR<br><span style='color: #aaa; font-size: 11px;'>Dolby Digital Plus (EAC3)</span></span></td>
-                <td style='vertical-align: middle; white-space: nowrap;'><strong>5.93 GB</strong></td>
-             </tr>
-<tr>
-                <td style='vertical-align: middle;'><strong>S03E07 - The Dragon in Winter</strong><br><span style='color: #777; font-size: 11px;'>House of the Dragon (2022) - S03E07 - The Dragon in Winter [2160p x265 Dolby Vision Atmos].mkv</span></td>
-                <td style='vertical-align: middle; white-space: nowrap;'><span style='color: #4fc3f7; line-height: 1.4;'>2160p x265 / Dolby Vision<br><span style='color: #aaa; font-size: 11px;'>Dolby Atmos</span></span></td>
-                <td style='vertical-align: middle; white-space: nowrap;'><strong>5.90 GB</strong></td>
-             </tr>
-<tr>
-                <td style='vertical-align: middle;'><strong>S03E07 - The Dragon in Winter</strong><br><span style='color: #777; font-size: 11px;'>House of the Dragon (2022) - S03E07 - The Dragon in Winter [2160p x265 SDR EAC3].mkv</span></td>
-                <td style='vertical-align: middle; white-space: nowrap;'><span style='color: #4fc3f7; line-height: 1.4;'>2160p x265 / SDR<br><span style='color: #aaa; font-size: 11px;'>Dolby Digital Plus (EAC3)</span></span></td>
-                <td style='vertical-align: middle; white-space: nowrap;'><strong>5.81 GB</strong></td>
-             </tr>
-<tr>
-                <td style='vertical-align: middle;'><strong>S03E08 - The Treasons at Tumbleton</strong><br><span style='color: #777; font-size: 11px;'>House of the Dragon (2022) - S03E08 - The Treasons at Tumbleton [2160p x265 Dolby Vision Atmos].mkv</span></td>
-                <td style='vertical-align: middle; white-space: nowrap;'><span style='color: #4fc3f7; line-height: 1.4;'>2160p x265 / Dolby Vision<br><span style='color: #aaa; font-size: 11px;'>Dolby Atmos</span></span></td>
-                <td style='vertical-align: middle; white-space: nowrap;'><strong>7.60 GB</strong></td>
-             </tr>
-<tr>
-                <td style='vertical-align: middle;'><strong>S03E08 - The Treasons at Tumbleton</strong><br><span style='color: #777; font-size: 11px;'>House of the Dragon (2022) - S03E08 - The Treasons at Tumbleton [2160p x265 SDR EAC3].mkv</span></td>
-                <td style='vertical-align: middle; white-space: nowrap;'><span style='color: #4fc3f7; line-height: 1.4;'>2160p x265 / SDR<br><span style='color: #aaa; font-size: 11px;'>Dolby Digital Plus (EAC3)</span></span></td>
-                <td style='vertical-align: middle; white-space: nowrap;'><strong>7.50 GB</strong></td>
-             </tr>
-                </table>
-            </div>
-        </details>
-        </div>
-    </details>
-    <details style="background: #252525; margin-bottom: 8px; border-radius: 6px; border: 1px solid #333; overflow: hidden;">
-        <summary style="cursor: pointer; padding: 10px 14px; font-weight: bold; color: #fff; display: flex; justify-content: space-between; align-items: center; gap: 10px; user-select: none;">
-            <span>&#127942; The Sopranos (1999)</span>
-            <span style="color: #4fc3f7; font-size: 13px; white-space: nowrap;">176.57 GB total (2 heavy season(s))</span>
-        </summary>
-        <div style="padding: 10px 14px; border-top: 1px solid #333; background: #1e1e1e;">
-                    <details style="background: #1e1e1e; margin-bottom: 6px; border-radius: 4px; border: 1px solid #444; overflow: hidden;">
-            <summary style="cursor: pointer; padding: 8px 12px; font-weight: bold; color: #ccc; display: flex; justify-content: space-between; align-items: center; gap: 10px; user-select: none; font-size: 13px;">
-                <span>&#128194; Season 03 <span class="lib-tag">Plex</span></span>
-                <span style="color: #4fc3f7; font-size: 12px; white-space: nowrap;">91.62 GB &bull; 13 episode file(s)</span>
-            </summary>
-            <div style="padding: 8px 12px; border-top: 1px solid #333; background: #161616;">
-                <span style='color: #888; font-size: 11px; font-family: monospace;'>&#128193; P:\Shows\The Sopranos (1999) {tmdb-1398}\Season 03</span>
-                                <table>
-                    <tr>
-                        <th style="vertical-align: middle;">Episode File Name & Directory</th>
-                        <th style="vertical-align: middle; white-space: nowrap;">Quality & Profile</th>
-                        <th style="vertical-align: middle; white-space: nowrap;">Size (GB)</th>
-                    </tr>
-                    <tr>
-                <td style='vertical-align: middle;'><strong>S03E01 - Mr. Ruggerio&#39;s Neighborhood</strong><br><span style='color: #777; font-size: 11px;'>The Sopranos (1999) - S03E01 - Mr. Ruggerio&#39;s Neighborhood [1080p x264 SDR].mkv</span></td>
-                <td style='vertical-align: middle; white-space: nowrap;'><span style='color: #4fc3f7; line-height: 1.4;'>1080p x264 / SDR<br><span style='color: #aaa; font-size: 11px;'>Audio not tagged</span></span></td>
-                <td style='vertical-align: middle; white-space: nowrap;'><strong>5.85 GB</strong></td>
-             </tr>
-<tr>
-                <td style='vertical-align: middle;'><strong>S03E02 - Proshai, Livushka</strong><br><span style='color: #777; font-size: 11px;'>The Sopranos (1999) - S03E02 - Proshai, Livushka [1080p x264 SDR].mkv</span></td>
-                <td style='vertical-align: middle; white-space: nowrap;'><span style='color: #4fc3f7; line-height: 1.4;'>1080p x264 / SDR<br><span style='color: #aaa; font-size: 11px;'>Audio not tagged</span></span></td>
-                <td style='vertical-align: middle; white-space: nowrap;'><strong>6.95 GB</strong></td>
-             </tr>
-<tr>
-                <td style='vertical-align: middle;'><strong>S03E03 - Fortunate Son</strong><br><span style='color: #777; font-size: 11px;'>The Sopranos (1999) - S03E03 - Fortunate Son [1080p x264 SDR].mkv</span></td>
-                <td style='vertical-align: middle; white-space: nowrap;'><span style='color: #4fc3f7; line-height: 1.4;'>1080p x264 / SDR<br><span style='color: #aaa; font-size: 11px;'>Audio not tagged</span></span></td>
-                <td style='vertical-align: middle; white-space: nowrap;'><strong>7.69 GB</strong></td>
-             </tr>
-<tr>
-                <td style='vertical-align: middle;'><strong>S03E04 - Employee of the Month</strong><br><span style='color: #777; font-size: 11px;'>The Sopranos (1999) - S03E04 - Employee of the Month [1080p x264 SDR].mkv</span></td>
-                <td style='vertical-align: middle; white-space: nowrap;'><span style='color: #4fc3f7; line-height: 1.4;'>1080p x264 / SDR<br><span style='color: #aaa; font-size: 11px;'>Audio not tagged</span></span></td>
-                <td style='vertical-align: middle; white-space: nowrap;'><strong>6.78 GB</strong></td>
-             </tr>
-<tr>
-                <td style='vertical-align: middle;'><strong>S03E05 - Another Toothpick</strong><br><span style='color: #777; font-size: 11px;'>The Sopranos (1999) - S03E05 - Another Toothpick [1080p x264 SDR].mkv</span></td>
-                <td style='vertical-align: middle; white-space: nowrap;'><span style='color: #4fc3f7; line-height: 1.4;'>1080p x264 / SDR<br><span style='color: #aaa; font-size: 11px;'>Audio not tagged</span></span></td>
-                <td style='vertical-align: middle; white-space: nowrap;'><strong>7.36 GB</strong></td>
-             </tr>
-<tr>
-                <td style='vertical-align: middle;'><strong>S03E06 - University</strong><br><span style='color: #777; font-size: 11px;'>The Sopranos (1999) - S03E06 - University [1080p x264 SDR].mkv</span></td>
-                <td style='vertical-align: middle; white-space: nowrap;'><span style='color: #4fc3f7; line-height: 1.4;'>1080p x264 / SDR<br><span style='color: #aaa; font-size: 11px;'>Audio not tagged</span></span></td>
-                <td style='vertical-align: middle; white-space: nowrap;'><strong>6.46 GB</strong></td>
-             </tr>
-<tr>
-                <td style='vertical-align: middle;'><strong>S03E07 - Second Opinion</strong><br><span style='color: #777; font-size: 11px;'>The Sopranos (1999) - S03E07 - Second Opinion [1080p x264 SDR].mkv</span></td>
-                <td style='vertical-align: middle; white-space: nowrap;'><span style='color: #4fc3f7; line-height: 1.4;'>1080p x264 / SDR<br><span style='color: #aaa; font-size: 11px;'>Audio not tagged</span></span></td>
-                <td style='vertical-align: middle; white-space: nowrap;'><strong>7.82 GB</strong></td>
-             </tr>
-<tr>
-                <td style='vertical-align: middle;'><strong>S03E08 - He Is Risen</strong><br><span style='color: #777; font-size: 11px;'>The Sopranos (1999) - S03E08 - He Is Risen [1080p x264 SDR].mkv</span></td>
-                <td style='vertical-align: middle; white-space: nowrap;'><span style='color: #4fc3f7; line-height: 1.4;'>1080p x264 / SDR<br><span style='color: #aaa; font-size: 11px;'>Audio not tagged</span></span></td>
-                <td style='vertical-align: middle; white-space: nowrap;'><strong>5.90 GB</strong></td>
-             </tr>
-<tr>
-                <td style='vertical-align: middle;'><strong>S03E09 - The Telltale Moozadell</strong><br><span style='color: #777; font-size: 11px;'>The Sopranos (1999) - S03E09 - The Telltale Moozadell [1080p x264 SDR].mkv</span></td>
-                <td style='vertical-align: middle; white-space: nowrap;'><span style='color: #4fc3f7; line-height: 1.4;'>1080p x264 / SDR<br><span style='color: #aaa; font-size: 11px;'>Audio not tagged</span></span></td>
-                <td style='vertical-align: middle; white-space: nowrap;'><strong>6.64 GB</strong></td>
-             </tr>
-<tr>
-                <td style='vertical-align: middle;'><strong>S03E10 - To Save Us All from Satan&#39;s Power</strong><br><span style='color: #777; font-size: 11px;'>The Sopranos (1999) - S03E10 - To Save Us All from Satan&#39;s Power [1080p x264 SDR].mkv</span></td>
-                <td style='vertical-align: middle; white-space: nowrap;'><span style='color: #4fc3f7; line-height: 1.4;'>1080p x264 / SDR<br><span style='color: #aaa; font-size: 11px;'>Audio not tagged</span></span></td>
-                <td style='vertical-align: middle; white-space: nowrap;'><strong>5.87 GB</strong></td>
-             </tr>
-<tr>
-                <td style='vertical-align: middle;'><strong>S03E11 - Pine Barrens</strong><br><span style='color: #777; font-size: 11px;'>The Sopranos (1999) - S03E11 - Pine Barrens [1080p x264 SDR].mkv</span></td>
-                <td style='vertical-align: middle; white-space: nowrap;'><span style='color: #4fc3f7; line-height: 1.4;'>1080p x264 / SDR<br><span style='color: #aaa; font-size: 11px;'>Audio not tagged</span></span></td>
-                <td style='vertical-align: middle; white-space: nowrap;'><strong>8.69 GB</strong></td>
-             </tr>
-<tr>
-                <td style='vertical-align: middle;'><strong>S03E12 - Amour Fou</strong><br><span style='color: #777; font-size: 11px;'>The Sopranos (1999) - S03E12 - Amour Fou [1080p x264 SDR].mkv</span></td>
-                <td style='vertical-align: middle; white-space: nowrap;'><span style='color: #4fc3f7; line-height: 1.4;'>1080p x264 / SDR<br><span style='color: #aaa; font-size: 11px;'>Audio not tagged</span></span></td>
-                <td style='vertical-align: middle; white-space: nowrap;'><strong>7.46 GB</strong></td>
-             </tr>
-<tr>
-                <td style='vertical-align: middle;'><strong>S03E13 - Army of One</strong><br><span style='color: #777; font-size: 11px;'>The Sopranos (1999) - S03E13 - Army of One [1080p x264 SDR].mkv</span></td>
-                <td style='vertical-align: middle; white-space: nowrap;'><span style='color: #4fc3f7; line-height: 1.4;'>1080p x264 / SDR<br><span style='color: #aaa; font-size: 11px;'>Audio not tagged</span></span></td>
-                <td style='vertical-align: middle; white-space: nowrap;'><strong>8.15 GB</strong></td>
-             </tr>
-                </table>
-            </div>
-        </details>
-        <details style="background: #1e1e1e; margin-bottom: 6px; border-radius: 4px; border: 1px solid #444; overflow: hidden;">
-            <summary style="cursor: pointer; padding: 8px 12px; font-weight: bold; color: #ccc; display: flex; justify-content: space-between; align-items: center; gap: 10px; user-select: none; font-size: 13px;">
-                <span>&#128194; Season 06 <span class="lib-tag">Plex</span></span>
-                <span style="color: #4fc3f7; font-size: 12px; white-space: nowrap;">84.95 GB &bull; 21 episode file(s)</span>
-            </summary>
-            <div style="padding: 8px 12px; border-top: 1px solid #333; background: #161616;">
-                <span style='color: #888; font-size: 11px; font-family: monospace;'>&#128193; P:\Shows\The Sopranos (1999) {tmdb-1398}\Season 06</span>
-                                <table>
-                    <tr>
-                        <th style="vertical-align: middle;">Episode File Name & Directory</th>
-                        <th style="vertical-align: middle; white-space: nowrap;">Quality & Profile</th>
-                        <th style="vertical-align: middle; white-space: nowrap;">Size (GB)</th>
-                    </tr>
-                    <tr>
-                <td style='vertical-align: middle;'><strong>S06E01 - Members Only</strong><br><span style='color: #777; font-size: 11px;'>The Sopranos (1999) - S06E01 - Members Only [1080p x264 SDR].mkv</span></td>
-                <td style='vertical-align: middle; white-space: nowrap;'><span style='color: #4fc3f7; line-height: 1.4;'>1080p x264 / SDR<br><span style='color: #aaa; font-size: 11px;'>Audio not tagged</span></span></td>
-                <td style='vertical-align: middle; white-space: nowrap;'><strong>4.04 GB</strong></td>
-             </tr>
-<tr>
-                <td style='vertical-align: middle;'><strong>S06E02 - Join the Club</strong><br><span style='color: #777; font-size: 11px;'>The Sopranos (1999) - S06E02 - Join the Club [1080p x264 SDR].mkv</span></td>
-                <td style='vertical-align: middle; white-space: nowrap;'><span style='color: #4fc3f7; line-height: 1.4;'>1080p x264 / SDR<br><span style='color: #aaa; font-size: 11px;'>Audio not tagged</span></span></td>
-                <td style='vertical-align: middle; white-space: nowrap;'><strong>4.04 GB</strong></td>
-             </tr>
-<tr>
-                <td style='vertical-align: middle;'><strong>S06E03 - Mayham</strong><br><span style='color: #777; font-size: 11px;'>The Sopranos (1999) - S06E03 - Mayham [1080p x264 SDR].mkv</span></td>
-                <td style='vertical-align: middle; white-space: nowrap;'><span style='color: #4fc3f7; line-height: 1.4;'>1080p x264 / SDR<br><span style='color: #aaa; font-size: 11px;'>Audio not tagged</span></span></td>
-                <td style='vertical-align: middle; white-space: nowrap;'><strong>4.05 GB</strong></td>
-             </tr>
-<tr>
-                <td style='vertical-align: middle;'><strong>S06E04 - The Fleshy Part of the Thigh</strong><br><span style='color: #777; font-size: 11px;'>The Sopranos (1999) - S06E04 - The Fleshy Part of the Thigh [1080p x264 SDR].mkv</span></td>
-                <td style='vertical-align: middle; white-space: nowrap;'><span style='color: #4fc3f7; line-height: 1.4;'>1080p x264 / SDR<br><span style='color: #aaa; font-size: 11px;'>Audio not tagged</span></span></td>
-                <td style='vertical-align: middle; white-space: nowrap;'><strong>4.05 GB</strong></td>
-             </tr>
-<tr>
-                <td style='vertical-align: middle;'><strong>S06E05 - Mr. &amp; Mrs. John Sacrimoni Request</strong><br><span style='color: #777; font-size: 11px;'>The Sopranos (1999) - S06E05 - Mr. &amp; Mrs. John Sacrimoni Request [1080p x264 SDR].mkv</span></td>
-                <td style='vertical-align: middle; white-space: nowrap;'><span style='color: #4fc3f7; line-height: 1.4;'>1080p x264 / SDR<br><span style='color: #aaa; font-size: 11px;'>Audio not tagged</span></span></td>
-                <td style='vertical-align: middle; white-space: nowrap;'><strong>4.04 GB</strong></td>
-             </tr>
-<tr>
-                <td style='vertical-align: middle;'><strong>S06E06 - Live Free or Die</strong><br><span style='color: #777; font-size: 11px;'>The Sopranos (1999) - S06E06 - Live Free or Die [1080p x264 SDR].mkv</span></td>
-                <td style='vertical-align: middle; white-space: nowrap;'><span style='color: #4fc3f7; line-height: 1.4;'>1080p x264 / SDR<br><span style='color: #aaa; font-size: 11px;'>Audio not tagged</span></span></td>
-                <td style='vertical-align: middle; white-space: nowrap;'><strong>4.05 GB</strong></td>
-             </tr>
-<tr>
-                <td style='vertical-align: middle;'><strong>S06E07 - Luxury Lounge</strong><br><span style='color: #777; font-size: 11px;'>The Sopranos (1999) - S06E07 - Luxury Lounge [1080p x264 SDR].mkv</span></td>
-                <td style='vertical-align: middle; white-space: nowrap;'><span style='color: #4fc3f7; line-height: 1.4;'>1080p x264 / SDR<br><span style='color: #aaa; font-size: 11px;'>Audio not tagged</span></span></td>
-                <td style='vertical-align: middle; white-space: nowrap;'><strong>4.05 GB</strong></td>
-             </tr>
-<tr>
-                <td style='vertical-align: middle;'><strong>S06E08 - Johnny Cakes</strong><br><span style='color: #777; font-size: 11px;'>The Sopranos (1999) - S06E08 - Johnny Cakes [1080p x264 SDR].mkv</span></td>
-                <td style='vertical-align: middle; white-space: nowrap;'><span style='color: #4fc3f7; line-height: 1.4;'>1080p x264 / SDR<br><span style='color: #aaa; font-size: 11px;'>Audio not tagged</span></span></td>
-                <td style='vertical-align: middle; white-space: nowrap;'><strong>4.05 GB</strong></td>
-             </tr>
-<tr>
-                <td style='vertical-align: middle;'><strong>S06E09 - The Ride</strong><br><span style='color: #777; font-size: 11px;'>The Sopranos (1999) - S06E09 - The Ride [1080p x264 SDR].mkv</span></td>
-                <td style='vertical-align: middle; white-space: nowrap;'><span style='color: #4fc3f7; line-height: 1.4;'>1080p x264 / SDR<br><span style='color: #aaa; font-size: 11px;'>Audio not tagged</span></span></td>
-                <td style='vertical-align: middle; white-space: nowrap;'><strong>4.04 GB</strong></td>
-             </tr>
-<tr>
-                <td style='vertical-align: middle;'><strong>S06E10 - Moe n&#39; Joe</strong><br><span style='color: #777; font-size: 11px;'>The Sopranos (1999) - S06E10 - Moe n&#39; Joe [1080p x264 SDR].mkv</span></td>
-                <td style='vertical-align: middle; white-space: nowrap;'><span style='color: #4fc3f7; line-height: 1.4;'>1080p x264 / SDR<br><span style='color: #aaa; font-size: 11px;'>Audio not tagged</span></span></td>
-                <td style='vertical-align: middle; white-space: nowrap;'><strong>4.04 GB</strong></td>
-             </tr>
-<tr>
-                <td style='vertical-align: middle;'><strong>S06E11 - Cold Stones</strong><br><span style='color: #777; font-size: 11px;'>The Sopranos (1999) - S06E11 - Cold Stones [1080p x264 SDR].mkv</span></td>
-                <td style='vertical-align: middle; white-space: nowrap;'><span style='color: #4fc3f7; line-height: 1.4;'>1080p x264 / SDR<br><span style='color: #aaa; font-size: 11px;'>Audio not tagged</span></span></td>
-                <td style='vertical-align: middle; white-space: nowrap;'><strong>4.05 GB</strong></td>
-             </tr>
-<tr>
-                <td style='vertical-align: middle;'><strong>S06E12 - Kaisha</strong><br><span style='color: #777; font-size: 11px;'>The Sopranos (1999) - S06E12 - Kaisha [1080p x264 SDR].mkv</span></td>
-                <td style='vertical-align: middle; white-space: nowrap;'><span style='color: #4fc3f7; line-height: 1.4;'>1080p x264 / SDR<br><span style='color: #aaa; font-size: 11px;'>Audio not tagged</span></span></td>
-                <td style='vertical-align: middle; white-space: nowrap;'><strong>4.05 GB</strong></td>
-             </tr>
-<tr>
-                <td style='vertical-align: middle;'><strong>S06E13 - Soprano Home Movies</strong><br><span style='color: #777; font-size: 11px;'>The Sopranos (1999) - S06E13 - Soprano Home Movies [1080p x264 SDR].mkv</span></td>
-                <td style='vertical-align: middle; white-space: nowrap;'><span style='color: #4fc3f7; line-height: 1.4;'>1080p x264 / SDR<br><span style='color: #aaa; font-size: 11px;'>Audio not tagged</span></span></td>
-                <td style='vertical-align: middle; white-space: nowrap;'><strong>4.04 GB</strong></td>
-             </tr>
-<tr>
-                <td style='vertical-align: middle;'><strong>S06E14 - Stage 5</strong><br><span style='color: #777; font-size: 11px;'>The Sopranos (1999) - S06E14 - Stage 5 [1080p x264 SDR].mkv</span></td>
-                <td style='vertical-align: middle; white-space: nowrap;'><span style='color: #4fc3f7; line-height: 1.4;'>1080p x264 / SDR<br><span style='color: #aaa; font-size: 11px;'>Audio not tagged</span></span></td>
-                <td style='vertical-align: middle; white-space: nowrap;'><strong>4.05 GB</strong></td>
-             </tr>
-<tr>
-                <td style='vertical-align: middle;'><strong>S06E15 - Remember When</strong><br><span style='color: #777; font-size: 11px;'>The Sopranos (1999) - S06E15 - Remember When [1080p x264 SDR].mkv</span></td>
-                <td style='vertical-align: middle; white-space: nowrap;'><span style='color: #4fc3f7; line-height: 1.4;'>1080p x264 / SDR<br><span style='color: #aaa; font-size: 11px;'>Audio not tagged</span></span></td>
-                <td style='vertical-align: middle; white-space: nowrap;'><strong>4.05 GB</strong></td>
-             </tr>
-<tr>
-                <td style='vertical-align: middle;'><strong>S06E16 - Chasing It</strong><br><span style='color: #777; font-size: 11px;'>The Sopranos (1999) - S06E16 - Chasing It [1080p x264 SDR].mkv</span></td>
-                <td style='vertical-align: middle; white-space: nowrap;'><span style='color: #4fc3f7; line-height: 1.4;'>1080p x264 / SDR<br><span style='color: #aaa; font-size: 11px;'>Audio not tagged</span></span></td>
-                <td style='vertical-align: middle; white-space: nowrap;'><strong>4.04 GB</strong></td>
-             </tr>
-<tr>
-                <td style='vertical-align: middle;'><strong>S06E17 - Walk Like a Man</strong><br><span style='color: #777; font-size: 11px;'>The Sopranos (1999) - S06E17 - Walk Like a Man [1080p x264 SDR].mkv</span></td>
-                <td style='vertical-align: middle; white-space: nowrap;'><span style='color: #4fc3f7; line-height: 1.4;'>1080p x264 / SDR<br><span style='color: #aaa; font-size: 11px;'>Audio not tagged</span></span></td>
-                <td style='vertical-align: middle; white-space: nowrap;'><strong>4.05 GB</strong></td>
-             </tr>
-<tr>
-                <td style='vertical-align: middle;'><strong>S06E18 - Kennedy and Heidi</strong><br><span style='color: #777; font-size: 11px;'>The Sopranos (1999) - S06E18 - Kennedy and Heidi [1080p x264 SDR].mkv</span></td>
-                <td style='vertical-align: middle; white-space: nowrap;'><span style='color: #4fc3f7; line-height: 1.4;'>1080p x264 / SDR<br><span style='color: #aaa; font-size: 11px;'>Audio not tagged</span></span></td>
-                <td style='vertical-align: middle; white-space: nowrap;'><strong>4.04 GB</strong></td>
-             </tr>
-<tr>
-                <td style='vertical-align: middle;'><strong>S06E19 - The Second Coming</strong><br><span style='color: #777; font-size: 11px;'>The Sopranos (1999) - S06E19 - The Second Coming [1080p x264 SDR].mkv</span></td>
-                <td style='vertical-align: middle; white-space: nowrap;'><span style='color: #4fc3f7; line-height: 1.4;'>1080p x264 / SDR<br><span style='color: #aaa; font-size: 11px;'>Audio not tagged</span></span></td>
-                <td style='vertical-align: middle; white-space: nowrap;'><strong>4.04 GB</strong></td>
-             </tr>
-<tr>
-                <td style='vertical-align: middle;'><strong>S06E20 - The Blue Comet</strong><br><span style='color: #777; font-size: 11px;'>The Sopranos (1999) - S06E20 - The Blue Comet [1080p x264 SDR].mkv</span></td>
-                <td style='vertical-align: middle; white-space: nowrap;'><span style='color: #4fc3f7; line-height: 1.4;'>1080p x264 / SDR<br><span style='color: #aaa; font-size: 11px;'>Audio not tagged</span></span></td>
-                <td style='vertical-align: middle; white-space: nowrap;'><strong>4.04 GB</strong></td>
-             </tr>
-<tr>
-                <td style='vertical-align: middle;'><strong>S06E21 - Made in America</strong><br><span style='color: #777; font-size: 11px;'>The Sopranos (1999) - S06E21 - Made in America [1080p x264 SDR].mkv</span></td>
-                <td style='vertical-align: middle; white-space: nowrap;'><span style='color: #4fc3f7; line-height: 1.4;'>1080p x264 / SDR<br><span style='color: #aaa; font-size: 11px;'>Audio not tagged</span></span></td>
-                <td style='vertical-align: middle; white-space: nowrap;'><strong>4.05 GB</strong></td>
-             </tr>
-                </table>
-            </div>
-        </details>
-        </div>
-    </details>
-    <details style="background: #252525; margin-bottom: 8px; border-radius: 6px; border: 1px solid #333; overflow: hidden;">
-        <summary style="cursor: pointer; padding: 10px 14px; font-weight: bold; color: #fff; display: flex; justify-content: space-between; align-items: center; gap: 10px; user-select: none;">
-            <span>&#127942; Westworld (2016)</span>
-            <span style="color: #4fc3f7; font-size: 13px; white-space: nowrap;">202.30 GB total (2 heavy season(s))</span>
-        </summary>
-        <div style="padding: 10px 14px; border-top: 1px solid #333; background: #1e1e1e;">
-                    <details style="background: #1e1e1e; margin-bottom: 6px; border-radius: 4px; border: 1px solid #444; overflow: hidden;">
-            <summary style="cursor: pointer; padding: 8px 12px; font-weight: bold; color: #ccc; display: flex; justify-content: space-between; align-items: center; gap: 10px; user-select: none; font-size: 13px;">
-                <span>&#128194; Season 03 <span class="lib-tag">Plex</span></span>
-                <span style="color: #4fc3f7; font-size: 12px; white-space: nowrap;">93.39 GB &bull; 8 episode file(s)</span>
-            </summary>
-            <div style="padding: 8px 12px; border-top: 1px solid #333; background: #161616;">
-                <span style='color: #888; font-size: 11px; font-family: monospace;'>&#128193; P:\Shows\Westworld (2016) {tmdb-63247}\Season 03</span>
-                                <table>
-                    <tr>
-                        <th style="vertical-align: middle;">Episode File Name & Directory</th>
-                        <th style="vertical-align: middle; white-space: nowrap;">Quality & Profile</th>
-                        <th style="vertical-align: middle; white-space: nowrap;">Size (GB)</th>
-                    </tr>
-                    <tr>
-                <td style='vertical-align: middle;'><strong>S03E01 - Parce Domine</strong><br><span style='color: #777; font-size: 11px;'>Westworld (2016) - S03E01 - Parce Domine [2160p x265 SDR].mkv</span></td>
-                <td style='vertical-align: middle; white-space: nowrap;'><span style='color: #4fc3f7; line-height: 1.4;'>2160p x265 / SDR<br><span style='color: #aaa; font-size: 11px;'>Audio not tagged</span></span></td>
-                <td style='vertical-align: middle; white-space: nowrap;'><strong>11.43 GB</strong></td>
-             </tr>
-<tr>
-                <td style='vertical-align: middle;'><strong>S03E02 - The Winter Line</strong><br><span style='color: #777; font-size: 11px;'>Westworld (2016) - S03E02 - The Winter Line [2160p x265 SDR].mkv</span></td>
-                <td style='vertical-align: middle; white-space: nowrap;'><span style='color: #4fc3f7; line-height: 1.4;'>2160p x265 / SDR<br><span style='color: #aaa; font-size: 11px;'>Audio not tagged</span></span></td>
-                <td style='vertical-align: middle; white-space: nowrap;'><strong>11.90 GB</strong></td>
-             </tr>
-<tr>
-                <td style='vertical-align: middle;'><strong>S03E03 - The Absence of Field</strong><br><span style='color: #777; font-size: 11px;'>Westworld (2016) - S03E03 - The Absence of Field [2160p x265 SDR].mkv</span></td>
-                <td style='vertical-align: middle; white-space: nowrap;'><span style='color: #4fc3f7; line-height: 1.4;'>2160p x265 / SDR<br><span style='color: #aaa; font-size: 11px;'>Audio not tagged</span></span></td>
-                <td style='vertical-align: middle; white-space: nowrap;'><strong>9.21 GB</strong></td>
-             </tr>
-<tr>
-                <td style='vertical-align: middle;'><strong>S03E04 - The Mother of Exiles</strong><br><span style='color: #777; font-size: 11px;'>Westworld (2016) - S03E04 - The Mother of Exiles [2160p x265 SDR].mkv</span></td>
-                <td style='vertical-align: middle; white-space: nowrap;'><span style='color: #4fc3f7; line-height: 1.4;'>2160p x265 / SDR<br><span style='color: #aaa; font-size: 11px;'>Audio not tagged</span></span></td>
-                <td style='vertical-align: middle; white-space: nowrap;'><strong>10.17 GB</strong></td>
-             </tr>
-<tr>
-                <td style='vertical-align: middle;'><strong>S03E05 - Genre</strong><br><span style='color: #777; font-size: 11px;'>Westworld (2016) - S03E05 - Genre [2160p x265 SDR].mkv</span></td>
-                <td style='vertical-align: middle; white-space: nowrap;'><span style='color: #4fc3f7; line-height: 1.4;'>2160p x265 / SDR<br><span style='color: #aaa; font-size: 11px;'>Audio not tagged</span></span></td>
-                <td style='vertical-align: middle; white-space: nowrap;'><strong>11.12 GB</strong></td>
-             </tr>
-<tr>
-                <td style='vertical-align: middle;'><strong>S03E06 - Decoherence</strong><br><span style='color: #777; font-size: 11px;'>Westworld (2016) - S03E06 - Decoherence [2160p x265 SDR].mkv</span></td>
-                <td style='vertical-align: middle; white-space: nowrap;'><span style='color: #4fc3f7; line-height: 1.4;'>2160p x265 / SDR<br><span style='color: #aaa; font-size: 11px;'>Audio not tagged</span></span></td>
-                <td style='vertical-align: middle; white-space: nowrap;'><strong>11.77 GB</strong></td>
-             </tr>
-<tr>
-                <td style='vertical-align: middle;'><strong>S03E07 - Passed Pawn</strong><br><span style='color: #777; font-size: 11px;'>Westworld (2016) - S03E07 - Passed Pawn [2160p x265 SDR].mkv</span></td>
-                <td style='vertical-align: middle; white-space: nowrap;'><span style='color: #4fc3f7; line-height: 1.4;'>2160p x265 / SDR<br><span style='color: #aaa; font-size: 11px;'>Audio not tagged</span></span></td>
-                <td style='vertical-align: middle; white-space: nowrap;'><strong>11.70 GB</strong></td>
-             </tr>
-<tr>
-                <td style='vertical-align: middle;'><strong>S03E08 - Crisis Theory</strong><br><span style='color: #777; font-size: 11px;'>Westworld (2016) - S03E08 - Crisis Theory [2160p x265 SDR].mkv</span></td>
-                <td style='vertical-align: middle; white-space: nowrap;'><span style='color: #4fc3f7; line-height: 1.4;'>2160p x265 / SDR<br><span style='color: #aaa; font-size: 11px;'>Audio not tagged</span></span></td>
-                <td style='vertical-align: middle; white-space: nowrap;'><strong>16.09 GB</strong></td>
-             </tr>
-                </table>
-            </div>
-        </details>
-        <details style="background: #1e1e1e; margin-bottom: 6px; border-radius: 4px; border: 1px solid #444; overflow: hidden;">
-            <summary style="cursor: pointer; padding: 8px 12px; font-weight: bold; color: #ccc; display: flex; justify-content: space-between; align-items: center; gap: 10px; user-select: none; font-size: 13px;">
-                <span>&#128194; Season 04 <span class="lib-tag">Plex</span></span>
-                <span style="color: #4fc3f7; font-size: 12px; white-space: nowrap;">108.91 GB &bull; 8 episode file(s)</span>
-            </summary>
-            <div style="padding: 8px 12px; border-top: 1px solid #333; background: #161616;">
-                <span style='color: #888; font-size: 11px; font-family: monospace;'>&#128193; P:\Shows\Westworld (2016) {tmdb-63247}\Season 04</span>
-                                <table>
-                    <tr>
-                        <th style="vertical-align: middle;">Episode File Name & Directory</th>
-                        <th style="vertical-align: middle; white-space: nowrap;">Quality & Profile</th>
-                        <th style="vertical-align: middle; white-space: nowrap;">Size (GB)</th>
-                    </tr>
-                    <tr>
-                <td style='vertical-align: middle;'><strong>S04E01 - The Auguries</strong><br><span style='color: #777; font-size: 11px;'>Westworld (2016) - S04E01 - The Auguries [2160p x265 SDR].mkv</span></td>
-                <td style='vertical-align: middle; white-space: nowrap;'><span style='color: #4fc3f7; line-height: 1.4;'>2160p x265 / SDR<br><span style='color: #aaa; font-size: 11px;'>Audio not tagged</span></span></td>
-                <td style='vertical-align: middle; white-space: nowrap;'><strong>13.90 GB</strong></td>
-             </tr>
-<tr>
-                <td style='vertical-align: middle;'><strong>S04E02 - Well Enough Alone</strong><br><span style='color: #777; font-size: 11px;'>Westworld (2016) - S04E02 - Well Enough Alone [2160p x265 SDR].mkv</span></td>
-                <td style='vertical-align: middle; white-space: nowrap;'><span style='color: #4fc3f7; line-height: 1.4;'>2160p x265 / SDR<br><span style='color: #aaa; font-size: 11px;'>Audio not tagged</span></span></td>
-                <td style='vertical-align: middle; white-space: nowrap;'><strong>11.15 GB</strong></td>
-             </tr>
-<tr>
-                <td style='vertical-align: middle;'><strong>S04E03 - Ann&#233;es Folles</strong><br><span style='color: #777; font-size: 11px;'>Westworld (2016) - S04E03 - Ann&#233;es Folles [2160p x265 SDR].mkv</span></td>
-                <td style='vertical-align: middle; white-space: nowrap;'><span style='color: #4fc3f7; line-height: 1.4;'>2160p x265 / SDR<br><span style='color: #aaa; font-size: 11px;'>Audio not tagged</span></span></td>
-                <td style='vertical-align: middle; white-space: nowrap;'><strong>13.86 GB</strong></td>
-             </tr>
-<tr>
-                <td style='vertical-align: middle;'><strong>S04E04 - Generation Loss</strong><br><span style='color: #777; font-size: 11px;'>Westworld (2016) - S04E04 - Generation Loss [2160p x265 SDR].mkv</span></td>
-                <td style='vertical-align: middle; white-space: nowrap;'><span style='color: #4fc3f7; line-height: 1.4;'>2160p x265 / SDR<br><span style='color: #aaa; font-size: 11px;'>Audio not tagged</span></span></td>
-                <td style='vertical-align: middle; white-space: nowrap;'><strong>13.67 GB</strong></td>
-             </tr>
-<tr>
-                <td style='vertical-align: middle;'><strong>S04E05 - Zhuangzi</strong><br><span style='color: #777; font-size: 11px;'>Westworld (2016) - S04E05 - Zhuangzi [2160p x265 SDR].mkv</span></td>
-                <td style='vertical-align: middle; white-space: nowrap;'><span style='color: #4fc3f7; line-height: 1.4;'>2160p x265 / SDR<br><span style='color: #aaa; font-size: 11px;'>Audio not tagged</span></span></td>
-                <td style='vertical-align: middle; white-space: nowrap;'><strong>14.14 GB</strong></td>
-             </tr>
-<tr>
-                <td style='vertical-align: middle;'><strong>S04E06 - Fidelity</strong><br><span style='color: #777; font-size: 11px;'>Westworld (2016) - S04E06 - Fidelity [2160p x265 SDR].mkv</span></td>
-                <td style='vertical-align: middle; white-space: nowrap;'><span style='color: #4fc3f7; line-height: 1.4;'>2160p x265 / SDR<br><span style='color: #aaa; font-size: 11px;'>Audio not tagged</span></span></td>
-                <td style='vertical-align: middle; white-space: nowrap;'><strong>12.69 GB</strong></td>
-             </tr>
-<tr>
-                <td style='vertical-align: middle;'><strong>S04E07 - Metanoia</strong><br><span style='color: #777; font-size: 11px;'>Westworld (2016) - S04E07 - Metanoia [2160p x265 SDR].mkv</span></td>
-                <td style='vertical-align: middle; white-space: nowrap;'><span style='color: #4fc3f7; line-height: 1.4;'>2160p x265 / SDR<br><span style='color: #aaa; font-size: 11px;'>Audio not tagged</span></span></td>
-                <td style='vertical-align: middle; white-space: nowrap;'><strong>14.63 GB</strong></td>
-             </tr>
-<tr>
-                <td style='vertical-align: middle;'><strong>S04E08 - Que Ser&#225;, Ser&#225;</strong><br><span style='color: #777; font-size: 11px;'>Westworld (2016) - S04E08 - Que Ser&#225;, Ser&#225; [2160p x265 SDR].mkv</span></td>
-                <td style='vertical-align: middle; white-space: nowrap;'><span style='color: #4fc3f7; line-height: 1.4;'>2160p x265 / SDR<br><span style='color: #aaa; font-size: 11px;'>Audio not tagged</span></span></td>
-                <td style='vertical-align: middle; white-space: nowrap;'><strong>14.87 GB</strong></td>
-             </tr>
-                </table>
-            </div>
-        </details>
-        </div>
-    </details>
+                    <h4>Largest Everyday Seasons (SDR / HDR10)</h4>
+                    <table>
+                        <tr><th style="padding: 6px 8px; font-size: 12px;">Show / Season</th><th style="padding: 6px 8px; font-size: 12px;">Quality</th><th style="padding: 6px 8px; font-size: 12px; text-align: right;">Size</th></tr>
+                        <tr><td title='P:\Shows\Westworld (2016) {tmdb-63247}\Season 04'><strong>Westworld (2016)</strong><br><span class='hint'>Season 04 &bull; 8 episode file(s)</span></td><td><span class='qchips'><span class='qchip q-sdr' title='2160p x265 / SDR / Audio not tagged (8 file(s))'>2160p SDR</span></span></td><td style='text-align: right; white-space: nowrap;'><strong>108.91 GB</strong></td></tr>
+<tr><td title='P:\Shows\Westworld (2016) {tmdb-63247}\Season 03'><strong>Westworld (2016)</strong><br><span class='hint'>Season 03 &bull; 8 episode file(s)</span></td><td><span class='qchips'><span class='qchip q-sdr' title='2160p x265 / SDR / Audio not tagged (8 file(s))'>2160p SDR</span></span></td><td style='text-align: right; white-space: nowrap;'><strong>93.39 GB</strong></td></tr>
+<tr><td title='P:\Shows\The Sopranos (1999) {tmdb-1398}\Season 03'><strong>The Sopranos (1999)</strong><br><span class='hint'>Season 03 &bull; 13 episode file(s)</span></td><td><span class='qchips'><span class='qchip q-sdr' title='1080p x264 / SDR / Audio not tagged (13 file(s))'>1080p SDR</span></span></td><td style='text-align: right; white-space: nowrap;'><strong>91.62 GB</strong></td></tr>
+<tr><td title='P:\Shows\The Sopranos (1999) {tmdb-1398}\Season 06'><strong>The Sopranos (1999)</strong><br><span class='hint'>Season 06 &bull; 21 episode file(s)</span></td><td><span class='qchips'><span class='qchip q-sdr' title='1080p x264 / SDR / Audio not tagged (21 file(s))'>1080p SDR</span></span></td><td style='text-align: right; white-space: nowrap;'><strong>84.95 GB</strong></td></tr>
+<tr><td title='P:\Shows\The Sopranos (1999) {tmdb-1398}\Season 05'><strong>The Sopranos (1999)</strong><br><span class='hint'>Season 05 &bull; 13 episode file(s)</span></td><td><span class='qchips'><span class='qchip q-sdr' title='1080p x264 / SDR / Audio not tagged (13 file(s))'>1080p SDR</span></span></td><td style='text-align: right; white-space: nowrap;'><strong>80.70 GB</strong></td></tr>
+<tr><td title='P:\Shows\The Sopranos (1999) {tmdb-1398}\Season 04'><strong>The Sopranos (1999)</strong><br><span class='hint'>Season 04 &bull; 13 episode file(s)</span></td><td><span class='qchips'><span class='qchip q-sdr' title='1080p x264 / SDR / Audio not tagged (13 file(s))'>1080p SDR</span></span></td><td style='text-align: right; white-space: nowrap;'><strong>79.32 GB</strong></td></tr>
+                    </table>
                 </div>
             </div>
     </div>
 
-    <!-- Naming Format Issues Card -->
-    <div class="card">
-        <details class="sec">
-            <summary class="sec-title">&#9888;&#65039; Naming Format Issues & Non-Compliant Files <span class="sec-count"></span></summary>
-            <p class="hint">Green lines show where CleanupMedia would put the file and what it would call it (relative to the library).</p>
-            <table>
-                <tr><th>Library</th><th>File Name & Directory</th><th>Detected Issue(s)</th><th>Size (GB)</th></tr>
-                <tr><td style='vertical-align: middle;'><span class="lib-tag">Favorites</span></td><td style='vertical-align: middle;'><strong>Battlestar Galactica (2004) - S01E01 - 33 [SD x264 SDR].mp4</strong><br><span class='suggest'>&rarr; Battlestar Galactica (2004)\Season 01\Battlestar Galactica (2004) - S01E01 [SD x264 SDR].mp4</span><br><span style='color: #888; font-size: 11px; font-family: monospace;'>&#128193; E:\Shows\Battlestar Galactica (2004) {tmdb-1972}\Season 01</span></td><td style='vertical-align: middle;'><span style="color: #ff9800; font-weight: bold;">Non-standard file name</span></td><td style='vertical-align: middle; white-space: nowrap;'>1.42 GB</td></tr>
-<tr><td style='vertical-align: middle;'><span class="lib-tag">Plex</span></td><td style='vertical-align: middle;'><strong>Breaking Bad (2008) - S01E03 - ...And the Bag&#39;s in the River [1080p x265 SDR].mkv</strong><br><span class='suggest'>&rarr; Breaking Bad (2008)\Season 01\Breaking Bad (2008) - S01E03 - And the Bag&#39;s in the River [1080p x265 SDR].mkv</span><br><span style='color: #888; font-size: 11px; font-family: monospace;'>&#128193; P:\Shows\Breaking Bad (2008) {tmdb-1396}\Season 01</span></td><td style='vertical-align: middle;'><span style="color: #ff9800; font-weight: bold;">Non-standard file name</span></td><td style='vertical-align: middle; white-space: nowrap;'>2.04 GB</td></tr>
-<tr><td style='vertical-align: middle;'><span class="lib-tag">Favorites</span></td><td style='vertical-align: middle;'><strong>Farscape (1999) - S03E05 - ...Different Destinations [1080p x265 SDR].mkv</strong><br><span class='suggest'>&rarr; Farscape (1999)\Season 03\Farscape (1999) - S03E05 - Different Destinations [1080p x265 SDR].mkv</span><br><span style='color: #888; font-size: 11px; font-family: monospace;'>&#128193; E:\Shows\Farscape (1999) {tmdb-4271}\Season 03</span></td><td style='vertical-align: middle;'><span style="color: #ff9800; font-weight: bold;">Non-standard file name</span></td><td style='vertical-align: middle; white-space: nowrap;'>1.37 GB</td></tr>
-<tr><td style='vertical-align: middle;'><span class="lib-tag">Plex</span></td><td style='vertical-align: middle;'><strong>Fear the Walking Dead (2015) - S03E04 - 100 [1080p x264 SDR].mkv</strong><br><span class='suggest'>&rarr; Fear the Walking Dead (2015)\Season 03\Fear the Walking Dead (2015) - S03E04 [1080p x264 SDR].mkv</span><br><span style='color: #888; font-size: 11px; font-family: monospace;'>&#128193; P:\Shows\Fear the Walking Dead (2015) {tmdb-62286}\Season 03</span></td><td style='vertical-align: middle;'><span style="color: #ff9800; font-weight: bold;">Non-standard file name</span></td><td style='vertical-align: middle; white-space: nowrap;'>1.12 GB</td></tr>
-<tr><td style='vertical-align: middle;'><span class="lib-tag">Plex</span></td><td style='vertical-align: middle;'><strong>Fear the Walking Dead (2015) - S04E16 - ... I Lose Myself [1080p x264 SDR].mkv</strong><br><span class='suggest'>&rarr; Fear the Walking Dead (2015)\Season 04\Fear the Walking Dead (2015) - S04E16 - I Lose Myself [1080p x264 SDR].mkv</span><br><span style='color: #888; font-size: 11px; font-family: monospace;'>&#128193; P:\Shows\Fear the Walking Dead (2015) {tmdb-62286}\Season 04</span></td><td style='vertical-align: middle;'><span style="color: #ff9800; font-weight: bold;">Non-standard file name</span></td><td style='vertical-align: middle; white-space: nowrap;'>1.69 GB</td></tr>
-<tr><td style='vertical-align: middle;'><span class="lib-tag">Plex</span></td><td style='vertical-align: middle;'><strong>South Park (1997) - S04E01 - The Tooth Fairy Tats 2000 [1080p x264 SDR].mkv</strong><br><span class='suggest'>&rarr; South Park (1997)\Season 04\South Park (1997) - S04E01 - The Tooth Fairy Tats [1080p x264 SDR].mkv</span><br><span style='color: #888; font-size: 11px; font-family: monospace;'>&#128193; P:\Shows\South Park (1997) {tmdb-2190}\Season 04</span></td><td style='vertical-align: middle;'><span style="color: #ff9800; font-weight: bold;">Non-standard file name</span></td><td style='vertical-align: middle; white-space: nowrap;'>0.70 GB</td></tr>
-<tr><td style='vertical-align: middle;'><span class="lib-tag">Plex</span></td><td style='vertical-align: middle;'><strong>South Park (1997) - S04E02 - Cartman&#39;s Silly Hate Crime 2000 [1080p x264 SDR].mkv</strong><br><span class='suggest'>&rarr; South Park (1997)\Season 04\South Park (1997) - S04E02 - Cartman&#39;s Silly Hate Crime [1080p x264 SDR].mkv</span><br><span style='color: #888; font-size: 11px; font-family: monospace;'>&#128193; P:\Shows\South Park (1997) {tmdb-2190}\Season 04</span></td><td style='vertical-align: middle;'><span style="color: #ff9800; font-weight: bold;">Non-standard file name</span></td><td style='vertical-align: middle; white-space: nowrap;'>0.70 GB</td></tr>
-<tr><td style='vertical-align: middle;'><span class="lib-tag">Plex</span></td><td style='vertical-align: middle;'><strong>South Park (1997) - S04E03 - Timmy 2000 [1080p x264 SDR].mkv</strong><br><span class='suggest'>&rarr; South Park (1997)\Season 04\South Park (1997) - S04E03 - Timmy [1080p x264 SDR].mkv</span><br><span style='color: #888; font-size: 11px; font-family: monospace;'>&#128193; P:\Shows\South Park (1997) {tmdb-2190}\Season 04</span></td><td style='vertical-align: middle;'><span style="color: #ff9800; font-weight: bold;">Non-standard file name</span></td><td style='vertical-align: middle; white-space: nowrap;'>0.44 GB</td></tr>
-<tr><td style='vertical-align: middle;'><span class="lib-tag">Plex</span></td><td style='vertical-align: middle;'><strong>South Park (1997) - S04E04 - Quintuplets 2000 [1080p x264 SDR].mkv</strong><br><span class='suggest'>&rarr; South Park (1997)\Season 04\South Park (1997) - S04E04 - Quintuplets [1080p x264 SDR].mkv</span><br><span style='color: #888; font-size: 11px; font-family: monospace;'>&#128193; P:\Shows\South Park (1997) {tmdb-2190}\Season 04</span></td><td style='vertical-align: middle;'><span style="color: #ff9800; font-weight: bold;">Non-standard file name</span></td><td style='vertical-align: middle; white-space: nowrap;'>0.46 GB</td></tr>
-<tr><td style='vertical-align: middle;'><span class="lib-tag">Plex</span></td><td style='vertical-align: middle;'><strong>South Park (1997) - S05E07 - Proper Condom Use [1080p x264 SDR].mkv</strong><br><span class='suggest'>&rarr; South Park (1997)\Season 05\South Park (1997) - S05E07 [1080p x264 SDR].mkv</span><br><span style='color: #888; font-size: 11px; font-family: monospace;'>&#128193; P:\Shows\South Park (1997) {tmdb-2190}\Season 05</span></td><td style='vertical-align: middle;'><span style="color: #ff9800; font-weight: bold;">Contains Source Tag</span></td><td style='vertical-align: middle; white-space: nowrap;'>0.45 GB</td></tr>
-<tr><td style='vertical-align: middle;'><span class="lib-tag">Plex</span></td><td style='vertical-align: middle;'><strong>South Park (1997) - S10E11 - Hell on Earth 2006 [1080p x264 SDR].mkv</strong><br><span class='suggest'>&rarr; South Park (1997)\Season 10\South Park (1997) - S10E11 - Hell on Earth [1080p x264 SDR].mkv</span><br><span style='color: #888; font-size: 11px; font-family: monospace;'>&#128193; P:\Shows\South Park (1997) {tmdb-2190}\Season 10</span></td><td style='vertical-align: middle;'><span style="color: #ff9800; font-weight: bold;">Non-standard file name</span></td><td style='vertical-align: middle; white-space: nowrap;'>0.48 GB</td></tr>
-<tr><td style='vertical-align: middle;'><span class="lib-tag">Favorites</span></td><td style='vertical-align: middle;'><strong>Stargate SG-1 (1997) - S10E06 - 200 [1080p x264 SDR].mkv</strong><br><span class='suggest'>&rarr; Stargate SG-1 (1997)\Season 10\Stargate SG-1 (1997) - S10E06 [1080p x264 SDR].mkv</span><br><span style='color: #888; font-size: 11px; font-family: monospace;'>&#128193; E:\Shows\Stargate SG-1 (1997) {tmdb-4629}\Season 10</span></td><td style='vertical-align: middle;'><span style="color: #ff9800; font-weight: bold;">Non-standard file name</span></td><td style='vertical-align: middle; white-space: nowrap;'>1.41 GB</td></tr>
-<tr><td style='vertical-align: middle;'><span class="lib-tag">Plex</span></td><td style='vertical-align: middle;'><strong>Suits (2011) - S07E08 - 100 [1080p x264 SDR].mkv</strong><br><span class='suggest'>&rarr; Suits (2011)\Season 07\Suits (2011) - S07E08 [1080p x264 SDR].mkv</span><br><span style='color: #888; font-size: 11px; font-family: monospace;'>&#128193; P:\Shows\Suits (2011) {tmdb-37680}\Season 07</span></td><td style='vertical-align: middle;'><span style="color: #ff9800; font-weight: bold;">Non-standard file name</span></td><td style='vertical-align: middle; white-space: nowrap;'>0.79 GB</td></tr>
-<tr><td style='vertical-align: middle;'><span class="lib-tag">Plex</span></td><td style='vertical-align: middle;'><strong>The Boys (2019) - S02E02 - Proper Preparation and Planning [1080p x265 SDR].mkv</strong><br><span class='suggest'>&rarr; The Boys (2019)\Season 02\The Boys (2019) - S02E02 [1080p x265 SDR].mkv</span><br><span style='color: #888; font-size: 11px; font-family: monospace;'>&#128193; P:\Shows\The Boys (2019) {tmdb-76479}\Season 02</span></td><td style='vertical-align: middle;'><span style="color: #ff9800; font-weight: bold;">Contains Source Tag</span></td><td style='vertical-align: middle; white-space: nowrap;'>1.35 GB</td></tr>
-            </table>
-        </details>
-    </div>
-
-    <!-- Sparse / Incomplete Seasons Card -->
-    <div class="card">
-        <details class="sec">
-            <summary class="sec-title">&#9888;&#65039; Sparse / Incomplete Seasons <span class="sec-count"></span></summary>
-            <p class="hint">Episodes missing between E01 and the highest episode found. Episodes missing after the last one you have can't be detected from the files alone.</p>
-            <table>
-                <tr><th>Library</th><th>Show Name</th><th>Season</th><th>Episode Count</th><th style="text-align: right;">Issue Type</th><th style="text-align: left; padding-left: 20px;">Details</th></tr>
-                <tr>
+    
+<div class='card'><details class='sec'><summary class='sec-title'>&#9888;&#65039; Sparse / Incomplete Seasons <span class='sec-count'></span></summary><p class='hint'>Episodes missing between E01 and the highest episode found. Episodes missing after the last one you have can't be detected from the files alone.</p><table><tr><th>Library</th><th>Show Name</th><th>Season</th><th>Episode Count</th><th style="text-align: right;">Issue Type</th><th style="text-align: left; padding-left: 20px;">Details</th></tr><tr>
         <td style='vertical-align: middle; white-space: nowrap;'><span class="lib-tag">Plex</span></td>
         <td style='vertical-align: middle; white-space: nowrap;'><strong>Silicon Valley (2014)</strong></td>
         <td style='vertical-align: middle; white-space: nowrap;'><span style="color: #4fc3f7;">Season 04</span></td>
@@ -1642,11 +301,7 @@
 <div style='padding: 3px 0; font-weight: bold; color: #ff9800; white-space: nowrap;'>Sparse Season:</div></td>
         <td style='vertical-align: middle; text-align: left;'><div style='padding: 3px 0; color: #bbb; text-align: left;'>E01-E04</div>
 <div style='padding: 3px 0; color: #bbb; text-align: left;'>Only 3 episode(s) found for a multi-episode season.</div></td>
-     </tr>
-            </table>
-
-            <!-- Sub-section: Pulled / Banned Episodes Audit -->
-            <div style="margin-top: 25px; padding-top: 15px; border-top: 1px dashed #444;">
+     </tr></table>            <div style="margin-top: 25px; padding-top: 15px; border-top: 1px dashed #444;">
                 <h4 style="color: #ff9800; margin-bottom: 8px; font-size: 15px;">&#128683; Known Pulled / Banned Content Status (South Park)</h4>
                 <p style="color: #aaa; font-size: 13px; margin-bottom: 12px;">Tracks episodes officially removed from syndication and streaming platforms to verify if they are present or missing in your library. These are never counted as missing episodes above.</p>
                 <table>
@@ -1692,63 +347,13 @@
         <td style='vertical-align: middle; white-space: nowrap; text-align: right;'><span style='color: #e57373; font-weight: bold;'>Confirmed Missing (Pulled Content)</span></td>
      </tr>
                 </table>
-            </div>
-        </details>
-    </div>
+            </div></details></div>
 
-    <!-- Missing Seasons Card -->
-    <div class="card">
-        <details class="sec">
-            <summary class="sec-title">&#128270; Missing Earlier Seasons <span class="sec-count"></span></summary>
-            <table>
-                <tr><th>Library</th><th>Show Name</th><th>Status</th><th>Library Presence</th><th style="text-align: right;">Issue Type</th><th style="text-align: left; padding-left: 20px;">Details</th></tr>
-                <tr><td colspan='6' style='color: #888; text-align: center; padding: 14px;'>No show is missing an earlier season.</td></tr>
-            </table>
-        </details>
-    </div>
 
-    <!-- Extra Episode Copies Card -->
-    <div class="card">
-        <details class="sec">
-            <summary class="sec-title">&#9888;&#65039; Extra Episode Copies <span class="sec-count"></span></summary>
-            <p class="hint">Copies of the same episode. CleanupMedia keeps the best copy, plus one easy-to-play backup when the best is 4K or HDR / Dolby Vision; the rest are extra.</p>
-            <table>
-                <tr><th>Library</th><th>Episode File Name & Directory</th><th>Quality & Profile</th><th>Size (GB)</th></tr>
-                <tr><td colspan='4' style='color: #888; text-align: center; padding: 14px;'>No extra copies - every episode has one copy, or a best copy plus one backup.</td></tr>
-            </table>
-        </details>
-    </div>
 
-    <!-- Oversized For Quality Card -->
-    <div class="card">
-        <details class="sec">
-            <summary class="sec-title">&#128200; Oversized Files For Quality <span class="sec-count"></span></summary>
-            <table>
-                <tr><th>Library</th><th>File Name & Directory</th><th>Resolution</th><th>Size (GB)</th></tr>
-                <tr><td colspan='4' style='color: #888; text-align: center; padding: 14px;'>Nothing is larger than its resolution needs.</td></tr>
-            </table>
-        </details>
-    </div>
 
-    <!-- Potentially Fake / Too Small Card -->
-    <div class="card">
-        <details class="sec">
-            <summary class="sec-title">&#128680; Potentially Fake / Too Small Files <span class="sec-count"></span></summary>
-            <table>
-                <tr><th>Library</th><th>File Name & Directory</th><th>Resolution</th><th>Size (GB)</th></tr>
-                <tr><td colspan='4' style='color: #888; text-align: center; padding: 14px;'>Nothing is suspiciously small for its resolution.</td></tr>
-            </table>
-        </details>
-    </div>
 
-    <!-- DV-Only / Missing Backup Seasons Card (Collapsible) -->
-    <div class="card">
-        <details>
-            <summary style="cursor: pointer; font-size: 1.17em; font-weight: bold; color: #fff; padding-bottom: 5px;">
-                &#127916; DV-Only / Missing Backup Seasons (No SDR/HDR10 Copy) &bull; <span style="color: #888; font-size: 14px; font-weight: normal;">(1 seasons)</span>
-            </summary>
-            <div style="margin-top: 15px;">
-                <p class='hint'>Where to watch these shows instead, on a device without Dolby Vision. A show on several services is listed under each.</p>
+    <div class='card'><details><summary style='cursor: pointer; font-size: 1.17em; font-weight: bold; color: #fff; padding-bottom: 5px;'>&#127916; DV-Only / Missing Backup Seasons (No SDR/HDR10 Copy) &bull; <span style='color: #888; font-size: 14px; font-weight: normal;'>(1 seasons)</span></summary><div style='margin-top: 15px;'><p class='hint'>Where to watch these shows instead, on a device without Dolby Vision. A show on several services is listed under each.</p>
 <div class='stats-grid'><div class='stat-box' style='border-left-color: #35c5f4;'><h3>Sonarr</h3><p>1 <small>seasons</small></p></div></div>
 <h3 style='color: #35c5f4; border-bottom: 1px solid #333; padding-bottom: 6px; margin: 22px 0 8px;'>Sonarr <span style='color: #888; font-size: 13px; font-weight: normal;'>(1 season(s))</span></h3>
     <details style="background: #252525; margin-bottom: 8px; border-radius: 6px; border: 1px solid #333; overflow: hidden;">
@@ -1775,11 +380,7 @@
                 </table>
         </div>
     </details>
-<p class='attribution'>Streaming: your services that include it with the subscription in US (no rent / buy, no ad plans); Prime add-on channels only when the main service doesn't have it. Radarr / Sonarr: on none of them. Data from JustWatch via TMDB.</p>
-            </div>
-        </details>
-    </div>
-
+<p class='attribution'>Streaming: your services that include it with the subscription in US (no rent / buy, no ad plans); Prime add-on channels only when the main service doesn't have it. Radarr / Sonarr: on none of them. Data from JustWatch via TMDB.</p></div></details></div>
     <!-- Complete TV Show File Inventory (Grouped by Show & Season) -->
     <div class="card">
         <h2>&#128193; Complete TV Show File Inventory (Grouped by Show & Season)</h2>
@@ -2576,7 +1177,7 @@
                     </tr>
                     <tr>
                 <td style='vertical-align: middle;'><span class="lib-tag">Favorites</span></td>
-                <td style='vertical-align: middle;'><strong>S01E01</strong><br><span style='color: #777; font-size: 11px;'>Battlestar Galactica (2004) - S01E01 - 33 [SD x264 SDR].mp4</span></td>
+                <td style='vertical-align: middle;'><strong>S01E01 - 33</strong><br><span style='color: #777; font-size: 11px;'>Battlestar Galactica (2004) - S01E01 - 33 [SD x264 SDR].mp4</span></td>
                 <td style='vertical-align: middle; white-space: nowrap;'><span style='color: #4fc3f7; line-height: 1.4;'>SD x264 / SDR<br><span style='color: #aaa; font-size: 11px;'>Audio not tagged</span></span></td>
                 <td style='vertical-align: middle; white-space: nowrap;'><strong>1.42 GB</strong></td>
              </tr>
@@ -3610,7 +2211,7 @@
              </tr>
 <tr>
                 <td style='vertical-align: middle;'><span class="lib-tag">Plex</span></td>
-                <td style='vertical-align: middle;'><strong>S01E03 - And the Bag&#39;s in the River</strong><br><span style='color: #777; font-size: 11px;'>Breaking Bad (2008) - S01E03 - ...And the Bag&#39;s in the River [1080p x265 SDR].mkv</span></td>
+                <td style='vertical-align: middle;'><strong>S01E03 - ...And the Bag&#39;s in the River</strong><br><span style='color: #777; font-size: 11px;'>Breaking Bad (2008) - S01E03 - ...And the Bag&#39;s in the River [1080p x265 SDR].mkv</span></td>
                 <td style='vertical-align: middle; white-space: nowrap;'><span style='color: #4fc3f7; line-height: 1.4;'>1080p x265 / SDR<br><span style='color: #aaa; font-size: 11px;'>Audio not tagged</span></span></td>
                 <td style='vertical-align: middle; white-space: nowrap;'><strong>2.04 GB</strong></td>
              </tr>
@@ -5049,7 +3650,7 @@
              </tr>
 <tr>
                 <td style='vertical-align: middle;'><span class="lib-tag">Favorites</span></td>
-                <td style='vertical-align: middle;'><strong>S03E05 - Different Destinations</strong><br><span style='color: #777; font-size: 11px;'>Farscape (1999) - S03E05 - ...Different Destinations [1080p x265 SDR].mkv</span></td>
+                <td style='vertical-align: middle;'><strong>S03E05 - ...Different Destinations</strong><br><span style='color: #777; font-size: 11px;'>Farscape (1999) - S03E05 - ...Different Destinations [1080p x265 SDR].mkv</span></td>
                 <td style='vertical-align: middle; white-space: nowrap;'><span style='color: #4fc3f7; line-height: 1.4;'>1080p x265 / SDR<br><span style='color: #aaa; font-size: 11px;'>Audio not tagged</span></span></td>
                 <td style='vertical-align: middle; white-space: nowrap;'><strong>1.37 GB</strong></td>
              </tr>
@@ -5517,7 +4118,7 @@
              </tr>
 <tr>
                 <td style='vertical-align: middle;'><span class="lib-tag">Plex</span></td>
-                <td style='vertical-align: middle;'><strong>S03E04</strong><br><span style='color: #777; font-size: 11px;'>Fear the Walking Dead (2015) - S03E04 - 100 [1080p x264 SDR].mkv</span></td>
+                <td style='vertical-align: middle;'><strong>S03E04 - 100</strong><br><span style='color: #777; font-size: 11px;'>Fear the Walking Dead (2015) - S03E04 - 100 [1080p x264 SDR].mkv</span></td>
                 <td style='vertical-align: middle; white-space: nowrap;'><span style='color: #4fc3f7; line-height: 1.4;'>1080p x264 / SDR<br><span style='color: #aaa; font-size: 11px;'>Audio not tagged</span></span></td>
                 <td style='vertical-align: middle; white-space: nowrap;'><strong>1.12 GB</strong></td>
              </tr>
@@ -5704,7 +4305,7 @@
              </tr>
 <tr>
                 <td style='vertical-align: middle;'><span class="lib-tag">Plex</span></td>
-                <td style='vertical-align: middle;'><strong>S04E16 - I Lose Myself</strong><br><span style='color: #777; font-size: 11px;'>Fear the Walking Dead (2015) - S04E16 - ... I Lose Myself [1080p x264 SDR].mkv</span></td>
+                <td style='vertical-align: middle;'><strong>S04E16 - ... I Lose Myself</strong><br><span style='color: #777; font-size: 11px;'>Fear the Walking Dead (2015) - S04E16 - ... I Lose Myself [1080p x264 SDR].mkv</span></td>
                 <td style='vertical-align: middle; white-space: nowrap;'><span style='color: #4fc3f7; line-height: 1.4;'>1080p x264 / SDR<br><span style='color: #aaa; font-size: 11px;'>Audio not tagged</span></span></td>
                 <td style='vertical-align: middle; white-space: nowrap;'><strong>1.69 GB</strong></td>
              </tr>
@@ -12687,25 +11288,25 @@
                     </tr>
                     <tr>
                 <td style='vertical-align: middle;'><span class="lib-tag">Plex</span></td>
-                <td style='vertical-align: middle;'><strong>S04E01 - The Tooth Fairy Tats</strong><br><span style='color: #777; font-size: 11px;'>South Park (1997) - S04E01 - The Tooth Fairy Tats 2000 [1080p x264 SDR].mkv</span></td>
+                <td style='vertical-align: middle;'><strong>S04E01 - The Tooth Fairy Tats 2000</strong><br><span style='color: #777; font-size: 11px;'>South Park (1997) - S04E01 - The Tooth Fairy Tats 2000 [1080p x264 SDR].mkv</span></td>
                 <td style='vertical-align: middle; white-space: nowrap;'><span style='color: #4fc3f7; line-height: 1.4;'>1080p x264 / SDR<br><span style='color: #aaa; font-size: 11px;'>Audio not tagged</span></span></td>
                 <td style='vertical-align: middle; white-space: nowrap;'><strong>0.70 GB</strong></td>
              </tr>
 <tr>
                 <td style='vertical-align: middle;'><span class="lib-tag">Plex</span></td>
-                <td style='vertical-align: middle;'><strong>S04E02 - Cartman&#39;s Silly Hate Crime</strong><br><span style='color: #777; font-size: 11px;'>South Park (1997) - S04E02 - Cartman&#39;s Silly Hate Crime 2000 [1080p x264 SDR].mkv</span></td>
+                <td style='vertical-align: middle;'><strong>S04E02 - Cartman&#39;s Silly Hate Crime 2000</strong><br><span style='color: #777; font-size: 11px;'>South Park (1997) - S04E02 - Cartman&#39;s Silly Hate Crime 2000 [1080p x264 SDR].mkv</span></td>
                 <td style='vertical-align: middle; white-space: nowrap;'><span style='color: #4fc3f7; line-height: 1.4;'>1080p x264 / SDR<br><span style='color: #aaa; font-size: 11px;'>Audio not tagged</span></span></td>
                 <td style='vertical-align: middle; white-space: nowrap;'><strong>0.70 GB</strong></td>
              </tr>
 <tr>
                 <td style='vertical-align: middle;'><span class="lib-tag">Plex</span></td>
-                <td style='vertical-align: middle;'><strong>S04E03 - Timmy</strong><br><span style='color: #777; font-size: 11px;'>South Park (1997) - S04E03 - Timmy 2000 [1080p x264 SDR].mkv</span></td>
+                <td style='vertical-align: middle;'><strong>S04E03 - Timmy 2000</strong><br><span style='color: #777; font-size: 11px;'>South Park (1997) - S04E03 - Timmy 2000 [1080p x264 SDR].mkv</span></td>
                 <td style='vertical-align: middle; white-space: nowrap;'><span style='color: #4fc3f7; line-height: 1.4;'>1080p x264 / SDR<br><span style='color: #aaa; font-size: 11px;'>Audio not tagged</span></span></td>
                 <td style='vertical-align: middle; white-space: nowrap;'><strong>0.44 GB</strong></td>
              </tr>
 <tr>
                 <td style='vertical-align: middle;'><span class="lib-tag">Plex</span></td>
-                <td style='vertical-align: middle;'><strong>S04E04 - Quintuplets</strong><br><span style='color: #777; font-size: 11px;'>South Park (1997) - S04E04 - Quintuplets 2000 [1080p x264 SDR].mkv</span></td>
+                <td style='vertical-align: middle;'><strong>S04E04 - Quintuplets 2000</strong><br><span style='color: #777; font-size: 11px;'>South Park (1997) - S04E04 - Quintuplets 2000 [1080p x264 SDR].mkv</span></td>
                 <td style='vertical-align: middle; white-space: nowrap;'><span style='color: #4fc3f7; line-height: 1.4;'>1080p x264 / SDR<br><span style='color: #aaa; font-size: 11px;'>Audio not tagged</span></span></td>
                 <td style='vertical-align: middle; white-space: nowrap;'><strong>0.46 GB</strong></td>
              </tr>
@@ -12844,7 +11445,7 @@
              </tr>
 <tr>
                 <td style='vertical-align: middle;'><span class="lib-tag">Plex</span></td>
-                <td style='vertical-align: middle;'><strong>S05E07</strong><br><span style='color: #777; font-size: 11px;'>South Park (1997) - S05E07 - Proper Condom Use [1080p x264 SDR].mkv</span></td>
+                <td style='vertical-align: middle;'><strong>S05E07 - Proper Condom Use</strong><br><span style='color: #777; font-size: 11px;'>South Park (1997) - S05E07 - Proper Condom Use [1080p x264 SDR].mkv</span></td>
                 <td style='vertical-align: middle; white-space: nowrap;'><span style='color: #4fc3f7; line-height: 1.4;'>1080p x264 / SDR<br><span style='color: #aaa; font-size: 11px;'>Audio not tagged</span></span></td>
                 <td style='vertical-align: middle; white-space: nowrap;'><strong>0.45 GB</strong></td>
              </tr>
@@ -13401,7 +12002,7 @@
              </tr>
 <tr>
                 <td style='vertical-align: middle;'><span class="lib-tag">Plex</span></td>
-                <td style='vertical-align: middle;'><strong>S10E11 - Hell on Earth</strong><br><span style='color: #777; font-size: 11px;'>South Park (1997) - S10E11 - Hell on Earth 2006 [1080p x264 SDR].mkv</span></td>
+                <td style='vertical-align: middle;'><strong>S10E11 - Hell on Earth 2006</strong><br><span style='color: #777; font-size: 11px;'>South Park (1997) - S10E11 - Hell on Earth 2006 [1080p x264 SDR].mkv</span></td>
                 <td style='vertical-align: middle; white-space: nowrap;'><span style='color: #4fc3f7; line-height: 1.4;'>1080p x264 / SDR<br><span style='color: #aaa; font-size: 11px;'>Audio not tagged</span></span></td>
                 <td style='vertical-align: middle; white-space: nowrap;'><strong>0.48 GB</strong></td>
              </tr>
@@ -19564,7 +18165,7 @@
              </tr>
 <tr>
                 <td style='vertical-align: middle;'><span class="lib-tag">Favorites</span></td>
-                <td style='vertical-align: middle;'><strong>S10E06</strong><br><span style='color: #777; font-size: 11px;'>Stargate SG-1 (1997) - S10E06 - 200 [1080p x264 SDR].mkv</span></td>
+                <td style='vertical-align: middle;'><strong>S10E06 - 200</strong><br><span style='color: #777; font-size: 11px;'>Stargate SG-1 (1997) - S10E06 - 200 [1080p x264 SDR].mkv</span></td>
                 <td style='vertical-align: middle; white-space: nowrap;'><span style='color: #4fc3f7; line-height: 1.4;'>1080p x264 / SDR<br><span style='color: #aaa; font-size: 11px;'>Audio not tagged</span></span></td>
                 <td style='vertical-align: middle; white-space: nowrap;'><strong>1.41 GB</strong></td>
              </tr>
@@ -21163,7 +19764,7 @@
              </tr>
 <tr>
                 <td style='vertical-align: middle;'><span class="lib-tag">Plex</span></td>
-                <td style='vertical-align: middle;'><strong>S07E08</strong><br><span style='color: #777; font-size: 11px;'>Suits (2011) - S07E08 - 100 [1080p x264 SDR].mkv</span></td>
+                <td style='vertical-align: middle;'><strong>S07E08 - 100</strong><br><span style='color: #777; font-size: 11px;'>Suits (2011) - S07E08 - 100 [1080p x264 SDR].mkv</span></td>
                 <td style='vertical-align: middle; white-space: nowrap;'><span style='color: #4fc3f7; line-height: 1.4;'>1080p x264 / SDR<br><span style='color: #aaa; font-size: 11px;'>Audio not tagged</span></span></td>
                 <td style='vertical-align: middle; white-space: nowrap;'><strong>0.79 GB</strong></td>
              </tr>
@@ -25432,7 +24033,7 @@
              </tr>
 <tr>
                 <td style='vertical-align: middle;'><span class="lib-tag">Plex</span></td>
-                <td style='vertical-align: middle;'><strong>S02E02</strong><br><span style='color: #777; font-size: 11px;'>The Boys (2019) - S02E02 - Proper Preparation and Planning [1080p x265 SDR].mkv</span></td>
+                <td style='vertical-align: middle;'><strong>S02E02 - Proper Preparation and Planning</strong><br><span style='color: #777; font-size: 11px;'>The Boys (2019) - S02E02 - Proper Preparation and Planning [1080p x265 SDR].mkv</span></td>
                 <td style='vertical-align: middle; white-space: nowrap;'><span style='color: #4fc3f7; line-height: 1.4;'>1080p x265 / SDR<br><span style='color: #aaa; font-size: 11px;'>Audio not tagged</span></span></td>
                 <td style='vertical-align: middle; white-space: nowrap;'><strong>1.35 GB</strong></td>
              </tr>
