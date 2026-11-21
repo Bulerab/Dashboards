@@ -46,11 +46,9 @@
         .breakdown-box ul { margin: 0; padding-left: 20px; font-size: 14px; line-height: 1.6; list-style-type: none; }
         .breakdown-box li { margin-bottom: 10px; overflow-wrap: anywhere; }
         .breakdown-box li:last-child { margin-bottom: 0; }
-        /* summary boxes side by side in one row, and a full-width box under them (movie dashboard) */
+        /* summary boxes side by side in one row, and a row of two under them (movie dashboard) */
         .breakdown-row { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 20px; margin-top: 15px; }
-        .breakdown-wide { margin-top: 20px; }
-        .breakdown-wide ul.cols { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 14px 24px; padding-left: 0; }
-        .breakdown-wide ul.cols li { margin-bottom: 0; background: #1e1e1e; border-radius: 6px; padding: 10px 12px; }
+        .breakdown-row.breakdown-two { grid-template-columns: repeat(2, minmax(0, 1fr)); margin-top: 20px; }
         .search { width: 100%; padding: 12px 15px; background: #121212; border: 1px solid #333; border-radius: 6px; color: #fff; font-size: 15px; box-sizing: border-box; outline: none; }
         .search:focus { border-color: #1976d2; }
         details summary::-webkit-details-marker { color: #888; }
@@ -65,7 +63,7 @@
         .attribution { color: #666; font-size: 11px; margin-top: 8px; }
         @media (max-width: 800px) {
             body { padding: 12px; }
-            .breakdown-layout, .breakdown-row, .breakdown-wide ul.cols { grid-template-columns: 1fr; }
+            .breakdown-layout, .breakdown-row, .breakdown-row.breakdown-two { grid-template-columns: 1fr; }
             .card { padding: 14px; overflow-x: auto; }
             .breakdown-box li { white-space: normal !important; }
             summary { flex-wrap: wrap; }
@@ -76,7 +74,7 @@
 <body>
 <div class="container">
     <h1>&#128250; TV Show Library Index</h1>
-    <p class="generated">Generated 2026-11-21 08:51 &bull; E:\Shows, P:\Shows &bull; running time known for 3611 of 3620 files</p>
+    <p class="generated">Generated 2026-11-21 09:06 &bull; E:\Shows, P:\Shows &bull; running time known for 3611 of 3620 files</p>
 
     <!-- Library Overview -->
     <h2>&#128200; Library Overview</h2>
@@ -203,17 +201,17 @@
         <div style='background: #1a1a1a; border-radius: 4px; height: 12px; width: 100%; overflow: hidden; border: 1px solid #333;'>
             <div style='background: #1976d2; width: 31.9%; height: 100%; border-radius: 3px;'></div>
         </div>
-        <div style='color: #888; font-size: 12px; margin-top: 3px;'>12.64 TB used of 39.64 TB</div>
+        <div style='color: #888; font-size: 12px; margin-top: 3px;'>12.65 TB used of 39.64 TB</div>
     </li>
 <li style='margin-bottom: 12px;'>
         <div style='display: flex; justify-content: space-between; gap: 8px; font-size: 13px; margin-bottom: 3px;'>
             <span><strong>Staging</strong> <span style='color: #888;'>(R:\)</span></span>
-            <span style='font-weight: bold; color: #fff; white-space: nowrap;'>0.9%</span>
+            <span style='font-weight: bold; color: #fff; white-space: nowrap;'>0%</span>
         </div>
         <div style='background: #1a1a1a; border-radius: 4px; height: 12px; width: 100%; overflow: hidden; border: 1px solid #333;'>
-            <div style='background: #1976d2; width: 0.9%; height: 100%; border-radius: 3px;'></div>
+            <div style='background: #1976d2; width: 0%; height: 100%; border-radius: 3px;'></div>
         </div>
-        <div style='color: #888; font-size: 12px; margin-top: 3px;'>6.33 GB used of 729.07 GB</div>
+        <div style='color: #888; font-size: 12px; margin-top: 3px;'>0.00 GB used of 729.07 GB</div>
     </li>
 <li style='margin-bottom: 12px;'>
         <div style='display: flex; justify-content: space-between; gap: 8px; font-size: 13px; margin-bottom: 3px;'>
