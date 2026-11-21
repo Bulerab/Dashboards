@@ -7,6 +7,7 @@
     <style>
         body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; background-color: #121212; color: #e0e0e0; margin: 0; padding: 20px; }
         h1, h2 { color: #ffffff; border-bottom: 2px solid #333; padding-bottom: 8px; }
+        h2 { font-size: 1.17em; }   /* every main section header the same size (the DV-Only one's) */
         .container { max-width: 1200px; margin: auto; }
         .generated { color: #888; font-size: 13px; margin: -6px 0 20px; }
         .card { background: #1e1e1e; padding: 20px; border-radius: 8px; margin-bottom: 25px; box-shadow: 0 4px 6px rgba(0,0,0,0.3); }
@@ -49,11 +50,34 @@
         /* summary boxes side by side in one row, and a row of two under them (movie dashboard) */
         .breakdown-row { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 20px; margin-top: 15px; }
         .breakdown-row.breakdown-two { grid-template-columns: repeat(2, minmax(0, 1fr)); margin-top: 20px; }
+        /* Issues & Alerts: one column per group, its tiles stacked under the heading (movie dashboard) */
+        .issue-cols { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 20px; margin-bottom: 20px; }
+        .issue-col { display: flex; flex-direction: column; gap: 12px; }
+        .issue-col .subhead { margin: 4px 0 0; }
+        /* tabs: one list shown at a time (movie dashboard collections) */
+        .tabs { display: flex; flex-wrap: wrap; gap: 8px; margin: 10px 0 15px; }
+        .tab-groups { margin: 10px 0 15px; display: flex; flex-direction: column; gap: 8px; }
+        .tab-group { display: grid; grid-template-columns: 90px 1fr; align-items: center; gap: 10px; }
+        .tab-group .tabs { margin: 0; }
+        .tab-group-label { color: var(--tc, #888); font-size: 11px; font-weight: bold; text-transform: uppercase; letter-spacing: 0.5px; }
+        .tab-group + .tab-group { border-top: 1px solid #333; padding-top: 8px; }   /* a line between the rows */
+        /* each row in its own colour (set as --tc on the row): label, tiles and the selected tile */
+        .tab-group .tab { color: var(--tc, #ccc); }
+        .tab-group .tab:hover { border-color: var(--tc, #1976d2); }
+        .tab-group .tab.active { background: var(--tc, #1976d2); border-color: var(--tc, #1976d2); color: #121212; font-weight: bold; }
+        .tab-group .tab.active small { color: #333; }
+        .coll-empty { color: #888; font-style: italic; padding: 20px 15px; background: #1e1e1e; border-radius: 6px; text-align: center; }
+        @media (max-width: 800px) { .tab-group { grid-template-columns: 1fr; gap: 4px; } }
+        .tab { background: #252525; border: 1px solid #3a3a3a; color: #ccc; padding: 6px 14px; border-radius: 16px; cursor: pointer; font-size: 13px; font-family: inherit; }
+        .tab:hover { border-color: #1976d2; color: #fff; }
+        .tab.active { background: #1976d2; border-color: #1976d2; color: #fff; }
+        .tab small { color: #999; margin-left: 4px; }
+        .tab.active small { color: #e3f2fd; }
         .search { width: 100%; padding: 12px 15px; background: #121212; border: 1px solid #333; border-radius: 6px; color: #fff; font-size: 15px; box-sizing: border-box; outline: none; }
         .search:focus { border-color: #1976d2; }
         details summary::-webkit-details-marker { color: #888; }
         details[open] summary { border-bottom: 1px solid #333; margin-bottom: 10px; background: #2a2a2a; padding-bottom: 8px; }
-        details.sec > summary.sec-title { cursor: pointer; font-size: 1.5em; font-weight: bold; color: #fff; padding-bottom: 8px; border-bottom: 2px solid #333; user-select: none; }
+        details.sec > summary.sec-title { cursor: pointer; font-size: 1.17em; font-weight: bold; color: #fff; padding-bottom: 8px; border-bottom: 2px solid #333; user-select: none; }
         details.sec[open] > summary.sec-title { background: none; margin-bottom: 12px; }
         details.sec:not([open]) > summary.sec-title { border-bottom-color: transparent; padding-bottom: 0; }
         .sec-count { color: #888; font-size: 14px; font-weight: normal; margin-left: 6px; }
@@ -63,7 +87,7 @@
         .attribution { color: #666; font-size: 11px; margin-top: 8px; }
         @media (max-width: 800px) {
             body { padding: 12px; }
-            .breakdown-layout, .breakdown-row, .breakdown-row.breakdown-two { grid-template-columns: 1fr; }
+            .breakdown-layout, .breakdown-row, .breakdown-row.breakdown-two, .issue-cols { grid-template-columns: 1fr; }
             .card { padding: 14px; overflow-x: auto; }
             .breakdown-box li { white-space: normal !important; }
             summary { flex-wrap: wrap; }
@@ -85,7 +109,7 @@
     .where { color: #777; font-size: 10px; text-transform: uppercase; letter-spacing: 0.5px; }
 </style>
 <h1>&#127968; Kona Media Hub</h1>
-<p class='generated'>Shortcuts to the media setup. Links marked <b>home network</b> only open from inside the house. Updated 2026-11-21 09:06.</p>
+<p class='generated'>Shortcuts to the media setup. Links marked <b>home network</b> only open from inside the house. Updated 2026-11-21 09:35.</p>
 <div class='card'><h2>&#128202; Library Dashboards</h2><div class='grid-links'>
 <a class='tile' href='https://bulerab.github.io/Dashboards/IndexMovies.html' target='_blank' rel='noopener'><div class='tile-top'><span class='tile-badge'>Dashboard</span><span class='where'>internet</span></div><h3>&#127916; Movie Library</h3><span class='note'>Movie inventory, quality, duplicate copies, Dolby Vision titles and drive space.</span><span class='url'>bulerab.github.io/Dashboards/IndexMovies.html</span></a>
 <a class='tile' href='https://bulerab.github.io/Dashboards/IndexShows.html' target='_blank' rel='noopener'><div class='tile-top'><span class='tile-badge'>Dashboard</span><span class='where'>internet</span></div><h3>&#128250; TV Show Library</h3><span class='note'>Show inventory, missing seasons, sparse episodes and naming issues.</span><span class='url'>bulerab.github.io/Dashboards/IndexShows.html</span></a>
