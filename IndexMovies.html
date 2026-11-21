@@ -7,6 +7,7 @@
     <style>
         body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; background-color: #121212; color: #e0e0e0; margin: 0; padding: 20px; }
         h1, h2 { color: #ffffff; border-bottom: 2px solid #333; padding-bottom: 8px; }
+        h2 { font-size: 1.17em; }   /* every main section header the same size (the DV-Only one's) */
         .container { max-width: 1200px; margin: auto; }
         .generated { color: #888; font-size: 13px; margin: -6px 0 20px; }
         .card { background: #1e1e1e; padding: 20px; border-radius: 8px; margin-bottom: 25px; box-shadow: 0 4px 6px rgba(0,0,0,0.3); }
@@ -58,7 +59,14 @@
         .tab-groups { margin: 10px 0 15px; display: flex; flex-direction: column; gap: 8px; }
         .tab-group { display: grid; grid-template-columns: 90px 1fr; align-items: center; gap: 10px; }
         .tab-group .tabs { margin: 0; }
-        .tab-group-label { color: #888; font-size: 11px; text-transform: uppercase; letter-spacing: 0.5px; }
+        .tab-group-label { color: var(--tc, #888); font-size: 11px; font-weight: bold; text-transform: uppercase; letter-spacing: 0.5px; }
+        .tab-group + .tab-group { border-top: 1px solid #333; padding-top: 8px; }   /* a line between the rows */
+        /* each row in its own colour (set as --tc on the row): label, tiles and the selected tile */
+        .tab-group .tab { color: var(--tc, #ccc); }
+        .tab-group .tab:hover { border-color: var(--tc, #1976d2); }
+        .tab-group .tab.active { background: var(--tc, #1976d2); border-color: var(--tc, #1976d2); color: #121212; font-weight: bold; }
+        .tab-group .tab.active small { color: #333; }
+        .coll-empty { color: #888; font-style: italic; padding: 20px 15px; background: #1e1e1e; border-radius: 6px; text-align: center; }
         @media (max-width: 800px) { .tab-group { grid-template-columns: 1fr; gap: 4px; } }
         .tab { background: #252525; border: 1px solid #3a3a3a; color: #ccc; padding: 6px 14px; border-radius: 16px; cursor: pointer; font-size: 13px; font-family: inherit; }
         .tab:hover { border-color: #1976d2; color: #fff; }
@@ -69,7 +77,7 @@
         .search:focus { border-color: #1976d2; }
         details summary::-webkit-details-marker { color: #888; }
         details[open] summary { border-bottom: 1px solid #333; margin-bottom: 10px; background: #2a2a2a; padding-bottom: 8px; }
-        details.sec > summary.sec-title { cursor: pointer; font-size: 1.5em; font-weight: bold; color: #fff; padding-bottom: 8px; border-bottom: 2px solid #333; user-select: none; }
+        details.sec > summary.sec-title { cursor: pointer; font-size: 1.17em; font-weight: bold; color: #fff; padding-bottom: 8px; border-bottom: 2px solid #333; user-select: none; }
         details.sec[open] > summary.sec-title { background: none; margin-bottom: 12px; }
         details.sec:not([open]) > summary.sec-title { border-bottom-color: transparent; padding-bottom: 0; }
         .sec-count { color: #888; font-size: 14px; font-weight: normal; margin-left: 6px; }
@@ -90,7 +98,7 @@
 <body>
 <div class="container">
     <h1>&#127902; Movie Library Index</h1>
-    <p class="generated">Generated 2026-11-21 09:14 &bull; E:\Movies, P:\Movies &bull; running time known for 470 of 473 videos &bull; 1 extra(s) not counted as titles</p>
+    <p class="generated">Generated 2026-11-21 09:24 &bull; E:\Movies, P:\Movies &bull; running time known for 470 of 473 videos &bull; 1 extra(s) not counted as titles</p>
 
     <!-- Summary / Library Overview -->
     <h2>&#128200; Library Overview</h2>
@@ -240,12 +248,12 @@
 <li style='margin-bottom: 12px;'>
         <div style='display: flex; justify-content: space-between; gap: 8px; font-size: 13px; margin-bottom: 3px;'>
             <span><strong>Nuc Stalled</strong> <span style='color: #888;'>(S:\)</span></span>
-            <span style='font-weight: bold; color: #fff; white-space: nowrap;'>12.8%</span>
+            <span style='font-weight: bold; color: #fff; white-space: nowrap;'>14.7%</span>
         </div>
         <div style='background: #1a1a1a; border-radius: 4px; height: 12px; width: 100%; overflow: hidden; border: 1px solid #333;'>
-            <div style='background: #1976d2; width: 12.8%; height: 100%; border-radius: 3px;'></div>
+            <div style='background: #1976d2; width: 14.7%; height: 100%; border-radius: 3px;'></div>
         </div>
-        <div style='color: #888; font-size: 12px; margin-top: 3px;'>58.53 GB used of 456.35 GB</div>
+        <div style='color: #888; font-size: 12px; margin-top: 3px;'>67.03 GB used of 456.35 GB</div>
     </li>
                         </ul>
                     </div>
@@ -371,14 +379,16 @@ P:\Movies\Zack Snyder&#39;s Justice League (2021) {tmdb-791373}'><strong>Zack Sn
         <div class="card">
         <h2>&#127902;&#65039; Collections</h2>
         <p class="hint">Pick a collection to see its movies. These are the collections in Plex (Kometa keeps them up to date).</p>
-        <div class="tab-groups"><div class='tab-group'><span class='tab-group-label'>Themes</span><div class='tabs'><button type='button' class='tab active' onclick='showCollection(this, 0)'>Christmas<small>20</small></button>
-<button type='button' class='tab' onclick='showCollection(this, 1)'>Halloween<small>16</small></button>
+        <div class="tab-groups"><div class='tab-group' style='--tc: #ff9800;'><span class='tab-group-label'>Themes</span><div class='tabs'><button type='button' class='tab' onclick='showCollection(this, 0)'>Christmas<small>20</small></button>
+<button type='button' class='tab' onclick='showCollection(this, 1)'>Halloween<small>17</small></button>
 <button type='button' class='tab' onclick='showCollection(this, 2)'>Thanksgiving<small>1</small></button></div></div>
-<div class='tab-group'><span class='tab-group-label'>Actors</span><div class='tabs'><button type='button' class='tab' onclick='showCollection(this, 3)'>Jim Carrey<small>7</small></button>
+<div class='tab-group' style='--tc: #4fc3f7;'><span class='tab-group-label'>Actors</span><div class='tabs'><button type='button' class='tab' onclick='showCollection(this, 3)'>Jim Carrey<small>7</small></button>
 <button type='button' class='tab' onclick='showCollection(this, 4)'>Robin Williams<small>6</small></button>
-<button type='button' class='tab' onclick='showCollection(this, 5)'>Nicolas Cage<small>7</small></button></div></div>
-<div class='tab-group'><span class='tab-group-label'>Directors</span><div class='tabs'><button type='button' class='tab' onclick='showCollection(this, 6)'>Quentin Tarantino<small>9</small></button></div></div></div>
-        <div class='coll-panel'><table><tr><th>Movie</th><th style='text-align: center;'>Year</th><th style='text-align: right;'>Running time</th></tr><tr><td><strong>A Christmas Story</strong></td><td style='text-align: center;'>1983</td><td style='text-align: right; white-space: nowrap; color: #aaa;'>1h 33m</td></tr>
+<button type='button' class='tab' onclick='showCollection(this, 5)'>Adam Sandler<small>11</small></button>
+<button type='button' class='tab' onclick='showCollection(this, 6)'>Nicolas Cage<small>7</small></button></div></div>
+<div class='tab-group' style='--tc: #ba68c8;'><span class='tab-group-label'>Directors</span><div class='tabs'><button type='button' class='tab' onclick='showCollection(this, 7)'>Quentin Tarantino<small>9</small></button></div></div></div>
+        <div class="coll-empty">Select a collection</div>
+        <div class='coll-panel' hidden><table><tr><th>Movie</th><th style='text-align: center;'>Year</th><th style='text-align: right;'>Running time</th></tr><tr><td><strong>A Christmas Story</strong></td><td style='text-align: center;'>1983</td><td style='text-align: right; white-space: nowrap; color: #aaa;'>1h 33m</td></tr>
 <tr><td><strong>Trading Places</strong></td><td style='text-align: center;'>1983</td><td style='text-align: right; white-space: nowrap; color: #aaa;'>1h 56m</td></tr>
 <tr><td><strong>Gremlins</strong></td><td style='text-align: center;'>1984</td><td style='text-align: right; white-space: nowrap; color: #aaa;'>1h 46m</td></tr>
 <tr><td><strong>Scrooged</strong></td><td style='text-align: center;'>1988</td><td style='text-align: right; white-space: nowrap; color: #aaa;'>1h 41m</td></tr>
@@ -399,6 +409,7 @@ P:\Movies\Zack Snyder&#39;s Justice League (2021) {tmdb-791373}'><strong>Zack Sn
 <tr><td><strong>Bad Santa 2</strong></td><td style='text-align: center;'>2016</td><td style='text-align: right; white-space: nowrap; color: #aaa;'>1h 35m</td></tr>
 <tr><td><strong>8-Bit Christmas</strong></td><td style='text-align: center;'>2021</td><td style='text-align: right; white-space: nowrap; color: #aaa;'>1h 38m</td></tr></table></div>
 <div class='coll-panel' hidden><table><tr><th>Movie</th><th style='text-align: center;'>Year</th><th style='text-align: right;'>Running time</th></tr><tr><td><strong>Alien</strong></td><td style='text-align: center;'>1979</td><td style='text-align: right; white-space: nowrap; color: #aaa;'>1h 57m</td></tr>
+<tr><td><strong>Ghostbusters</strong></td><td style='text-align: center;'>1984</td><td style='text-align: right; white-space: nowrap; color: #aaa;'>1h 45m</td></tr>
 <tr><td><strong>Aliens</strong></td><td style='text-align: center;'>1986</td><td style='text-align: right; white-space: nowrap; color: #aaa;'>2h 17m</td></tr>
 <tr><td><strong>Beetlejuice</strong></td><td style='text-align: center;'>1988</td><td style='text-align: right; white-space: nowrap; color: #aaa;'>1h 32m</td></tr>
 <tr><td><strong>Alien&#179;</strong></td><td style='text-align: center;'>1992</td><td style='text-align: right; white-space: nowrap; color: #aaa;'>2h 25m</td></tr>
@@ -422,14 +433,25 @@ P:\Movies\Zack Snyder&#39;s Justice League (2021) {tmdb-791373}'><strong>Zack Sn
 <tr><td><strong>Me, Myself &amp; Irene</strong></td><td style='text-align: center;'>2000</td><td style='text-align: right; white-space: nowrap; color: #aaa;'>1h 57m</td></tr>
 <tr><td><strong>Yes Man</strong></td><td style='text-align: center;'>2008</td><td style='text-align: right; white-space: nowrap; color: #aaa;'>1h 44m</td></tr>
 <tr><td><strong>Anchorman 2: The Legend Continues</strong></td><td style='text-align: center;'>2013</td><td style='text-align: right; white-space: nowrap; color: #aaa;'>1h 59m</td></tr></table></div>
-<div class='coll-panel' hidden><table><tr><th>Movie</th><th style='text-align: center;'>Year</th><th style='text-align: right;'>Running time</th></tr><tr><td><strong>Good.Morning.Vietnam.1987.1080p.BluRay.x265-RARBG</strong></td><td style='text-align: center;'>1987</td><td style='text-align: right; white-space: nowrap; color: #aaa;'>2h 02m</td></tr>
+<div class='coll-panel' hidden><table><tr><th>Movie</th><th style='text-align: center;'>Year</th><th style='text-align: right;'>Running time</th></tr><tr><td><strong>Good Morning, Vietnam</strong></td><td style='text-align: center;'>1987</td><td style='text-align: right; white-space: nowrap; color: #aaa;'>2h 02m</td></tr>
 <tr><td><strong>Jumanji</strong></td><td style='text-align: center;'>1995</td><td style='text-align: right; white-space: nowrap; color: #aaa;'>1h 44m</td></tr>
 <tr><td><strong>Good Will Hunting</strong></td><td style='text-align: center;'>1997</td><td style='text-align: right; white-space: nowrap; color: #aaa;'>2h 07m</td></tr>
 <tr><td><strong>Night at the Museum</strong></td><td style='text-align: center;'>2006</td><td style='text-align: right; white-space: nowrap; color: #aaa;'>1h 49m</td></tr>
 <tr><td><strong>Night at the Museum: Battle of the Smithsonian</strong></td><td style='text-align: center;'>2009</td><td style='text-align: right; white-space: nowrap; color: #aaa;'>1h 45m</td></tr>
 <tr><td><strong>Night at the Museum: Secret of the Tomb</strong></td><td style='text-align: center;'>2014</td><td style='text-align: right; white-space: nowrap; color: #aaa;'>1h 38m</td></tr></table></div>
-<div class='coll-panel' hidden><table><tr><th>Movie</th><th style='text-align: center;'>Year</th><th style='text-align: right;'>Running time</th></tr><tr><td><strong>The.Rock.1996.1080p.BluRay.x265-RARBG</strong></td><td style='text-align: center;'>1996</td><td style='text-align: right; white-space: nowrap; color: #aaa;'>2h 16m</td></tr>
-<tr><td><strong>Face.Off.1997.1080p.BluRay.x265-RARBG</strong></td><td style='text-align: center;'>1997</td><td style='text-align: right; white-space: nowrap; color: #aaa;'>2h 19m</td></tr>
+<div class='coll-panel' hidden><table><tr><th>Movie</th><th style='text-align: center;'>Year</th><th style='text-align: right;'>Running time</th></tr><tr><td><strong>Billy Madison</strong></td><td style='text-align: center;'>1995</td><td style='text-align: right; white-space: nowrap; color: #aaa;'>1h 30m</td></tr>
+<tr><td><strong>Happy Gilmore</strong></td><td style='text-align: center;'>1996</td><td style='text-align: right; white-space: nowrap; color: #aaa;'>1h 32m</td></tr>
+<tr><td><strong>The Waterboy</strong></td><td style='text-align: center;'>1998</td><td style='text-align: right; white-space: nowrap; color: #aaa;'>1h 30m</td></tr>
+<tr><td><strong>Big Daddy</strong></td><td style='text-align: center;'>1999</td><td style='text-align: right; white-space: nowrap; color: #aaa;'>1h 33m</td></tr>
+<tr><td><strong>Little Nicky</strong></td><td style='text-align: center;'>2000</td><td style='text-align: right; white-space: nowrap; color: #aaa;'>1h 30m</td></tr>
+<tr><td><strong>Mr. Deeds</strong></td><td style='text-align: center;'>2002</td><td style='text-align: right; white-space: nowrap; color: #aaa;'>1h 37m</td></tr>
+<tr><td><strong>Anger Management</strong></td><td style='text-align: center;'>2003</td><td style='text-align: right; white-space: nowrap; color: #aaa;'>1h 46m</td></tr>
+<tr><td><strong>50 First Dates</strong></td><td style='text-align: center;'>2004</td><td style='text-align: right; white-space: nowrap; color: #aaa;'>1h 39m</td></tr>
+<tr><td><strong>The Longest Yard</strong></td><td style='text-align: center;'>2005</td><td style='text-align: right; white-space: nowrap; color: #aaa;'>1h 53m</td></tr>
+<tr><td><strong>I Now Pronounce You Chuck &amp; Larry</strong></td><td style='text-align: center;'>2007</td><td style='text-align: right; white-space: nowrap; color: #aaa;'>1h 55m</td></tr>
+<tr><td><strong>Happy Gilmore 2</strong></td><td style='text-align: center;'>2025</td><td style='text-align: right; white-space: nowrap; color: #aaa;'>1h 58m</td></tr></table></div>
+<div class='coll-panel' hidden><table><tr><th>Movie</th><th style='text-align: center;'>Year</th><th style='text-align: right;'>Running time</th></tr><tr><td><strong>The Rock</strong></td><td style='text-align: center;'>1996</td><td style='text-align: right; white-space: nowrap; color: #aaa;'>2h 16m</td></tr>
+<tr><td><strong>Face/Off</strong></td><td style='text-align: center;'>1997</td><td style='text-align: right; white-space: nowrap; color: #aaa;'>2h 19m</td></tr>
 <tr><td><strong>Gone in 60 Seconds</strong></td><td style='text-align: center;'>2000</td><td style='text-align: right; white-space: nowrap; color: #aaa;'>1h 58m</td></tr>
 <tr><td><strong>Matchstick Men</strong></td><td style='text-align: center;'>2003</td><td style='text-align: right; white-space: nowrap; color: #aaa;'>1h 56m</td></tr>
 <tr><td><strong>National Treasure</strong></td><td style='text-align: center;'>2004</td><td style='text-align: right; white-space: nowrap; color: #aaa;'>2h 11m</td></tr>
@@ -445,11 +467,14 @@ P:\Movies\Zack Snyder&#39;s Justice League (2021) {tmdb-791373}'><strong>Zack Sn
 <tr><td><strong>The Hateful Eight (Extended)</strong></td><td style='text-align: center;'>2015</td><td style='text-align: right; white-space: nowrap; color: #aaa;'>3h 33m</td></tr>
 <tr><td><strong>Once Upon a Time in... Hollywood</strong></td><td style='text-align: center;'>2019</td><td style='text-align: right; white-space: nowrap; color: #aaa;'>2h 41m</td></tr></table></div>
         <script>
+        // click a collection to show its movies; click it again to close it (nothing selected = "Select a collection")
         function showCollection(btn, i) {
             var card = btn.closest('.card');
+            var closing = btn.classList.contains('active');
             card.querySelectorAll('button.tab').forEach(function (t) { t.classList.remove('active'); });
-            btn.classList.add('active');
-            card.querySelectorAll('.coll-panel').forEach(function (p, n) { p.hidden = (n !== i); });
+            if (!closing) btn.classList.add('active');
+            card.querySelectorAll('.coll-panel').forEach(function (p, n) { p.hidden = closing || (n !== i); });
+            card.querySelector('.coll-empty').hidden = !closing;
         }
         </script>
     </div>
