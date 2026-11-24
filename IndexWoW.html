@@ -109,6 +109,21 @@
   .cur input[type=number] { width: 86px; }
   .cur .calc { color: var(--muted-2); font-size: 12px; margin-top: 3px; }
   .rating-input { width: 84px; text-align: right; font-size: 18px !important; font-weight: 700; }
+  .chars.pvp-grid { grid-template-columns: repeat(auto-fill, minmax(560px, 1fr)); }
+  .gear { width: 100%; border-collapse: collapse; margin-top: 2px; }
+  .gear th, .gear td { padding: 4px 6px; font-size: 12.5px; border-bottom: 1px solid var(--line); }
+  .gear th { background: transparent; color: var(--muted-2); font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: .4px; }
+  .gear td.il { text-align: right; font-variant-numeric: tabular-nums; color: var(--text-strong); width: 42px; }
+  .gear .bisname { color: #cfcfcf; }
+  .gear tr.have .bisname { color: var(--ok); }
+  .gear .src2 { color: var(--muted); font-size: 11px; }
+  .gear td.cost { text-align: right; white-space: nowrap; font-variant-numeric: tabular-nums; }
+  .cost.conq { color: #ff9d6e; } .cost.hon { color: #8fc1ff; } .cost.craft { color: #c9a5ff; } .cost.done { color: var(--ok); }
+  .gear tfoot td { border-bottom: 0; color: var(--muted-2); font-weight: 600; }
+  .stat-box.full { grid-column: 1 / -1; }
+  .need-grid { display: grid; grid-template-columns: 72px 82px minmax(180px, 1fr) auto; gap: 3px 12px; font-size: 12.5px; align-items: baseline; }
+  .need-grid .c { font-weight: 600; }
+  .need-grid .specs-tag { margin: 0; }
   .foot { margin-top: 12px; color: var(--muted); font-size: 11.5px; }
 
   .filters { display: flex; gap: 6px; flex-wrap: wrap; }
@@ -169,7 +184,7 @@
     .stat-box.wide { grid-column: span 1; }
     .addform { grid-template-columns: 1fr 1fr; }
     .todo { grid-template-columns: 26px 62px 1fr; } .todo .who { display: none; }
-    .chars, .mplus { grid-template-columns: 1fr; }
+    .chars, .chars.pvp-grid, .mplus { grid-template-columns: 1fr; }
   }
 </style>
 </head>
@@ -190,7 +205,7 @@
   <div class="chars" id="pve"></div>
 
   <div class="section-title"><h2>Player vs Player</h2><span class="acct" id="pvp-acct"></span></div>
-  <div class="chars" id="pvp"></div>
+  <div class="chars pvp-grid" id="pvp"></div>
 
   <div class="twocol">
     <div class="card">
@@ -249,6 +264,12 @@ const TODO_CATEGORIES = ['Setup', 'Gear', 'Enchants', 'Raid', 'Mythic+', 'PvP', 
 const BOSS_ORDER = ['Nymrissa Wavecaller', "Kith'ix", "Nek'zali the Soulcoiler", 'Entombed Sentinels', 'Vashnik the Malignant',
   'The Lost Explorers', 'Sszorak', 'The Twin Fangs', 'The Coiled Altar', "Ula'tek"];
 const INSTANCE_ORDER = ['Tidebound Grotto', "The Unbinding of Kith'ix", 'The Venomous Abyss'];
+const PVE_ORDER = ['Cõrpses', 'Kona', 'Diablõ'];      // Death Knight, Druid, Demon Hunter
+const MPLUS_ORDER = ['Kona', 'Cõrpses', 'Diablõ'];    // Druid, Death Knight, Demon Hunter
+/* PvP vendor price by slot (Conquest; Honor gear uses the same table). Head/Chest/Legs 875 and
+   Shoulder/Hands 700 are confirmed for Midnight; the rest follow the long-standing slot table. */
+const SLOT_COST = { Head: 875, Chest: 875, Legs: 875, Shoulder: 700, Hands: 700, Waist: 700, Feet: 700,
+  Neck: 525, Back: 525, Wrist: 525, 'Finger 1': 525, 'Finger 2': 525, 'Trinket 1': 700, 'Trinket 2': 700, 'Off hand': 525 };
 const CHAR_COLOR = { 'Diablõ': '#c27be0', 'Cõrpses': '#ff5c75', 'Kona': '#ff9d4d', 'Bõnes': '#ff5c75', 'Hõrns': '#ff9d4d' };
 
 /* Minimal snapshot, shown only if the live data can't be loaded. */
@@ -427,23 +448,31 @@ function enchantBlock(c) {
   return `<div class="sec">${head}${pills}${list ? `<div class="ench-list">${list}</div>` : ''}</div>`;
 }
 
-function pvpBlock(c) {
-  const cur = c.currency || [];
-  const needs = (STATE.needs || []).filter(n => n.character === c.name && n.kind === 'Gear');
-  const pieces = vendor => new Set(needs.filter(n => n.source === vendor).map(n => n.slot + '|' + n.needed)).size;
-  const rows = [['Honor', 'honor', 'honorCost', 'Honor vendor', cur[0]], ['Conquest', 'conquest', 'conquestCost', 'Conquest vendor', cur[1]]].map(([label, f, fc, vendor, cu]) => {
-    const n = pieces(vendor);
-    const have = Number(cu && cu.have) || 0, cost = Number(cu && cu.cost) || 0;
-    const total = n * cost;
-    const calc = cost
-      ? `${n} piece${n === 1 ? '' : 's'} &times; ${cost.toLocaleString()} = ${total.toLocaleString()} &middot; <b style="color:${have >= total ? 'var(--ok)' : 'var(--text)'}">${Math.max(0, total - have).toLocaleString()} to go</b>`
-      : `${n} piece${n === 1 ? '' : 's'} left &middot; enter the cost per piece to see totals`;
-    return `<span class="k">${label}</span><div>
-      <input type="number" min="0" data-pvp="${esc(c.name)}|${f}" value="${esc(cu ? cu.have : '')}" placeholder="have" title="${label} you have"${DIS()}>
-      <input type="number" min="0" data-pvp="${esc(c.name)}|${fc}" value="${esc(cu ? cu.cost : '')}" placeholder="cost/piece" title="Cost per piece"${DIS()}>
-      <div class="calc">${calc}</div></div>`;
+function gearBlock(c) {
+  const gear = c.gear || [];
+  const pick = (c.specOptions || []).length > 1
+    ? `<select class="spec-sel" data-spec="${esc(c.name)}"${DIS()} title="Show BiS for this spec">${c.specOptions.map(o => `<option${o === c.specSelected ? ' selected' : ''}>${esc(o)}</option>`).join('')}</select>`
+    : `<span class="hint">${esc(c.specSelected || '')}</span>`;
+  const head = `<div class="sec-title"><span>Gear &amp; BiS</span>${pick}</div>`;
+  if (!gear.length) return `<div class="sec">${head}<p class="empty">Loads with the updated script.</p></div>`;
+  const twoHand = !gear.some(g => g.slot === 'Off hand' && g.bis);
+  let conquest = 0, honor = 0;
+  const rows = gear.filter(g => g.item || g.bis).map(g => {
+    const base = g.slot === 'Main hand' ? (twoHand ? 1750 : 875) : SLOT_COST[g.slot];
+    const have = g.status === 'Have';
+    let cost = '', cls = '', tipTxt = '';
+    if (/Conquest/i.test(g.source)) { cost = base ? base.toLocaleString() + ' Conq' : 'Conquest'; cls = 'conq'; if (!have && base) conquest += base; }
+    else if (/Tier/i.test(g.source)) { cost = base ? base.toLocaleString() + ' Conq' : 'Conquest'; cls = 'conq'; tipTxt = 'Buy the Conquest piece, then convert it at the Catalyst'; if (!have && base) conquest += base; }
+    else if (/Competitor/i.test(g.bis)) { cost = 'Crafted'; cls = 'craft'; tipTxt = 'Crafted PvP item: recipe sold for 7,500 Honor, plus a Heraldry for PvP item level'; }
+    else if (/Honor/i.test(g.source)) { cost = base ? base.toLocaleString() + ' Honor' : 'Honor'; cls = 'hon'; if (!have && base) honor += base; }
+    else { cost = esc(g.source || ''); }
+    if (have) { cls = 'done'; cost = '&#10003; have'; }
+    return `<tr class="${have ? 'have' : ''}"><td class="slot">${esc(g.slot)}</td><td>${esc(g.item || '-')}</td><td class="il">${esc(g.ilvl || '')}</td>
+      <td><span class="bisname">${esc(g.bis || '-')}</span>${g.source ? ` <span class="src2">${esc(g.source)}</span>` : ''}</td>
+      <td class="cost ${cls}"${tipTxt ? ` data-tip="${esc(tipTxt)}"` : ''}>${cost}</td></tr>`;
   }).join('');
-  return `<div class="sec"><div class="sec-title"><span>Honor &amp; Conquest for BiS</span></div><div class="cur">${rows}</div></div>`;
+  const foot = (conquest || honor) ? `<tfoot><tr><td colspan="4">Still to buy for BiS</td><td class="cost">${conquest ? `<span class="cost conq">${conquest.toLocaleString()} Conq</span>` : ''}${conquest && honor ? '<br>' : ''}${honor ? `<span class="cost hon">${honor.toLocaleString()} Honor</span>` : ''}</td></tr></tfoot>` : '';
+  return `<div class="sec">${head}<table class="gear"><thead><tr><th>Slot</th><th>Equipped</th><th style="text-align:right">ilvl</th><th>BiS</th><th style="text-align:right">Cost</th></tr></thead><tbody>${rows}</tbody>${foot}</table></div>`;
 }
 
 function charCard(c) {
@@ -465,8 +494,7 @@ function charCard(c) {
     <div class="sec">${bisBlock(c)}</div>
     ${c.pvp ? '' : vaultBlock(c)}
     ${weeklyChecks(c)}
-    ${c.pvp ? pvpBlock(c) : targetsBlock(c)}
-    ${enchantBlock(c)}
+    ${c.pvp ? gearBlock(c) : targetsBlock(c) + enchantBlock(c)}
     <div class="foot">Gear pulled ${esc(c.pulled || '-')}</div>
   </div>`;
 }
@@ -496,13 +524,13 @@ function render(state, live, when) {
   $('src').textContent = live ? 'Live from Google Sheets' : 'Snapshot';
   $('when').textContent = (live ? 'Loaded ' : 'Taken ') + when;
 
-  $('glance').innerHTML = data.glance.map(([k, v]) => {
-    const wide = isNaN(Number(v)) && v.length > 12;
-    return `<div class="stat-box${wide ? ' wide' : ''}"><h3>${esc(k)}</h3><p>${esc(v || '-')}</p></div>`;
-  }).join('');
+  const isText = v => isNaN(Number(v)) && v.length > 12;
+  $('glance').innerHTML = [...data.glance.filter(([, v]) => !isText(v)), ...data.glance.filter(([, v]) => isText(v))].map(([k, v]) =>
+    `<div class="stat-box${isText(v) ? ' wide full' : ''}"><h3>${esc(k)}</h3><p>${esc(v || '-')}</p></div>`).join('');
 
   const chars = state.characters || [];
-  const pve = chars.filter(c => !c.pvp), pvp = chars.filter(c => c.pvp);
+  const byOrder = order => (a, b) => (order.indexOf(a.name) + 1 || 99) - (order.indexOf(b.name) + 1 || 99);
+  const pve = chars.filter(c => !c.pvp).sort(byOrder(PVE_ORDER)), pvp = chars.filter(c => c.pvp);
   const accts = list => [...new Set(list.map(c => c.account || accountOf(c.name)))].filter(Boolean).join(', ');
   $('pve-acct').textContent = accts(pve);
   $('pvp-acct').textContent = accts(pvp);
@@ -550,7 +578,7 @@ function render(state, live, when) {
     return `<tr class="group"><td colspan="5">${esc(inst)}</td></tr>` + rows.map(b => {
       totalRolls += parseInt(b.rolls, 10) || 0;
       const list = needsFor(b.boss);
-      const who = list.length ? `<div class="need-list">${list.map(n => `<div class="need">${colored(n.c)} &middot; <span class="slot">${esc(n.slot)}</span> &middot; ${esc(n.item)}<span class="specs-tag">${esc([...n.specs].join(', '))}</span></div>`).join('')}</div>` : '<span class="empty">-</span>';
+      const who = list.length ? `<div class="need-grid">${list.map(n => `${colored(n.c)}<span class="slot">${esc(n.slot)}</span><span>${esc(n.item)}</span><span class="specs-tag">${esc([...n.specs].join(', '))}</span>`).join('')}</div>` : '<span class="empty">-</span>';
       const chosen = !!b.plan, sug = b.suggested || '';
       const opts = `<option value="">${!chosen && sug ? 'Suggested: ' + esc(sug) : ''}</option>` + PLAN_CHARS.map(c => `<option${c === b.plan ? ' selected' : ''}>${esc(c)}</option>`).join('');
       return `<tr><td>${esc(b.boss)}</td><td class="num">${list.length}</td><td>${who}</td>
@@ -563,7 +591,7 @@ function render(state, live, when) {
     `<tr><td colspan="4"><b>Total rolls planned</b></td><td class="cb"><b>${totalRolls}</b></td></tr></tbody>`;
 
   // Mythic+ by dungeon
-  $('mplus').innerHTML = pve.map(c => {
+  $('mplus').innerHTML = pve.slice().sort(byOrder(MPLUS_ORDER)).map(c => {
     const runs = (c.mplusRuns || []).slice().sort((a, b) => b.score - a.score);
     const mp = String(c.rating || '').replace(/^M\+\s*/, '');
     return `<div class="mtile" style="--accent:${accentFor(c.cls)}"><div class="mtile-head"><span class="n">${esc(c.name)}</span><span class="sc">${esc(mp || '-')}</span></div>` +
