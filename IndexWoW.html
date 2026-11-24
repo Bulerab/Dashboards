@@ -1,0 +1,276 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>WoW Midnight Account Dashboard</title>
+<style>
+  :root {
+    --bg: #121212; --card: #1e1e1e; --card-2: #252525; --line: #2c2c2c; --line-2: #333;
+    --text: #e0e0e0; --text-strong: #ffffff; --muted: #888; --muted-2: #aaa;
+    --bar: #3987e5;            /* single-series bars: validated on the #1e1e1e card */
+    --track: #2e2e2e;
+    --dh: #a330c9; --dk: #c41e3a; --druid: #ff7c0a;   /* class accents: identity only, never data */
+  }
+  * { box-sizing: border-box; }
+  body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; background: var(--bg); color: var(--text); margin: 0; padding: 20px; }
+  .container { max-width: 1200px; margin: auto; }
+  h1, h2 { color: var(--text-strong); border-bottom: 2px solid var(--line-2); padding-bottom: 8px; }
+  h1 { margin: 0 0 6px; }
+  h2 { font-size: 1.17em; margin-top: 0; }
+  .sub { color: var(--muted-2); font-size: 14px; margin: 0 0 4px; }
+  .generated { color: var(--muted); font-size: 13px; margin: 0 0 20px; display: flex; gap: 10px; align-items: center; flex-wrap: wrap; }
+  .src { padding: 1px 8px; border-radius: 10px; font-size: 11px; font-weight: 600; border: 1px solid; }
+  .src.live { color: #81c784; border-color: #2e7d32; background: rgba(46,125,50,0.15); }
+  .src.snap { color: #ffd54f; border-color: #b28704; background: rgba(255,193,7,0.12); }
+  .card { background: var(--card); padding: 20px; border-radius: 8px; margin-bottom: 25px; box-shadow: 0 4px 6px rgba(0,0,0,0.3); }
+
+  /* At a glance */
+  .stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 15px; margin-bottom: 25px; }
+  .stat-box { background: var(--card); padding: 15px 20px; border-radius: 8px; border-left: 4px solid #1976d2; }
+  .stat-box h3 { margin: 0; font-size: 12px; color: var(--muted-2); text-transform: uppercase; letter-spacing: 0.5px; font-weight: 600; }
+  .stat-box p { margin: 6px 0 0; font-size: 24px; font-weight: bold; color: var(--text-strong); }
+  .stat-box.wide { grid-column: span 2; }
+  .stat-box.wide p { font-size: 17px; line-height: 1.35; }
+
+  /* Character cards */
+  .chars { display: grid; grid-template-columns: repeat(auto-fill, minmax(340px, 1fr)); gap: 20px; }
+  .char { background: var(--card-2); border-radius: 8px; padding: 16px 18px; border-top: 4px solid var(--accent, #555); }
+  .char-head { display: flex; justify-content: space-between; align-items: baseline; gap: 10px; }
+  .char-name { font-size: 20px; font-weight: 700; color: var(--text-strong); }
+  .char-ilvl { font-size: 13px; color: var(--muted-2); white-space: nowrap; }
+  .char-ilvl b { font-size: 20px; color: var(--text-strong); }
+  .char-meta { color: var(--muted-2); font-size: 13px; margin: 2px 0 12px; }
+  .tags { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 12px; }
+  .tag { background: #2a2a2a; color: #ccc; padding: 2px 8px; border-radius: 4px; font-size: 11px; border: 1px solid #444; }
+  .bis { margin: 10px 0; }
+  .bis-label { display: flex; justify-content: space-between; font-size: 13px; margin-bottom: 4px; }
+  .bis-label span:last-child { color: var(--muted-2); }
+  .meter { height: 10px; background: var(--track); border-radius: 5px; overflow: hidden; }
+  .meter > div { height: 100%; background: var(--bar); border-radius: 0 4px 4px 0; }
+  .row { display: flex; justify-content: space-between; gap: 12px; font-size: 13px; padding: 6px 0; border-top: 1px solid var(--line); }
+  .row:first-of-type { border-top: 0; }
+  .row .k { color: var(--muted-2); }
+  .row .v { text-align: right; }
+  .details { margin-top: 12px; }
+
+  /* Item level chart */
+  .ilvl-chart { display: flex; flex-direction: column; gap: 10px; }
+  .ilvl-row { display: grid; grid-template-columns: 110px 1fr 60px; align-items: center; gap: 12px; font-size: 14px; }
+  .ilvl-row .who { display: flex; align-items: center; gap: 8px; }
+  .dot { width: 8px; height: 8px; border-radius: 50%; background: var(--accent, #555); flex-shrink: 0; }
+  .ilvl-track { height: 18px; position: relative; }
+  .ilvl-track > div { height: 100%; background: var(--bar); border-radius: 0 4px 4px 0; min-width: 2px; }
+  .ilvl-row .val { text-align: right; color: var(--text-strong); font-variant-numeric: tabular-nums; }
+  .hit { cursor: default; }
+  .axis-note { color: var(--muted); font-size: 12px; margin-top: 8px; }
+
+  /* Table view */
+  table { width: 100%; border-collapse: collapse; }
+  th, td { padding: 9px 10px; text-align: left; border-bottom: 1px solid var(--line); font-size: 13px; vertical-align: top; }
+  th { background: var(--card-2); color: var(--text-strong); white-space: nowrap; }
+  tr:hover td { background: #2a2a2a; }
+  .table-wrap { overflow-x: auto; }
+  td.num { text-align: right; font-variant-numeric: tabular-nums; }
+
+  #tip { position: fixed; pointer-events: none; background: #000; color: #fff; border: 1px solid #444; border-radius: 6px; padding: 6px 9px; font-size: 12px; line-height: 1.4; display: none; z-index: 10; max-width: 260px; }
+  .err { color: #ef9a9a; font-size: 13px; }
+  @media (max-width: 600px) { .stat-box.wide { grid-column: span 1; } .ilvl-row { grid-template-columns: 90px 1fr 50px; } }
+</style>
+</head>
+<body>
+<div class="container">
+  <h1>&#9876;&#65039; WoW Midnight Account Dashboard</h1>
+  <p class="sub" id="reset"></p>
+  <p class="generated"><span id="src" class="src snap">Snapshot</span><span id="when"></span></p>
+
+  <div class="stats-grid" id="glance"></div>
+
+  <div class="card">
+    <h2>Characters</h2>
+    <div class="chars" id="chars"></div>
+  </div>
+
+  <div class="card">
+    <h2>Item level</h2>
+    <div class="ilvl-chart" id="ilvl"></div>
+    <p class="axis-note">Bars start at 0, so differences are shown at true scale.</p>
+  </div>
+
+  <div class="card">
+    <h2>All characters (table)</h2>
+    <div class="table-wrap"><table id="tbl"></table></div>
+  </div>
+</div>
+<div id="tip"></div>
+
+<script>
+/* ------------------------------------------------------------------ settings
+ * CSV_URL: the "Publish to web" link for ONLY the Dashboard tab, as CSV.
+ *   Google Sheet > File > Share > Publish to web > Link > "Dashboard" + "Comma-separated values (.csv)".
+ * Read-only: this page can only download that CSV. It cannot change the sheet.
+ * Leave it empty to show the snapshot below.
+ */
+const CSV_URL = '';
+const REFRESH_MINUTES = 5;
+
+/* Snapshot of the Dashboard tab, used until CSV_URL is set or if loading fails. */
+const SNAPSHOT = {
+  taken: '2026-11-24 14:55 CT',
+  reset: 'Reset week starting Tue Nov 24',
+  characters: [
+    ['Diablõ', "Eldre'thalas (US)", 'Demon Hunter', 'Havoc, Vengeance', 'PvE (Mythic+ and raid)', '324.9', 'M+ 2919.8', 'Havoc: 9 of 16 BiS items', 'Vengeance: 8 of 16 BiS items', '', '2 missing, 8 different from the Havoc setup', '2026-11-24 12:40 CT', '1'],
+    ['Cõrpses', "Eldre'thalas (US)", 'Death Knight', 'Blood', 'PvE (Mythic+ and raid)', '333.9', 'M+ 3142', 'Blood: 9 of 15 BiS items', '', '', '6 missing, 2 different from the Blood setup', '2026-11-24 12:40 CT', '1'],
+    ['Kona', "Eldre'thalas (US)", 'Druid', 'Feral, Guardian, Balance', 'PvE (Mythic+ and raid)', '334.4', 'M+ 3670.1', 'Feral: 12 of 15 BiS items', 'Guardian: 11 of 15 BiS items', 'Balance: 10 of 16 BiS items', '2 missing, 2 different from the Guardian setup', '2026-11-24 12:40 CT', '1'],
+    ['Bõnes', "Eldre'thalas (US)", 'Death Knight', 'Unholy (PvP)', 'PvP only', '184.9', 'Shuffle: not entered', 'Unholy PvP: 0 of 15 BiS items', '', '', '11 missing, 0 different from the Unholy setup', '2026-11-24 12:40 CT', '1'],
+    ['Hõrns', "Eldre'thalas (US)", 'Druid', 'Feral (PvP)', 'PvP only', '221.8', 'Shuffle: not entered', 'Feral PvP: 3 of 15 BiS items', '', '', '11 missing, 0 different from the Feral setup', '2026-11-24 12:40 CT', '1'],
+  ],
+  glance: [
+    ['Open to-dos', '11'],
+    ['BiS items still needed (all specs)', '61'],
+    ['Enchants to apply or change', '32'],
+    ['Top kill target', "Kith'ix (The Unbinding of Kith'ix) (7 items)"],
+    ['Crafted items to order', '12'],
+    ["This week's bonus rolls planned", '0'],
+  ],
+};
+
+/* ------------------------------------------------------------------ helpers */
+const CLASS_ACCENT = { 'demon hunter': 'var(--dh)', 'death knight': 'var(--dk)', 'druid': 'var(--druid)' };
+const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+const accentFor = cls => CLASS_ACCENT[String(cls).toLowerCase()] || '#555';
+
+function parseCSV(text) {
+  const rows = []; let row = [], field = '', q = false;
+  for (let i = 0; i < text.length; i++) {
+    const c = text[i];
+    if (q) {
+      if (c === '"') { if (text[i + 1] === '"') { field += '"'; i++; } else q = false; }
+      else field += c;
+    } else if (c === '"') q = true;
+    else if (c === ',') { row.push(field); field = ''; }
+    else if (c === '\n') { row.push(field); rows.push(row); row = []; field = ''; }
+    else if (c !== '\r') field += c;
+  }
+  if (field !== '' || row.length) { row.push(field); rows.push(row); }
+  return rows;
+}
+
+// Reads the Dashboard tab by its labels, so moved rows or extra columns don't break it.
+function fromGrid(grid) {
+  const cell = (r, c) => ((grid[r] || [])[c] || '').trim();
+  const data = { reset: '', characters: [], glance: [] };
+  for (let r = 0; r < Math.min(grid.length, 5); r++) {
+    if (/^Reset week/i.test(cell(r, 0))) data.reset = cell(r, 0);
+  }
+  const head = grid.findIndex(row => (row[0] || '').trim() === 'Character');
+  if (head >= 0) {
+    for (let r = head + 1; r < grid.length && cell(r, 0); r++) {
+      data.characters.push(Array.from({ length: 13 }, (_, c) => cell(r, c)));
+    }
+  }
+  const g = grid.findIndex(row => (row[0] || '').trim() === 'At a glance');
+  if (g >= 0) {
+    for (let r = g + 1; r < grid.length && cell(r, 0); r++) data.glance.push([cell(r, 0), cell(r, 1)]);
+  }
+  if (!data.characters.length) throw new Error('No character rows found in the CSV');
+  return data;
+}
+
+function parseBis(s) {
+  const m = String(s).match(/^(.*?):\s*(\d+)\s+of\s+(\d+)/i);
+  return m ? { spec: m[1], have: +m[2], total: +m[3] } : null;
+}
+
+/* ------------------------------------------------------------------ tooltip */
+const tip = document.getElementById('tip');
+document.addEventListener('mousemove', e => {
+  const t = e.target.closest('[data-tip]');
+  if (!t) { tip.style.display = 'none'; return; }
+  tip.innerHTML = t.getAttribute('data-tip');
+  tip.style.display = 'block';
+  const x = Math.min(e.clientX + 14, window.innerWidth - tip.offsetWidth - 8);
+  tip.style.left = x + 'px';
+  tip.style.top = (e.clientY + 14) + 'px';
+});
+
+/* ------------------------------------------------------------------ render */
+function render(data, live, when) {
+  document.getElementById('reset').textContent = data.reset || '';
+  const src = document.getElementById('src');
+  src.className = 'src ' + (live ? 'live' : 'snap');
+  src.textContent = live ? 'Live from Google Sheets' : 'Snapshot';
+  document.getElementById('when').textContent = (live ? 'Loaded ' : 'Taken ') + when;
+
+  // At a glance
+  document.getElementById('glance').innerHTML = data.glance.map(([k, v]) => {
+    const wide = isNaN(Number(v)) && v.length > 12;
+    return `<div class="stat-box${wide ? ' wide' : ''}"><h3>${esc(k)}</h3><p>${esc(v || '-')}</p></div>`;
+  }).join('');
+
+  const chars = data.characters.map(r => ({
+    name: r[0], realm: r[1], cls: r[2], specs: r[3], content: r[4], ilvl: parseFloat(r[5]),
+    ilvlText: r[5], rating: r[6], bis: [r[7], r[8], r[9]].map(parseBis).filter(Boolean),
+    issues: r[10], pulled: r[11], todos: r[12],
+  }));
+
+  // Character cards
+  document.getElementById('chars').innerHTML = chars.map(c => `
+    <div class="char" style="--accent:${accentFor(c.cls)}">
+      <div class="char-head">
+        <span class="char-name">${esc(c.name)}</span>
+        <span class="char-ilvl">ilvl <b>${esc(c.ilvlText || '-')}</b></span>
+      </div>
+      <div class="char-meta">${esc(c.cls)} &middot; ${esc(c.realm)}</div>
+      <div class="tags"><span class="tag">${esc(c.specs)}</span><span class="tag">${esc(c.content)}</span><span class="tag">${esc(c.rating)}</span></div>
+      ${c.bis.map(b => {
+        const pct = b.total ? Math.round(b.have / b.total * 100) : 0;
+        return `<div class="bis hit" data-tip="<b>${esc(b.spec)}</b><br>${b.have} of ${b.total} BiS items (${pct}%)">
+          <div class="bis-label"><span>${esc(b.spec)} BiS</span><span>${b.have} / ${b.total}</span></div>
+          <div class="meter"><div style="width:${pct}%"></div></div></div>`;
+      }).join('')}
+      <div class="details">
+        <div class="row"><span class="k">Enchants &amp; gems</span><span class="v">${esc(c.issues || '-')}</span></div>
+        <div class="row"><span class="k">Open to-dos</span><span class="v">${esc(c.todos || '0')}</span></div>
+        <div class="row"><span class="k">Gear pulled</span><span class="v">${esc(c.pulled || '-')}</span></div>
+      </div>
+    </div>`).join('');
+
+  // Item level bars (single series, zero baseline)
+  const max = Math.max(...chars.map(c => c.ilvl || 0), 1);
+  document.getElementById('ilvl').innerHTML = chars.map(c => `
+    <div class="ilvl-row hit" data-tip="<b>${esc(c.name)}</b> (${esc(c.cls)})<br>Item level ${esc(c.ilvlText)}">
+      <span class="who" style="--accent:${accentFor(c.cls)}"><span class="dot"></span>${esc(c.name)}</span>
+      <div class="ilvl-track"><div style="width:${((c.ilvl || 0) / max * 100).toFixed(1)}%"></div></div>
+      <span class="val">${esc(c.ilvlText || '-')}</span>
+    </div>`).join('');
+
+  // Table view
+  const cols = ['Character', 'Class', 'Specs', 'Content', 'Item level', 'Rating', 'BiS', 'Enchants & gems', 'Open to-dos'];
+  document.getElementById('tbl').innerHTML =
+    `<thead><tr>${cols.map(h => `<th>${esc(h)}</th>`).join('')}</tr></thead><tbody>` +
+    chars.map(c => `<tr><td>${esc(c.name)}</td><td>${esc(c.cls)}</td><td>${esc(c.specs)}</td><td>${esc(c.content)}</td>
+      <td class="num">${esc(c.ilvlText)}</td><td>${esc(c.rating)}</td>
+      <td>${c.bis.map(b => `${esc(b.spec)} ${b.have}/${b.total}`).join('<br>') || '-'}</td>
+      <td>${esc(c.issues)}</td><td class="num">${esc(c.todos)}</td></tr>`).join('') + '</tbody>';
+}
+
+async function load() {
+  if (!CSV_URL) { render(SNAPSHOT, false, SNAPSHOT.taken); return; }
+  try {
+    const sep = CSV_URL.includes('?') ? '&' : '?';
+    const res = await fetch(CSV_URL + sep + '_=' + Date.now(), { cache: 'no-store' });
+    if (!res.ok) throw new Error('HTTP ' + res.status);
+    const data = fromGrid(parseCSV(await res.text()));
+    render(data, true, new Date().toLocaleString([], { dateStyle: 'medium', timeStyle: 'short' }));
+  } catch (e) {
+    console.warn('Live load failed, showing snapshot:', e);
+    render(SNAPSHOT, false, SNAPSHOT.taken + ' (live data could not be loaded)');
+  }
+}
+
+load();
+setInterval(load, REFRESH_MINUTES * 60 * 1000);
+</script>
+</body>
+</html>
