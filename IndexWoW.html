@@ -8,24 +8,30 @@
   :root {
     --bg: #121212; --card: #1e1e1e; --card-2: #252525; --line: #2c2c2c; --line-2: #333;
     --text: #e0e0e0; --text-strong: #ffffff; --muted: #888; --muted-2: #aaa;
-    --bar: #3987e5;            /* single-series bars: validated on the #1e1e1e card */
-    --track: #2e2e2e;
-    --dh: #a330c9; --dk: #c41e3a; --druid: #ff7c0a;   /* class accents: identity only, never data */
+    --bar: #3987e5; --track: #2e2e2e;
+    --ok: #81c784; --ok-bg: rgba(46,125,50,0.18); --ok-line: #2e7d32;
+    --warn: #ffd54f; --warn-bg: rgba(255,193,7,0.12); --warn-line: #8a6d0b;
+    --bad: #ef9a9a; --bad-bg: rgba(198,40,40,0.18); --bad-line: #8e3b3b;
+    --dh: #a330c9; --dk: #c41e3a; --druid: #ff7c0a;
   }
   * { box-sizing: border-box; }
   body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; background: var(--bg); color: var(--text); margin: 0; padding: 20px; }
-  .container { max-width: 1200px; margin: auto; }
-  h1, h2 { color: var(--text-strong); border-bottom: 2px solid var(--line-2); padding-bottom: 8px; }
+  .container { max-width: 1240px; margin: auto; }
+  h1, h2 { color: var(--text-strong); }
   h1 { margin: 0 0 6px; }
-  h2 { font-size: 1.17em; margin-top: 0; }
+  h2 { font-size: 1.17em; margin: 0; }
   .sub { color: var(--muted-2); font-size: 14px; margin: 0 0 4px; }
   .generated { color: var(--muted); font-size: 13px; margin: 0 0 20px; display: flex; gap: 10px; align-items: center; flex-wrap: wrap; }
   .src { padding: 1px 8px; border-radius: 10px; font-size: 11px; font-weight: 600; border: 1px solid; }
-  .src.live { color: #81c784; border-color: #2e7d32; background: rgba(46,125,50,0.15); }
-  .src.snap { color: #ffd54f; border-color: #b28704; background: rgba(255,193,7,0.12); }
+  .src.live { color: var(--ok); border-color: var(--ok-line); background: var(--ok-bg); }
+  .src.snap { color: var(--warn); border-color: #b28704; background: var(--warn-bg); }
   .card { background: var(--card); padding: 20px; border-radius: 8px; margin-bottom: 25px; box-shadow: 0 4px 6px rgba(0,0,0,0.3); }
+  .card-head { display: flex; justify-content: space-between; align-items: center; gap: 12px; flex-wrap: wrap; border-bottom: 2px solid var(--line-2); margin-bottom: 14px; padding-bottom: 8px; }
+  .hint { color: var(--muted); font-size: 12px; text-transform: none; letter-spacing: 0; font-weight: 400; }
+  .topbar { display: flex; justify-content: space-between; align-items: flex-start; gap: 12px; flex-wrap: wrap; }
+  .lock { background: #2a2a2a; color: #ccc; border: 1px solid #444; border-radius: 6px; padding: 6px 12px; font-size: 13px; cursor: pointer; }
+  .lock.on { color: var(--ok); border-color: var(--ok-line); background: var(--ok-bg); }
 
-  /* At a glance */
   .stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 15px; margin-bottom: 25px; }
   .stat-box { background: var(--card); padding: 15px 20px; border-radius: 8px; border-left: 4px solid #1976d2; }
   .stat-box h3 { margin: 0; font-size: 12px; color: var(--muted-2); text-transform: uppercase; letter-spacing: 0.5px; font-weight: 600; }
@@ -33,85 +39,138 @@
   .stat-box.wide { grid-column: span 2; }
   .stat-box.wide p { font-size: 17px; line-height: 1.35; }
 
-  /* Character cards */
-  .chars { display: grid; grid-template-columns: repeat(auto-fill, minmax(340px, 1fr)); gap: 20px; }
-  .char { background: var(--card-2); border-radius: 8px; padding: 16px 18px; border-top: 4px solid var(--accent, #555); }
-  .char-head { display: flex; justify-content: space-between; align-items: baseline; gap: 10px; }
-  .char-name { font-size: 20px; font-weight: 700; color: var(--text-strong); }
-  .char-ilvl { font-size: 13px; color: var(--muted-2); white-space: nowrap; }
-  .char-ilvl b { font-size: 20px; color: var(--text-strong); }
-  .char-meta { color: var(--muted-2); font-size: 13px; margin: 2px 0 12px; }
-  .tags { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 12px; }
-  .tag { background: #2a2a2a; color: #ccc; padding: 2px 8px; border-radius: 4px; font-size: 11px; border: 1px solid #444; }
-  .bis { margin: 10px 0; }
+  .section-title { display: flex; align-items: baseline; gap: 10px; margin: 6px 0 12px; }
+  .section-title h2 { font-size: 1.35em; }
+  .acct { font-size: 11px; font-weight: 600; padding: 1px 8px; border-radius: 10px; background: #2a2a2a; border: 1px solid #444; color: #ccc; white-space: nowrap; }
+
+  .chars { display: grid; grid-template-columns: repeat(auto-fill, minmax(360px, 1fr)); gap: 20px; margin-bottom: 25px; }
+  .char { background: var(--card); border-radius: 8px; padding: 16px 18px; border-top: 4px solid var(--accent, #555); box-shadow: 0 4px 6px rgba(0,0,0,0.3); }
+  .char-head { display: flex; justify-content: space-between; align-items: flex-start; gap: 10px; }
+  .char-name { font-size: 21px; font-weight: 700; color: var(--text-strong); }
+  .char-meta { color: var(--muted-2); font-size: 12px; margin-top: 2px; }
+  .headline-row { display: flex; gap: 18px; justify-content: flex-end; }
+  .headline { text-align: right; }
+  .headline .big { font-size: 22px; font-weight: 700; color: var(--text-strong); font-variant-numeric: tabular-nums; }
+  .headline .lbl { font-size: 11px; color: var(--muted-2); text-transform: uppercase; letter-spacing: .4px; }
+  .sec { margin-top: 14px; }
+  .sec-title { font-size: 11px; text-transform: uppercase; letter-spacing: .5px; color: var(--muted-2); font-weight: 600; margin-bottom: 7px; display: flex; justify-content: space-between; align-items: center; gap: 8px; }
+  .bis { margin: 7px 0; }
   .bis-label { display: flex; justify-content: space-between; font-size: 13px; margin-bottom: 4px; }
   .bis-label span:last-child { color: var(--muted-2); }
-  .meter { height: 10px; background: var(--track); border-radius: 5px; overflow: hidden; }
+  .meter { height: 8px; background: var(--track); border-radius: 4px; overflow: hidden; }
   .meter > div { height: 100%; background: var(--bar); border-radius: 0 4px 4px 0; }
-  .row { display: flex; justify-content: space-between; gap: 12px; font-size: 13px; padding: 6px 0; border-top: 1px solid var(--line); }
-  .row:first-of-type { border-top: 0; }
-  .row .k { color: var(--muted-2); }
-  .row .v { text-align: right; }
-  .details { margin-top: 12px; }
+  .star { color: #ffd54f; font-size: 12px; margin-left: 4px; }
 
-  /* Item level chart */
-  .ilvl-chart { display: flex; flex-direction: column; gap: 10px; }
-  .ilvl-row { display: grid; grid-template-columns: 110px 1fr 60px; align-items: center; gap: 12px; font-size: 14px; }
-  .ilvl-row .who { display: flex; align-items: center; gap: 8px; }
-  .dot { width: 8px; height: 8px; border-radius: 50%; background: var(--accent, #555); flex-shrink: 0; }
-  .ilvl-track { height: 18px; position: relative; }
-  .ilvl-track > div { height: 100%; background: var(--bar); border-radius: 0 4px 4px 0; min-width: 2px; }
-  .ilvl-row .val { text-align: right; color: var(--text-strong); font-variant-numeric: tabular-nums; }
-  .hit { cursor: default; }
-  .axis-note { color: var(--muted); font-size: 12px; margin-top: 8px; }
+  .vault-row { display: grid; grid-template-columns: 60px 1fr 92px; align-items: center; gap: 8px; margin: 6px 0; font-size: 13px; }
+  .tiles { display: grid; grid-template-columns: repeat(3, 1fr); gap: 5px; }
+  .tile { border: 1px solid #3a3a3a; background: #222; border-radius: 5px; padding: 4px 5px; font-size: 10.5px; color: #777; text-align: center; min-height: 34px; display: flex; flex-direction: column; justify-content: center; line-height: 1.25; }
+  .tile b { font-size: 11px; color: #999; }
+  .tile.on { background: rgba(57,135,229,0.18); border-color: #3987e5; color: #cfe3ff; }
+  .tile.on b { color: #fff; }
+  .count { display: flex; align-items: center; justify-content: flex-end; gap: 4px; font-variant-numeric: tabular-nums; }
+  .count .n { min-width: 28px; text-align: center; color: var(--text-strong); font-weight: 600; }
+  .step { width: 24px; height: 24px; border-radius: 5px; border: 1px solid #444; background: #2a2a2a; color: #ddd; cursor: pointer; font-size: 14px; line-height: 1; padding: 0; }
+  .step:disabled { opacity: .35; cursor: not-allowed; }
+  .auto { font-size: 10px; color: var(--muted); }
 
-  /* Table view */
-  table { width: 100%; border-collapse: collapse; }
-  th, td { padding: 9px 10px; text-align: left; border-bottom: 1px solid var(--line); font-size: 13px; vertical-align: top; }
-  th { background: var(--card-2); color: var(--text-strong); white-space: nowrap; }
-  tr:hover td { background: #2a2a2a; }
-  .table-wrap { overflow-x: auto; }
-  td.num { text-align: right; font-variant-numeric: tabular-nums; }
-
-  #tip { position: fixed; pointer-events: none; background: #000; color: #fff; border: 1px solid #444; border-radius: 6px; padding: 6px 9px; font-size: 12px; line-height: 1.4; display: none; z-index: 10; max-width: 260px; }
-  .err { color: #ef9a9a; font-size: 13px; }
-  @media (max-width: 600px) { .stat-box.wide { grid-column: span 1; } .ilvl-row { grid-template-columns: 90px 1fr 50px; } }
-
-  /* Editing */
-  .topbar { display: flex; justify-content: space-between; align-items: flex-start; gap: 12px; flex-wrap: wrap; }
-  .lock { background: #2a2a2a; color: #ccc; border: 1px solid #444; border-radius: 6px; padding: 6px 12px; font-size: 13px; cursor: pointer; }
-  .lock.on { color: #81c784; border-color: #2e7d32; background: rgba(46,125,50,0.15); }
-  .lock:hover { border-color: #666; }
-  input[type=checkbox] { width: 17px; height: 17px; accent-color: #3987e5; cursor: pointer; vertical-align: middle; }
+  .checks { display: flex; flex-direction: column; gap: 5px; }
+  .check { display: flex; gap: 8px; align-items: center; font-size: 13px; }
+  .check.done span { color: var(--muted); text-decoration: line-through; }
+  input[type=checkbox] { width: 17px; height: 17px; accent-color: #3987e5; cursor: pointer; flex-shrink: 0; }
   input[type=checkbox]:disabled { cursor: not-allowed; opacity: .55; }
-  select, input[type=text], input[type=number] { background: #2a2a2a; color: var(--text); border: 1px solid #444; border-radius: 5px; padding: 5px 7px; font: inherit; font-size: 13px; }
+  select, input[type=text], input[type=number] { background: #2a2a2a; color: var(--text); border: 1px solid #444; border-radius: 5px; padding: 4px 7px; font: inherit; font-size: 13px; }
   select:disabled, input:disabled { opacity: .55; cursor: not-allowed; }
-  .spec-pick { display: flex; justify-content: space-between; align-items: center; gap: 10px; font-size: 13px; padding: 6px 0; border-top: 1px solid var(--line); }
-  .spec-pick .k { color: var(--muted-2); }
-  .card-head { display: flex; justify-content: space-between; align-items: center; gap: 12px; flex-wrap: wrap; border-bottom: 2px solid var(--line-2); margin-bottom: 14px; padding-bottom: 8px; }
-  .card-head h2 { border: 0; margin: 0; padding: 0; }
+
+  .targets { display: flex; flex-direction: column; gap: 6px; }
+  .target { font-size: 12.5px; background: #252525; border-radius: 6px; padding: 6px 9px; }
+  .target .boss { color: var(--text-strong); font-weight: 600; }
+  .target .items { color: #bdbdbd; margin-top: 2px; }
+  .slot { color: var(--muted-2); }
+  .specs-tag { font-size: 10.5px; color: var(--muted); margin-left: 4px; }
+  .main-item { color: #fff; }
+  .empty { color: var(--muted); font-size: 12.5px; margin: 0; }
+
+  .ench-summary { display: flex; gap: 6px; flex-wrap: wrap; }
+  .pill { font-size: 11px; font-weight: 600; padding: 2px 8px; border-radius: 10px; border: 1px solid; }
+  .pill.bad { color: var(--bad); border-color: var(--bad-line); background: var(--bad-bg); }
+  .pill.warn { color: var(--warn); border-color: var(--warn-line); background: var(--warn-bg); }
+  .pill.ok { color: var(--ok); border-color: var(--ok-line); background: var(--ok-bg); }
+  .ench-list { display: flex; flex-direction: column; gap: 4px; margin-top: 7px; }
+  .ench { display: grid; grid-template-columns: 16px 82px 1fr; gap: 6px; font-size: 12.5px; align-items: start; }
+  .ench .ico { font-weight: 700; text-align: center; }
+  .ench.bad .ico { color: var(--bad); } .ench.warn .ico { color: var(--warn); }
+  .ench .s { color: var(--muted-2); }
+  .ench .want { color: var(--text-strong); }
+  .ench .has { color: var(--muted); font-size: 11.5px; }
+  .spec-sel { font-size: 12px; padding: 2px 6px; }
+
+  .cur { display: grid; grid-template-columns: 70px 1fr; gap: 8px 10px; font-size: 13px; align-items: start; }
+  .cur .k { color: var(--muted-2); padding-top: 5px; }
+  .cur input[type=number] { width: 86px; }
+  .cur .calc { color: var(--muted-2); font-size: 12px; margin-top: 3px; }
+  .rating-input { width: 84px; text-align: right; font-size: 18px !important; font-weight: 700; }
+  .foot { margin-top: 12px; color: var(--muted); font-size: 11.5px; }
+
   .filters { display: flex; gap: 6px; flex-wrap: wrap; }
   .chip { background: #2a2a2a; color: #ccc; border: 1px solid #444; border-radius: 14px; padding: 3px 10px; font-size: 12px; cursor: pointer; }
   .chip.on { background: #1d3b5f; border-color: #3987e5; color: #fff; }
-  .todo { display: grid; grid-template-columns: 26px 70px 90px 1fr; gap: 10px; align-items: start; padding: 9px 0; border-top: 1px solid var(--line); font-size: 13px; }
+  .todo { display: grid; grid-template-columns: 26px 70px 150px 1fr; gap: 10px; align-items: start; padding: 9px 0; border-top: 1px solid var(--line); font-size: 13px; }
   .todo:first-child { border-top: 0; }
   .todo.done .task, .todo.done .note { text-decoration: line-through; color: var(--muted); }
   .pri { font-size: 11px; font-weight: 600; padding: 2px 7px; border-radius: 4px; text-align: center; border: 1px solid; }
-  .pri.High { color: #ef9a9a; border-color: #8e3b3b; } .pri.Medium { color: #ffd54f; border-color: #8a6d0b; } .pri.Low { color: #81c784; border-color: #2e7d32; }
-  .who-tag { color: var(--muted-2); }
+  .pri.High { color: var(--bad); border-color: var(--bad-line); } .pri.Medium { color: var(--warn); border-color: var(--warn-line); } .pri.Low { color: var(--ok); border-color: var(--ok-line); }
+  .who { display: flex; gap: 6px; align-items: center; flex-wrap: wrap; }
+  .who .toon { font-weight: 600; }
   .task { color: var(--text-strong); }
   .note { color: var(--muted); font-size: 12px; margin-top: 3px; }
   .rep { color: var(--muted); font-size: 11px; margin-left: 6px; }
-  .addform { display: grid; grid-template-columns: 1fr 110px 110px 110px 100px auto; gap: 8px; margin-top: 14px; }
+  .addform { display: grid; grid-template-columns: 1fr 110px 140px 110px 100px auto; gap: 8px; margin-top: 14px; }
   .addform input[type=text] { width: 100%; }
   .btn { background: #1976d2; color: #fff; border: 0; border-radius: 5px; padding: 6px 14px; font-size: 13px; cursor: pointer; }
   .btn:disabled { opacity: .5; cursor: not-allowed; }
+  .twocol { display: grid; grid-template-columns: 1fr 1fr; gap: 25px; }
+
+  .crafters { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 8px; }
+  .crafter { display: flex; gap: 9px; align-items: center; background: #252525; border-radius: 6px; padding: 8px 10px; font-size: 13px; }
+  .crafter .p { color: var(--muted-2); font-size: 11.5px; }
+
+  table { width: 100%; border-collapse: collapse; }
+  th, td { padding: 8px 10px; text-align: left; border-bottom: 1px solid var(--line); font-size: 13px; vertical-align: top; }
+  th { background: #252525; color: var(--text-strong); white-space: nowrap; }
+  td.num, th.num { text-align: right; font-variant-numeric: tabular-nums; }
   td.cb, th.cb { text-align: center; }
-  td.na { color: #555; text-align: center; }
-  .prog { color: var(--muted-2); font-size: 12px; }
+  tr.group td { background: #191919; color: var(--muted-2); font-size: 11px; text-transform: uppercase; letter-spacing: .5px; font-weight: 600; padding: 7px 10px; }
+  .table-wrap { overflow-x: auto; }
+  .need-list { display: flex; flex-direction: column; gap: 3px; }
+  .need { font-size: 12.5px; }
+  .need .c { font-weight: 600; }
+  select.plan { min-width: 150px; }
+  select.plan.suggested { color: #9a9a9a; font-style: italic; border-style: dashed; }
+  select.plan.chosen { color: #fff; font-weight: 600; border-color: #3987e5; background: #1d3b5f; }
+  .legend { font-size: 12px; color: var(--muted-2); display: flex; gap: 14px; flex-wrap: wrap; }
+  .legend .sw { display: inline-block; width: 26px; height: 14px; border-radius: 3px; vertical-align: middle; margin-right: 5px; }
+
+  .mplus { display: grid; grid-template-columns: repeat(auto-fill, minmax(330px, 1fr)); gap: 16px; }
+  .mtile { background: #252525; border-radius: 8px; padding: 12px 14px; border-left: 4px solid var(--accent, #555); }
+  .mtile-head { display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 8px; }
+  .mtile-head .n { font-weight: 700; color: var(--text-strong); font-size: 16px; }
+  .mtile-head .sc { font-weight: 700; color: var(--text-strong); font-size: 18px; font-variant-numeric: tabular-nums; }
+  .run { display: grid; grid-template-columns: 1fr 38px 52px; gap: 8px; align-items: center; font-size: 12.5px; padding: 4px 0; border-top: 1px solid var(--line); }
+  .run:first-of-type { border-top: 0; }
+  .lvl { background: #1d3b5f; color: #cfe3ff; border-radius: 4px; text-align: center; font-weight: 700; font-size: 12px; padding: 1px 0; }
+  .run .score { text-align: right; font-variant-numeric: tabular-nums; color: var(--text-strong); }
+  .run .spec { color: var(--muted); font-size: 11px; }
+
+  #tip { position: fixed; pointer-events: none; background: #000; color: #fff; border: 1px solid #444; border-radius: 6px; padding: 6px 9px; font-size: 12px; line-height: 1.4; display: none; z-index: 10; max-width: 280px; }
   #toast { position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%); background: #000; border: 1px solid #444; color: #fff; padding: 9px 16px; border-radius: 6px; font-size: 13px; display: none; z-index: 20; max-width: 90vw; }
-  #toast.bad { border-color: #8e3b3b; color: #ef9a9a; }
-  @media (max-width: 700px) { .addform { grid-template-columns: 1fr 1fr; } .todo { grid-template-columns: 26px 62px 1fr; } .todo .who-tag { display: none; } }
+  #toast.bad { border-color: var(--bad-line); color: var(--bad); }
+  @media (max-width: 860px) { .twocol { grid-template-columns: 1fr; } }
+  @media (max-width: 700px) {
+    .stat-box.wide { grid-column: span 1; }
+    .addform { grid-template-columns: 1fr 1fr; }
+    .todo { grid-template-columns: 26px 62px 1fr; } .todo .who { display: none; }
+    .chars, .mplus { grid-template-columns: 1fr; }
+  }
 </style>
 </head>
 <body>
@@ -127,21 +186,30 @@
 
   <div class="stats-grid" id="glance"></div>
 
-  <div class="card">
-    <h2>Characters</h2>
-    <div class="chars" id="chars"></div>
+  <div class="section-title"><h2>Player vs Environment</h2><span class="acct" id="pve-acct"></span></div>
+  <div class="chars" id="pve"></div>
+
+  <div class="section-title"><h2>Player vs Player</h2><span class="acct" id="pvp-acct"></span></div>
+  <div class="chars" id="pvp"></div>
+
+  <div class="twocol">
+    <div class="card">
+      <div class="card-head"><h2>Daily checklist</h2><span class="hint">Unticks every day at 10 AM Central</span></div>
+      <div id="daily"></div>
+    </div>
+    <div class="card">
+      <div class="card-head"><h2>Crafters: weekly knowledge</h2><span class="hint">Unticks Tuesdays at 10 AM Central</span></div>
+      <div class="crafters" id="crafters"></div>
+    </div>
   </div>
 
   <div class="card">
-    <div class="card-head">
-      <h2>To-Do</h2>
-      <div class="filters" id="todo-filters"></div>
-    </div>
+    <div class="card-head"><h2>To-Do</h2><div class="filters" id="todo-filters"></div></div>
     <div id="todo"></div>
     <form class="addform" id="addform" autocomplete="off">
       <input type="text" id="new-task" placeholder="New task" maxlength="300">
       <select id="new-pri"><option>High</option><option selected>Medium</option><option>Low</option></select>
-      <select id="new-char"></select>
+      <select id="new-who"></select>
       <select id="new-cat"></select>
       <select id="new-rep"><option selected>None</option><option>Daily</option><option>Weekly</option></select>
       <button class="btn" type="submit" id="new-add">Add</button>
@@ -149,104 +217,54 @@
   </div>
 
   <div class="card">
-    <h2>Weekly checklist</h2>
-    <div class="table-wrap"><table id="weekly"></table></div>
-  </div>
-
-  <div class="card">
-    <h2>Bonus rolls</h2>
+    <div class="card-head">
+      <h2>Bonus rolls</h2>
+      <div class="legend">
+        <span><span class="sw" style="border:1px dashed #666;background:#2a2a2a"></span>Suggested by the sheet</span>
+        <span><span class="sw" style="border:1px solid #3987e5;background:#1d3b5f"></span>Your pick</span>
+      </div>
+    </div>
     <div class="table-wrap"><table id="bonus"></table></div>
   </div>
 
   <div class="card">
-    <h2>Item level</h2>
-    <div class="ilvl-chart" id="ilvl"></div>
-    <p class="axis-note">Bars start at 0, so differences are shown at true scale.</p>
-  </div>
-
-  <div class="card">
-    <h2>All characters (table)</h2>
-    <div class="table-wrap"><table id="tbl"></table></div>
+    <div class="card-head"><h2>Mythic+ by dungeon</h2><span class="hint">Best run per dungeon this season, highest score first</span></div>
+    <div class="mplus" id="mplus"></div>
   </div>
 </div>
 <div id="tip"></div>
 <div id="toast"></div>
+
 <script>
 /* ------------------------------------------------------------------ settings
- * WEBAPP_URL: the hub's Apps Script web app URL (Deploy > Manage deployments > Web app URL, ends in /exec).
- *   Reading needs no key. Ticking boxes needs the edit key, which you enter once per browser with the
- *   lock button; it is saved only in that browser, never in this file.
- * Leave it empty to show the snapshot below.
+ * WEBAPP_URL: the hub's Apps Script web app URL (ends in /exec).
+ *   Reading needs no key. Changing anything needs the edit key, entered once per browser with the lock button;
+ *   it is saved only in that browser, never in this file.
  */
 const WEBAPP_URL = 'https://script.google.com/macros/s/AKfycbwqXMIlBNvm2qwm2Z4OZ8MWIKvVvo3W4iAeCnAdRGR8VCrZ-nQfUS1Pb1sId9cUxZYR/exec';
 const REFRESH_MINUTES = 5;
-const PLAN_CHARS = ['Diablõ', 'Cõrpses', 'Kona'];
-const TODO_CHARS = ['Account', 'Diablõ', 'Cõrpses', 'Kona', 'Bõnes', 'Hõrns'];
-const TODO_CATEGORIES = ['Setup', 'Gear', 'Enchants', 'Raid', 'Mythic+', 'PvP', 'Crafting', 'Gold', 'Weekly', 'Other'];
+const ACCOUNTS = { 'WoW#1': ['Diablõ', 'Kona', 'Cõrpses'], 'AODKONA': ['Bõnes', 'Hõrns'] };
+const PLAN_CHARS = ['Cõrpses', 'Diablõ', 'Kona'];
+const TODO_CATEGORIES = ['Setup', 'Gear', 'Enchants', 'Raid', 'Mythic+', 'PvP', 'Crafting', 'Gold', 'Daily', 'Weekly', 'Other'];
+const BOSS_ORDER = ['Nymrissa Wavecaller', "Kith'ix", "Nek'zali the Soulcoiler", 'Entombed Sentinels', 'Vashnik the Malignant',
+  'The Lost Explorers', 'Sszorak', 'The Twin Fangs', 'The Coiled Altar', "Ula'tek"];
+const INSTANCE_ORDER = ['Tidebound Grotto', "The Unbinding of Kith'ix", 'The Venomous Abyss'];
+const CHAR_COLOR = { 'Diablõ': '#c27be0', 'Cõrpses': '#ff5c75', 'Kona': '#ff9d4d', 'Bõnes': '#ff5c75', 'Hõrns': '#ff9d4d' };
 
-/* Snapshot of the hub, used until WEBAPP_URL is set or if loading fails. */
+/* Minimal snapshot, shown only if the live data can't be loaded. */
 const SNAPSHOT = {
-  generated: '2026-11-24 15:35 CT',
-  dashboard: [
-    ['Account dashboard'], ['Reset week starting Tue Nov 24'], [],
-    ['Character', 'Realm', 'Class', 'Specs', 'Content', 'Item level', 'Rating', 'BiS, spec 1', 'BiS, spec 2', 'BiS, spec 3', 'Enchant and gem issues', 'Gear pulled', 'Open to-dos'],
-    ['Diablõ', "Eldre'thalas (US)", 'Demon Hunter', 'Vengeance (main), Havoc', 'PvE (Mythic+ and raid)', '324.9', 'M+ 2919.8', 'Vengeance: 8 of 16 BiS items', 'Havoc: 9 of 16 BiS items', '', '2 missing, 5 different from the Vengeance setup', '2026-11-24 12:40 CT', '1'],
-    ['Cõrpses', "Eldre'thalas (US)", 'Death Knight', 'Blood (main), Frost, Unholy', 'PvE (Mythic+ and raid)', '333.9', 'M+ 3142', 'Blood: 9 of 15 BiS items', 'Frost: 9 of 16 BiS items', 'Unholy: 12 of 15 BiS items', '6 missing, 2 different from the Blood setup', '2026-11-24 12:40 CT', '1'],
-    ['Kona', "Eldre'thalas (US)", 'Druid', 'Guardian (main), Feral', 'PvE (Mythic+ and raid)', '334.4', 'M+ 3670.1', 'Guardian: 11 of 15 BiS items', 'Feral: 12 of 15 BiS items', '', '2 missing, 2 different from the Guardian setup', '2026-11-24 12:40 CT', '1'],
-    ['Bõnes', "Eldre'thalas (US)", 'Death Knight', 'Unholy (PvP)', 'PvP only', '184.9', 'Shuffle: not entered', 'Unholy PvP: 0 of 15 BiS items', '', '', '11 missing, 0 different from the Unholy setup', '2026-11-24 12:40 CT', '1'],
-    ['Hõrns', "Eldre'thalas (US)", 'Druid', 'Feral and Balance (PvP, equal)', 'PvP only', '221.8', 'Shuffle: not entered', 'Feral PvP: 3 of 15 BiS items', 'Balance PvP: 2 of 15 BiS items', '', '11 missing, 0 different from the Feral setup', '2026-11-24 12:40 CT', '1'],
-    [], ['At a glance'],
-    ['Open to-dos', '10'], ['BiS items still needed (all specs)', '78'], ['Enchants to apply or change', '29'],
-    ['Top kill target', "Kith'ix (The Unbinding of Kith'ix) (9 items)"], ['Crafted items to order', '14'], ["This week's bonus rolls planned", '0'],
+  generated: '2026-11-24 16:30 CT',
+  dashboard: [['Account dashboard'], ['Reset week starting Tue Nov 24'], [], ['At a glance'],
+    ['Open to-dos', '11'], ['BiS items still needed (all specs)', '78'], ['Enchants to apply or change', '29'],
+    ['Top kill target', "Kith'ix (The Unbinding of Kith'ix) (9 items)"], ['Crafted items to order', '14'], ["This week's bonus rolls planned", '0']],
+  characters: [
+    { name: 'Diablõ', account: 'WoW#1', cls: 'Demon Hunter', pvp: false, ilvl: '324.9', rating: 'M+ 2919.8', bis: ['Vengeance: 8 of 16 BiS items', 'Havoc: 9 of 16 BiS items'], main: ['Vengeance'], issues: '2 missing, 5 different from the Vengeance setup', pulled: '2026-11-24 15:40 CT', specOptions: ['Havoc', 'Vengeance'], specSelected: 'Vengeance' },
+    { name: 'Cõrpses', account: 'WoW#1', cls: 'Death Knight', pvp: false, ilvl: '333.9', rating: 'M+ 3142', bis: ['Blood: 9 of 15 BiS items', 'Frost: 9 of 16 BiS items', 'Unholy: 12 of 15 BiS items'], main: ['Blood'], issues: '6 missing, 2 different from the Blood setup', pulled: '2026-11-24 15:40 CT', specOptions: ['Blood', 'Frost', 'Unholy'], specSelected: 'Blood' },
+    { name: 'Kona', account: 'WoW#1', cls: 'Druid', pvp: false, ilvl: '334.4', rating: 'M+ 3670.1', bis: ['Guardian: 11 of 15 BiS items', 'Feral: 12 of 15 BiS items'], main: ['Guardian'], issues: '2 missing, 2 different from the Guardian setup', pulled: '2026-11-24 15:40 CT', specOptions: ['Feral', 'Guardian'], specSelected: 'Guardian' },
+    { name: 'Bõnes', account: 'AODKONA', cls: 'Death Knight', pvp: true, ilvl: '184.9', rating: '', bis: ['Unholy PvP: 0 of 15 BiS items'], main: ['Unholy'], issues: '11 missing, 0 different from the Unholy setup', pulled: '2026-11-24 15:40 CT', specOptions: ['Unholy'], specSelected: 'Unholy' },
+    { name: 'Hõrns', account: 'AODKONA', cls: 'Druid', pvp: true, ilvl: '221.8', rating: '', bis: ['Feral PvP: 3 of 15 BiS items', 'Balance PvP: 2 of 15 BiS items'], main: ['Feral', 'Balance'], issues: '11 missing, 0 different from the Feral setup', pulled: '2026-11-24 15:40 CT', specOptions: ['Feral', 'Balance'], specSelected: 'Feral' },
   ],
-  todo: [
-    { row: 5, done: true, priority: 'High', character: 'Account', category: 'Setup', task: 'Connect the character sheets: on the Sheets tab, click each #REF! cell and press Allow access', repeats: 'None', notes: '' },
-    { row: 6, done: true, priority: 'High', character: 'Diablõ', category: 'Enchants', task: "Pick Diablõ's main spec", repeats: 'None', notes: 'Done: Vengeance > Havoc' },
-    { row: 7, done: false, priority: 'High', character: 'Cõrpses', category: 'Enchants', task: "Enchant Cõrpses' head, chest, legs and hands (all four are empty)", repeats: 'None', notes: "Blessing of Speed, Mark of the Worldsoul, Forest Hunter's Armor Kit, Battle Art" },
-    { row: 8, done: false, priority: 'Medium', character: 'Kona', category: 'Enchants', task: "Add a Hash'ey Battle Art to Kona's gloves", repeats: 'None', notes: '' },
-    { row: 9, done: false, priority: 'Medium', character: 'Account', category: 'Enchants', task: 'Switch ring enchants to Eyes of the Eagle on Diablõ, Cõrpses and Kona (6 rings)', repeats: 'None', notes: '' },
-    { row: 10, done: false, priority: 'Medium', character: 'Account', category: 'Gear', task: 'Check for an Indecipherable Eversong Diamond on Diablõ, Cõrpses and Kona, then tick it on each Enchants & Gems tab', repeats: 'None', notes: '' },
-    { row: 11, done: false, priority: 'Medium', character: 'Account', category: 'Weekly', task: "Plan this week's bonus rolls on the Bonus Rolls tab", repeats: 'Weekly', notes: '' },
-    { row: 12, done: false, priority: 'Medium', character: 'Account', category: 'Gold', task: 'Send Claude the gold-making Excel example', repeats: 'None', notes: '' },
-    { row: 13, done: false, priority: 'Low', character: 'Bõnes', category: 'PvP', task: 'Log in Bõnes so Raider.io picks up current gear (last seen Nov 5)', repeats: 'None', notes: '' },
-    { row: 14, done: false, priority: 'Low', character: 'Hõrns', category: 'PvP', task: 'Log in Hõrns so Raider.io picks up current gear (last seen Oct 20)', repeats: 'None', notes: '' },
-    { row: 15, done: false, priority: 'Low', character: 'Account', category: 'Setup', task: 'Create a Blizzard API client (develop.battle.net) and get a TSM API key for automation', repeats: 'None', notes: '' },
-    { row: 16, done: false, priority: 'High', character: 'Diablõ', category: 'Enchants', task: "Put Rite of the Hash'ey on both of Diablõ's warglaives", repeats: 'None', notes: 'Also swap gems from Haste to Crit or Versatility' },
-  ],
-  weekly: {
-    characters: ['Diablõ', 'Cõrpses', 'Kona', 'Bõnes', 'Hõrns'],
-    rows: [
-      ["Open last week's Great Vault", [0, 0, 0, 0, 0]],
-      ['Mythic+: 8 runs at +10 or higher for 3 vault slots', [0, 0, 0, null, null]],
-      ['Raid: 6 bosses for 3 vault slots', [0, 0, 0, null, null]],
-      ['World: 8 Delves or Prey hunts for 3 vault slots', [0, 0, 0, null, null]],
-      ['Spend bonus roll coins (see Bonus Rolls tab)', [0, 0, 0, null, null]],
-      ['Weekly profession knowledge and crafting quest', [0, 0, 0, 0, 0]],
-      ['Spend crests on upgrades', [0, 0, 0, null, null]],
-      ['Rated PvP: weekly Solo Shuffle or arena games', [null, null, null, 0, 0]],
-      ["Conquest: reach this week's cap", [null, null, null, 0, 0]],
-      ["Honor: spend on Thalassian Competitor's gear", [null, null, null, 0, 0]],
-    ].map(([task, cells], i) => ({ row: 5 + i, task, cells: cells.map(v => v === null ? null : !!v) })),
-  },
-  bonus: [
-    ['1', 'Nymrissa Wavecaller', 'Tidebound Grotto', '1', 'Cõrpses: Alluring Bubbleband', ''],
-    ['2', "Kith'ix", "The Unbinding of Kith'ix", '9', "Diablõ: Band of the Swarmcaller; Diablõ: Twisted Horror's Tendril; Cõrpses: Band of the Swarmcaller; Cõrpses: Twisted Horror's Tendril; Kona: Twisted Horror's Tendril", 'Cõrpses'],
-    ['3', "Nek'zali the Soulcoiler", 'The Venomous Abyss', '0', '', ''],
-    ['4', 'The Coiled Altar', 'The Venomous Abyss', '8', "Diablõ: Aman'muso, Warlord's Vengeance; Diablõ: Sash of the Forlorn Vessel; Cõrpses: Girdle of Toxic Regret; Cõrpses: Aman'muso, Warlord's Vengeance; Kona: Sash of the Forlorn Vessel", 'Diablõ'],
-    ['5', "Ula'tek", 'The Venomous Abyss', '2', "Diablõ: Voracious Heart of Ula'tek; Cõrpses: Jaw of the Shackled Goddess", 'Diablõ'],
-    ['6', 'Entombed Sentinels', 'The Venomous Abyss', '1', "Kona: Keeper's Seething Core", ''],
-    ['7', 'Vashnik the Malignant', 'The Venomous Abyss', '1', "Kona: Vile Alchemist's Band", ''],
-    ['8', 'The Lost Explorers', 'The Venomous Abyss', '0', '', ''],
-    ['9', 'Sszorak', 'The Venomous Abyss', '0', '', ''],
-    ['10', 'The Twin Fangs', 'The Venomous Abyss', '0', '', ''],
-  ].map((r, i) => ({ row: 5 + i, order: r[0], boss: r[1], instance: r[2], wanted: r[3], who: r[4], plan: r[5], rolls: '', notes: '' })),
-  specs: [
-    { name: 'Diablõ', selected: 'Vengeance', options: ['Havoc', 'Vengeance'] },
-    { name: 'Cõrpses', selected: 'Blood', options: ['Blood', 'Frost', 'Unholy'] },
-    { name: 'Kona', selected: 'Guardian', options: ['Feral', 'Guardian'] },
-    { name: 'Bõnes', selected: 'Unholy', options: ['Unholy'] },
-    { name: 'Hõrns', selected: 'Feral', options: ['Feral', 'Balance'] },
-  ],
+  todo: [], weekly: { characters: [], rows: [] }, crafters: [], bonus: [], needs: [],
 };
 
 /* ------------------------------------------------------------------ helpers */
@@ -254,19 +272,18 @@ const CLASS_ACCENT = { 'demon hunter': 'var(--dh)', 'death knight': 'var(--dk)',
 const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
 const accentFor = cls => CLASS_ACCENT[String(cls).toLowerCase()] || '#555';
 const $ = id => document.getElementById(id);
+const accountOf = name => Object.keys(ACCOUNTS).find(a => ACCOUNTS[a].includes(name)) || '';
+const colored = name => `<span class="c" style="color:${CHAR_COLOR[name] || '#ddd'}">${esc(name)}</span>`;
+const bossOf = source => BOSS_ORDER.find(b => String(source).startsWith(b)) || null;
 
-// Reads the Dashboard tab by its labels, so moved rows or extra columns don't break it.
 function fromGrid(grid) {
   const cell = (r, c) => String((grid[r] || [])[c] ?? '').trim();
-  const data = { reset: '', characters: [], glance: [] };
+  const data = { reset: '', glance: [] };
   for (let r = 0; r < Math.min(grid.length, 5); r++) if (/^Reset week/i.test(cell(r, 0))) data.reset = cell(r, 0);
-  const head = grid.findIndex(row => String((row || [])[0] ?? '').trim() === 'Character');
-  if (head >= 0) for (let r = head + 1; r < grid.length && cell(r, 0); r++) data.characters.push(Array.from({ length: 13 }, (_, c) => cell(r, c)));
   const g = grid.findIndex(row => String((row || [])[0] ?? '').trim() === 'At a glance');
   if (g >= 0) for (let r = g + 1; r < grid.length && cell(r, 0); r++) data.glance.push([cell(r, 0), cell(r, 1)]);
   return data;
 }
-
 function parseBis(s) {
   const m = String(s).match(/^(.*?):\s*(\d+)\s+of\s+(\d+)/i);
   return m ? { spec: m[1], have: +m[2], total: +m[3] } : null;
@@ -276,25 +293,23 @@ let toastTimer;
 function toast(msg, bad) {
   const t = $('toast');
   t.textContent = msg; t.className = bad ? 'bad' : ''; t.style.display = 'block';
-  clearTimeout(toastTimer); toastTimer = setTimeout(() => (t.style.display = 'none'), bad ? 6000 : 2500);
+  clearTimeout(toastTimer); toastTimer = setTimeout(() => (t.style.display = 'none'), bad ? 6000 : 2200);
 }
 
 /* ------------------------------------------------------------------ edit key */
 const KEY_NAME = 'wowDashboardEditKey';
 function getKey() { try { return localStorage.getItem(KEY_NAME) || ''; } catch (e) { return ''; } }
-function setKey(k) { try { k ? localStorage.setItem(KEY_NAME, k) : localStorage.removeItem(KEY_NAME); } catch (e) { /* storage blocked: key lasts this visit */ } memKey = k; }
+function setKey(k) { try { k ? localStorage.setItem(KEY_NAME, k) : localStorage.removeItem(KEY_NAME); } catch (e) { /* storage blocked */ } memKey = k; }
 let memKey = getKey();
 const canEdit = () => !!(WEBAPP_URL && memKey);
-
+const DIS = () => (canEdit() ? '' : ' disabled');
 function paintLock() {
   const b = $('lock');
   b.className = 'lock' + (canEdit() ? ' on' : '');
   b.innerHTML = canEdit() ? '&#128275; Editing (click to lock)' : '&#128274; View only';
-  b.title = WEBAPP_URL ? '' : 'Editing turns on once WEBAPP_URL is set in this page';
 }
 $('lock').addEventListener('click', () => {
   if (canEdit()) { setKey(''); paintLock(); renderAll(); return; }
-  if (!WEBAPP_URL) { toast('Editing needs the web app URL set in this page first.', true); return; }
   const k = prompt('Enter your edit key (the one set in the hub under WoW > Set web page edit key):');
   if (k && k.trim()) { setKey(k.trim()); paintLock(); renderAll(); toast('Editing on in this browser.'); }
 });
@@ -312,7 +327,7 @@ async function send(payload) {
       throw new Error(out.error);
     }
     toast('Saved to the sheet');
-    clearTimeout(reloadTimer); reloadTimer = setTimeout(() => load(true), 2500);
+    clearTimeout(reloadTimer); reloadTimer = setTimeout(() => load(true), 3000);
     return true;
   } catch (e) {
     toast('Not saved: ' + e.message, true);
@@ -332,117 +347,245 @@ document.addEventListener('mousemove', e => {
   tip.style.top = (e.clientY + 14) + 'px';
 });
 
-/* ------------------------------------------------------------------ render */
+/* ------------------------------------------------------------------ card pieces */
 let STATE = null, LIVE = false, WHEN = '';
 let todoFilter = 'Open';
+const isMainSpec = (c, spec) => (c.main || []).some(m => String(spec).startsWith(m));
 
+function bisBlock(c) {
+  return (c.bis || []).map(parseBis).filter(Boolean).map(b => {
+    const pct = b.total ? Math.round(b.have / b.total * 100) : 0;
+    return `<div class="bis" data-tip="<b>${esc(b.spec)}</b><br>${b.have} of ${b.total} BiS items (${pct}%)">
+      <div class="bis-label"><span>${esc(b.spec)} BiS${isMainSpec(c, b.spec) ? '<span class="star" title="Main spec">&#9733;</span>' : ''}</span><span>${b.have} / ${b.total}</span></div>
+      <div class="meter"><div style="width:${pct}%"></div></div></div>`;
+  }).join('');
+}
+
+function vaultBlock(c) {
+  if (!c.vault) return '';
+  const names = { mplus: 'Mythic+', raid: 'Raid', world: 'World' };
+  return `<div class="sec"><div class="sec-title"><span>Vault rewards</span></div>` + c.vault.map(v => {
+    const tiles = (v.thresholds || []).map((t, i) => {
+      const on = v.done >= t;
+      const reward = on ? String(v.slots[i] || '').replace(/^\+\d+:\s*/, '') : `${t} ${v.kind === 'mplus' ? (t > 1 ? 'runs' : 'run') : v.kind === 'raid' ? 'bosses' : 'activities'}`;
+      return `<div class="tile${on ? ' on' : ''}" data-tip="${esc(names[v.kind])} slot ${i + 1}: ${on ? 'unlocked (' + esc(v.slots[i]) + ')' : 'needs ' + t}"><b>${on ? '&#10003; ' : ''}Slot ${i + 1}</b>${esc(reward)}</div>`;
+    }).join('');
+    const counter = v.kind === 'mplus'
+      ? `<div class="count"><span class="n">${v.done}</span><span class="auto">auto</span></div>`
+      : `<div class="count"><button class="step" data-vault="${esc(c.name)}|${v.kind}|-1"${DIS()} aria-label="One less">&minus;</button><span class="n">${v.done}</span><button class="step" data-vault="${esc(c.name)}|${v.kind}|1"${DIS()} aria-label="One more">+</button></div>`;
+    return `<div class="vault-row"><span>${names[v.kind]}</span><div class="tiles">${tiles}</div>${counter}</div>`;
+  }).join('') + `</div>`;
+}
+
+function weeklyChecks(c) {
+  const wk = STATE.weekly || { characters: [], rows: [] };
+  const col = wk.characters.indexOf(c.name);
+  if (col < 0) return '';
+  const rows = wk.rows.filter(r => r.cells[col] !== null && r.cells[col] !== undefined);
+  if (!rows.length) return '';
+  return `<div class="sec"><div class="sec-title"><span>This week</span></div><div class="checks">` + rows.map(r =>
+    `<label class="check${r.cells[col] ? ' done' : ''}"><input type="checkbox" data-wk="${r.row},${col + 2}"${r.cells[col] ? ' checked' : ''}${DIS()}><span>${esc(r.task)}</span></label>`
+  ).join('') + `</div></div>`;
+}
+
+function targetsBlock(c) {
+  const gear = (STATE.needs || []).filter(n => n.character === c.name && n.kind === 'Gear' && bossOf(n.source));
+  const title = `<div class="sec-title"><span>Raid targets</span><span class="hint">&#9733; main spec</span></div>`;
+  if (!gear.length) return `<div class="sec">${title}<p class="empty">${(STATE.needs || []).length ? 'No raid drops needed.' : 'Loads with live data.'}</p></div>`;
+  const byBoss = {};
+  gear.forEach(n => {
+    const b = bossOf(n.source);
+    byBoss[b] = byBoss[b] || {};
+    byBoss[b][n.needed] = byBoss[b][n.needed] || { item: n.needed, slot: n.slot, specs: new Set() };
+    byBoss[b][n.needed].specs.add(n.spec);
+  });
+  const main = i => [...i.specs].some(s => isMainSpec(c, s));
+  return `<div class="sec">${title}<div class="targets">` +
+    BOSS_ORDER.filter(b => byBoss[b]).map(b => `<div class="target"><span class="boss">${esc(b)}</span><div class="items">` +
+      Object.values(byBoss[b]).sort((x, y) => main(y) - main(x)).map(i =>
+        `<div><span class="${main(i) ? 'main-item' : ''}">${main(i) ? '&#9733; ' : ''}${esc(i.item)}</span> <span class="slot">(${esc(i.slot)})</span><span class="specs-tag">${esc([...i.specs].join(', '))}</span></div>`
+      ).join('') + `</div></div>`).join('') + `</div></div>`;
+}
+
+function enchantBlock(c) {
+  const all = [...(c.enchants || []), ...(c.gems || [])];
+  const bad = all.filter(e => e.status === 'Missing');
+  const warn = all.filter(e => e.status === 'Different');
+  const okN = all.filter(e => e.status === 'OK').length;
+  const pick = (c.specOptions || []).length > 1
+    ? `<select class="spec-sel" data-spec="${esc(c.name)}"${DIS()} title="Check against this spec">${c.specOptions.map(o => `<option${o === c.specSelected ? ' selected' : ''}>${esc(o)}</option>`).join('')}</select>`
+    : `<span class="hint">${esc(c.specSelected || '')}</span>`;
+  const head = `<div class="sec-title"><span>Enchants &amp; gems</span>${pick}</div>`;
+  if (!all.length) return `<div class="sec">${head}<p class="empty">${esc(c.issues || '')}</p></div>`;
+  const pills = `<div class="ench-summary">${bad.length ? `<span class="pill bad">${bad.length} missing</span>` : ''}${warn.length ? `<span class="pill warn">${warn.length} different</span>` : ''}${okN ? `<span class="pill ok">${okN} correct</span>` : ''}</div>`;
+  const clean = s => String(s).replace(/^Enchant \w+ - /, '').replace(/\s*\(tick when[^)]*\)/i, '').replace(/ \((\w+ ?)+most used\)$/, '');
+  const list = [...bad, ...warn].map(e => {
+    const kind = e.status === 'Missing' ? 'bad' : 'warn';
+    const has = e.status === 'Different' && e.equipped && !/^(TRUE|FALSE)$/.test(e.equipped) ? `<div class="has">has ${esc(clean(e.equipped))}</div>` : '';
+    return `<div class="ench ${kind}"><span class="ico">${kind === 'bad' ? '&#10005;' : '!'}</span><span class="s">${esc(clean(e.slot))}</span><div><span class="want">${esc(clean(e.expected))}</span>${has}</div></div>`;
+  }).join('');
+  return `<div class="sec">${head}${pills}${list ? `<div class="ench-list">${list}</div>` : ''}</div>`;
+}
+
+function pvpBlock(c) {
+  const cur = c.currency || [];
+  const needs = (STATE.needs || []).filter(n => n.character === c.name && n.kind === 'Gear');
+  const pieces = vendor => new Set(needs.filter(n => n.source === vendor).map(n => n.slot + '|' + n.needed)).size;
+  const rows = [['Honor', 'honor', 'honorCost', 'Honor vendor', cur[0]], ['Conquest', 'conquest', 'conquestCost', 'Conquest vendor', cur[1]]].map(([label, f, fc, vendor, cu]) => {
+    const n = pieces(vendor);
+    const have = Number(cu && cu.have) || 0, cost = Number(cu && cu.cost) || 0;
+    const total = n * cost;
+    const calc = cost
+      ? `${n} piece${n === 1 ? '' : 's'} &times; ${cost.toLocaleString()} = ${total.toLocaleString()} &middot; <b style="color:${have >= total ? 'var(--ok)' : 'var(--text)'}">${Math.max(0, total - have).toLocaleString()} to go</b>`
+      : `${n} piece${n === 1 ? '' : 's'} left &middot; enter the cost per piece to see totals`;
+    return `<span class="k">${label}</span><div>
+      <input type="number" min="0" data-pvp="${esc(c.name)}|${f}" value="${esc(cu ? cu.have : '')}" placeholder="have" title="${label} you have"${DIS()}>
+      <input type="number" min="0" data-pvp="${esc(c.name)}|${fc}" value="${esc(cu ? cu.cost : '')}" placeholder="cost/piece" title="Cost per piece"${DIS()}>
+      <div class="calc">${calc}</div></div>`;
+  }).join('');
+  return `<div class="sec"><div class="sec-title"><span>Honor &amp; Conquest for BiS</span></div><div class="cur">${rows}</div></div>`;
+}
+
+function charCard(c) {
+  if (c.error) return `<div class="char"><div class="char-name">${esc(c.name)}</div><p class="empty">Could not read this sheet: ${esc(c.error)}</p></div>`;
+  let headline;
+  if (c.pvp) {
+    const sh = (c.brackets || []).find(b => /shuffle/i.test(b.bracket));
+    const val = sh && sh.rating ? sh.rating : '';
+    headline = `<div class="headline-row"><div class="headline"><div class="lbl">Shuffle</div>
+        ${canEdit() ? `<input type="number" class="rating-input" min="0" data-pvp="${esc(c.name)}|shuffle" value="${esc(val)}" placeholder="-" title="Current Solo Shuffle rating">` : `<div class="big">${esc(val || '-')}</div>`}</div>
+      <div class="headline"><div class="lbl">ilvl</div><div class="big">${esc(c.ilvl || '-')}</div></div></div>`;
+  } else {
+    const mp = String(c.rating || '').replace(/^M\+\s*/, '');
+    headline = `<div class="headline-row"><div class="headline"><div class="lbl">M+ rating</div><div class="big">${esc(mp || '-')}</div></div>
+      <div class="headline"><div class="lbl">ilvl</div><div class="big">${esc(c.ilvl || '-')}</div></div></div>`;
+  }
+  return `<div class="char" style="--accent:${accentFor(c.cls)}">
+    <div class="char-head"><div><div class="char-name">${esc(c.name)}</div><div class="char-meta">${esc(c.cls)}</div></div>${headline}</div>
+    <div class="sec">${bisBlock(c)}</div>
+    ${c.pvp ? '' : vaultBlock(c)}
+    ${weeklyChecks(c)}
+    ${c.pvp ? pvpBlock(c) : targetsBlock(c)}
+    ${enchantBlock(c)}
+    <div class="foot">Gear pulled ${esc(c.pulled || '-')}</div>
+  </div>`;
+}
+
+function todoRow(t) {
+  const toonAcct = accountOf(t.character);
+  const who = toonAcct
+    ? `<span class="toon" style="color:${CHAR_COLOR[t.character] || '#ddd'}">${esc(t.character)}</span><span class="acct">${esc(toonAcct)}</span>`
+    : `<span class="acct">${esc(t.character || 'General')}</span>`;
+  return `<div class="todo${t.done ? ' done' : ''}">
+    <input type="checkbox" data-todo="${t.row}"${t.done ? ' checked' : ''}${DIS()} aria-label="Done">
+    <span class="pri ${esc(t.priority)}">${esc(t.priority || '-')}</span>
+    <div class="who">${who}</div>
+    <div><span class="task">${esc(t.task)}</span>${t.repeats && t.repeats !== 'None' ? `<span class="rep">&#8635; ${esc(t.repeats)}</span>` : ''}
+      ${t.notes ? `<div class="note">${esc(t.notes)}</div>` : ''}</div>
+  </div>`;
+}
+
+/* ------------------------------------------------------------------ render */
 function renderAll() { if (STATE) render(STATE, LIVE, WHEN); }
 
 function render(state, live, when) {
   STATE = state; LIVE = live; WHEN = when;
   const data = fromGrid(state.dashboard || []);
-  const dis = canEdit() ? '' : ' disabled';
   $('reset').textContent = data.reset || '';
   $('src').className = 'src ' + (live ? 'live' : 'snap');
   $('src').textContent = live ? 'Live from Google Sheets' : 'Snapshot';
   $('when').textContent = (live ? 'Loaded ' : 'Taken ') + when;
 
-  // At a glance
   $('glance').innerHTML = data.glance.map(([k, v]) => {
     const wide = isNaN(Number(v)) && v.length > 12;
     return `<div class="stat-box${wide ? ' wide' : ''}"><h3>${esc(k)}</h3><p>${esc(v || '-')}</p></div>`;
   }).join('');
 
-  const specByName = Object.fromEntries((state.specs || []).map(s => [s.name, s]));
-  const chars = data.characters.map(r => ({
-    name: r[0], realm: r[1], cls: r[2], specs: r[3], content: r[4], ilvl: parseFloat(r[5]), ilvlText: r[5],
-    rating: r[6], bis: [r[7], r[8], r[9]].map(parseBis).filter(Boolean), issues: r[10], pulled: r[11], todos: r[12],
-  }));
+  const chars = state.characters || [];
+  const pve = chars.filter(c => !c.pvp), pvp = chars.filter(c => c.pvp);
+  const accts = list => [...new Set(list.map(c => c.account || accountOf(c.name)))].filter(Boolean).join(', ');
+  $('pve-acct').textContent = accts(pve);
+  $('pvp-acct').textContent = accts(pvp);
+  $('pve').innerHTML = pve.map(charCard).join('');
+  $('pvp').innerHTML = pvp.map(charCard).join('');
 
-  // Character cards
-  $('chars').innerHTML = chars.map(c => {
-    const sp = specByName[c.name];
-    const pick = sp && sp.options.length > 1
-      ? `<div class="spec-pick"><span class="k">Check enchants against</span>
-           <select data-spec="${esc(c.name)}"${dis}>${sp.options.map(o => `<option${o === sp.selected ? ' selected' : ''}>${esc(o)}</option>`).join('')}</select></div>`
-      : '';
-    return `
-    <div class="char" style="--accent:${accentFor(c.cls)}">
-      <div class="char-head"><span class="char-name">${esc(c.name)}</span><span class="char-ilvl">ilvl <b>${esc(c.ilvlText || '-')}</b></span></div>
-      <div class="char-meta">${esc(c.cls)} &middot; ${esc(c.realm)}</div>
-      <div class="tags"><span class="tag">${esc(c.specs)}</span><span class="tag">${esc(c.content)}</span><span class="tag">${esc(c.rating)}</span></div>
-      ${c.bis.map(b => {
-        const pct = b.total ? Math.round(b.have / b.total * 100) : 0;
-        return `<div class="bis hit" data-tip="<b>${esc(b.spec)}</b><br>${b.have} of ${b.total} BiS items (${pct}%)">
-          <div class="bis-label"><span>${esc(b.spec)} BiS</span><span>${b.have} / ${b.total}</span></div>
-          <div class="meter"><div style="width:${pct}%"></div></div></div>`;
-      }).join('')}
-      <div class="details">
-        ${pick}
-        <div class="row"><span class="k">Enchants &amp; gems</span><span class="v">${esc(c.issues || '-')}</span></div>
-        <div class="row"><span class="k">Open to-dos</span><span class="v">${esc(c.todos || '0')}</span></div>
-        <div class="row"><span class="k">Gear pulled</span><span class="v">${esc(c.pulled || '-')}</span></div>
-      </div>
-    </div>`;
-  }).join('');
+  // Daily checklist = to-dos that repeat daily
+  const todos = state.todo || [];
+  const daily = todos.filter(t => t.repeats === 'Daily');
+  $('daily').innerHTML = daily.length ? `<div class="checks">` + daily.map(t =>
+    `<label class="check${t.done ? ' done' : ''}"><input type="checkbox" data-todo="${t.row}"${t.done ? ' checked' : ''}${DIS()}><span>${esc(t.task)}${t.character && t.character !== 'General' ? ` <span class="slot">(${esc(t.character)})</span>` : ''}</span></label>`).join('') + `</div>`
+    : `<p class="empty">No daily tasks yet. Add one in the To-Do list with Repeats set to Daily.</p>`;
+
+  // Crafters
+  const cr = state.crafters || [];
+  $('crafters').innerHTML = cr.length ? cr.map(c => `<label class="crafter"><input type="checkbox" data-crafter="${c.row}"${c.done ? ' checked' : ''}${DIS()}>
+      <div><div>${esc(c.name)}${c.account ? ` <span class="acct">${esc(c.account)}</span>` : ''}</div><div class="p">${esc(c.professions)}</div></div></label>`).join('')
+    : `<p class="empty">Loads with live data.</p>`;
 
   // To-Do
-  const todos = state.todo || [];
-  const counts = { Open: todos.filter(t => !t.done).length, Done: todos.filter(t => t.done).length, All: todos.length };
-  $('todo-filters').innerHTML = ['Open', 'Done', 'All'].map(f =>
+  const counts = { Open: todos.filter(t => !t.done).length, Daily: daily.length, Weekly: todos.filter(t => t.repeats === 'Weekly').length, Done: todos.filter(t => t.done).length, All: todos.length };
+  $('todo-filters').innerHTML = Object.keys(counts).map(f =>
     `<button type="button" class="chip${f === todoFilter ? ' on' : ''}" data-filter="${f}">${f} (${counts[f]})</button>`).join('');
   const prio = { High: 0, Medium: 1, Low: 2 };
-  const shown = todos.filter(t => todoFilter === 'All' || (todoFilter === 'Done') === t.done)
+  const shown = todos.filter(t => ({ Open: !t.done, Daily: t.repeats === 'Daily', Weekly: t.repeats === 'Weekly', Done: t.done, All: true })[todoFilter])
     .sort((a, b) => (a.done - b.done) || ((prio[a.priority] ?? 3) - (prio[b.priority] ?? 3)) || (a.row - b.row));
-  $('todo').innerHTML = shown.length ? shown.map(t => `
-    <div class="todo${t.done ? ' done' : ''}">
-      <input type="checkbox" data-todo="${t.row}"${t.done ? ' checked' : ''}${dis} aria-label="Done">
-      <span class="pri ${esc(t.priority)}">${esc(t.priority || '-')}</span>
-      <span class="who-tag">${esc(t.character)}</span>
-      <div><span class="task">${esc(t.task)}</span>${t.repeats && t.repeats !== 'None' ? `<span class="rep">&#8635; ${esc(t.repeats)}</span>` : ''}
-        ${t.notes ? `<div class="note">${esc(t.notes)}</div>` : ''}</div>
-    </div>`).join('') : `<p class="prog">Nothing here.</p>`;
+  $('todo').innerHTML = shown.length ? shown.map(todoRow).join('') : `<p class="empty">Nothing here.</p>`;
   $('addform').style.display = canEdit() ? '' : 'none';
 
-  // Weekly checklist
-  const wk = state.weekly || { characters: [], rows: [] };
-  const done = wk.characters.map((_, i) => wk.rows.filter(r => r.cells[i] === true).length);
-  const total = wk.characters.map((_, i) => wk.rows.filter(r => r.cells[i] !== null).length);
-  $('weekly').innerHTML = `<thead><tr><th>Task</th>${wk.characters.map((c, i) => `<th class="cb">${esc(c)}<div class="prog">${done[i]} / ${total[i]}</div></th>`).join('')}</tr></thead><tbody>` +
-    wk.rows.map(r => `<tr><td>${esc(r.task)}</td>${r.cells.map((v, i) => v === null ? '<td class="na">-</td>'
-      : `<td class="cb"><input type="checkbox" data-wk="${r.row},${i + 2}"${v ? ' checked' : ''}${dis} aria-label="${esc(wk.characters[i])}"></td>`).join('')}</tr>`).join('') + '</tbody>';
+  // Bonus rolls: grouped by instance, planned order, who needs what from the needs list
+  const bonus = (state.bonus || []).slice().sort((a, b) => BOSS_ORDER.indexOf(a.boss) - BOSS_ORDER.indexOf(b.boss));
+  const needsFor = boss => {
+    const m = {};
+    (state.needs || []).filter(n => n.kind === 'Gear' && String(n.source).startsWith(boss)).forEach(n => {
+      const k = n.character + '|' + n.needed;
+      m[k] = m[k] || { c: n.character, item: n.needed, slot: n.slot, specs: new Set() };
+      m[k].specs.add(n.spec);
+    });
+    return Object.values(m).sort((a, b) => PLAN_CHARS.indexOf(a.c) - PLAN_CHARS.indexOf(b.c));
+  };
+  let totalRolls = 0;
+  const body = INSTANCE_ORDER.map(inst => {
+    const rows = bonus.filter(b => b.instance === inst);
+    if (!rows.length) return '';
+    return `<tr class="group"><td colspan="5">${esc(inst)}</td></tr>` + rows.map(b => {
+      totalRolls += parseInt(b.rolls, 10) || 0;
+      const list = needsFor(b.boss);
+      const who = list.length ? `<div class="need-list">${list.map(n => `<div class="need">${colored(n.c)} &middot; <span class="slot">${esc(n.slot)}</span> &middot; ${esc(n.item)}<span class="specs-tag">${esc([...n.specs].join(', '))}</span></div>`).join('')}</div>` : '<span class="empty">-</span>';
+      const chosen = !!b.plan, sug = b.suggested || '';
+      const opts = `<option value="">${!chosen && sug ? 'Suggested: ' + esc(sug) : ''}</option>` + PLAN_CHARS.map(c => `<option${c === b.plan ? ' selected' : ''}>${esc(c)}</option>`).join('');
+      return `<tr><td>${esc(b.boss)}</td><td class="num">${list.length}</td><td>${who}</td>
+        <td><select class="plan ${chosen ? 'chosen' : (sug ? 'suggested' : '')}" data-plan="${b.row}"${DIS()}>${opts}</select></td>
+        <td class="cb"><input type="number" min="0" max="20" step="1" style="width:64px" data-rolls="${b.row}" value="${esc(b.rolls)}"${DIS()}></td></tr>`;
+    }).join('');
+  }).join('');
+  $('bonus').innerHTML = `<thead><tr><th>Boss</th><th class="num">Items</th><th>Who needs what</th><th>Plan (who rolls)</th><th class="cb">Rolls this week</th></tr></thead><tbody>` +
+    (body || `<tr><td colspan="5" class="empty">Loads with live data.</td></tr>`) +
+    `<tr><td colspan="4"><b>Total rolls planned</b></td><td class="cb"><b>${totalRolls}</b></td></tr></tbody>`;
 
-  // Bonus rolls
-  const bonus = state.bonus || [];
-  const totalRolls = bonus.reduce((s, b) => s + (parseInt(b.rolls, 10) || 0), 0);
-  $('bonus').innerHTML = `<thead><tr><th>#</th><th>Boss</th><th>Instance</th><th class="cb">Items wanted</th><th>Who wants it</th><th>Plan (who rolls)</th><th class="cb">Rolls this week</th></tr></thead><tbody>` +
-    bonus.map(b => `<tr><td>${esc(b.order)}</td><td>${esc(b.boss)}</td><td>${esc(b.instance)}</td><td class="num">${esc(b.wanted)}</td><td>${esc(b.who).replace(/; /g, '<br>')}</td>
-      <td><select data-plan="${b.row}"${dis}><option value=""></option>${PLAN_CHARS.map(c => `<option${c === b.plan ? ' selected' : ''}>${esc(c)}</option>`).join('')}</select></td>
-      <td class="cb"><input type="number" min="0" max="20" step="1" style="width:64px" data-rolls="${b.row}" value="${esc(b.rolls)}"${dis}></td></tr>`).join('') +
-    `<tr><td colspan="6"><b>Total rolls planned</b></td><td class="cb"><b>${totalRolls}</b></td></tr></tbody>`;
-
-  // Item level bars (single series, zero baseline)
-  const max = Math.max(...chars.map(c => c.ilvl || 0), 1);
-  $('ilvl').innerHTML = chars.map(c => `
-    <div class="ilvl-row hit" data-tip="<b>${esc(c.name)}</b> (${esc(c.cls)})<br>Item level ${esc(c.ilvlText)}">
-      <span class="who" style="--accent:${accentFor(c.cls)}"><span class="dot"></span>${esc(c.name)}</span>
-      <div class="ilvl-track"><div style="width:${((c.ilvl || 0) / max * 100).toFixed(1)}%"></div></div>
-      <span class="val">${esc(c.ilvlText || '-')}</span>
-    </div>`).join('');
-
-  // Table view
-  const cols = ['Character', 'Class', 'Specs', 'Content', 'Item level', 'Rating', 'BiS', 'Enchants & gems', 'Open to-dos'];
-  $('tbl').innerHTML = `<thead><tr>${cols.map(h => `<th>${esc(h)}</th>`).join('')}</tr></thead><tbody>` +
-    chars.map(c => `<tr><td>${esc(c.name)}</td><td>${esc(c.cls)}</td><td>${esc(c.specs)}</td><td>${esc(c.content)}</td>
-      <td class="num">${esc(c.ilvlText)}</td><td>${esc(c.rating)}</td>
-      <td>${c.bis.map(b => `${esc(b.spec)} ${b.have}/${b.total}`).join('<br>') || '-'}</td>
-      <td>${esc(c.issues)}</td><td class="num">${esc(c.todos)}</td></tr>`).join('') + '</tbody>';
+  // Mythic+ by dungeon
+  $('mplus').innerHTML = pve.map(c => {
+    const runs = (c.mplusRuns || []).slice().sort((a, b) => b.score - a.score);
+    const mp = String(c.rating || '').replace(/^M\+\s*/, '');
+    return `<div class="mtile" style="--accent:${accentFor(c.cls)}"><div class="mtile-head"><span class="n">${esc(c.name)}</span><span class="sc">${esc(mp || '-')}</span></div>` +
+      (runs.length ? runs.map(r => `<div class="run"><div>${esc(r.dungeon)} <span class="spec">${esc(r.spec)}</span></div><span class="lvl">+${r.level}</span><span class="score">${Number(r.score).toFixed(1)}</span></div>`).join('')
+        : `<p class="empty">Loads with live data.</p>`) + `</div>`;
+  }).join('');
 }
 
 /* ------------------------------------------------------------------ events */
 document.addEventListener('click', e => {
   const f = e.target.closest('[data-filter]');
-  if (f) { todoFilter = f.dataset.filter; renderAll(); }
+  if (f) { todoFilter = f.dataset.filter; renderAll(); return; }
+  const v = e.target.closest('[data-vault]');
+  if (v && !v.disabled) {
+    const [name, kind, delta] = v.dataset.vault.split('|');
+    const c = STATE.characters.find(x => x.name === name);
+    const vv = c && c.vault && c.vault.find(x => x.kind === kind);
+    if (!vv) return;
+    vv.done = Math.max(0, Math.min(20, vv.done + Number(delta)));
+    renderAll();
+    send({ action: 'vault', character: name, kind, value: vv.done });
+  }
 });
 
 document.addEventListener('change', e => {
@@ -458,6 +601,11 @@ document.addEventListener('change', e => {
     if (r) r.cells[col - 2] = el.checked;
     send({ action: 'checklist', row, col, value: el.checked });
     renderAll();
+  } else if (el.dataset.crafter) {
+    const c = STATE.crafters.find(x => x.row === +el.dataset.crafter);
+    if (c) c.done = el.checked;
+    send({ action: 'crafter', row: +el.dataset.crafter, value: el.checked });
+    renderAll();
   } else if (el.dataset.plan || el.dataset.rolls) {
     const row = +(el.dataset.plan || el.dataset.rolls);
     const b = STATE.bonus.find(x => x.row === row);
@@ -465,37 +613,41 @@ document.addEventListener('change', e => {
     send({ action: 'bonus', row, plan: b.plan, rolls: b.rolls });
     renderAll();
   } else if (el.dataset.spec) {
-    const s = STATE.specs.find(x => x.name === el.dataset.spec);
-    if (s) s.selected = el.value;
+    const c = STATE.characters.find(x => x.name === el.dataset.spec);
+    if (c) c.specSelected = el.value;
     send({ action: 'spec', character: el.dataset.spec, spec: el.value });
+  } else if (el.dataset.pvp) {
+    const [name, field] = el.dataset.pvp.split('|');
+    send({ action: 'pvp', character: name, field, value: el.value });
   }
 });
 
-$('new-char').innerHTML = TODO_CHARS.map(c => `<option>${esc(c)}</option>`).join('');
+$('new-who').innerHTML = `<optgroup label="Accounts"><option>General</option><option>WoW#1</option><option>AODKONA</option></optgroup>` +
+  Object.entries(ACCOUNTS).map(([a, list]) => `<optgroup label="${esc(a)}">${list.map(n => `<option>${esc(n)}</option>`).join('')}</optgroup>`).join('');
 $('new-cat').innerHTML = TODO_CATEGORIES.map(c => `<option${c === 'Other' ? ' selected' : ''}>${esc(c)}</option>`).join('');
 $('addform').addEventListener('submit', async e => {
   e.preventDefault();
   const task = $('new-task').value.trim();
   if (!task) return;
   $('new-add').disabled = true;
-  const ok = await send({ action: 'todoAdd', task, priority: $('new-pri').value, character: $('new-char').value, category: $('new-cat').value, repeats: $('new-rep').value });
+  const ok = await send({ action: 'todoAdd', task, priority: $('new-pri').value, character: $('new-who').value, category: $('new-cat').value, repeats: $('new-rep').value });
   $('new-add').disabled = false;
-  if (ok) { $('new-task').value = ''; todoFilter = 'Open'; }
+  if (ok) $('new-task').value = '';
 });
 
 /* ------------------------------------------------------------------ load */
 async function load(fresh) {
   if (!WEBAPP_URL) { render(SNAPSHOT, false, SNAPSHOT.generated); return; }
-  // Skip a background refresh while you are typing in a field, so it isn't wiped.
   if (!fresh && document.activeElement && /INPUT|SELECT/.test(document.activeElement.tagName)) return;
   try {
     const res = await fetch(WEBAPP_URL + (fresh ? '?fresh=1' : ''), { cache: 'no-store' });
     if (!res.ok) throw new Error('HTTP ' + res.status);
     const state = await res.json();
+    if (!state.characters) throw new Error('the web app is still on the old script version');
     render(state, true, new Date().toLocaleString([], { dateStyle: 'medium', timeStyle: 'short' }));
   } catch (e) {
     console.warn('Live load failed, showing snapshot:', e);
-    if (!STATE || !LIVE) render(SNAPSHOT, false, SNAPSHOT.generated + ' (live data could not be loaded)');
+    if (!STATE || !LIVE) render(SNAPSHOT, false, SNAPSHOT.generated + ' (live data could not be loaded: ' + e.message + ')');
   }
 }
 
