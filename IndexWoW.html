@@ -142,6 +142,9 @@
   .who .toon { font-weight: 600; }
   .task { color: var(--text-strong); }
   .note { color: var(--muted); font-size: 12px; margin-top: 3px; }
+  .lv { display: flex; align-items: center; gap: 8px; margin-top: 5px; font-size: 12px; color: var(--muted-2); }
+  .lv input { width: 54px; padding: 2px 5px; font-size: 12px; }
+  .lv .meter { width: 140px; height: 6px; }
   .rep { color: var(--muted); font-size: 11px; margin-left: 6px; }
   .addform { display: grid; grid-template-columns: 1fr 110px 140px 110px 100px auto; gap: 8px; margin-top: 14px; }
   .addform input[type=text] { width: 100%; }
@@ -495,6 +498,14 @@ function charCard(c) {
   </div>`;
 }
 
+function levelBar(t) {
+  const lv = Number(t.level) || 0;
+  const val = canEdit()
+    ? `<input type="number" min="1" max="90" data-level="${t.row}" value="${lv || ''}" placeholder="?" title="Current level">`
+    : `<b style="color:var(--text-strong)">${lv || '?'}</b>`;
+  return `<div class="lv"><span>Level</span>${val}<span>/ 90</span><div class="meter"><div style="width:${Math.round(lv / 90 * 100)}%"></div></div></div>`;
+}
+
 function todoRow(t) {
   const toonAcct = accountOf(t.character);
   const who = toonAcct
@@ -506,7 +517,7 @@ function todoRow(t) {
     <span class="pri ${esc(t.priority)}">${esc(t.priority || '-')}</span>
     <div class="who">${who}</div>
     <div><span class="task">${esc(t.task)}</span>${t.repeats && t.repeats !== 'None' ? `<span class="rep">&#8635; ${esc(t.repeats)}</span>` : ''}
-      ${t.notes ? `<div class="note">${esc(t.notes)}</div>` : ''}</div>
+      ${t.notes ? `<div class="note">${esc(t.notes)}</div>` : ''}${t.category === 'Leveling' ? levelBar(t) : ''}</div>
   </div>`;
 }
 
@@ -638,6 +649,11 @@ document.addEventListener('change', e => {
     const r = STATE.weekly.rows.find(x => x.row === row);
     if (r) r.cells[col - 2] = el.checked;
     send({ action: 'checklist', row, col, value: el.checked });
+    renderAll();
+  } else if (el.dataset.level) {
+    const t = STATE.todo.find(x => x.row === +el.dataset.level);
+    if (t) t.level = Number(el.value) || '';
+    send({ action: 'level', row: +el.dataset.level, value: el.value });
     renderAll();
   } else if (el.dataset.crafter) {
     const c = STATE.crafters.find(x => x.row === +el.dataset.crafter);
