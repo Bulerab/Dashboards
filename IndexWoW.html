@@ -226,11 +226,6 @@
   </div>
 
   <div class="card">
-    <div class="card-head"><h2>Crafters: weekly knowledge</h2><span class="hint">Unticks Tuesdays at 10 AM Central</span></div>
-    <div class="crafters" id="crafters"></div>
-  </div>
-
-  <div class="card">
     <div class="card-head">
       <h2>Bonus rolls</h2>
       <div class="legend">
@@ -259,7 +254,8 @@ const WEBAPP_URL = 'https://script.google.com/macros/s/AKfycbwqXMIlBNvm2qwm2Z4OZ
 const REFRESH_MINUTES = 5;
 const ACCOUNTS = { 'WoW#1': ['Diablõ', 'Kona', 'Cõrpses'], 'AODKONA': ['Bõnes', 'Hõrns'] };
 const PLAN_CHARS = ['Cõrpses', 'Diablõ', 'Kona'];
-const TODO_CATEGORIES = ['Setup', 'Gear', 'Enchants', 'Raid', 'Mythic+', 'PvP', 'Crafting', 'Gold', 'Daily', 'Weekly', 'Other'];
+const ALTS = ['Tõxic', 'Kõna', 'Demõns', 'Evõker', 'Cõdes', 'Drõids', 'Thõr', 'Fõrged', 'Iõnized', 'Põts', 'Shõps', 'Auctiõns'];
+const TODO_CATEGORIES = ['Setup', 'Gear', 'Enchants', 'Raid', 'Mythic+', 'PvP', 'Crafting', 'Crafters', 'Leveling', 'Gold', 'Daily', 'Weekly', 'Other'];
 const BOSS_ORDER = ['Nymrissa Wavecaller', "Kith'ix", "Nek'zali the Soulcoiler", 'Entombed Sentinels', 'Vashnik the Malignant',
   'The Lost Explorers', 'Sszorak', 'The Twin Fangs', 'The Coiled Altar', "Ula'tek"];
 const INSTANCE_ORDER = ['Tidebound Grotto', "The Unbinding of Kith'ix", 'The Venomous Abyss'];
@@ -503,6 +499,7 @@ function todoRow(t) {
   const toonAcct = accountOf(t.character);
   const who = toonAcct
     ? `<span class="toon" style="color:${CHAR_COLOR[t.character] || '#ddd'}">${esc(t.character)}</span><span class="acct">${esc(toonAcct)}</span>`
+    : ALTS.includes(t.character) ? `<span class="toon">${esc(t.character)}</span>`
     : `<span class="acct">${esc(t.character || 'General')}</span>`;
   return `<div class="todo${t.done ? ' done' : ''}">
     <input type="checkbox" data-todo="${t.row}"${t.done ? ' checked' : ''}${DIS()} aria-label="Done">
@@ -547,12 +544,6 @@ function render(state, live, when) {
 
   const todos = state.todo || [];
 
-  // Crafters
-  const cr = state.crafters || [];
-  $('crafters').innerHTML = cr.length ? cr.map(c => `<label class="crafter"><input type="checkbox" data-crafter="${c.row}"${c.done ? ' checked' : ''}${DIS()}>
-      <div><div>${esc(c.name)}${c.account ? ` <span class="acct">${esc(c.account)}</span>` : ''}</div><div class="p">${esc(c.professions)}</div></div></label>`).join('')
-    : `<p class="empty">Loads with live data.</p>`;
-
   // To-Do
   const counts = { Open: todos.filter(t => !t.done).length, Done: todos.filter(t => t.done).length, All: todos.length };
   $('todo-filters').innerHTML = Object.keys(counts).map(f =>
@@ -560,10 +551,13 @@ function render(state, live, when) {
   const prio = { High: 0, Medium: 1, Low: 2 };
   const sortT = (a, b) => (a.done - b.done) || ((prio[a.priority] ?? 3) - (prio[b.priority] ?? 3)) || (a.row - b.row);
   // Daily and weekly tasks reset on their own, so they stay listed (struck through) when done.
+  const own = t => t.category === 'Crafters' || t.category === 'Leveling';
   const groups = [
-    ['Overall & account wide', '', t => !t.repeats || t.repeats === 'None', true],
-    ['Daily', 'Resets every day at 10 AM Central', t => t.repeats === 'Daily', false],
-    ['Weekly', 'Resets Tuesdays at 10 AM Central', t => t.repeats === 'Weekly', false],
+    ['Overall & account wide', '', t => !own(t) && (!t.repeats || t.repeats === 'None'), true],
+    ['Daily', 'Resets every day at 10 AM Central', t => !own(t) && t.repeats === 'Daily', false],
+    ['Weekly', 'Resets Tuesdays at 10 AM Central', t => !own(t) && t.repeats === 'Weekly', false],
+    ['Crafters: weekly knowledge', 'Resets Tuesdays at 10 AM Central', t => t.category === 'Crafters', false],
+    ['Leveling to 90', '', t => t.category === 'Leveling', true],
   ];
   $('todo').innerHTML = groups.map(([title, hint, test, filtered]) => {
     let list = todos.filter(test);
@@ -667,7 +661,8 @@ document.addEventListener('change', e => {
 });
 
 $('new-who').innerHTML = `<optgroup label="Accounts"><option>General</option><option>WoW#1</option><option>AODKONA</option></optgroup>` +
-  Object.entries(ACCOUNTS).map(([a, list]) => `<optgroup label="${esc(a)}">${list.map(n => `<option>${esc(n)}</option>`).join('')}</optgroup>`).join('');
+  Object.entries(ACCOUNTS).map(([a, list]) => `<optgroup label="${esc(a)}">${list.map(n => `<option>${esc(n)}</option>`).join('')}</optgroup>`).join('') +
+  `<optgroup label="Alts &amp; crafters">${ALTS.map(n => `<option>${esc(n)}</option>`).join('')}</optgroup>`;
 $('new-cat').innerHTML = TODO_CATEGORIES.map(c => `<option${c === 'Other' ? ' selected' : ''}>${esc(c)}</option>`).join('');
 $('addform').addEventListener('submit', async e => {
   e.preventDefault();
