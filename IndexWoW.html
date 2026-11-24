@@ -76,19 +76,86 @@
   #tip { position: fixed; pointer-events: none; background: #000; color: #fff; border: 1px solid #444; border-radius: 6px; padding: 6px 9px; font-size: 12px; line-height: 1.4; display: none; z-index: 10; max-width: 260px; }
   .err { color: #ef9a9a; font-size: 13px; }
   @media (max-width: 600px) { .stat-box.wide { grid-column: span 1; } .ilvl-row { grid-template-columns: 90px 1fr 50px; } }
+
+  /* Editing */
+  .topbar { display: flex; justify-content: space-between; align-items: flex-start; gap: 12px; flex-wrap: wrap; }
+  .lock { background: #2a2a2a; color: #ccc; border: 1px solid #444; border-radius: 6px; padding: 6px 12px; font-size: 13px; cursor: pointer; }
+  .lock.on { color: #81c784; border-color: #2e7d32; background: rgba(46,125,50,0.15); }
+  .lock:hover { border-color: #666; }
+  input[type=checkbox] { width: 17px; height: 17px; accent-color: #3987e5; cursor: pointer; vertical-align: middle; }
+  input[type=checkbox]:disabled { cursor: not-allowed; opacity: .55; }
+  select, input[type=text], input[type=number] { background: #2a2a2a; color: var(--text); border: 1px solid #444; border-radius: 5px; padding: 5px 7px; font: inherit; font-size: 13px; }
+  select:disabled, input:disabled { opacity: .55; cursor: not-allowed; }
+  .spec-pick { display: flex; justify-content: space-between; align-items: center; gap: 10px; font-size: 13px; padding: 6px 0; border-top: 1px solid var(--line); }
+  .spec-pick .k { color: var(--muted-2); }
+  .card-head { display: flex; justify-content: space-between; align-items: center; gap: 12px; flex-wrap: wrap; border-bottom: 2px solid var(--line-2); margin-bottom: 14px; padding-bottom: 8px; }
+  .card-head h2 { border: 0; margin: 0; padding: 0; }
+  .filters { display: flex; gap: 6px; flex-wrap: wrap; }
+  .chip { background: #2a2a2a; color: #ccc; border: 1px solid #444; border-radius: 14px; padding: 3px 10px; font-size: 12px; cursor: pointer; }
+  .chip.on { background: #1d3b5f; border-color: #3987e5; color: #fff; }
+  .todo { display: grid; grid-template-columns: 26px 70px 90px 1fr; gap: 10px; align-items: start; padding: 9px 0; border-top: 1px solid var(--line); font-size: 13px; }
+  .todo:first-child { border-top: 0; }
+  .todo.done .task, .todo.done .note { text-decoration: line-through; color: var(--muted); }
+  .pri { font-size: 11px; font-weight: 600; padding: 2px 7px; border-radius: 4px; text-align: center; border: 1px solid; }
+  .pri.High { color: #ef9a9a; border-color: #8e3b3b; } .pri.Medium { color: #ffd54f; border-color: #8a6d0b; } .pri.Low { color: #81c784; border-color: #2e7d32; }
+  .who-tag { color: var(--muted-2); }
+  .task { color: var(--text-strong); }
+  .note { color: var(--muted); font-size: 12px; margin-top: 3px; }
+  .rep { color: var(--muted); font-size: 11px; margin-left: 6px; }
+  .addform { display: grid; grid-template-columns: 1fr 110px 110px 110px 100px auto; gap: 8px; margin-top: 14px; }
+  .addform input[type=text] { width: 100%; }
+  .btn { background: #1976d2; color: #fff; border: 0; border-radius: 5px; padding: 6px 14px; font-size: 13px; cursor: pointer; }
+  .btn:disabled { opacity: .5; cursor: not-allowed; }
+  td.cb, th.cb { text-align: center; }
+  td.na { color: #555; text-align: center; }
+  .prog { color: var(--muted-2); font-size: 12px; }
+  #toast { position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%); background: #000; border: 1px solid #444; color: #fff; padding: 9px 16px; border-radius: 6px; font-size: 13px; display: none; z-index: 20; max-width: 90vw; }
+  #toast.bad { border-color: #8e3b3b; color: #ef9a9a; }
+  @media (max-width: 700px) { .addform { grid-template-columns: 1fr 1fr; } .todo { grid-template-columns: 26px 62px 1fr; } .todo .who-tag { display: none; } }
 </style>
 </head>
 <body>
 <div class="container">
-  <h1>&#9876;&#65039; WoW Midnight Account Dashboard</h1>
-  <p class="sub" id="reset"></p>
-  <p class="generated"><span id="src" class="src snap">Snapshot</span><span id="when"></span></p>
+  <div class="topbar">
+    <div>
+      <h1>&#9876;&#65039; WoW Midnight Account Dashboard</h1>
+      <p class="sub" id="reset"></p>
+      <p class="generated"><span id="src" class="src snap">Snapshot</span><span id="when"></span></p>
+    </div>
+    <button class="lock" id="lock" type="button">&#128274; View only</button>
+  </div>
 
   <div class="stats-grid" id="glance"></div>
 
   <div class="card">
     <h2>Characters</h2>
     <div class="chars" id="chars"></div>
+  </div>
+
+  <div class="card">
+    <div class="card-head">
+      <h2>To-Do</h2>
+      <div class="filters" id="todo-filters"></div>
+    </div>
+    <div id="todo"></div>
+    <form class="addform" id="addform" autocomplete="off">
+      <input type="text" id="new-task" placeholder="New task" maxlength="300">
+      <select id="new-pri"><option>High</option><option selected>Medium</option><option>Low</option></select>
+      <select id="new-char"></select>
+      <select id="new-cat"></select>
+      <select id="new-rep"><option selected>None</option><option>Daily</option><option>Weekly</option></select>
+      <button class="btn" type="submit" id="new-add">Add</button>
+    </form>
+  </div>
+
+  <div class="card">
+    <h2>Weekly checklist</h2>
+    <div class="table-wrap"><table id="weekly"></table></div>
+  </div>
+
+  <div class="card">
+    <h2>Bonus rolls</h2>
+    <div class="table-wrap"><table id="bonus"></table></div>
   </div>
 
   <div class="card">
@@ -103,35 +170,82 @@
   </div>
 </div>
 <div id="tip"></div>
-
+<div id="toast"></div>
 <script>
 /* ------------------------------------------------------------------ settings
- * CSV_URL: the "Publish to web" link for ONLY the Dashboard tab, as CSV.
- *   Google Sheet > File > Share > Publish to web > Link > "Dashboard" + "Comma-separated values (.csv)".
- * Read-only: this page can only download that CSV. It cannot change the sheet.
+ * WEBAPP_URL: the hub's Apps Script web app URL (Deploy > Manage deployments > Web app URL, ends in /exec).
+ *   Reading needs no key. Ticking boxes needs the edit key, which you enter once per browser with the
+ *   lock button; it is saved only in that browser, never in this file.
  * Leave it empty to show the snapshot below.
  */
-const CSV_URL = '';
+const WEBAPP_URL = '';
 const REFRESH_MINUTES = 5;
+const PLAN_CHARS = ['Diablõ', 'Cõrpses', 'Kona'];
+const TODO_CHARS = ['Account', 'Diablõ', 'Cõrpses', 'Kona', 'Bõnes', 'Hõrns'];
+const TODO_CATEGORIES = ['Setup', 'Gear', 'Enchants', 'Raid', 'Mythic+', 'PvP', 'Crafting', 'Gold', 'Weekly', 'Other'];
 
-/* Snapshot of the Dashboard tab, used until CSV_URL is set or if loading fails. */
+/* Snapshot of the hub, used until WEBAPP_URL is set or if loading fails. */
 const SNAPSHOT = {
-  taken: '2026-11-24 14:55 CT',
-  reset: 'Reset week starting Tue Nov 24',
-  characters: [
-    ['Diablõ', "Eldre'thalas (US)", 'Demon Hunter', 'Havoc, Vengeance', 'PvE (Mythic+ and raid)', '324.9', 'M+ 2919.8', 'Havoc: 9 of 16 BiS items', 'Vengeance: 8 of 16 BiS items', '', '2 missing, 8 different from the Havoc setup', '2026-11-24 12:40 CT', '1'],
-    ['Cõrpses', "Eldre'thalas (US)", 'Death Knight', 'Blood', 'PvE (Mythic+ and raid)', '333.9', 'M+ 3142', 'Blood: 9 of 15 BiS items', '', '', '6 missing, 2 different from the Blood setup', '2026-11-24 12:40 CT', '1'],
-    ['Kona', "Eldre'thalas (US)", 'Druid', 'Feral, Guardian, Balance', 'PvE (Mythic+ and raid)', '334.4', 'M+ 3670.1', 'Feral: 12 of 15 BiS items', 'Guardian: 11 of 15 BiS items', 'Balance: 10 of 16 BiS items', '2 missing, 2 different from the Guardian setup', '2026-11-24 12:40 CT', '1'],
+  generated: '2026-11-24 15:35 CT',
+  dashboard: [
+    ['Account dashboard'], ['Reset week starting Tue Nov 24'], [],
+    ['Character', 'Realm', 'Class', 'Specs', 'Content', 'Item level', 'Rating', 'BiS, spec 1', 'BiS, spec 2', 'BiS, spec 3', 'Enchant and gem issues', 'Gear pulled', 'Open to-dos'],
+    ['Diablõ', "Eldre'thalas (US)", 'Demon Hunter', 'Vengeance (main), Havoc', 'PvE (Mythic+ and raid)', '324.9', 'M+ 2919.8', 'Vengeance: 8 of 16 BiS items', 'Havoc: 9 of 16 BiS items', '', '2 missing, 5 different from the Vengeance setup', '2026-11-24 12:40 CT', '1'],
+    ['Cõrpses', "Eldre'thalas (US)", 'Death Knight', 'Blood (main), Frost, Unholy', 'PvE (Mythic+ and raid)', '333.9', 'M+ 3142', 'Blood: 9 of 15 BiS items', 'Frost: 9 of 16 BiS items', 'Unholy: 12 of 15 BiS items', '6 missing, 2 different from the Blood setup', '2026-11-24 12:40 CT', '1'],
+    ['Kona', "Eldre'thalas (US)", 'Druid', 'Guardian (main), Feral', 'PvE (Mythic+ and raid)', '334.4', 'M+ 3670.1', 'Guardian: 11 of 15 BiS items', 'Feral: 12 of 15 BiS items', '', '2 missing, 2 different from the Guardian setup', '2026-11-24 12:40 CT', '1'],
     ['Bõnes', "Eldre'thalas (US)", 'Death Knight', 'Unholy (PvP)', 'PvP only', '184.9', 'Shuffle: not entered', 'Unholy PvP: 0 of 15 BiS items', '', '', '11 missing, 0 different from the Unholy setup', '2026-11-24 12:40 CT', '1'],
-    ['Hõrns', "Eldre'thalas (US)", 'Druid', 'Feral (PvP)', 'PvP only', '221.8', 'Shuffle: not entered', 'Feral PvP: 3 of 15 BiS items', '', '', '11 missing, 0 different from the Feral setup', '2026-11-24 12:40 CT', '1'],
+    ['Hõrns', "Eldre'thalas (US)", 'Druid', 'Feral and Balance (PvP, equal)', 'PvP only', '221.8', 'Shuffle: not entered', 'Feral PvP: 3 of 15 BiS items', 'Balance PvP: 2 of 15 BiS items', '', '11 missing, 0 different from the Feral setup', '2026-11-24 12:40 CT', '1'],
+    [], ['At a glance'],
+    ['Open to-dos', '10'], ['BiS items still needed (all specs)', '78'], ['Enchants to apply or change', '29'],
+    ['Top kill target', "Kith'ix (The Unbinding of Kith'ix) (9 items)"], ['Crafted items to order', '14'], ["This week's bonus rolls planned", '0'],
   ],
-  glance: [
-    ['Open to-dos', '11'],
-    ['BiS items still needed (all specs)', '61'],
-    ['Enchants to apply or change', '32'],
-    ['Top kill target', "Kith'ix (The Unbinding of Kith'ix) (7 items)"],
-    ['Crafted items to order', '12'],
-    ["This week's bonus rolls planned", '0'],
+  todo: [
+    { row: 5, done: true, priority: 'High', character: 'Account', category: 'Setup', task: 'Connect the character sheets: on the Sheets tab, click each #REF! cell and press Allow access', repeats: 'None', notes: '' },
+    { row: 6, done: true, priority: 'High', character: 'Diablõ', category: 'Enchants', task: "Pick Diablõ's main spec", repeats: 'None', notes: 'Done: Vengeance > Havoc' },
+    { row: 7, done: false, priority: 'High', character: 'Cõrpses', category: 'Enchants', task: "Enchant Cõrpses' head, chest, legs and hands (all four are empty)", repeats: 'None', notes: "Blessing of Speed, Mark of the Worldsoul, Forest Hunter's Armor Kit, Battle Art" },
+    { row: 8, done: false, priority: 'Medium', character: 'Kona', category: 'Enchants', task: "Add a Hash'ey Battle Art to Kona's gloves", repeats: 'None', notes: '' },
+    { row: 9, done: false, priority: 'Medium', character: 'Account', category: 'Enchants', task: 'Switch ring enchants to Eyes of the Eagle on Diablõ, Cõrpses and Kona (6 rings)', repeats: 'None', notes: '' },
+    { row: 10, done: false, priority: 'Medium', character: 'Account', category: 'Gear', task: 'Check for an Indecipherable Eversong Diamond on Diablõ, Cõrpses and Kona, then tick it on each Enchants & Gems tab', repeats: 'None', notes: '' },
+    { row: 11, done: false, priority: 'Medium', character: 'Account', category: 'Weekly', task: "Plan this week's bonus rolls on the Bonus Rolls tab", repeats: 'Weekly', notes: '' },
+    { row: 12, done: false, priority: 'Medium', character: 'Account', category: 'Gold', task: 'Send Claude the gold-making Excel example', repeats: 'None', notes: '' },
+    { row: 13, done: false, priority: 'Low', character: 'Bõnes', category: 'PvP', task: 'Log in Bõnes so Raider.io picks up current gear (last seen Nov 5)', repeats: 'None', notes: '' },
+    { row: 14, done: false, priority: 'Low', character: 'Hõrns', category: 'PvP', task: 'Log in Hõrns so Raider.io picks up current gear (last seen Oct 20)', repeats: 'None', notes: '' },
+    { row: 15, done: false, priority: 'Low', character: 'Account', category: 'Setup', task: 'Create a Blizzard API client (develop.battle.net) and get a TSM API key for automation', repeats: 'None', notes: '' },
+    { row: 16, done: false, priority: 'High', character: 'Diablõ', category: 'Enchants', task: "Put Rite of the Hash'ey on both of Diablõ's warglaives", repeats: 'None', notes: 'Also swap gems from Haste to Crit or Versatility' },
+  ],
+  weekly: {
+    characters: ['Diablõ', 'Cõrpses', 'Kona', 'Bõnes', 'Hõrns'],
+    rows: [
+      ["Open last week's Great Vault", [0, 0, 0, 0, 0]],
+      ['Mythic+: 8 runs at +10 or higher for 3 vault slots', [0, 0, 0, null, null]],
+      ['Raid: 6 bosses for 3 vault slots', [0, 0, 0, null, null]],
+      ['World: 8 Delves or Prey hunts for 3 vault slots', [0, 0, 0, null, null]],
+      ['Spend bonus roll coins (see Bonus Rolls tab)', [0, 0, 0, null, null]],
+      ['Weekly profession knowledge and crafting quest', [0, 0, 0, 0, 0]],
+      ['Spend crests on upgrades', [0, 0, 0, null, null]],
+      ['Rated PvP: weekly Solo Shuffle or arena games', [null, null, null, 0, 0]],
+      ["Conquest: reach this week's cap", [null, null, null, 0, 0]],
+      ["Honor: spend on Thalassian Competitor's gear", [null, null, null, 0, 0]],
+    ].map(([task, cells], i) => ({ row: 5 + i, task, cells: cells.map(v => v === null ? null : !!v) })),
+  },
+  bonus: [
+    ['1', 'Nymrissa Wavecaller', 'Tidebound Grotto', '1', 'Cõrpses: Alluring Bubbleband', ''],
+    ['2', "Kith'ix", "The Unbinding of Kith'ix", '9', "Diablõ: Band of the Swarmcaller; Diablõ: Twisted Horror's Tendril; Cõrpses: Band of the Swarmcaller; Cõrpses: Twisted Horror's Tendril; Kona: Twisted Horror's Tendril", 'Cõrpses'],
+    ['3', "Nek'zali the Soulcoiler", 'The Venomous Abyss', '0', '', ''],
+    ['4', 'The Coiled Altar', 'The Venomous Abyss', '8', "Diablõ: Aman'muso, Warlord's Vengeance; Diablõ: Sash of the Forlorn Vessel; Cõrpses: Girdle of Toxic Regret; Cõrpses: Aman'muso, Warlord's Vengeance; Kona: Sash of the Forlorn Vessel", 'Diablõ'],
+    ['5', "Ula'tek", 'The Venomous Abyss', '2', "Diablõ: Voracious Heart of Ula'tek; Cõrpses: Jaw of the Shackled Goddess", 'Diablõ'],
+    ['6', 'Entombed Sentinels', 'The Venomous Abyss', '1', "Kona: Keeper's Seething Core", ''],
+    ['7', 'Vashnik the Malignant', 'The Venomous Abyss', '1', "Kona: Vile Alchemist's Band", ''],
+    ['8', 'The Lost Explorers', 'The Venomous Abyss', '0', '', ''],
+    ['9', 'Sszorak', 'The Venomous Abyss', '0', '', ''],
+    ['10', 'The Twin Fangs', 'The Venomous Abyss', '0', '', ''],
+  ].map((r, i) => ({ row: 5 + i, order: r[0], boss: r[1], instance: r[2], wanted: r[3], who: r[4], plan: r[5], rolls: '', notes: '' })),
+  specs: [
+    { name: 'Diablõ', selected: 'Vengeance', options: ['Havoc', 'Vengeance'] },
+    { name: 'Cõrpses', selected: 'Blood', options: ['Blood', 'Frost', 'Unholy'] },
+    { name: 'Kona', selected: 'Guardian', options: ['Feral', 'Guardian'] },
+    { name: 'Bõnes', selected: 'Unholy', options: ['Unholy'] },
+    { name: 'Hõrns', selected: 'Feral', options: ['Feral', 'Balance'] },
   ],
 };
 
@@ -139,41 +253,17 @@ const SNAPSHOT = {
 const CLASS_ACCENT = { 'demon hunter': 'var(--dh)', 'death knight': 'var(--dk)', 'druid': 'var(--druid)' };
 const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
 const accentFor = cls => CLASS_ACCENT[String(cls).toLowerCase()] || '#555';
-
-function parseCSV(text) {
-  const rows = []; let row = [], field = '', q = false;
-  for (let i = 0; i < text.length; i++) {
-    const c = text[i];
-    if (q) {
-      if (c === '"') { if (text[i + 1] === '"') { field += '"'; i++; } else q = false; }
-      else field += c;
-    } else if (c === '"') q = true;
-    else if (c === ',') { row.push(field); field = ''; }
-    else if (c === '\n') { row.push(field); rows.push(row); row = []; field = ''; }
-    else if (c !== '\r') field += c;
-  }
-  if (field !== '' || row.length) { row.push(field); rows.push(row); }
-  return rows;
-}
+const $ = id => document.getElementById(id);
 
 // Reads the Dashboard tab by its labels, so moved rows or extra columns don't break it.
 function fromGrid(grid) {
-  const cell = (r, c) => ((grid[r] || [])[c] || '').trim();
+  const cell = (r, c) => String((grid[r] || [])[c] ?? '').trim();
   const data = { reset: '', characters: [], glance: [] };
-  for (let r = 0; r < Math.min(grid.length, 5); r++) {
-    if (/^Reset week/i.test(cell(r, 0))) data.reset = cell(r, 0);
-  }
-  const head = grid.findIndex(row => (row[0] || '').trim() === 'Character');
-  if (head >= 0) {
-    for (let r = head + 1; r < grid.length && cell(r, 0); r++) {
-      data.characters.push(Array.from({ length: 13 }, (_, c) => cell(r, c)));
-    }
-  }
-  const g = grid.findIndex(row => (row[0] || '').trim() === 'At a glance');
-  if (g >= 0) {
-    for (let r = g + 1; r < grid.length && cell(r, 0); r++) data.glance.push([cell(r, 0), cell(r, 1)]);
-  }
-  if (!data.characters.length) throw new Error('No character rows found in the CSV');
+  for (let r = 0; r < Math.min(grid.length, 5); r++) if (/^Reset week/i.test(cell(r, 0))) data.reset = cell(r, 0);
+  const head = grid.findIndex(row => String((row || [])[0] ?? '').trim() === 'Character');
+  if (head >= 0) for (let r = head + 1; r < grid.length && cell(r, 0); r++) data.characters.push(Array.from({ length: 13 }, (_, c) => cell(r, c)));
+  const g = grid.findIndex(row => String((row || [])[0] ?? '').trim() === 'At a glance');
+  if (g >= 0) for (let r = g + 1; r < grid.length && cell(r, 0); r++) data.glance.push([cell(r, 0), cell(r, 1)]);
   return data;
 }
 
@@ -182,45 +272,103 @@ function parseBis(s) {
   return m ? { spec: m[1], have: +m[2], total: +m[3] } : null;
 }
 
+let toastTimer;
+function toast(msg, bad) {
+  const t = $('toast');
+  t.textContent = msg; t.className = bad ? 'bad' : ''; t.style.display = 'block';
+  clearTimeout(toastTimer); toastTimer = setTimeout(() => (t.style.display = 'none'), bad ? 6000 : 2500);
+}
+
+/* ------------------------------------------------------------------ edit key */
+const KEY_NAME = 'wowDashboardEditKey';
+function getKey() { try { return localStorage.getItem(KEY_NAME) || ''; } catch (e) { return ''; } }
+function setKey(k) { try { k ? localStorage.setItem(KEY_NAME, k) : localStorage.removeItem(KEY_NAME); } catch (e) { /* storage blocked: key lasts this visit */ } memKey = k; }
+let memKey = getKey();
+const canEdit = () => !!(WEBAPP_URL && memKey);
+
+function paintLock() {
+  const b = $('lock');
+  b.className = 'lock' + (canEdit() ? ' on' : '');
+  b.innerHTML = canEdit() ? '&#128275; Editing (click to lock)' : '&#128274; View only';
+  b.title = WEBAPP_URL ? '' : 'Editing turns on once WEBAPP_URL is set in this page';
+}
+$('lock').addEventListener('click', () => {
+  if (canEdit()) { setKey(''); paintLock(); renderAll(); return; }
+  if (!WEBAPP_URL) { toast('Editing needs the web app URL set in this page first.', true); return; }
+  const k = prompt('Enter your edit key (the one set in the hub under WoW > Set web page edit key):');
+  if (k && k.trim()) { setKey(k.trim()); paintLock(); renderAll(); toast('Editing on in this browser.'); }
+});
+
+/* ------------------------------------------------------------------ writes */
+let reloadTimer;
+async function send(payload) {
+  if (!canEdit()) { toast('Locked: click the lock button and enter your edit key.', true); return false; }
+  try {
+    // No Content-Type header: sent as text/plain so the browser skips the CORS preflight.
+    const res = await fetch(WEBAPP_URL, { method: 'POST', body: JSON.stringify({ ...payload, key: memKey }) });
+    const out = await res.json();
+    if (!out.ok) {
+      if (/edit key/i.test(out.error)) { setKey(''); paintLock(); renderAll(); }
+      throw new Error(out.error);
+    }
+    toast('Saved to the sheet');
+    clearTimeout(reloadTimer); reloadTimer = setTimeout(() => load(true), 2500);
+    return true;
+  } catch (e) {
+    toast('Not saved: ' + e.message, true);
+    clearTimeout(reloadTimer); reloadTimer = setTimeout(() => load(true), 500);
+    return false;
+  }
+}
+
 /* ------------------------------------------------------------------ tooltip */
-const tip = document.getElementById('tip');
+const tip = $('tip');
 document.addEventListener('mousemove', e => {
   const t = e.target.closest('[data-tip]');
   if (!t) { tip.style.display = 'none'; return; }
   tip.innerHTML = t.getAttribute('data-tip');
   tip.style.display = 'block';
-  const x = Math.min(e.clientX + 14, window.innerWidth - tip.offsetWidth - 8);
-  tip.style.left = x + 'px';
+  tip.style.left = Math.min(e.clientX + 14, window.innerWidth - tip.offsetWidth - 8) + 'px';
   tip.style.top = (e.clientY + 14) + 'px';
 });
 
 /* ------------------------------------------------------------------ render */
-function render(data, live, when) {
-  document.getElementById('reset').textContent = data.reset || '';
-  const src = document.getElementById('src');
-  src.className = 'src ' + (live ? 'live' : 'snap');
-  src.textContent = live ? 'Live from Google Sheets' : 'Snapshot';
-  document.getElementById('when').textContent = (live ? 'Loaded ' : 'Taken ') + when;
+let STATE = null, LIVE = false, WHEN = '';
+let todoFilter = 'Open';
+
+function renderAll() { if (STATE) render(STATE, LIVE, WHEN); }
+
+function render(state, live, when) {
+  STATE = state; LIVE = live; WHEN = when;
+  const data = fromGrid(state.dashboard || []);
+  const dis = canEdit() ? '' : ' disabled';
+  $('reset').textContent = data.reset || '';
+  $('src').className = 'src ' + (live ? 'live' : 'snap');
+  $('src').textContent = live ? 'Live from Google Sheets' : 'Snapshot';
+  $('when').textContent = (live ? 'Loaded ' : 'Taken ') + when;
 
   // At a glance
-  document.getElementById('glance').innerHTML = data.glance.map(([k, v]) => {
+  $('glance').innerHTML = data.glance.map(([k, v]) => {
     const wide = isNaN(Number(v)) && v.length > 12;
     return `<div class="stat-box${wide ? ' wide' : ''}"><h3>${esc(k)}</h3><p>${esc(v || '-')}</p></div>`;
   }).join('');
 
+  const specByName = Object.fromEntries((state.specs || []).map(s => [s.name, s]));
   const chars = data.characters.map(r => ({
-    name: r[0], realm: r[1], cls: r[2], specs: r[3], content: r[4], ilvl: parseFloat(r[5]),
-    ilvlText: r[5], rating: r[6], bis: [r[7], r[8], r[9]].map(parseBis).filter(Boolean),
-    issues: r[10], pulled: r[11], todos: r[12],
+    name: r[0], realm: r[1], cls: r[2], specs: r[3], content: r[4], ilvl: parseFloat(r[5]), ilvlText: r[5],
+    rating: r[6], bis: [r[7], r[8], r[9]].map(parseBis).filter(Boolean), issues: r[10], pulled: r[11], todos: r[12],
   }));
 
   // Character cards
-  document.getElementById('chars').innerHTML = chars.map(c => `
+  $('chars').innerHTML = chars.map(c => {
+    const sp = specByName[c.name];
+    const pick = sp && sp.options.length > 1
+      ? `<div class="spec-pick"><span class="k">Check enchants against</span>
+           <select data-spec="${esc(c.name)}"${dis}>${sp.options.map(o => `<option${o === sp.selected ? ' selected' : ''}>${esc(o)}</option>`).join('')}</select></div>`
+      : '';
+    return `
     <div class="char" style="--accent:${accentFor(c.cls)}">
-      <div class="char-head">
-        <span class="char-name">${esc(c.name)}</span>
-        <span class="char-ilvl">ilvl <b>${esc(c.ilvlText || '-')}</b></span>
-      </div>
+      <div class="char-head"><span class="char-name">${esc(c.name)}</span><span class="char-ilvl">ilvl <b>${esc(c.ilvlText || '-')}</b></span></div>
       <div class="char-meta">${esc(c.cls)} &middot; ${esc(c.realm)}</div>
       <div class="tags"><span class="tag">${esc(c.specs)}</span><span class="tag">${esc(c.content)}</span><span class="tag">${esc(c.rating)}</span></div>
       ${c.bis.map(b => {
@@ -230,15 +378,52 @@ function render(data, live, when) {
           <div class="meter"><div style="width:${pct}%"></div></div></div>`;
       }).join('')}
       <div class="details">
+        ${pick}
         <div class="row"><span class="k">Enchants &amp; gems</span><span class="v">${esc(c.issues || '-')}</span></div>
         <div class="row"><span class="k">Open to-dos</span><span class="v">${esc(c.todos || '0')}</span></div>
         <div class="row"><span class="k">Gear pulled</span><span class="v">${esc(c.pulled || '-')}</span></div>
       </div>
-    </div>`).join('');
+    </div>`;
+  }).join('');
+
+  // To-Do
+  const todos = state.todo || [];
+  const counts = { Open: todos.filter(t => !t.done).length, Done: todos.filter(t => t.done).length, All: todos.length };
+  $('todo-filters').innerHTML = ['Open', 'Done', 'All'].map(f =>
+    `<button type="button" class="chip${f === todoFilter ? ' on' : ''}" data-filter="${f}">${f} (${counts[f]})</button>`).join('');
+  const prio = { High: 0, Medium: 1, Low: 2 };
+  const shown = todos.filter(t => todoFilter === 'All' || (todoFilter === 'Done') === t.done)
+    .sort((a, b) => (a.done - b.done) || ((prio[a.priority] ?? 3) - (prio[b.priority] ?? 3)) || (a.row - b.row));
+  $('todo').innerHTML = shown.length ? shown.map(t => `
+    <div class="todo${t.done ? ' done' : ''}">
+      <input type="checkbox" data-todo="${t.row}"${t.done ? ' checked' : ''}${dis} aria-label="Done">
+      <span class="pri ${esc(t.priority)}">${esc(t.priority || '-')}</span>
+      <span class="who-tag">${esc(t.character)}</span>
+      <div><span class="task">${esc(t.task)}</span>${t.repeats && t.repeats !== 'None' ? `<span class="rep">&#8635; ${esc(t.repeats)}</span>` : ''}
+        ${t.notes ? `<div class="note">${esc(t.notes)}</div>` : ''}</div>
+    </div>`).join('') : `<p class="prog">Nothing here.</p>`;
+  $('addform').style.display = canEdit() ? '' : 'none';
+
+  // Weekly checklist
+  const wk = state.weekly || { characters: [], rows: [] };
+  const done = wk.characters.map((_, i) => wk.rows.filter(r => r.cells[i] === true).length);
+  const total = wk.characters.map((_, i) => wk.rows.filter(r => r.cells[i] !== null).length);
+  $('weekly').innerHTML = `<thead><tr><th>Task</th>${wk.characters.map((c, i) => `<th class="cb">${esc(c)}<div class="prog">${done[i]} / ${total[i]}</div></th>`).join('')}</tr></thead><tbody>` +
+    wk.rows.map(r => `<tr><td>${esc(r.task)}</td>${r.cells.map((v, i) => v === null ? '<td class="na">-</td>'
+      : `<td class="cb"><input type="checkbox" data-wk="${r.row},${i + 2}"${v ? ' checked' : ''}${dis} aria-label="${esc(wk.characters[i])}"></td>`).join('')}</tr>`).join('') + '</tbody>';
+
+  // Bonus rolls
+  const bonus = state.bonus || [];
+  const totalRolls = bonus.reduce((s, b) => s + (parseInt(b.rolls, 10) || 0), 0);
+  $('bonus').innerHTML = `<thead><tr><th>#</th><th>Boss</th><th>Instance</th><th class="cb">Items wanted</th><th>Who wants it</th><th>Plan (who rolls)</th><th class="cb">Rolls this week</th></tr></thead><tbody>` +
+    bonus.map(b => `<tr><td>${esc(b.order)}</td><td>${esc(b.boss)}</td><td>${esc(b.instance)}</td><td class="num">${esc(b.wanted)}</td><td>${esc(b.who).replace(/; /g, '<br>')}</td>
+      <td><select data-plan="${b.row}"${dis}><option value=""></option>${PLAN_CHARS.map(c => `<option${c === b.plan ? ' selected' : ''}>${esc(c)}</option>`).join('')}</select></td>
+      <td class="cb"><input type="number" min="0" max="20" step="1" style="width:64px" data-rolls="${b.row}" value="${esc(b.rolls)}"${dis}></td></tr>`).join('') +
+    `<tr><td colspan="6"><b>Total rolls planned</b></td><td class="cb"><b>${totalRolls}</b></td></tr></tbody>`;
 
   // Item level bars (single series, zero baseline)
   const max = Math.max(...chars.map(c => c.ilvl || 0), 1);
-  document.getElementById('ilvl').innerHTML = chars.map(c => `
+  $('ilvl').innerHTML = chars.map(c => `
     <div class="ilvl-row hit" data-tip="<b>${esc(c.name)}</b> (${esc(c.cls)})<br>Item level ${esc(c.ilvlText)}">
       <span class="who" style="--accent:${accentFor(c.cls)}"><span class="dot"></span>${esc(c.name)}</span>
       <div class="ilvl-track"><div style="width:${((c.ilvl || 0) / max * 100).toFixed(1)}%"></div></div>
@@ -247,30 +432,76 @@ function render(data, live, when) {
 
   // Table view
   const cols = ['Character', 'Class', 'Specs', 'Content', 'Item level', 'Rating', 'BiS', 'Enchants & gems', 'Open to-dos'];
-  document.getElementById('tbl').innerHTML =
-    `<thead><tr>${cols.map(h => `<th>${esc(h)}</th>`).join('')}</tr></thead><tbody>` +
+  $('tbl').innerHTML = `<thead><tr>${cols.map(h => `<th>${esc(h)}</th>`).join('')}</tr></thead><tbody>` +
     chars.map(c => `<tr><td>${esc(c.name)}</td><td>${esc(c.cls)}</td><td>${esc(c.specs)}</td><td>${esc(c.content)}</td>
       <td class="num">${esc(c.ilvlText)}</td><td>${esc(c.rating)}</td>
       <td>${c.bis.map(b => `${esc(b.spec)} ${b.have}/${b.total}`).join('<br>') || '-'}</td>
       <td>${esc(c.issues)}</td><td class="num">${esc(c.todos)}</td></tr>`).join('') + '</tbody>';
 }
 
-async function load() {
-  if (!CSV_URL) { render(SNAPSHOT, false, SNAPSHOT.taken); return; }
+/* ------------------------------------------------------------------ events */
+document.addEventListener('click', e => {
+  const f = e.target.closest('[data-filter]');
+  if (f) { todoFilter = f.dataset.filter; renderAll(); }
+});
+
+document.addEventListener('change', e => {
+  const el = e.target;
+  if (el.dataset.todo) {
+    const t = STATE.todo.find(x => x.row === +el.dataset.todo);
+    if (t) t.done = el.checked;
+    send({ action: 'todoDone', row: +el.dataset.todo, value: el.checked });
+    renderAll();
+  } else if (el.dataset.wk) {
+    const [row, col] = el.dataset.wk.split(',').map(Number);
+    const r = STATE.weekly.rows.find(x => x.row === row);
+    if (r) r.cells[col - 2] = el.checked;
+    send({ action: 'checklist', row, col, value: el.checked });
+    renderAll();
+  } else if (el.dataset.plan || el.dataset.rolls) {
+    const row = +(el.dataset.plan || el.dataset.rolls);
+    const b = STATE.bonus.find(x => x.row === row);
+    if (el.dataset.plan) b.plan = el.value; else b.rolls = el.value;
+    send({ action: 'bonus', row, plan: b.plan, rolls: b.rolls });
+    renderAll();
+  } else if (el.dataset.spec) {
+    const s = STATE.specs.find(x => x.name === el.dataset.spec);
+    if (s) s.selected = el.value;
+    send({ action: 'spec', character: el.dataset.spec, spec: el.value });
+  }
+});
+
+$('new-char').innerHTML = TODO_CHARS.map(c => `<option>${esc(c)}</option>`).join('');
+$('new-cat').innerHTML = TODO_CATEGORIES.map(c => `<option${c === 'Other' ? ' selected' : ''}>${esc(c)}</option>`).join('');
+$('addform').addEventListener('submit', async e => {
+  e.preventDefault();
+  const task = $('new-task').value.trim();
+  if (!task) return;
+  $('new-add').disabled = true;
+  const ok = await send({ action: 'todoAdd', task, priority: $('new-pri').value, character: $('new-char').value, category: $('new-cat').value, repeats: $('new-rep').value });
+  $('new-add').disabled = false;
+  if (ok) { $('new-task').value = ''; todoFilter = 'Open'; }
+});
+
+/* ------------------------------------------------------------------ load */
+async function load(fresh) {
+  if (!WEBAPP_URL) { render(SNAPSHOT, false, SNAPSHOT.generated); return; }
+  // Skip a background refresh while you are typing in a field, so it isn't wiped.
+  if (!fresh && document.activeElement && /INPUT|SELECT/.test(document.activeElement.tagName)) return;
   try {
-    const sep = CSV_URL.includes('?') ? '&' : '?';
-    const res = await fetch(CSV_URL + sep + '_=' + Date.now(), { cache: 'no-store' });
+    const res = await fetch(WEBAPP_URL + (fresh ? '?fresh=1' : ''), { cache: 'no-store' });
     if (!res.ok) throw new Error('HTTP ' + res.status);
-    const data = fromGrid(parseCSV(await res.text()));
-    render(data, true, new Date().toLocaleString([], { dateStyle: 'medium', timeStyle: 'short' }));
+    const state = await res.json();
+    render(state, true, new Date().toLocaleString([], { dateStyle: 'medium', timeStyle: 'short' }));
   } catch (e) {
     console.warn('Live load failed, showing snapshot:', e);
-    render(SNAPSHOT, false, SNAPSHOT.taken + ' (live data could not be loaded)');
+    if (!STATE || !LIVE) render(SNAPSHOT, false, SNAPSHOT.generated + ' (live data could not be loaded)');
   }
 }
 
+paintLock();
 load();
-setInterval(load, REFRESH_MINUTES * 60 * 1000);
+setInterval(() => load(false), REFRESH_MINUTES * 60 * 1000);
 </script>
 </body>
 </html>
