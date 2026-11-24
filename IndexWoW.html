@@ -130,7 +130,11 @@
   .chip { background: #2a2a2a; color: #ccc; border: 1px solid #444; border-radius: 14px; padding: 3px 10px; font-size: 12px; cursor: pointer; }
   .chip.on { background: #1d3b5f; border-color: #3987e5; color: #fff; }
   .todo { display: grid; grid-template-columns: 26px 70px 150px 1fr; gap: 10px; align-items: start; padding: 9px 0; border-top: 1px solid var(--line); font-size: 13px; }
-  .todo:first-child { border-top: 0; }
+  .todo-group { margin-top: 14px; }
+  .todo-group:first-child { margin-top: 0; }
+  .todo-group h3 { margin: 0 0 2px; font-size: 12px; text-transform: uppercase; letter-spacing: .5px; color: var(--muted-2); display: flex; gap: 10px; align-items: baseline; }
+  .todo-group h3 .hint { font-size: 11px; }
+  .todo-group .todo:first-of-type { border-top: 0; }
   .todo.done .task, .todo.done .note { text-decoration: line-through; color: var(--muted); }
   .pri { font-size: 11px; font-weight: 600; padding: 2px 7px; border-radius: 4px; text-align: center; border: 1px solid; }
   .pri.High { color: var(--bad); border-color: var(--bad-line); } .pri.Medium { color: var(--warn); border-color: var(--warn-line); } .pri.Low { color: var(--ok); border-color: var(--ok-line); }
@@ -207,16 +211,6 @@
   <div class="section-title"><h2>Player vs Player</h2><span class="acct" id="pvp-acct"></span></div>
   <div class="chars pvp-grid" id="pvp"></div>
 
-  <div class="twocol">
-    <div class="card">
-      <div class="card-head"><h2>Daily checklist</h2><span class="hint">Unticks every day at 10 AM Central</span></div>
-      <div id="daily"></div>
-    </div>
-    <div class="card">
-      <div class="card-head"><h2>Crafters: weekly knowledge</h2><span class="hint">Unticks Tuesdays at 10 AM Central</span></div>
-      <div class="crafters" id="crafters"></div>
-    </div>
-  </div>
 
   <div class="card">
     <div class="card-head"><h2>To-Do</h2><div class="filters" id="todo-filters"></div></div>
@@ -229,6 +223,11 @@
       <select id="new-rep"><option selected>None</option><option>Daily</option><option>Weekly</option></select>
       <button class="btn" type="submit" id="new-add">Add</button>
     </form>
+  </div>
+
+  <div class="card">
+    <div class="card-head"><h2>Crafters: weekly knowledge</h2><span class="hint">Unticks Tuesdays at 10 AM Central</span></div>
+    <div class="crafters" id="crafters"></div>
   </div>
 
   <div class="card">
@@ -295,6 +294,7 @@ const accentFor = cls => CLASS_ACCENT[String(cls).toLowerCase()] || '#555';
 const $ = id => document.getElementById(id);
 const accountOf = name => Object.keys(ACCOUNTS).find(a => ACCOUNTS[a].includes(name)) || '';
 const colored = name => `<span class="c" style="color:${CHAR_COLOR[name] || '#ddd'}">${esc(name)}</span>`;
+const slotName = s => String(s).replace(/^(Finger|Trinket) \d$/, '$1');
 const bossOf = source => BOSS_ORDER.find(b => String(source).startsWith(b)) || null;
 
 function fromGrid(grid) {
@@ -424,7 +424,7 @@ function targetsBlock(c) {
   return `<div class="sec">${title}<div class="targets">` +
     BOSS_ORDER.filter(b => byBoss[b]).map(b => `<div class="target"><span class="boss">${esc(b)}</span><div class="items">` +
       Object.values(byBoss[b]).sort((x, y) => main(y) - main(x)).map(i =>
-        `<div><span class="${main(i) ? 'main-item' : ''}">${main(i) ? '&#9733; ' : ''}${esc(i.item)}</span> <span class="slot">(${esc(i.slot)})</span><span class="specs-tag">${esc([...i.specs].join(', '))}</span></div>`
+        `<div><span class="${main(i) ? 'main-item' : ''}">${main(i) ? '&#9733; ' : ''}${esc(i.item)}</span> <span class="slot">(${esc(slotName(i.slot))})</span><span class="specs-tag">${esc([...i.specs].join(', '))}</span></div>`
       ).join('') + `</div></div>`).join('') + `</div></div>`;
 }
 
@@ -467,7 +467,7 @@ function gearBlock(c) {
     else if (/Honor/i.test(g.source)) { cost = base ? base.toLocaleString() + ' Honor' : 'Honor'; cls = 'hon'; if (!have && base) honor += base; }
     else { cost = esc(g.source || ''); }
     if (have) { cls = 'done'; cost = '&#10003; have'; }
-    return `<tr class="${have ? 'have' : ''}"><td class="slot">${esc(g.slot)}</td><td>${esc(g.item || '-')}</td><td class="il">${esc(g.ilvl || '')}</td>
+    return `<tr class="${have ? 'have' : ''}"><td class="slot">${esc(slotName(g.slot))}</td><td>${esc(g.item || '-')}</td><td class="il">${esc(g.ilvl || '')}</td>
       <td><span class="bisname">${esc(g.bis || '-')}</span>${g.source ? ` <span class="src2">${esc(g.source)}</span>` : ''}</td>
       <td class="cost ${cls}"${tipTxt ? ` data-tip="${esc(tipTxt)}"` : ''}>${cost}</td></tr>`;
   }).join('');
@@ -525,10 +525,18 @@ function render(state, live, when) {
   $('when').textContent = (live ? 'Loaded ' : 'Taken ') + when;
 
   const isText = v => isNaN(Number(v)) && v.length > 12;
-  $('glance').innerHTML = [...data.glance.filter(([, v]) => !isText(v)), ...data.glance.filter(([, v]) => isText(v))].map(([k, v]) =>
+  const chars = state.characters || [];
+  const vaultChars = chars.filter(c => c.vault);
+  const glance = data.glance.slice();
+  if (vaultChars.length) {
+    const open = vaultChars.reduce((n, c) => n + c.vault.reduce((m, v) => m + (v.thresholds || []).filter(t => v.done >= t).length, 0), 0);
+    glance.push(['Great Vault slots unlocked', open + ' / ' + vaultChars.length * 9]);
+  }
+  const nums = glance.filter(([, v]) => !isText(v)), texts = glance.filter(([, v]) => isText(v));
+  $('glance').style.gridTemplateColumns = window.innerWidth > 900 ? `repeat(${nums.length || 1}, 1fr)` : '';
+  $('glance').innerHTML = [...nums, ...texts].map(([k, v]) =>
     `<div class="stat-box${isText(v) ? ' wide full' : ''}"><h3>${esc(k)}</h3><p>${esc(v || '-')}</p></div>`).join('');
 
-  const chars = state.characters || [];
   const byOrder = order => (a, b) => (order.indexOf(a.name) + 1 || 99) - (order.indexOf(b.name) + 1 || 99);
   const pve = chars.filter(c => !c.pvp).sort(byOrder(PVE_ORDER)), pvp = chars.filter(c => c.pvp);
   const accts = list => [...new Set(list.map(c => c.account || accountOf(c.name)))].filter(Boolean).join(', ');
@@ -537,12 +545,7 @@ function render(state, live, when) {
   $('pve').innerHTML = pve.map(charCard).join('');
   $('pvp').innerHTML = pvp.map(charCard).join('');
 
-  // Daily checklist = to-dos that repeat daily
   const todos = state.todo || [];
-  const daily = todos.filter(t => t.repeats === 'Daily');
-  $('daily').innerHTML = daily.length ? `<div class="checks">` + daily.map(t =>
-    `<label class="check${t.done ? ' done' : ''}"><input type="checkbox" data-todo="${t.row}"${t.done ? ' checked' : ''}${DIS()}><span>${esc(t.task)}${t.character && t.character !== 'General' ? ` <span class="slot">(${esc(t.character)})</span>` : ''}</span></label>`).join('') + `</div>`
-    : `<p class="empty">No daily tasks yet. Add one in the To-Do list with Repeats set to Daily.</p>`;
 
   // Crafters
   const cr = state.crafters || [];
@@ -551,13 +554,26 @@ function render(state, live, when) {
     : `<p class="empty">Loads with live data.</p>`;
 
   // To-Do
-  const counts = { Open: todos.filter(t => !t.done).length, Daily: daily.length, Weekly: todos.filter(t => t.repeats === 'Weekly').length, Done: todos.filter(t => t.done).length, All: todos.length };
+  const counts = { Open: todos.filter(t => !t.done).length, Done: todos.filter(t => t.done).length, All: todos.length };
   $('todo-filters').innerHTML = Object.keys(counts).map(f =>
     `<button type="button" class="chip${f === todoFilter ? ' on' : ''}" data-filter="${f}">${f} (${counts[f]})</button>`).join('');
   const prio = { High: 0, Medium: 1, Low: 2 };
-  const shown = todos.filter(t => ({ Open: !t.done, Daily: t.repeats === 'Daily', Weekly: t.repeats === 'Weekly', Done: t.done, All: true })[todoFilter])
-    .sort((a, b) => (a.done - b.done) || ((prio[a.priority] ?? 3) - (prio[b.priority] ?? 3)) || (a.row - b.row));
-  $('todo').innerHTML = shown.length ? shown.map(todoRow).join('') : `<p class="empty">Nothing here.</p>`;
+  const sortT = (a, b) => (a.done - b.done) || ((prio[a.priority] ?? 3) - (prio[b.priority] ?? 3)) || (a.row - b.row);
+  // Daily and weekly tasks reset on their own, so they stay listed (struck through) when done.
+  const groups = [
+    ['Overall & account wide', '', t => !t.repeats || t.repeats === 'None', true],
+    ['Daily', 'Resets every day at 10 AM Central', t => t.repeats === 'Daily', false],
+    ['Weekly', 'Resets Tuesdays at 10 AM Central', t => t.repeats === 'Weekly', false],
+  ];
+  $('todo').innerHTML = groups.map(([title, hint, test, filtered]) => {
+    let list = todos.filter(test);
+    const left = list.filter(t => !t.done).length;
+    if (todoFilter === 'Done') list = list.filter(t => t.done);
+    else if (todoFilter === 'Open' && filtered) list = list.filter(t => !t.done);
+    list.sort(sortT);
+    return `<div class="todo-group"><h3>${esc(title)} <span class="hint">${left} open${hint ? ' &middot; ' + hint : ''}</span></h3>` +
+      (list.length ? list.map(todoRow).join('') : `<p class="empty" style="padding:6px 0">Nothing here.</p>`) + `</div>`;
+  }).join('');
   $('addform').style.display = canEdit() ? '' : 'none';
 
   // Bonus rolls: grouped by instance, planned order, who needs what from the needs list
@@ -578,7 +594,7 @@ function render(state, live, when) {
     return `<tr class="group"><td colspan="5">${esc(inst)}</td></tr>` + rows.map(b => {
       totalRolls += parseInt(b.rolls, 10) || 0;
       const list = needsFor(b.boss);
-      const who = list.length ? `<div class="need-grid">${list.map(n => `${colored(n.c)}<span class="slot">${esc(n.slot)}</span><span>${esc(n.item)}</span><span class="specs-tag">${esc([...n.specs].join(', '))}</span>`).join('')}</div>` : '<span class="empty">-</span>';
+      const who = list.length ? `<div class="need-grid">${list.map(n => `${colored(n.c)}<span class="slot">${esc(slotName(n.slot))}</span><span>${esc(n.item)}</span><span class="specs-tag">${esc([...n.specs].join(', '))}</span>`).join('')}</div>` : '<span class="empty">-</span>';
       const chosen = !!b.plan, sug = b.suggested || '';
       const opts = `<option value="">${!chosen && sug ? 'Suggested: ' + esc(sug) : ''}</option>` + PLAN_CHARS.map(c => `<option${c === b.plan ? ' selected' : ''}>${esc(c)}</option>`).join('');
       return `<tr><td>${esc(b.boss)}</td><td class="num">${list.length}</td><td>${who}</td>
