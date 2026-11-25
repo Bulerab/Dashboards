@@ -1068,21 +1068,37 @@ $('addform').addEventListener('submit', async e => {
 });
 
 /* ------------------------------------------------------------------ load */
+// The last live data is kept in this browser so the page draws instantly, then updates in the background.
+const SAVED_KEY = 'wowSavedState';
+function showSaved() {
+  try {
+    const saved = JSON.parse(localStorage.getItem(SAVED_KEY) || 'null');
+    if (!saved || !saved.state || !saved.state.characters) return false;
+    render(saved.state, true, saved.when + ' (updating…)');
+    return true;
+  } catch (e) { return false; }
+}
 async function load(fresh) {
   if (!WEBAPP_URL) { render(SNAPSHOT, false, SNAPSHOT.generated); return; }
   if (!fresh && document.activeElement && /INPUT|SELECT/.test(document.activeElement.tagName)) return;
   try {
     const res = await fetch(WEBAPP_URL + (fresh ? '?fresh=1' : ''), { cache: 'no-store' });
     if (!res.ok) throw new Error('HTTP ' + res.status);
-    const state = await res.json();
+    const text = await res.text();
+    const state = JSON.parse(text);
     if (!state.characters) throw new Error('the web app is still on the old script version');
-    render(state, true, new Date().toLocaleString([], { dateStyle: 'medium', timeStyle: 'short' }));
+    const when = new Date().toLocaleString([], { dateStyle: 'medium', timeStyle: 'short' });
+    if (document.activeElement && /INPUT|SELECT/.test(document.activeElement.tagName) && !fresh) return;
+    render(state, true, when);
+    try { localStorage.setItem(SAVED_KEY, JSON.stringify({ when, state })); } catch (er) { /* storage full or blocked */ }
   } catch (e) {
     console.warn('Live load failed, showing snapshot:', e);
     if (!STATE || !LIVE) render(SNAPSHOT, false, SNAPSHOT.generated + ' (live data could not be loaded: ' + e.message + ')');
+    else $('when').textContent = 'Saved copy from ' + String(WHEN).replace(' (updating…)', '') + ' (live update failed)';
   }
 }
 
 paintLock();
+showSaved();
 load();
 setInterval(() => load(false), REFRESH_MINUTES * 60 * 1000);
