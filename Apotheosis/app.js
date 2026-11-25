@@ -226,6 +226,7 @@ const artOf = n => (STATE.art || {})[n] || '';
 const artStyle = n => artOf(n) ? ` style="--art:url('${esc(artOf(n))}')"` : '';
 // Raids in order: smaller raids (single-boss) first, then by name
 const raidSize = r => { const m = raidMap(); return Object.keys(m).filter(b => m[b] === r).length || ((STATE.zones || []).find(z => z.name === r) || { bosses: [] }).bosses.length || 99; };
+const raidOrderIdx = r => { const all = [...new Set(Object.values(raidMap()))].sort((a, b) => raidSize(a) - raidSize(b) || a.localeCompare(b)); const i = all.indexOf(r); return i < 0 ? 9 : i; };
 const raidOrder = (a, b) => raidSize(a) - raidSize(b) || a.localeCompare(b);
 
 function priorityHtml() {
@@ -355,14 +356,23 @@ function lootHtml() {
     }).join('') || '<div class="card"><p class="empty">Nothing wanted from the raid yet.</p></div>';
     body += skippedHtml ? `<div class="card">${skippedHtml}</div>` : '';
   } else if (lootView === 'player') {
-    body = `<div class="sim-grid">${players.sort((a, b) => a.name.localeCompare(b.name)).map(c => {
-      const ws = wants.filter(w => w.c === c), ts = targets.get(c);
-      const groups = {}; ws.forEach(w => { const g = w.boss || (w.kind === 'craft' ? 'Crafted: ' + w.where : w.where) || 'Other'; (groups[g] = groups[g] || []).push(w); });
-      const gOrder = g => g === TRASH ? 900 : bossList().includes(g) ? bossIdx(g) : /^Crafted/.test(g) ? 950 : /^Tier/.test(g) ? 990 : 960;
-      return `<div class="card sim-card"><div class="card-head"><h2>${nameHtml(c)}</h2><span class="hint">${ts.length ? '&#9733; ' + ts.map(t => esc(t.boss)).join(', ') + ' &middot; ' : ''}${ws.length} wanted${ws.some(w => w.strong) ? ` &middot; <span class="strong-lbl">${ws.filter(w => w.strong).length} gold</span>` : ''}</span></div>
-
-        ${Object.keys(groups).sort((a, b) => gOrder(a) - gOrder(b) || a.localeCompare(b)).map(g => `<div class="lp-group"><div class="lp-boss">${esc(g)}${ts.findIndex(t => t.boss === g) >= 0 ? ' ' + starHtml(ts.findIndex(t => t.boss === g), ts.find(t => t.boss === g)) : ''}</div>${groups[g].map(w => wantChip(w, false)).join('')}</div>`).join('')}</div>`;
-    }).join('') || '<p class="empty">Nothing wanted yet.</p>'}</div>${skippedHtml}`;
+    // One tile per raider: totals and bonus roll picks; click for everything they need, grouped by boss
+    const pOf = c => (STATE.roster || []).find(p => toonsOfP(p).includes(c));
+    body = `<div class="card"><div class="card-head"><h2>By Player</h2><span class="hint">&#9733; = recommended bonus rolls (2 a week): biggest single sim gain, else most wanted items &middot; click a raider for everything they need</span></div>
+      <div class="boss-grid">${players.sort((a, b) => a.name.localeCompare(b.name)).map(c => {
+      const ws = wants.filter(w => w.c === c), ts = targets.get(c), key = 'p|' + c.name + '|' + c.realm, open = lootOpen.has(key), p = pOf(c);
+      const cnt = { Raid: ws.filter(w => w.boss).length, Crafted: ws.filter(w => w.kind === 'craft').length, 'M+': ws.filter(w => w.kind === 'mplus').length,
+        Other: ws.filter(w => !w.boss && w.kind !== 'craft' && w.kind !== 'mplus').length };
+      const gold = ws.filter(w => w.strong).length;
+      const groups = {}; ws.forEach(w => { const g = w.boss || (w.kind === 'craft' ? 'Crafted: ' + w.where : w.kind === 'mplus' ? 'M+: ' + w.where.replace(/^.*\((.*)\)$/, '$1') : w.where) || 'Other'; (groups[g] = groups[g] || []).push(w); });
+      const gOrder = g => g === TRASH ? 900 : bossList().includes(g) ? raidOrderIdx(raidOf(g)) * 100 + bossIdx(g) : /^Crafted/.test(g) ? 950 : /^M\+/.test(g) ? 960 : 990;
+      const art = ts[0] ? ts[0].boss : '';
+      return `<div class="boss-tile player-tile${open ? ' open' : ''}${artOf(art) ? ' has-art' : ''}"${artStyle(art)} style="--accent:${accentFor(c.cls)}">
+        <div class="bt-top" data-loottile="${esc(key)}">${classIcon(c.cls)}<div class="bt-title"><span class="lb-name" style="color:${classHex(c.cls)}">${esc(c.name)}</span><small>${p ? roleIcon(bucketOf(p) === 'Tanks' ? 'Tank' : bucketOf(p) === 'Healers' ? 'Healer' : 'DPS') + ' ' : ''}${esc(c.spec || '')}</small></div><span class="dc-caret">${open ? '&#9652;' : '&#9662;'}</span></div>
+        <div class="bt-stats" data-loottile="${esc(key)}"><span><b>${ws.length}</b> wanted</span>${gold ? `<span class="strong-lbl">${gold} gold</span>` : ''}${Object.keys(cnt).filter(k => cnt[k]).map(k => `<span>${k} <b>${cnt[k]}</b></span>`).join('')}</div>
+        <div class="pt-rolls" data-loottile="${esc(key)}">${ts.length ? ts.map((t, i) => `<div>${starHtml(i, t)} <b>${esc(t.boss)}</b> <span class="hint">${esc(t.why)}</span></div>`).join('') : '<span class="hint">No raid boss to bonus roll yet</span>'}</div>
+        ${open ? `<div class="pt-groups">${Object.keys(groups).sort((a, b) => gOrder(a) - gOrder(b) || a.localeCompare(b)).map(g => `<div class="lp-group"><div class="lp-boss">${esc(g)}${ts.findIndex(t => t.boss === g) >= 0 ? ' ' + starHtml(ts.findIndex(t => t.boss === g), ts.find(t => t.boss === g)) : ''}</div>${groups[g].map(w => wantChip(w, false)).join('')}</div>`).join('')}</div>` : ''}</div>`;
+    }).join('') || '<p class="empty">Nothing wanted yet.</p>'}</div></div>${skippedHtml ? `<div class="card">${skippedHtml}</div>` : ''}`;
   } else {
     const dung = {}; wants.filter(w => w.kind === 'mplus').forEach(w => { const d = w.where.replace(/^.*\((.*)\)$/, '$1'); (dung[d] = dung[d] || []).push(w); });
     const dList = Object.keys(dung).sort((a, b) => new Set(dung[b].map(w => w.c)).size - new Set(dung[a].map(w => w.c)).size || dung[b].length - dung[a].length);

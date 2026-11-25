@@ -190,3 +190,10 @@ p .tal-cell { font-weight: 700; }
 .br-count { color: #e5cc80; font-weight: 700; }
 .boss-tile .lb-roll { margin: 10px 0 8px; }
 .boss-tile .lb-wants { margin-top: 8px; }
+
+.player-tile { border-left: 3px solid var(--accent, #555); }
+.player-tile .cls-ic { width: 28px; height: 28px; border-radius: 6px; }
+.player-tile .bt-title small { display: flex; align-items: center; gap: 4px; } .player-tile .bt-title small .role-ic { width: 14px; height: 14px; }
+.pt-rolls { margin-top: 8px; font-size: 12.5px; display: grid; gap: 3px; cursor: pointer; } .pt-rolls .br-star { margin-left: 0; }
+.pt-groups { margin-top: 12px; border-top: 1px solid #333; padding-top: 10px; }
+.boss-tile.open.has-art::before { opacity: .08; height: 220px; -webkit-mask-image: linear-gradient(#000, transparent); mask-image: linear-gradient(#000, transparent); }
