@@ -903,6 +903,10 @@ function vaultHtml() {
 }
 
 /* ------------------------------------------------------------------ Requests (public) and Approvals (officers) */
+const CLASS_SPECS = { 'Death Knight': ['Blood', 'Frost', 'Unholy'], 'Demon Hunter': ['Havoc', 'Vengeance', 'Devourer'], Druid: ['Balance', 'Feral', 'Guardian', 'Restoration'],
+  Evoker: ['Augmentation', 'Devastation', 'Preservation'], Hunter: ['Beast Mastery', 'Marksmanship', 'Survival'], Mage: ['Arcane', 'Fire', 'Frost'], Monk: ['Brewmaster', 'Mistweaver', 'Windwalker'],
+  Paladin: ['Holy', 'Protection', 'Retribution'], Priest: ['Discipline', 'Holy', 'Shadow'], Rogue: ['Assassination', 'Outlaw', 'Subtlety'], Shaman: ['Elemental', 'Enhancement', 'Restoration'],
+  Warlock: ['Affliction', 'Demonology', 'Destruction'], Warrior: ['Arms', 'Fury', 'Protection'] };
 const ALL_SPECS = ['Blood', 'Frost', 'Unholy', 'Havoc', 'Vengeance', 'Devourer', 'Balance', 'Feral', 'Guardian', 'Restoration', 'Devastation', 'Preservation', 'Augmentation', 'Beast Mastery', 'Marksmanship', 'Survival',
   'Arcane', 'Fire', 'Brewmaster', 'Mistweaver', 'Windwalker', 'Holy', 'Protection', 'Retribution', 'Discipline', 'Shadow', 'Assassination', 'Outlaw', 'Subtlety', 'Elemental', 'Enhancement', 'Affliction', 'Demonology', 'Destruction', 'Arms', 'Fury'];
 let reqMsg = { secondary: '', alt: '', main: '' };
@@ -921,7 +925,8 @@ function requestsHtml() {
       <label>${type === 'main' ? 'Your current main' : 'Your main'}<select name="player" required><option value="">Pick your main…</option>${players.map(n => `<option>${esc(n)}</option>`).join('')}</select></label>
       <label>${type === 'alt' ? 'Alt' : type === 'main' ? 'New main' : 'Secondary main'} name<input name="name" required maxlength="12" placeholder="Character name"></label>
       <label>Server<select name="realm">${realmOptions()}</select></label>
-      <label>Spec${type === 'alt' ? '' : ' <span class="hint">(raid spec)</span>'}<input name="spec" list="spec-list" placeholder="e.g. Retribution"${type === 'alt' ? ' required' : ''}></label>
+      <label>Class<select name="cls" data-reqcls="${type}" required><option value="">Pick a class…</option>${Object.keys(CLASS_SPECS).map(c => `<option>${c}</option>`).join('')}</select></label>
+      <label>Spec${type === 'alt' ? '' : ' <span class="hint">(raid spec)</span>'}<select name="spec" required disabled><option value="">Pick the class first</option></select></label>
       <label class="wide">Note <span class="hint">(optional)</span><input name="note" maxlength="200" placeholder="Anything officers should know"></label>
       <button type="submit" class="toggle-btn">Send request</button><span class="hint req-msg">${esc(reqMsg[type])}</span>
     </form></div>`;
@@ -1179,6 +1184,11 @@ document.addEventListener('click', e => {
 
 // Healer wishlist form: picking a healer fills the "missing BiS" list; picking a BiS item fills in its boss
 document.addEventListener('change', e => {
+  if (e.target.dataset && e.target.dataset.reqcls) {
+    const sel = e.target.closest('form').querySelector('select[name=spec]'), specs = CLASS_SPECS[e.target.value] || [];
+    sel.innerHTML = specs.length ? '<option value="">Pick a spec…</option>' + specs.map(x => `<option>${x}</option>`).join('') : '<option value="">Pick the class first</option>';
+    sel.disabled = !specs.length;
+  }
   if (e.target.id === 'wish-who') {
     const [n, r] = e.target.value.split('|');
     const p = raidPlayers().find(x => toonsOfP(x).some(t => t.name === n));
@@ -1199,7 +1209,7 @@ document.addEventListener('submit', e => {
   if (rf) {
     e.preventDefault();
     const type = rf.dataset.reqform, f = new FormData(rf), btn = rf.querySelector('button');
-    const body = { action: 'request', type, player: f.get('player'), name: String(f.get('name') || '').trim(), realm: f.get('realm'), spec: String(f.get('spec') || '').trim(), note: String(f.get('note') || '').trim() };
+    const body = { action: 'request', type, player: f.get('player'), name: String(f.get('name') || '').trim(), realm: f.get('realm'), spec: String(f.get('spec') || '').trim(), cls: String(f.get('cls') || ''), note: String(f.get('note') || '').trim() };
     btn.disabled = true; rf.querySelector('.req-msg').textContent = 'Sending…';
     fetch(WEBAPP_URL, { method: 'POST', body: JSON.stringify(body) }).then(r => r.json())
       .then(out => { reqMsg[type] = out.ok ? '✓ ' + out.message : 'Not sent: ' + out.error; if (out.ok) { rf.reset(); return load(); } render(); })
