@@ -296,6 +296,14 @@
   .bc-boss { background: #1e1e1e; border-radius: 6px; padding: 6px 9px; margin-bottom: 5px; }
   .bc-boss .top { display: flex; justify-content: space-between; gap: 8px; align-items: baseline; }
   .bc-boss .b { font-weight: 600; color: var(--text-strong); font-size: 12.5px; }
+  .irows { display: flex; flex-direction: column; gap: 2px; margin-top: 3px; }
+  .irow { display: flex; align-items: center; gap: 8px; font-size: 12.5px; min-width: 0; }
+  .irow .slot { flex: 0 0 64px; }
+  .irow .iname { flex: 1 1 auto; min-width: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .ichip { flex: 0 0 auto; font-size: 10px; padding: 0 6px; border-radius: 8px; border: 1px solid #555; color: var(--muted-2); white-space: nowrap; }
+  .spl { flex: 0 0 auto; display: inline-flex; gap: 2px; }
+  .spl-t { font-size: 9.5px; font-weight: 700; width: 15px; height: 15px; border-radius: 4px; background: #2e2e2e; color: #bbb; display: inline-flex; align-items: center; justify-content: center; }
+  .need-grid.one-line > span { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; min-width: 0; }
   .bc-cat { font-size: 12px; font-weight: 700; color: var(--text-strong); margin: 12px 0 2px; padding-bottom: 3px; border-bottom: 1px solid #333; display: flex; justify-content: space-between; align-items: baseline; }
   .bc-cat:first-of-type { margin-top: 4px; }
   .vtiles { display: grid; grid-template-columns: repeat(3, 1fr); gap: 4px; margin: 6px 0; }
@@ -500,6 +508,8 @@ function logsBlock(c) {
 }
 const f1 = v => { const n = parseFloat(String(v ?? '').replace(/[^\d.]/g, '')); return isFinite(n) && n > 0 ? n.toFixed(1) : '-'; };
 const f2 = v => { const n = parseFloat(String(v ?? '').replace(/[^\d.]/g, '')); return isFinite(n) && n > 0 ? n.toFixed(2) : '-'; };
+/* Spec initials as small tags (hover a row for full names) */
+const specLetters = specs => specs.map(sp => `<span class="spl-t" title="${esc(sp)}">${esc(String(sp).replace(/ PvP$/, '').slice(0, 1))}</span>`).join('');
 const slotName = s => String(s).replace(/^(Finger|Trinket) \d$/, '$1');
 const bossOf = source => BOSS_ORDER.find(b => String(source).startsWith(b)) || null;
 
@@ -859,10 +869,10 @@ function guestCard(g) {
   need.forEach(x => { const b = bossOf(x.source); if (b) (byBoss[b] = byBoss[b] || []).push(x); });
   const rolls = BOSS_ORDER.filter(b => byBoss[b]);
   const rollBlock = withBis.length ? `<div class="sec"><div class="sec-title"><span>Bonus roll targets</span><span class="hint">raid order</span></div>` +
-    (rolls.length ? `<div class="targets">${rolls.map(b => `<div class="target"><span class="boss">${esc(b)}</span><div class="need-grid" style="grid-template-columns:82px 1fr;margin-top:3px">${byBoss[b].map(x =>
+    (rolls.length ? `<div class="targets">${rolls.map(b => `<div class="target"><span class="boss">${esc(b)}</span><div class="need-grid one-line" style="grid-template-columns:72px minmax(0,1fr);margin-top:3px">${byBoss[b].map(x =>
       `<span class="slot">${esc(slotName(x.slot))}</span><span>${esc(x.bis)}</span>`).join('')}</div></div>`).join('')}</div>` : `<p class="empty">No raid drops needed.</p>`) + `</div>` : '';
   const other = need.filter(x => !bossOf(x.source));
-  const otherBlock = other.length ? `<div class="sec"><div class="sec-title"><span>Other BiS still needed</span></div><div class="need-grid" style="grid-template-columns:82px 1fr auto">${other.map(x =>
+  const otherBlock = other.length ? `<div class="sec"><div class="sec-title"><span>Other BiS still needed</span></div><div class="need-grid one-line" style="grid-template-columns:72px minmax(0,1fr) auto">${other.map(x =>
     `<span class="slot">${esc(slotName(x.slot))}</span><span>${esc(x.bis)}</span><span class="specs-tag">${esc(x.source)}</span>`).join('')}</div></div>` : '';
   return `<div class="char" style="--accent:${accentFor(g.cls)};${classBg(g.cls)}">
     <div class="char-head"><div><div class="name-row">${classIcon(g.cls)}<span class="char-name">${esc(g.name)}</span>${profileLinks(g.name, g.realm)}</div><div class="char-meta">${esc([g.spec || g.activeSpec, g.cls].filter(Boolean).join(' '))}${g.realm ? ' &middot; ' + esc(g.realm) : ''}</div></div>
@@ -1142,9 +1152,12 @@ function render(state, live, when) {
     });
     return Object.values(m);
   };
-  const itemGrid = (c, list, extra) => `<div class="need-grid" style="grid-template-columns:72px 1fr auto;margin-top:3px">${list.map(i => {
+  // One line per item: slot, item (cut off with ... if long; hover for the full name and source), optional chip, spec letters
+  const itemGrid = (c, list, extra) => `<div class="irows">${list.map(i => {
     const main = [...i.specs].some(sp => isMainSpec(c, sp));
-    return `<span class="slot">${esc(slotName(i.slot))}</span><span class="${main ? 'main-item' : ''}">${main ? '&#9733; ' : ''}${esc(i.item)}${extra ? ` <span class="src-tag">${extra(i)}</span>` : ''}</span><span class="specs-tag">${esc([...i.specs].join(', '))}</span>`;
+    const x = extra ? extra(i) : {};
+    const tip = `${i.item}${i.source ? ' &middot; ' + i.source : ''}&lt;br&gt;${[...i.specs].join(', ')}`;
+    return `<div class="irow" data-tip="${esc(tip)}"><span class="slot">${esc(slotName(i.slot))}</span><span class="iname ${main ? 'main-item' : ''}">${main ? '&#9733; ' : ''}${esc(i.item)}</span>${x.chip ? `<span class="ichip">${esc(x.chip)}</span>` : ''}<span class="spl">${specLetters([...i.specs])}</span></div>`;
   }).join('')}</div>`;
   const byMain = c => (x, y) => [...y.specs].some(sp => isMainSpec(c, sp)) - [...x.specs].some(sp => isMainSpec(c, sp));
   const charOf = name => chars.find(x => x.name === name) || { name, cls: '' };
@@ -1189,10 +1202,10 @@ function render(state, live, when) {
       }).join('')}</div>` : '';
       const open = v ? v.thresholds.filter(t => v.done >= t).length : 0;
       const direct = all.filter(i => i.si.type === type).sort(byMain(c));
-      let list = direct.length ? itemGrid(c, direct, i => esc(i.si.boss)) : '';
-      if (kind === 'raid' && tier.length) list += itemGrid(c, tier, () => 'tier token');
-      if (cat.length) list += itemGrid(c, cat, () => 'any item in this slot, then Catalyst');
-      if (!list) list = `<p class="empty">${kind === 'world' ? 'No BiS items come from Delves or World; use it for item level upgrades.' : 'Nothing on the BiS list comes from here.'}</p>`;
+      let list = direct.length ? itemGrid(c, direct) : '';
+      if (kind === 'raid' && tier.length) list += itemGrid(c, tier, () => ({ chip: 'Tier token' }));
+      if (cat.length) list += itemGrid(c, cat, () => ({ chip: 'Catalyst' }));
+      if (!list) list = `<p class="empty">${kind === 'world' ? 'No BiS here; item level upgrades only.' : 'No BiS items from here.'}</p>`;
       return `<div class="bc-cat"><span>${label}</span></div>${list}`;
     }).join('');
     return `<div class="bc" style="--accent:${accentFor(c.cls)}"><div class="bc-head"><span class="n" style="color:${CHAR_COLOR[name] || '#fff'}">${esc(name)}</span><span class="hint">Great Vault</span></div>${sections}</div>`;
