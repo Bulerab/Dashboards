@@ -197,6 +197,11 @@
   .bc-boss { background: #1e1e1e; border-radius: 6px; padding: 6px 9px; margin-bottom: 5px; }
   .bc-boss .top { display: flex; justify-content: space-between; gap: 8px; align-items: baseline; }
   .bc-boss .b { font-weight: 600; color: var(--text-strong); font-size: 12.5px; }
+  .bc-cat { font-size: 12px; font-weight: 700; color: var(--text-strong); margin: 12px 0 2px; padding-bottom: 3px; border-bottom: 1px solid #333; display: flex; justify-content: space-between; align-items: baseline; }
+  .bc-cat:first-of-type { margin-top: 4px; }
+  .vtiles { display: grid; grid-template-columns: repeat(3, 1fr); gap: 4px; margin: 6px 0; }
+  .vtiles .tile { min-height: 28px; font-size: 10px; }
+  .src-tag { font-size: 10.5px; color: var(--muted); }
   .roll-tag { font-size: 10.5px; padding: 1px 7px; border-radius: 9px; white-space: nowrap; }
   .roll-tag.chosen { background: #1d3b5f; border: 1px solid #3987e5; color: #fff; }
   .roll-tag.suggested { border: 1px dashed #666; color: #9a9a9a; font-style: italic; }
@@ -262,8 +267,8 @@
 
   <div class="card">
     <div class="card-head">
-      <div style="display:flex;gap:14px;align-items:center;flex-wrap:wrap"><h2>Bonus rolls</h2>
-        <div class="filters" id="bonus-tabs"><button type="button" class="chip" data-bview="boss">By boss</button><button type="button" class="chip" data-bview="char">By character</button></div></div>
+      <div style="display:flex;gap:14px;align-items:center;flex-wrap:wrap"><h2>Bonus Rolls &amp; Vaults</h2>
+        <div class="filters" id="bonus-tabs"><button type="button" class="chip" data-bview="boss">By source</button><button type="button" class="chip" data-bview="char">By character</button><button type="button" class="chip" data-bview="vault">By vault</button></div></div>
       <div class="legend" id="bonus-legend">
         <span><span class="sw" style="border:1px dashed #666;background:#2a2a2a"></span>Suggested by the sheet</span>
         <span><span class="sw" style="border:1px solid #3987e5;background:#1d3b5f"></span>Your pick</span>
@@ -271,6 +276,7 @@
     </div>
     <div class="table-wrap" id="bonus-boss"><table id="bonus"></table></div>
     <div class="bychar" id="bonus-char"></div>
+    <div class="bychar" id="bonus-vault"></div>
   </div>
 
   <div class="card">
@@ -334,6 +340,19 @@ const accentFor = cls => CLASS_ACCENT[String(cls).toLowerCase()] || '#555';
 const $ = id => document.getElementById(id);
 const accountOf = name => Object.keys(ACCOUNTS).find(a => ACCOUNTS[a].includes(name)) || '';
 const colored = name => `<span class="c" style="color:${CHAR_COLOR[name] || '#ddd'}">${esc(name)}</span>`;
+/* Where an item comes from: a raid boss, a dungeon boss (Mythic+), or something else (crafted, tier, catalyst, vendor, trash) */
+function srcInfo(source) {
+  const src = String(source || '');
+  const boss = bossOf(src);
+  if (boss) return { type: 'raid', boss, place: (src.match(/\(([^)]+)\)\s*$/) || [])[1] || '' };
+  const m = src.match(/^(.*?)\s*\(([^)]+)\)\s*$/);
+  if (m && !/^(Crafted|Trash|Catalyst|Tier)/i.test(src) && !/Venomous Abyss|Kith'ix|Tidebound/i.test(m[2])) {
+    return { type: 'dungeon', boss: m[1].trim(), place: m[2].replace(/,?\s*Mythic\+/i, '').trim() };
+  }
+  if (/^Tier/i.test(src)) return { type: 'tier' };
+  if (/^Catalyst/i.test(src)) return { type: 'catalyst' };
+  return { type: 'other' };
+}
 const slotName = s => String(s).replace(/^(Finger|Trinket) \d$/, '$1');
 const bossOf = source => BOSS_ORDER.find(b => String(source).startsWith(b)) || null;
 
@@ -759,44 +778,92 @@ function render(state, live, when) {
         <td class="cb"><input type="number" min="0" max="20" step="1" style="width:64px" data-rolls="${b.row}" value="${esc(b.rolls)}"${DIS()}></td></tr>`;
     }).join('');
   }).join('');
-  $('bonus').innerHTML = `<thead><tr><th>Boss</th><th class="num">Items</th><th>Who needs what</th><th>Plan (who rolls)</th><th class="cb">Rolls this week</th></tr></thead><tbody>` +
-    (body || `<tr><td colspan="5" class="empty">Loads with live data.</td></tr>`) +
+  // Dungeon drops (no bonus-roll plan here; listed so every BiS source is in one place)
+  const dung = {};
+  (state.needs || []).filter(n => n.kind === 'Gear').forEach(n => {
+    const si = srcInfo(n.source);
+    if (si.type !== 'dungeon') return;
+    const d = (dung[si.place] = dung[si.place] || {});
+    const b = (d[si.boss] = d[si.boss] || {});
+    const k = n.character + '|' + n.needed;
+    b[k] = b[k] || { c: n.character, item: n.needed, slot: n.slot, specs: new Set() };
+    b[k].specs.add(n.spec);
+  });
+  const dungBody = Object.keys(dung).sort().map(place => `<tr class="group"><td colspan="5">${esc(place)} &middot; Mythic+ dungeon</td></tr>` +
+    Object.entries(dung[place]).map(([boss, m]) => {
+      const list = Object.values(m).sort((a, b) => PLAN_CHARS.indexOf(a.c) - PLAN_CHARS.indexOf(b.c));
+      return `<tr><td>${esc(boss)}</td><td class="num">${list.length}</td><td><div class="need-grid">${list.map(n => `${colored(n.c)}<span class="slot">${esc(slotName(n.slot))}</span><span>${esc(n.item)}</span><span class="specs-tag">${esc([...n.specs].join(', '))}</span>`).join('')}</div></td><td><span class="hint">Run the dungeon / M+ vault</span></td><td></td></tr>`;
+    }).join('')).join('');
+  $('bonus').innerHTML = `<thead><tr><th>Source</th><th class="num">Items</th><th>Who needs what</th><th>Plan (who rolls)</th><th class="cb">Rolls this week</th></tr></thead><tbody>` +
+    (body || `<tr><td colspan="5" class="empty">Loads with live data.</td></tr>`) + dungBody +
     `<tr><td colspan="4"><b>Total rolls planned</b></td><td class="cb"><b>${totalRolls}</b></td></tr></tbody>`;
 
-  // Per-character view: each toon's raid BiS still needed, grouped by raid and boss, with who is set to roll there
+  // Per-character view: each toon's BiS from raids and dungeons, grouped by instance and boss, with who is set to roll there
   const bossInst = {};
   (state.bonus || []).forEach(b => { bossInst[b.boss] = b; });
-  const instOfBoss = boss => (bossInst[boss] || {}).instance || '';
-  $('bonus-char').innerHTML = PLAN_CHARS.map(name => {
-    const c = chars.find(x => x.name === name) || { name, cls: '' };
+  const gearNeeds = name => {
     const m = {};
-    (state.needs || []).filter(n => n.character === name && n.kind === 'Gear' && bossOf(n.source)).forEach(n => {
-      const b = bossOf(n.source);
-      m[b] = m[b] || {};
-      m[b][n.needed] = m[b][n.needed] || { item: n.needed, slot: n.slot, specs: new Set() };
-      m[b][n.needed].specs.add(n.spec);
+    (state.needs || []).filter(n => n.character === name && n.kind === 'Gear').forEach(n => {
+      const k = n.slot + '|' + n.needed;
+      m[k] = m[k] || { item: n.needed, slot: n.slot, source: n.source, si: srcInfo(n.source), specs: new Set() };
+      m[k].specs.add(n.spec);
     });
-    const bosses = BOSS_ORDER.filter(b => m[b]);
-    const count = bosses.reduce((t, b) => t + Object.keys(m[b]).length, 0);
+    return Object.values(m);
+  };
+  const itemGrid = (c, list, extra) => `<div class="need-grid" style="grid-template-columns:72px 1fr auto;margin-top:3px">${list.map(i => {
+    const main = [...i.specs].some(sp => isMainSpec(c, sp));
+    return `<span class="slot">${esc(slotName(i.slot))}</span><span class="${main ? 'main-item' : ''}">${main ? '&#9733; ' : ''}${esc(i.item)}${extra ? ` <span class="src-tag">${extra(i)}</span>` : ''}</span><span class="specs-tag">${esc([...i.specs].join(', '))}</span>`;
+  }).join('')}</div>`;
+  const byMain = c => (x, y) => [...y.specs].some(sp => isMainSpec(c, sp)) - [...x.specs].some(sp => isMainSpec(c, sp));
+  const charOf = name => chars.find(x => x.name === name) || { name, cls: '' };
+
+  $('bonus-char').innerHTML = PVE_ORDER.map(name => {
+    const c = charOf(name), all = gearNeeds(name);
+    const raid = all.filter(i => i.si.type === 'raid'), dng = all.filter(i => i.si.type === 'dungeon');
+    // Raids: instance > boss, in boss order
     let lastInst = '';
-    const body = bosses.map(b => {
+    const raidHtml = BOSS_ORDER.filter(b => raid.some(i => i.si.boss === b)).map(b => {
       const row = bossInst[b] || {};
       const roller = row.plan || row.suggested || '';
       const tag = !roller ? '' : roller === name
         ? `<span class="roll-tag ${row.plan ? 'chosen' : 'suggested'}">${row.plan ? '&#127922; rolling here' : 'suggested roll'}</span>`
         : `<span class="roll-tag other">${esc(roller)} rolls</span>`;
-      const inst = instOfBoss(b);
+      const inst = row.instance || '';
       const head = inst && inst !== lastInst ? `<div class="bc-inst">${esc(inst)}</div>` : '';
       lastInst = inst || lastInst;
-      const items = Object.values(m[b]).sort((x, y) => isMainSpec(c, [...y.specs][0]) - isMainSpec(c, [...x.specs][0]));
-      return head + `<div class="bc-boss"><div class="top"><span class="b">${esc(b)}</span>${tag}</div>
-        <div class="need-grid" style="grid-template-columns:72px 1fr auto;margin-top:3px">${items.map(i => {
-          const main = [...i.specs].some(sp => isMainSpec(c, sp));
-          return `<span class="slot">${esc(slotName(i.slot))}</span><span class="${main ? 'main-item' : ''}">${main ? '&#9733; ' : ''}${esc(i.item)}</span><span class="specs-tag">${esc([...i.specs].join(', '))}</span>`;
-        }).join('')}</div></div>`;
+      return head + `<div class="bc-boss"><div class="top"><span class="b">${esc(b)}</span>${tag}</div>${itemGrid(c, raid.filter(i => i.si.boss === b).sort(byMain(c)))}</div>`;
     }).join('');
-    return `<div class="bc" style="--accent:${accentFor(c.cls)}"><div class="bc-head"><span class="n" style="color:${CHAR_COLOR[name] || '#fff'}">${esc(name)}</span><span class="hint">${count} raid item${count === 1 ? '' : 's'} &middot; ${bosses.length} boss${bosses.length === 1 ? '' : 'es'}</span></div>` +
-      (body || `<p class="empty">No raid drops needed.</p>`) + `</div>`;
+    // Dungeons: dungeon > boss
+    const places = [...new Set(dng.map(i => i.si.place))].sort();
+    const dngHtml = places.map(pl => `<div class="bc-inst">${esc(pl)}</div>` +
+      [...new Set(dng.filter(i => i.si.place === pl).map(i => i.si.boss))].map(b =>
+        `<div class="bc-boss"><div class="top"><span class="b">${esc(b)}</span></div>${itemGrid(c, dng.filter(i => i.si.place === pl && i.si.boss === b).sort(byMain(c)))}</div>`).join('')).join('');
+    const count = raid.length + dng.length;
+    return `<div class="bc" style="--accent:${accentFor(c.cls)}"><div class="bc-head"><span class="n" style="color:${CHAR_COLOR[name] || '#fff'}">${esc(name)}</span><span class="hint">${count} drop${count === 1 ? '' : 's'} needed</span></div>
+      <div class="bc-cat"><span>Raids</span><span class="hint">${raid.length}</span></div>${raidHtml || '<p class="empty">No raid drops needed.</p>'}
+      <div class="bc-cat"><span>Dungeons</span><span class="hint">${dng.length}</span></div>${dngHtml || '<p class="empty">No dungeon drops needed.</p>'}</div>`;
+  }).join('');
+
+  // Per-vault view: which Great Vault row can give each toon what they still need
+  const VROWS = [['raid', 'Raid', 'raid'], ['mplus', 'Dungeon', 'dungeon'], ['world', 'World', 'world']];
+  $('bonus-vault').innerHTML = PVE_ORDER.map(name => {
+    const c = charOf(name), all = gearNeeds(name);
+    const tier = all.filter(i => i.si.type === 'tier'), cat = all.filter(i => i.si.type === 'catalyst');
+    const sections = VROWS.map(([kind, label, type]) => {
+      const v = (c.vault || []).find(x => x.kind === kind);
+      const tiles = v ? `<div class="vtiles">${v.thresholds.map((t, i) => {
+        const on = v.done >= t;
+        return `<div class="tile${on ? ' on' : ''}"><b>${on ? '&#10003; ' : ''}Slot ${i + 1}</b>${on ? esc(String(v.slots[i] || '').replace(/^\+\d+:\s*/, '')) : esc(t + (kind === 'raid' ? ' bosses' : kind === 'mplus' ? ' runs' : ' done'))}</div>`;
+      }).join('')}</div>` : '';
+      const open = v ? v.thresholds.filter(t => v.done >= t).length : 0;
+      const direct = all.filter(i => i.si.type === type).sort(byMain(c));
+      let list = direct.length ? itemGrid(c, direct, i => esc(i.si.boss)) : '';
+      if (kind === 'raid' && tier.length) list += itemGrid(c, tier, () => 'tier token');
+      if (cat.length) list += itemGrid(c, cat, () => 'any item in this slot, then Catalyst');
+      if (!list) list = `<p class="empty">${kind === 'world' ? 'No BiS items come from Delves or World; use it for item level upgrades.' : 'Nothing on the BiS list comes from here.'}</p>`;
+      return `<div class="bc-cat"><span>${label}</span><span class="hint">${v ? open + ' of 3 slots unlocked' : ''}</span></div>${tiles}${list}`;
+    }).join('');
+    return `<div class="bc" style="--accent:${accentFor(c.cls)}"><div class="bc-head"><span class="n" style="color:${CHAR_COLOR[name] || '#fff'}">${esc(name)}</span><span class="hint">Great Vault</span></div>${sections}</div>`;
   }).join('');
   paintBonusView();
 
@@ -820,6 +887,7 @@ function paintBonusView() {
   $('bonus-boss').style.display = bonusView === 'boss' ? '' : 'none';
   $('bonus-legend').style.display = bonusView === 'boss' ? '' : 'none';
   $('bonus-char').style.display = bonusView === 'char' ? '' : 'none';
+  $('bonus-vault').style.display = bonusView === 'vault' ? '' : 'none';
 }
 
 /* ------------------------------------------------------------------ events */
