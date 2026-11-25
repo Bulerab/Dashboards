@@ -7,7 +7,7 @@
 <link rel="preconnect" href="https://script.google.com">
 <link rel="preconnect" href="https://script.googleusercontent.com" crossorigin>
 <link rel="stylesheet" href="app.css?v=1">
-<link rel="stylesheet" href="apo.css?v=2">
+<link rel="stylesheet" href="apo.css?v=3">
 </head>
 <body>
 <div class="container">
@@ -26,8 +26,9 @@
     <div class="sum-grid" id="roster-summary"></div>
     <div class="card"><div class="card-head"><h2>Boss breakdown</h2><span class="hint" id="boss-hint"></span></div><div class="table-wrap" id="boss-breakdown"></div></div>
     <div class="card"><div class="card-head"><h2>Raid toolkit</h2><span class="hint">buffs, utility and dispels of the toons picked below</span></div><div id="raid-toolkit"></div></div>
-    <div class="section-title"><h2>Raid team</h2><span class="hint" id="raid-count"></span></div>
-    <div class="chars lite-grid" id="raid-tiles"></div>
+    <div class="section-title"><h2>Raid team</h2><span class="hint" id="raid-count"></span><button type="button" class="toggle-btn" data-mains="open">Mains &amp; secondary mains</button></div>
+    <div id="raid-tiles"></div>
+    <div id="mains-pop"></div>
     <div id="bench-wrap"></div>
   </section>
 
@@ -55,6 +56,6 @@
 </div>
 <div class="tip" id="tip"></div>
 <script src="shared.js?v=1"></script>
-<script src="app.js?v=3"></script>
+<script src="app.js?v=4"></script>
 </body>
 </html>

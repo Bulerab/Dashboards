@@ -10,6 +10,9 @@ let STATE = null, WHEN = '';
 let tab = (location.hash || '#roster').slice(1);
 const rosterPick = store('apoRosterPick', {});           // player -> picked toon name
 const tileOpen = new Set(store('apoTileOpen', []));
+let bbMode = store('apoBossMode', 'overall');           // boss breakdown: ilvl | overall | raw
+let ilvlAll = store('apoIlvlAll', false);               // top item level: top 5 or whole raid
+let mainsOpen = false;                                  // mains vs secondary mains pop-out
 
 const ROLE = c => c.role === 'TANK' ? 'Tank' : c.role === 'HEALING' ? 'Healer' : 'DPS';
 const nameHtml = c => `<span style="color:${classHex(c.cls)};white-space:nowrap">${classIcon(c.cls, 'sm')}${esc(c.name)}</span>`;
@@ -20,10 +23,34 @@ const bossOfSrc = src => bossList().find(b => String(src || '').startsWith(b)) |
 const raidPlayers = () => { const r = (STATE.roster || []); const team = r.filter(p => p.raid); return team.length ? team : r; };
 const benchPlayers = () => { const r = (STATE.roster || []); return r.some(p => p.raid) ? r.filter(p => !p.raid) : []; };
 
+/* ------------------------------------------------------------------ roles, sections and offspecs */
+const SECTIONS = ['Tanks', 'Healers', 'Melee', 'Ranged'];
+const RANGED_SPEC = { Balance: 1, Elemental: 1, Shadow: 1, Devastation: 1, Augmentation: 1, Marksmanship: 1, 'Beast Mastery': 1, Arcane: 1, Fire: 1,
+  Affliction: 1, Demonology: 1, Destruction: 1 };
+const isRanged = (cls, spec) => RANGED_SPEC[spec] || (spec === 'Frost' && cls === 'Mage') || (!spec && /Mage|Warlock|Evoker|Hunter/.test(cls || ''));
+const sectionOf = (role, cls, spec) => /tank/i.test(role) ? 'Tanks' : /heal/i.test(role) ? 'Healers' : isRanged(cls, spec) ? 'Ranged' : 'Melee';
+const ROLE_SECTION = { Tank: 'Tanks', Healer: 'Healers', Melee: 'Melee', Ranged: 'Ranged' };
+/** The section a player sits in: the Raid role column, or their main's spec when it's blank */
+const playerSection = p => ROLE_SECTION[p.role] || sectionOf(p.main.role, p.main.cls, p.main.spec);
+/** "Offspec: Shadow DPS; Offspec: Blood tank" in Notes -> [{ spec, role, section }] */
+function offspecsOf(p) {
+  const out = [];
+  String(p.notes || '').replace(/offspec:\s*([^;\n]+)/gi, (m, txt) => {
+    txt.split(/\s*(?:,|&| and )\s*/).forEach(t => {
+      const role = /tank/i.test(t) ? 'Tank' : /heal/i.test(t) ? 'Healer' : 'DPS';
+      const spec = t.replace(/\b(dps|tank|heals?|healer|healing)\b/ig, '').trim();
+      out.push({ spec, role, section: sectionOf(role, p.main.cls, spec) });
+    });
+  });
+  return out;
+}
+const ROLE_ICON = { Tank: 'inv_shield_04', Healer: 'spell_holy_flashheal', DPS: 'inv_sword_04' };
+const roleIcon = r => icon(ROLE_ICON[r] || ROLE_ICON.DPS, 'role-ic');
+
 /* ------------------------------------------------------------------ Roster tab */
 function summaryHtml(toons) {
   const ok = toons.filter(t => !t.error);
-  const top = ok.slice().sort((a, b) => (b.ilvl || 0) - (a.ilvl || 0)).slice(0, 3);
+  const sorted = ok.slice().sort((a, b) => (b.ilvl || 0) - (a.ilvl || 0)), top = ilvlAll ? sorted : sorted.slice(0, 5);
   const issues = ok.map(t => {
     const bits = [];
     if ((t.missingEnchants || []).length) bits.push('Enchant: ' + t.missingEnchants.map(slotName).join(', '));
@@ -34,8 +61,9 @@ function summaryHtml(toons) {
   const roles = { Tank: 0, Healer: 0, DPS: 0 };
   ok.forEach(t => roles[ROLE(t)]++);
   const avg = ok.length ? ok.reduce((a, t) => a + (t.ilvl || 0), 0) / ok.length : 0;
-  return `<div class="card"><div class="card-head"><h2>Top item level</h2><span class="hint">raid team avg ${f2(avg)}</span></div>
+  return `<div class="card"><div class="card-head"><h2>${ilvlAll ? 'Item level' : 'Top 5 item level'}</h2><span class="hint">raid team avg ${f2(avg)}</span></div>
       ${top.map((t, i) => `<div class="sum-row"><span class="rk">${i + 1}</span>${nameHtml(t)}<span class="hint">${esc(t.spec)}</span><b class="r">${f2(t.ilvl)}</b></div>`).join('') || '<p class="empty">No data yet.</p>'}
+      ${sorted.length > 5 ? `<button type="button" class="toggle-btn" style="margin-top:8px" data-ilvlall="1">${ilvlAll ? 'Show top 5' : 'Show all ' + sorted.length}</button>` : ''}
       <div class="sum-roles"><span>Tanks <b>${roles.Tank}</b></span><span>Healers <b>${roles.Healer}</b></span><span>DPS <b>${roles.DPS}</b></span><span>Total <b>${ok.length}</b></span></div></div>
     <div class="card"><div class="card-head"><h2>Missing enchants &amp; gems</h2><span class="hint">${issues.length} of ${ok.length} players</span></div>
       ${issues.length ? `<div class="issue-list">${issues.map(x => `<div class="sum-row">${nameHtml(x.t)}<span class="r issue">${esc(x.bits.join(' · '))}</span></div>`).join('')}</div>` : '<p class="empty" style="color:var(--ok)">Everyone is enchanted and gemmed.</p>'}</div>`;
@@ -44,13 +72,18 @@ function summaryHtml(toons) {
 function bossBreakdown(toons) {
   const ok = toons.filter(t => t.logs && !t.logs.error);
   const diff = (ok[0] && ok[0].logs.difficulty) || 'Heroic';
-  $('boss-hint').innerHTML = `best ${esc(diff)} parse per player (overall %, all their kills); damage for DPS and tanks, healing for healers`;
+  $('boss-hint').innerHTML = `best ${esc(diff)} kill per player; damage for DPS and tanks, healing for healers`;
   const bosses = bossList().filter(b => ok.some(t => t.logs.bosses.some(x => x.boss === b)));
   if (!bosses.length) return `<p class="empty">${toons.some(t => t.logs) ? 'No kills logged at this difficulty yet.' : 'Warcraft Logs parses appear after the first refresh with the Warcraft Logs keys.'}</p>`;
+  const key = bbMode === 'ilvl' ? 'pctB' : bbMode === 'raw' ? 'amount' : 'pct';
   const top3 = (b, metric) => ok.filter(t => t.logs.metric === metric).map(t => ({ t, x: t.logs.bosses.find(x => x.boss === b) }))
-    .filter(r => r.x && r.x.pct != null).sort((a, c) => c.x.pct - a.x.pct || c.x.amount - a.x.amount).slice(0, 3);
-  const cell = list => list.length ? list.map(r => `<span class="bb">${nameHtml(r.t)} ${pctHtml(r.x.pct)} <span class="hint">${abbr(r.x.amount)}</span></span>`).join('') : '<span class="hint">-</span>';
-  return `<table class="logs-table boss-bd"><thead><tr><th>Boss</th><th>Top 3 damage parses</th><th>Top 3 healing parses</th></tr></thead><tbody>${bosses.map(b =>
+    .filter(r => r.x && r.x[key] != null).sort((a, c) => c.x[key] - a.x[key] || c.x.amount - a.x.amount).slice(0, 3);
+  const cell = list => list.length ? list.map(r => `<span class="bb">${nameHtml(r.t)} ${bbMode === 'raw' ? `<b>${abbr(r.x.amount)}</b> <span class="hint">${r.x.pct != null ? Math.floor(r.x.pct) + '%' : ''}</span>`
+    : `${pctHtml(r.x[key])} <span class="hint">${abbr(r.x.amount)}</span>`}</span>`).join('') : '<span class="hint">-</span>';
+  const chip = (k, label, tip) => `<button type="button" class="chip${bbMode === k ? ' on' : ''}" data-bbmode="${k}" data-tip="${tip}">${label}</button>`;
+  const chips = `<div class="filters" style="margin-bottom:10px">${chip('ilvl', 'ilvl %', 'Parse compared with players at the same item level')}${chip('overall', 'Overall %', 'Parse compared with everyone playing the spec')}${chip('raw', 'Raw throughput', 'Highest damage or healing per second')}</div>`;
+  const word = bbMode === 'raw' ? 'throughput' : 'parses';
+  return chips + `<table class="logs-table boss-bd"><thead><tr><th>Boss</th><th>Top 3 damage ${word}</th><th>Top 3 healing ${word}</th></tr></thead><tbody>${bosses.map(b =>
     `<tr><td><b>${esc(b)}</b></td><td>${cell(top3(b, 'dps'))}</td><td>${cell(top3(b, 'hps'))}</td></tr>`).join('')}</tbody></table>`;
 }
 
@@ -58,6 +91,11 @@ function bisNeedByBoss(c) {
   const by = {};
   ((c.bis && c.bis.need) || []).forEach(n => { const b = bossOfSrc(n.source) || n.source || 'Other'; (by[b] = by[b] || []).push(n); });
   return by;
+}
+
+function offBadges(p) {
+  const offs = offspecsOf(p);
+  return offs.length ? `<div class="offspecs"><span class="ol">Offspecs</span>${offs.map(o => `<span class="ob" data-tip="${esc((o.spec ? o.spec + ' ' : '') + o.role)}">${roleIcon(o.role)}${esc(o.spec || o.role)}</span>`).join('')}</div>` : '';
 }
 
 function playerTile(p, key) {
@@ -72,8 +110,8 @@ function playerTile(p, key) {
   const pills = [(c.missingEnchants || []).length ? `<span class="pill bad">Missing enchant: ${esc(c.missingEnchants.map(slotName).join(', '))}</span>` : '<span class="pill ok">Enchants OK</span>',
     c.gems ? (c.gems.empty ? `<span class="pill bad">${c.gems.empty} empty socket${c.gems.empty > 1 ? 's' : ''}</span>` : '<span class="pill ok">Gems OK</span>') : '',
     c.gems ? (c.gems.diamond ? '<span class="pill ok">Eversong Diamond</span>' : '<span class="pill bad">No Eversong Diamond</span>') : ''].join('');
-  const logsTable = L ? `<table class="logs-table"><thead><tr><th>Boss</th><th>${L.metric === 'hps' ? 'Healing' : 'Damage'} %</th><th>Best ${L.metric === 'hps' ? 'HPS' : 'DPS'}</th><th>Kills</th></tr></thead><tbody>${
-      bossList().map(b => L.bosses.find(x => x.boss === b)).filter(Boolean).map(x => `<tr><td>${esc(x.boss)}</td><td>${pctHtml(x.pct)}</td><td>${abbr(x.amount)}</td><td>${x.kills}</td></tr>`).join('') || '<tr><td colspan="4" class="none">No kills logged</td></tr>'}</tbody></table>`
+  const logsTable = L ? `<table class="logs-table"><thead><tr><th>Boss</th><th data-tip="Compared with players at the same item level">ilvl %</th><th data-tip="Compared with everyone playing the spec">Overall %</th><th>Best ${L.metric === 'hps' ? 'HPS' : 'DPS'}</th><th>Kills</th></tr></thead><tbody>${
+      bossList().map(b => L.bosses.find(x => x.boss === b)).filter(Boolean).map(x => `<tr><td>${esc(x.boss)}</td><td>${pctHtml(x.pctB)}</td><td>${pctHtml(x.pct)}</td><td>${abbr(x.amount)}</td><td>${x.kills}</td></tr>`).join('') || '<tr><td colspan="5" class="none">No kills logged</td></tr>'}</tbody></table>`
     : `<p class="empty">${c.logs && c.logs.error ? esc(c.logs.error) : 'No Warcraft Logs data yet.'}</p>`;
   const by = bisNeedByBoss(c);
   const need = Object.keys(by).sort((a, b) => (bossList().indexOf(a) + 1 || 99) - (bossList().indexOf(b) + 1 || 99)).map(b =>
@@ -89,13 +127,22 @@ function playerTile(p, key) {
         <div class="mini"><div class="k">Bosses logged</div><div class="v">${L ? L.bosses.length : '-'}</div></div>
         <div class="mini"><div class="k">BiS needed</div><div class="v">${c.bis ? c.bis.need.length : '-'}</div></div>
       </div>
-      <div class="ench-summary" style="margin-top:8px">${pills}</div>${pick}
+      <div class="ench-summary" style="margin-top:8px">${pills}</div>${offBadges(p)}${pick}
     </div>
     <div class="pvp-more"><div class="pvp-more-grid" style="grid-template-columns:1fr 1fr">
       <div><div class="sec"><div class="sec-title"><span>Warcraft Logs &middot; ${esc((L && L.difficulty) || '')} raid</span><span class="hint">overall %</span></div>${logsTable}</div></div>
       <div><div class="sec"><div class="sec-title"><span>BiS still needed</span><span class="hint">by source</span></div>${need || (c.bis ? '<p class="empty" style="color:var(--ok)">Full BiS.</p>' : '<p class="empty">No BiS list yet.</p>')}</div></div>
     </div></div>
   </div>`;
+}
+
+function mainsPopout() {
+  const ps = STATE.roster || [];
+  const mains = ps.map(p => `<div class="sum-row">${nameHtml(p.main)}<span class="hint">${esc(p.main.spec || '')}</span><span class="r hint">${esc(p.role || '')}${p.raid ? '' : ' &middot; not on raid team'}</span></div>`).join('');
+  const secs = ps.flatMap(p => (p.alts || []).map(a => `<div class="sum-row">${nameHtml(a)}<span class="hint">${esc(a.spec || '')} ${esc(a.cls || '')}</span><span class="r">secondary main of ${nameHtml(p.main)}</span></div>`)).join('');
+  return `<div class="pop-bg" data-mains="close"></div><div class="pop"><div class="card-head"><h2>Mains &amp; secondary mains</h2><button type="button" class="toggle-btn" data-mains="close">Close</button></div>
+    <div class="pop-grid"><div><div class="sec-title"><span>Mains</span><span class="hint">${ps.length}</span></div>${mains}</div>
+    <div><div class="sec-title"><span>Secondary mains</span><span class="hint">${(secs.match(/sum-row/g) || []).length}</span></div>${secs || '<p class="empty">None listed.</p>'}</div></div></div>`;
 }
 
 /* ------------------------------------------------------------------ Priority tab */
@@ -179,7 +226,18 @@ function render() {
   $('boss-breakdown').innerHTML = bossBreakdown(team);
   $('raid-toolkit').innerHTML = toolkitHtml(team);
   $('raid-count').textContent = raidPlayers().length + ' players';
-  $('raid-tiles').innerHTML = raidPlayers().map(p => playerTile(p, 'raid')).join('') || '<p class="empty">Add players on the sheet\'s Roster tab.</p>';
+  const rp = raidPlayers();
+  $('raid-tiles').innerHTML = rp.length ? SECTIONS.map(sec => {
+    const ps = rp.filter(p => playerSection(p) === sec);
+    // Offspecs and secondary mains from other players that can fill this section
+    const offs = rp.flatMap(p => offspecsOf(p).filter(o => o.section === sec && playerSection(p) !== sec).map(o => `${nameHtml(p.main)} <span class="hint">(${esc(o.spec || o.role)})</span>`));
+    const secs = rp.flatMap(p => (p.alts || []).filter(a => !a.error && sectionOf(a.role, a.cls, a.spec) === sec).map(a => `${nameHtml(a)} <span class="hint">(${esc(a.spec)}, ${esc(p.main.name)}'s)</span>`));
+    const avail = offs.concat(secs);
+    return `<div class="role-sec"><div class="section-title"><h2>${roleIcon(sec === 'Tanks' ? 'Tank' : sec === 'Healers' ? 'Healer' : 'DPS')} ${sec}</h2><span class="hint">${ps.length}</span></div>
+      <div class="avail"><b>Raid offspecs available:</b> ${avail.length ? avail.join(' &middot; ') : '<span class="hint">none listed</span>'}</div>
+      ${ps.length ? `<div class="chars lite-grid">${ps.map(p => playerTile(p, 'raid')).join('')}</div>` : '<p class="empty">Nobody in this role.</p>'}</div>`;
+  }).join('') : '<p class="empty">Add players on the sheet\'s Roster tab.</p>';
+  $('mains-pop').innerHTML = mainsOpen ? mainsPopout() : '';
   const bench = benchPlayers();
   $('bench-wrap').innerHTML = bench.length ? `<div class="section-title"><h2>Others on the roster</h2><span class="hint">${bench.length} players</span></div><div class="chars lite-grid">${bench.map(p => playerTile(p, 'bench')).join('')}</div>` : '';
   priorityHtml();
@@ -188,6 +246,11 @@ function render() {
 }
 
 document.addEventListener('click', e => {
+  const bm = e.target.closest('[data-bbmode]');
+  if (bm) { bbMode = bm.dataset.bbmode; save('apoBossMode', bbMode); render(); return; }
+  if (e.target.closest('[data-ilvlall]')) { ilvlAll = !ilvlAll; save('apoIlvlAll', ilvlAll); render(); return; }
+  const mp = e.target.closest('[data-mains]');
+  if (mp) { mainsOpen = mp.dataset.mains !== 'close'; render(); return; }
   const tb = e.target.closest('[data-tab]');
   if (tb) { e.preventDefault(); tab = tb.dataset.tab; history.replaceState(null, '', '#' + tab); render(); return; }
   const rp = e.target.closest('[data-rpick]');
