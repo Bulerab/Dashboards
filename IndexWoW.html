@@ -412,6 +412,7 @@ function profileLinks(name, realmSlug, region) {
     <a class="wcl" href="https://www.warcraftlogs.com/character/${g}/${r}/${nl}" target="_blank" rel="noopener" data-tip="Warcraft Logs">W</a>
     <a class="arm" href="https://worldofwarcraft.blizzard.com/en-us/character/${g}/${r}/${nl}" target="_blank" rel="noopener" data-tip="Blizzard Armory">A</a></span>`;
 }
+const f1 = v => { const n = parseFloat(String(v ?? '').replace(/[^\d.]/g, '')); return isFinite(n) && n > 0 ? n.toFixed(1) : '-'; };
 const f2 = v => { const n = parseFloat(String(v ?? '').replace(/[^\d.]/g, '')); return isFinite(n) && n > 0 ? n.toFixed(2) : '-'; };
 const slotName = s => String(s).replace(/^(Finger|Trinket) \d$/, '$1');
 const bossOf = source => BOSS_ORDER.find(b => String(source).startsWith(b)) || null;
@@ -660,7 +661,7 @@ function pveCard(c) {
   return `<div class="char pvpc${open ? ' open' : ''}" style="--accent:${accentFor(c.cls)}" data-pvpcard="${esc(c.name)}">
     <div class="pvp-sum">
       <div class="char-head"><div><div class="name-row"><span class="char-name">${esc(c.name)}</span>${profileLinks(c.name)}<button type="button" class="toggle-btn" data-cardtoggle="${esc(c.name)}">${open ? 'Collapse' : 'Expand'} <span class="chev">&#9662;</span></button></div><div class="char-meta">${esc(c.cls)}</div></div>
-        <div class="headline-row"><div class="headline"><div class="lbl">M+ rating</div><div class="big">${f2(mp)}</div></div>
+        <div class="headline-row"><div class="headline"><div class="lbl">M+ rating</div><div class="big">${f1(mp)}</div></div>
           <div class="headline"><div class="lbl">ilvl</div><div class="big">${f2(c.ilvl)}</div></div></div></div>
       <div class="sec">${bisBlock(c)}</div>
       ${vaultBlock(c)}
@@ -681,7 +682,7 @@ function miniCard(c) {
   if (c.pvp) {
     const sh = (c.brackets || []).find(b => /shuffle/i.test(b.bracket));
     stat = `<span>Shuffle <b>${esc(sh && sh.rating ? sh.rating : '-')}</b></span>`;
-  } else stat = `<span>M+ <b>${f2(String(c.rating || '').replace(/^M\+\s*/, ''))}</b></span>`;
+  } else stat = `<span>M+ <b>${f1(String(c.rating || '').replace(/^M\+\s*/, ''))}</b></span>`;
   return `<div class="mini-card" style="--accent:${accentFor(c.cls)}">
     <div class="name-row"><span class="char-name">${esc(c.name)}</span><button type="button" class="toggle-btn" data-cardtoggle="${esc(c.name)}">Expand <span class="chev">&#9662;</span></button></div>
     <div class="char-meta">${esc(c.cls)} ${profileLinks(c.name)}</div>
@@ -707,7 +708,7 @@ function charCard(c) {
       <div class="headline"><div class="lbl">ilvl</div><div class="big">${f2(c.ilvl)}</div></div></div>`;
   } else {
     const mp = String(c.rating || '').replace(/^M\+\s*/, '');
-    headline = `<div class="headline-row"><div class="headline"><div class="lbl">M+ rating</div><div class="big">${f2(mp)}</div></div>
+    headline = `<div class="headline-row"><div class="headline"><div class="lbl">M+ rating</div><div class="big">${f1(mp)}</div></div>
       <div class="headline"><div class="lbl">ilvl</div><div class="big">${f2(c.ilvl)}</div></div></div>`;
   }
   return `<div class="char" style="--accent:${accentFor(c.cls)}">
@@ -763,7 +764,7 @@ function guestCard(g) {
     `<span class="slot">${esc(slotName(x.slot))}</span><span>${esc(x.bis)}</span><span class="specs-tag">${esc(x.source)}</span>`).join('')}</div></div>` : '';
   return `<div class="char" style="--accent:${accentFor(g.cls)}">
     <div class="char-head"><div><div class="name-row"><span class="char-name">${esc(g.name)}</span>${profileLinks(g.name, g.realm)}</div><div class="char-meta">${esc([g.spec || g.activeSpec, g.cls].filter(Boolean).join(' '))}${g.realm ? ' &middot; ' + esc(g.realm) : ''}</div></div>
-      <div class="headline-row"><div class="headline"><div class="lbl">M+ rating</div><div class="big">${f2(g.score)}</div></div>
+      <div class="headline-row"><div class="headline"><div class="lbl">M+ rating</div><div class="big">${f1(g.score)}</div></div>
       <div class="headline"><div class="lbl">ilvl</div><div class="big">${f2(g.ilvl)}</div></div></div></div>
     <div class="sec">${bisBar}</div>
     ${rollBlock}${otherBlock}
@@ -844,7 +845,7 @@ function teamPanel(t) {
     const dia = m.diamond ? `<span class="pill ok">Eversong Diamond</span>` : `<span class="pill bad">No Eversong Diamond</span>`;
     const weakest = (m.runs || []).slice().sort((a, b) => a.score - b.score).slice(0, 2).map(r => `${r.short} +${r.level}`).join(', ');
     return `<div class="member" style="--accent:${accentFor(m.cls)}">
-      <div class="mh"><div><span class="mn" style="color:${classHex(m.cls)}">${esc(m.name)}</span> ${profileLinks(m.name, m.realm, m.region)}</div><span class="mr" style="color:${esc(m.color || '#fff')}">${f2(m.score)}</span></div>
+      <div class="mh"><div><span class="mn" style="color:${classHex(m.cls)}">${esc(m.name)}</span> ${profileLinks(m.name, m.realm, m.region)}</div><span class="mr" style="color:${esc(m.color || '#fff')}">${f1(m.score)}</span></div>
       <div class="ms">${esc(m.spec)} ${esc(m.cls)} &middot; ${esc(m.realmName || m.realm)} ${swap}</div>
       <div class="row2"><span>ilvl <b>${f2(m.ilvl)}</b></span><span>Resilient <b>${res ? '+' + res : '-'}</b></span><span>${gap ? `To 3,600 <b>${Math.ceil(gap)}</b>` : '<b style="color:var(--ok)">3,600 reached</b>'}</span></div>
       <div class="meter" style="margin-top:6px"><div style="width:${Math.min(100, m.score / GOAL * 100).toFixed(1)}%"></div></div>
@@ -1048,7 +1049,7 @@ function render(state, live, when) {
   $('mplus').innerHTML = pve.slice().sort(byOrder(MPLUS_ORDER)).map(c => {
     const runs = (c.mplusRuns || []).slice().sort((a, b) => b.score - a.score);
     const mp = String(c.rating || '').replace(/^M\+\s*/, '');
-    return `<div class="mtile" style="--accent:${accentFor(c.cls)}"><div class="mtile-head"><span><span class="n">${esc(c.name)}</span> ${profileLinks(c.name)}</span><span class="sc">${f2(mp)}</span></div>` +
+    return `<div class="mtile" style="--accent:${accentFor(c.cls)}"><div class="mtile-head"><span><span class="n">${esc(c.name)}</span> ${profileLinks(c.name)}</span><span class="sc">${f1(mp)}</span></div>` +
       (runs.length ? runs.map(r => `<div class="run"><div>${esc(r.dungeon)} <span class="spec">${esc(r.spec)}</span></div><span class="lvl">+${r.level}</span><span class="score">${Number(r.score).toFixed(1)}</span></div>`).join('')
         : `<p class="empty">Loads with live data.</p>`) + `</div>`;
   }).join('');
