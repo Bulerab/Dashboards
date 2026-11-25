@@ -120,8 +120,13 @@ function bisNeedByBoss(c) {
 
 /* Raidbots opens with the character loaded from the Armory: /simbot/quick or /simbot/droptimizer ?region=&realm=&name= */
 const rbUrl = (mode, c) => `https://www.raidbots.com/simbot/${mode}?region=us&realm=${encodeURIComponent(c.realm || 'eldrethalas')}&name=${encodeURIComponent(c.name)}`;
-const rbLinks = c => `<div class="rb-links"><a class="rb-btn" href="${rbUrl('droptimizer', c)}" target="_blank" rel="noopener" data-tip="Raidbots Droptimizer for ${esc(c.name)}: pick the raid or dungeon, it sims every drop">${fav('raidbots.com', 'RB')} Droptimizer</a>
-  <a class="rb-btn" href="${rbUrl('quick', c)}" target="_blank" rel="noopener" data-tip="Raidbots Quick Sim of ${esc(c.name)}'s current gear">${fav('raidbots.com', 'RB')} Quick Sim</a></div>`;
+// Guild Droptimizer setup (Settings tab): Season 2 Raids, Heroic, Hero 6/6, Patchwerk, 1 boss. Loading it keeps the character
+// already in Raidbots when "Character" is unticked on Raidbots' confirm screen.
+const RB_SETUP_DEFAULT = 'https://www.raidbots.com/simbot/share/9i2ZaaSji3BsvnnmDjKo1o';
+const rbSetup = () => (STATE && STATE.guild && STATE.guild.raidbotsSetup) || RB_SETUP_DEFAULT;
+const rbLinks = c => `<div class="rb-links"><span class="rb-step">1</span><a class="rb-btn" href="${rbUrl('droptimizer', c)}" target="raidbots" rel="noopener" data-tip="Opens Raidbots Droptimizer with ${esc(c.name)} loaded">${fav('raidbots.com', 'RB')} Droptimizer: ${esc(c.name)}</a>
+  <span class="rb-step">2</span><a class="rb-btn" href="${esc(rbSetup())}" target="raidbots" rel="noopener" data-tip="Applies the guild setup: Season 2 Raids, Heroic, Hero 6/6, Patchwerk, 1 boss.&lt;br&gt;On Raidbots' screen, &lt;b&gt;untick Character&lt;/b&gt;, then Load Setup.">Raid setup</a>
+  <a class="rb-btn" href="${rbUrl('quick', c)}" target="raidbots" rel="noopener" data-tip="Raidbots Quick Sim of ${esc(c.name)}'s current gear">Quick Sim</a></div>`;
 
 function offBadges(p) {
   const offs = offspecsOf(p);
