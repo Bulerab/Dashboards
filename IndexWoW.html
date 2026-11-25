@@ -63,7 +63,7 @@
   .meter > div { height: 100%; background: var(--bar); border-radius: 0 4px 4px 0; }
   .star { color: #ffd54f; font-size: 12px; margin-left: 4px; }
 
-  .vault-row { display: grid; grid-template-columns: 60px 1fr 92px; align-items: center; gap: 8px; margin: 6px 0; font-size: 13px; }
+  .vault-row { display: grid; grid-template-columns: 58px 1fr 86px; align-items: center; gap: 8px; margin: 6px 0; font-size: 13px; }
   .tiles { display: grid; grid-template-columns: repeat(3, 1fr); gap: 5px; }
   .tile { border: 1px solid #3a3a3a; background: #222; border-radius: 5px; padding: 4px 5px; font-size: 10.5px; color: #777; text-align: center; min-height: 34px; display: flex; flex-direction: column; justify-content: center; line-height: 1.25; }
   .tile b { font-size: 11px; color: #999; }
@@ -74,6 +74,10 @@
   .step { width: 24px; height: 24px; border-radius: 5px; border: 1px solid #444; background: #2a2a2a; color: #ddd; cursor: pointer; font-size: 14px; line-height: 1; padding: 0; }
   .step:disabled { opacity: .35; cursor: not-allowed; }
   .auto { font-size: 10px; color: var(--muted); }
+  .bonus-chip { display: inline-flex; align-items: center; gap: 5px; font-size: 10.5px; text-transform: none; letter-spacing: 0; color: var(--muted); border: 1px solid #3a3a3a; border-radius: 9px; padding: 1px 8px 1px 4px; }
+  .bonus-chip .bx { width: 12px; height: 12px; border: 1px solid #555; border-radius: 3px; display: inline-flex; align-items: center; justify-content: center; font-size: 10px; line-height: 1; }
+  .bonus-chip.on { color: #fff; border-color: #3987e5; background: #1d3b5f; }
+  .bonus-chip.on .bx { background: #3987e5; border-color: #3987e5; color: #fff; }
 
   .checks { display: flex; flex-direction: column; gap: 5px; }
   .check { display: flex; gap: 8px; align-items: center; font-size: 13px; }
@@ -531,19 +535,33 @@ function bisBlock(c) {
   }).join('');
 }
 
+/* Gear upgrade tracks and their colors (Veteran green, Champion blue, Hero purple, Myth orange) */
+const TRACKS = [['Myth', '#ff8000'], ['Hero', '#a335ee'], ['Champion', '#0070dd'], ['Veteran', '#1eff00'], ['Adventurer', '#cccccc'], ['Explorer', '#9d9d9d']];
+const trackOf = txt => { const t = TRACKS.find(([n]) => new RegExp(n === 'Champion' ? 'Champ' : n, 'i').test(String(txt || ''))); return t || null; };
 function vaultBlock(c) {
   if (!c.vault) return '';
   const names = { mplus: 'Mythic+', raid: 'Raid', world: 'World' };
-  return `<div class="sec"><div class="sec-title"><span>Vault rewards</span></div>` + c.vault.map(v => {
+  const order = ['raid', 'mplus', 'world'];
+  const rows = c.vault.slice().sort((a, b) => order.indexOf(a.kind) - order.indexOf(b.kind));
+  const unlocked = c.vault.reduce((n, v) => n + (v.thresholds || []).filter(t => v.done >= t).length, 0);
+  const bonus = unlocked >= 3;
+  const bonusChip = `<span class="bonus-chip${bonus ? ' on' : ''}" data-tip="${bonus ? unlocked + ' vault rewards to choose from: worth spending a bonus roll' : 'Ticks itself at 3 or more vault rewards (' + unlocked + ' now)'}"><span class="bx">${bonus ? '&#10003;' : ''}</span>Bonus Roll</span>`;
+  return `<div class="sec"><div class="sec-title"><span>Vault rewards</span>${bonusChip}</div>` + rows.map(v => {
     const tiles = (v.thresholds || []).map((t, i) => {
       const on = v.done >= t;
-      const reward = on ? String(v.slots[i] || '').replace(/^\+\d+:\s*/, '') : `${t} ${v.kind === 'mplus' ? (t > 1 ? 'runs' : 'run') : v.kind === 'raid' ? 'bosses' : 'activities'}`;
-      return `<div class="tile${on ? ' on' : ''}" data-tip="${esc(names[v.kind])} slot ${i + 1}: ${on ? 'unlocked (' + esc(v.slots[i]) + ')' : 'needs ' + t}"><b>${on ? '&#10003; ' : ''}Slot ${i + 1}</b>${esc(reward)}</div>`;
+      const raw = String(v.slots[i] || '');
+      let reward;
+      if (!on) reward = `${t} ${v.kind === 'mplus' ? (t > 1 ? 'runs' : 'run') : v.kind === 'raid' ? 'bosses' : 'activities'}`;
+      else if (v.kind === 'mplus') { const m = raw.match(/^\+(\d+):\s*(\d+)?\s*(.*)$/); reward = m ? `+${m[1]} &middot; ${esc((m[3] || '').replace(/\s*\d+\/\d+$/, '') || m[2] || '')}` : esc(raw); }
+      else { const m = raw.match(/Unlocked:\s*(\w[\w ]*?)\s*\((\w+)\)/); reward = m ? `${esc(m[1].replace('Raid Finder', 'LFR'))} &middot; ${esc(m[2])}` : 'Unlocked'; }
+      const tr = on ? trackOf(raw) : null;
+      const style = tr ? ` style="border-color:${tr[1]};background:${tr[1]}26;color:#fff"` : '';
+      return `<div class="tile${on ? ' on' : ''}"${style} data-tip="${esc(names[v.kind])} slot ${i + 1}: ${on ? 'unlocked' + (raw ? ' (' + esc(raw) + ')' : '') : 'needs ' + t}"><b${tr ? ` style="color:${tr[1]}"` : ''}>${on ? '&#10003; ' : ''}Slot ${i + 1}</b>${reward}</div>`;
     }).join('');
     const counter = v.kind === 'mplus'
-      ? `<div class="count"><span class="n">${v.done}</span><span class="auto">auto</span></div>`
+      ? `<div class="count"><span class="n">${v.done}</span></div>`
       : `<div class="count"><button class="step" data-vault="${esc(c.name)}|${v.kind}|-1"${DIS()} aria-label="One less">&minus;</button><span class="n">${v.done}</span><button class="step" data-vault="${esc(c.name)}|${v.kind}|1"${DIS()} aria-label="One more">+</button></div>`;
-    return `<div class="vault-row"><span>${names[v.kind]}</span><div class="tiles">${tiles}</div>${counter}</div>`;
+    return `<div class="vault-row"><span>${names[v.kind]}${v.kind !== 'world' ? '<span class="auto" style="display:block">auto</span>' : ''}</span><div class="tiles">${tiles}</div>${counter}</div>`;
   }).join('') + `</div>`;
 }
 
