@@ -214,3 +214,4 @@ p .tal-cell { font-weight: 700; }
 .player-tile .pt-rolls { display: block; margin-top: 6px; } .player-tile .pt-rolls .pt-row { line-height: 1.6; }
 .player-tile .bt-title { min-width: 0; } .player-tile .bt-title .lb-name, .player-tile .bt-title small { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .pt-gold { font-size: 12px; white-space: nowrap; align-self: center; }
+.player-tile .pt-crests.pt-none { visibility: hidden; }

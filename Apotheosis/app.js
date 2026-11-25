@@ -391,7 +391,8 @@ function lootHtml() {
       const gold = ws.filter(w => w.strong).length;
       const ct = crestTotals([c]), cups = crest.filter(w => w.c === c), notMax = (c.tracks || []).filter(t => t.c > 0).sort((a, b) => trackRank(b.t) - trackRank(a.t) || b.c - a.c);
       // Front of the tile: crests needed to bring their gear to 6/6 (details when opened)
-      const crestLine = `<div class="pt-crests" data-loottile="${esc(key)}"><div class="pt-ch">Upgrade with crests</div><div class="pt-row">${Object.keys(ct).length
+      // Only raiders with pieces to upgrade get the blue line (easy to scan for); the space stays so tiles line up
+      const crestLine = `<div class="pt-crests${Object.keys(ct).length ? '' : ' pt-none'}" data-loottile="${esc(key)}"><div class="pt-ch">Upgrade with crests</div><div class="pt-row">${Object.keys(ct).length
         ? Object.keys(ct).sort(crestOrder).map(k => `<b style="color:${CREST_COLOR[crestShort(k)] || '#ddd'}">${ct[k]} ${esc(crestShort(k))}</b>`).join(' &middot; ')
         : `<span class="hint">${c.tracks ? 'none, all gear maxed' : 'after the next refresh'}</span>`}</div></div>`;
       const crestHtml = (cups.length ? `<div class="lp-group"><div class="lp-boss">Upgrade with crests: items you own that the sims say are worth it (biggest gain first)</div>${cups.slice().sort((a, b) => b.best - a.best).map(w => `<span class="want crest-up"><span class="wi">${esc(w.item)}</span>${tagsHtml(w)}<span class="tag own">${esc(trackTxt(w.owned))} &rarr; ${w.owned.m}/${w.owned.m}: ${w.owned.c} ${esc(crestShort(w.owned.cn))}</span></span>`).join('')}</div>` : '') +
