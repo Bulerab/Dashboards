@@ -259,8 +259,15 @@ let lootView = store('apoLootView', 'boss');
 const GOLD_PCT = 1;
 const lootOpen = new Set(store('apoLootOpen', []));
 const SRC_TAG = { bis: 'BiS', sim: 'Sim', bonus: 'Bonus', wish: 'Wish' };
+const TRACKS = ['Explorer', 'Adventurer', 'Veteran', 'Champion', 'Hero', 'Myth'];
+const trackRank = t => TRACKS.indexOf(t);
+const crestShort = n => String(n || '').replace(/\s*Mistcrest$/i, '').replace(/\s*Crest$/i, '');
+const trackTxt = t => `${t.t} ${t.l}/${t.m}`;
+// Crests to bring every equipped item to 6/6, per crest type
+function crestTotals(cs) { const o = {}; cs.forEach(c => (c.tracks || []).forEach(t => { if (t.c > 0) o[t.cn] = (o[t.cn] || 0) + t.c; })); return o; }
+const crestOrder = (a, b) => trackRank(crestShort(b)) - trackRank(crestShort(a));
 function lootWants() {
-  const out = [], skipped = [];
+  const out = [], skipped = [], crest = [];
   raidPlayers().forEach(p => {
     const c = picked(p);
     if (inPvp(c)) { skipped.push(c); return; }
@@ -281,13 +288,24 @@ function lootWants() {
     wishOf(c).filter(w => !w.have).forEach(w => add(w.item, w.slot, w.boss ? (/^trash/i.test(w.boss) ? 'Trash drop (' + mainRaid() + ')' : w.boss) : 'Other', 'wish', 0, w.note || true));
     // Gold = worth chasing on our Heroic kills: a Heroic sim upgrade of 1%+, or an officer's manual entry.
     // (BiS lists are Mythic gear and bonus rolls are personal loot, so neither makes an item gold.)
-    Object.values(by).forEach(w => { w.n = Object.keys(w.src).length; w.strong = !!w.src.wish || (!!w.src.sim && w.pct >= GOLD_PCT); w.best = Math.max(w.pct, w.bonusPct); out.push(w); });
+    // Already wearing it? Same track as the sim (or better) = upgrade it with crests, not a drop to chase.
+    // A lower track (wearing Hero, the sim wants Myth) stays a drop target, noted on the chip.
+    const own = {}; (c.tracks || []).forEach(t => { own[t.n.toLowerCase()] = t; });
+    Object.values(by).forEach(w => { w.n = Object.keys(w.src).length; w.strong = !!w.src.wish || (!!w.src.sim && w.pct >= GOLD_PCT); w.best = Math.max(w.pct, w.bonusPct);
+      const o = own[String(w.item).toLowerCase()];
+      if (o && (w.src.sim || w.src.bonus)) {
+        const want = w.src.bonus ? 'Myth' : 'Hero';
+        if (trackRank(o.t) >= trackRank(want)) { w.owned = o; crest.push(w); return; }
+        w.ownedLower = o;
+      }
+      out.push(w); });
   });
-  return { wants: out, skipped };
+  return { wants: out, skipped, crest };
 }
 const tagsHtml = w => Object.keys(SRC_TAG).filter(k => w.src[k]).map(k => `<span class="tag ${k}"${k === 'wish' && typeof w.src.wish === 'string' ? ` data-tip="${esc(w.src.wish)}"` : ''}>${SRC_TAG[k]}${
   k === 'sim' && w.pct ? ' +' + w.pct.toFixed(1) + '%' : k === 'bonus' && w.bonusPct ? ' +' + w.bonusPct.toFixed(1) + '%' : ''}</span>`).join('');
-const wantChip = (w, showWho) => `<span class="want${w.strong ? ' strong' : ''}">${showWho ? nameHtml(w.c) + ' ' : ''}<span class="wi" data-tip="${esc((w.slot ? w.slot + ': ' : '') + w.item + (w.where ? '<br>' + w.where : ''))}">${esc(w.item)}</span>${tagsHtml(w)}</span>`;
+const ownTag = w => w.ownedLower ? `<span class="tag own" data-tip="Wearing it at ${esc(trackTxt(w.ownedLower))} (${w.ownedLower.il}); the sim is for the ${w.src.bonus ? 'Myth' : 'Hero'} version">owns ${esc(trackTxt(w.ownedLower))}</span>` : '';
+const wantChip = (w, showWho) => `<span class="want${w.strong ? ' strong' : ''}">${showWho ? nameHtml(w.c) + ' ' : ''}<span class="wi" data-tip="${esc((w.slot ? w.slot + ': ' : '') + w.item + (w.where ? '<br>' + w.where : ''))}">${esc(w.item)}</span>${tagsHtml(w)}${ownTag(w)}</span>`;
 // Bonus roll suggestions (2 rolls a week): raid bosses ranked by the biggest single sim gain, then by how many items are wanted
 function bonusTargets(list) {
   const by = {};
@@ -298,7 +316,8 @@ function bonusTargets(list) {
 }
 const starHtml = (i, t) => `<span class="br-star" data-tip="Bonus roll ${i + 1}: ${esc(t.why)}">&#9733;${i + 1}</span>`;
 // Summary tiles: one per raid (its bosses), then crafting, Mythic+, tier & other
-function lootTiles(wants) {
+const CREST_COLOR = { Myth: '#ff8000', Hero: '#a335ee', Champion: '#0070dd', Veteran: '#1eff00', Adventurer: '#9d9d9d' };
+function lootTiles(wants, players, crestUps) {
   const raids = [...new Set(wants.filter(w => w.boss).map(w => w.raid || 'Other'))]
     .sort(raidOrder);
   const bar = (label, n, max, who, sub) => `<div class="lt-row"><span class="lt-l">${esc(label)}${sub ? `<small>${esc(sub)}</small>` : ''}</span><span class="lt-bar"><span style="width:${Math.max(4, n / max * 100)}%"></span></span><b data-tip="${n} item${n === 1 ? '' : 's'} wanted by ${who} raider${who === 1 ? '' : 's'}">${n}</b></div>`;
@@ -314,13 +333,16 @@ function lootTiles(wants) {
   const raidRows = Object.keys(rg).map(k => { const ws = rg[k], [boss, raid] = k.split('|');
     return { k: boss, sub: raid, n: ws.length, who: new Set(ws.map(w => w.c)).size, strong: ws.filter(w => w.strong).length, pct: ws.reduce((a, w) => a + w.pct, 0) }; })
     .sort((a, b) => b.who - a.who || b.strong - a.strong || b.pct - a.pct || bossIdx(a.k) - bossIdx(b.k));
-  return tile('Raids', raidRows, 'boss') +
+  const tot = crestTotals(players), crestTile = `<div class="lt-tile" data-lootview="player"><div class="lt-head"><b>Crests to max gear</b><span class="hint">raid team, equipped items to 6/6</span></div>
+      ${Object.keys(tot).sort(crestOrder).map(k => `<div class="lt-row"><span class="lt-l">${esc(crestShort(k))}</span><span class="lt-bar"><span style="width:${Math.max(4, tot[k] / Math.max(...Object.values(tot)) * 100)}%;background:${CREST_COLOR[crestShort(k)] || '#3987e5'}"></span></span><b>${tot[k].toLocaleString()}</b></div>`).join('') || '<p class="hint" style="margin:0">Fills in after the next refresh</p>'}
+      ${crestUps ? `<p class="hint" style="margin:8px 0 0">${crestUps} sim upgrade${crestUps === 1 ? ' is an item' : 's are items'} already owned: upgrade with crests</p>` : ''}</div>`;
+  return crestTile + tile('Raids', raidRows, 'boss') +
     tile('Crafting', rowsOf(wants.filter(w => w.kind === 'craft'), w => w.where), 'other') +
     tile('Other', rowsOf(wants.filter(w => w.kind === 'mplus' || w.kind === 'other' || (!w.kind && !w.boss)), w => w.kind === 'mplus' ? 'M+: ' + w.where.replace(/^.*\((.*)\)$/, '$1') : (w.where || 'Other')), 'other');
 }
 
 function lootHtml() {
-  const { wants, skipped } = lootWants();
+  const { wants, skipped, crest } = lootWants();
   const players = [...new Set(wants.map(w => w.c))];
   $('loot-hint').textContent = `${players.length} raiders · ${wants.length} wanted items (one per item per raider) · ${wants.filter(w => w.strong).length} gold`;
   $('loot-view').innerHTML = [['boss', 'By Boss'], ['player', 'By Player'], ['other', 'Crafting, Mythic+ & other']].map(([k, l]) => `<button type="button" class="chip${lootView === k ? ' on' : ''}" data-lootview="${k}">${l}</button>`).join('');
@@ -364,14 +386,18 @@ function lootHtml() {
       const cnt = { Raid: ws.filter(w => w.boss).length, Crafted: ws.filter(w => w.kind === 'craft').length, 'M+': ws.filter(w => w.kind === 'mplus').length,
         Other: ws.filter(w => !w.boss && w.kind !== 'craft' && w.kind !== 'mplus').length };
       const gold = ws.filter(w => w.strong).length;
+      const ct = crestTotals([c]), cups = crest.filter(w => w.c === c), notMax = (c.tracks || []).filter(t => t.c > 0).sort((a, b) => trackRank(b.t) - trackRank(a.t) || b.c - a.c);
+      const crestLine = Object.keys(ct).length ? `<div class="pt-crests" data-loottile="${esc(key)}">Crests to max: ${Object.keys(ct).sort(crestOrder).map(k => `<b style="color:${CREST_COLOR[crestShort(k)] || '#ddd'}">${ct[k]} ${esc(crestShort(k))}</b>`).join(' &middot; ')}</div>` : '';
+      const crestHtml = (cups.length ? `<div class="lp-group"><div class="lp-boss">Sim upgrades you already own: upgrade with crests</div>${cups.map(w => `<span class="want crest-up"><span class="wi">${esc(w.item)}</span>${tagsHtml(w)}<span class="tag own">${esc(trackTxt(w.owned))} &rarr; ${w.owned.m}/${w.owned.m}: ${w.owned.c} ${esc(crestShort(w.owned.cn))}</span></span>`).join('')}</div>` : '') +
+        (notMax.length ? `<div class="lp-group"><div class="lp-boss">Gear not at max upgrade</div><table class="logs-table crest-table"><tbody>${notMax.map(t => `<tr><td class="hint">${esc(t.s)}</td><td>${esc(t.n)}</td><td style="color:${CREST_COLOR[t.t] || '#ddd'}">${esc(trackTxt(t))}</td><td class="hint">${t.il} &rarr; ${t.mx}</td><td><b>${t.c}</b> ${esc(crestShort(t.cn))}</td></tr>`).join('')}</tbody></table></div>` : '');
       const groups = {}; ws.forEach(w => { const g = w.boss || (w.kind === 'craft' ? 'Crafted: ' + w.where : w.kind === 'mplus' ? 'M+: ' + w.where.replace(/^.*\((.*)\)$/, '$1') : w.where) || 'Other'; (groups[g] = groups[g] || []).push(w); });
       const gOrder = g => g === TRASH ? 900 : bossList().includes(g) ? raidOrderIdx(raidOf(g)) * 100 + bossIdx(g) : /^Crafted/.test(g) ? 950 : /^M\+/.test(g) ? 960 : 990;
       const art = ts[0] ? ts[0].boss : '';
       return `<div class="boss-tile player-tile${open ? ' open' : ''}${artOf(art) ? ' has-art' : ''}"${artStyle(art)} style="--accent:${accentFor(c.cls)}">
         <div class="bt-top" data-loottile="${esc(key)}">${classIcon(c.cls)}<div class="bt-title"><span class="lb-name" style="color:${classHex(c.cls)}">${esc(c.name)}</span><small>${p ? roleIcon(bucketOf(p) === 'Tanks' ? 'Tank' : bucketOf(p) === 'Healers' ? 'Healer' : 'DPS') + ' ' : ''}${esc(c.spec || '')}</small></div><span class="dc-caret">${open ? '&#9652;' : '&#9662;'}</span></div>
         <div class="bt-stats" data-loottile="${esc(key)}"><span><b>${ws.length}</b> wanted</span>${gold ? `<span class="strong-lbl">${gold} gold</span>` : ''}${Object.keys(cnt).filter(k => cnt[k]).map(k => `<span>${k} <b>${cnt[k]}</b></span>`).join('')}</div>
-        <div class="pt-rolls" data-loottile="${esc(key)}">${ts.length ? ts.map((t, i) => `<div>${starHtml(i, t)} <b>${esc(t.boss)}</b> <span class="hint">${esc(t.why)}</span></div>`).join('') : '<span class="hint">No raid boss to bonus roll yet</span>'}</div>
-        ${open ? `<div class="pt-groups">${Object.keys(groups).sort((a, b) => gOrder(a) - gOrder(b) || a.localeCompare(b)).map(g => `<div class="lp-group"><div class="lp-boss">${esc(g)}${ts.findIndex(t => t.boss === g) >= 0 ? ' ' + starHtml(ts.findIndex(t => t.boss === g), ts.find(t => t.boss === g)) : ''}</div>${groups[g].map(w => wantChip(w, false)).join('')}</div>`).join('')}</div>` : ''}</div>`;
+        ${crestLine}<div class="pt-rolls" data-loottile="${esc(key)}">${ts.length ? ts.map((t, i) => `<div>${starHtml(i, t)} <b>${esc(t.boss)}</b> <span class="hint">${esc(t.why)}</span></div>`).join('') : '<span class="hint">No raid boss to bonus roll yet</span>'}</div>
+        ${open ? `<div class="pt-groups">${crestHtml ? `<div class="pt-crestbox">${crestHtml}</div>` : ''}${Object.keys(groups).sort((a, b) => gOrder(a) - gOrder(b) || a.localeCompare(b)).map(g => `<div class="lp-group"><div class="lp-boss">${esc(g)}${ts.findIndex(t => t.boss === g) >= 0 ? ' ' + starHtml(ts.findIndex(t => t.boss === g), ts.find(t => t.boss === g)) : ''}</div>${groups[g].map(w => wantChip(w, false)).join('')}</div>`).join('')}</div>` : ''}</div>`;
     }).join('') || '<p class="empty">Nothing wanted yet.</p>'}</div></div>${skippedHtml ? `<div class="card">${skippedHtml}</div>` : ''}`;
   } else {
     const dung = {}; wants.filter(w => w.kind === 'mplus').forEach(w => { const d = w.where.replace(/^.*\((.*)\)$/, '$1'); (dung[d] = dung[d] || []).push(w); });
@@ -385,7 +411,7 @@ function lootHtml() {
       listCard('Crafting', wants.filter(w => w.kind === 'craft'), w => w.where || 'Other') +
       listCard('Tier &amp; other', wants.filter(w => w.kind === 'other' || (!w.kind && !w.boss)), w => w.where || 'Other');
   }
-  $('loot-tiles').innerHTML = lootTiles(wants);
+  $('loot-tiles').innerHTML = lootTiles(wants, raidPlayers().map(picked).filter(c => !inPvp(c)), crest.length);
   $('loot-body').innerHTML = body;
 }
 

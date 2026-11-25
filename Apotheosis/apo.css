@@ -140,7 +140,7 @@ p .tal-cell { font-weight: 700; }
 .st-src { font-weight: 400; color: var(--muted-2, #999); font-size: 12px; }
 
 /* Loot Targets: summary tiles, raid sections, boss headers */
-.lt-grid { display: grid; grid-template-columns: 1.4fr 1fr 1fr; align-items: start; gap: 12px; margin-bottom: 16px; }
+.lt-grid { display: grid; grid-template-columns: 1fr 1.4fr 1fr 1fr; align-items: start; gap: 12px; margin-bottom: 16px; }
 .lt-tile { background: var(--card, #1c1c1c); border: 1px solid #333; border-radius: 10px; padding: 12px 14px; cursor: pointer; }
 .lt-tile:hover { border-color: #555; }
 .lt-head { display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 8px; font-size: 14px; }
@@ -197,3 +197,10 @@ p .tal-cell { font-weight: 700; }
 .pt-rolls { margin-top: 8px; font-size: 12.5px; display: grid; gap: 3px; cursor: pointer; } .pt-rolls .br-star { margin-left: 0; }
 .pt-groups { margin-top: 12px; border-top: 1px solid #333; padding-top: 10px; }
 .boss-tile.open.has-art::before { opacity: .08; height: 220px; -webkit-mask-image: linear-gradient(#000, transparent); mask-image: linear-gradient(#000, transparent); }
+
+.tag.own { color: #79c0ff; border-color: rgba(121,192,255,.45); }
+.want.crest-up { border-style: dashed; }
+.pt-crests { font-size: 12.5px; margin-top: 6px; cursor: pointer; color: var(--muted-2, #aaa); }
+.crest-table td { padding: 3px 10px 3px 0; font-size: 12.5px; }
+@media (max-width: 1100px) { .lt-grid { grid-template-columns: 1fr 1fr; } }
+.pt-crestbox { background: rgba(121,192,255,.05); border: 1px solid rgba(121,192,255,.18); border-radius: 8px; padding: 8px 10px 2px; margin-bottom: 12px; }
