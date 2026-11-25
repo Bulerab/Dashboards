@@ -20,8 +20,26 @@ const toonsOfP = p => [p.main].concat(p.alts || []);
 const picked = p => toonsOfP(p).find(t => t.name === rosterPick[p.player]) || p.main;
 const bossList = () => (STATE && STATE.bossOrder && STATE.bossOrder.length ? STATE.bossOrder : BOSS_ORDER);
 const bossOfSrc = src => bossList().find(b => String(src || '').startsWith(b)) || null;
-const raidPlayers = () => { const r = (STATE.roster || []); const team = r.filter(p => p.raid); return team.length ? team : r; };
-const benchPlayers = () => { const r = (STATE.roster || []); return r.some(p => p.raid) ? r.filter(p => !p.raid) : []; };
+/* Missing in action: none of the player's toons (main or secondary mains) in any Warcraft Logs log for 4+ weeks.
+   Unknown until their logs have been checked once; they reappear as soon as a new log shows up. */
+const MIA_DAYS = 28;
+function lastSeenOf(p) {
+  const logs = toonsOfP(p).map(t => t.logs).filter(l => l && l.v === 3);
+  if (!logs.length) return undefined;
+  const seen = logs.map(l => l.lastSeen).filter(Boolean);
+  return seen.length ? Math.max(...seen) : null;
+}
+const isMIA = p => { const s = lastSeenOf(p); return s !== undefined && (s === null || Date.now() - s > MIA_DAYS * 86400000); };
+const raidPlayers = () => { const r = (STATE.roster || []).filter(p => !isMIA(p)); const team = r.filter(p => p.raid); return team.length ? team : r; };
+const benchPlayers = () => { const r = (STATE.roster || []).filter(p => !isMIA(p)); return r.some(p => p.raid) ? r.filter(p => !p.raid) : []; };
+function miaHtml() {
+  const list = (STATE.roster || []).filter(isMIA);
+  if (!list.length) return '';
+  return `<div class="card"><div class="card-head"><h2>Missing in action</h2><span class="hint">no Warcraft Logs log on any of their toons for ${MIA_DAYS / 7}+ weeks &middot; hidden from the raid roster</span></div>
+    ${list.map(p => { const s = lastSeenOf(p);
+      return `<div class="sum-row">${nameHtml(p.main)}<span class="hint">${esc(p.role || '')}${(p.alts || []).length ? ' &middot; also ' + p.alts.map(a => esc(a.name)).join(', ') : ''}</span>
+        <span class="r">${s ? 'last log ' + new Date(s).toLocaleDateString([], { month: 'short', day: 'numeric', year: 'numeric' }) + ` <span class="hint">(${Math.floor((Date.now() - s) / 86400000)} days ago)</span>` : '<span class="hint">no logs found</span>'}</span></div>`; }).join('')}</div>`;
+}
 
 /* ------------------------------------------------------------------ roles, sections and offspecs */
 const SECTIONS = ['Tanks', 'Healers', 'Melee', 'Ranged'];
@@ -238,6 +256,7 @@ function render() {
       ${ps.length ? `<div class="chars lite-grid">${ps.map(p => playerTile(p, 'raid')).join('')}</div>` : '<p class="empty">Nobody in this role.</p>'}</div>`;
   }).join('') : '<p class="empty">Add players on the sheet\'s Roster tab.</p>';
   $('mains-pop').innerHTML = mainsOpen ? mainsPopout() : '';
+  $('mia').innerHTML = miaHtml();
   const bench = benchPlayers();
   $('bench-wrap').innerHTML = bench.length ? `<div class="section-title"><h2>Others on the roster</h2><span class="hint">${bench.length} players</span></div><div class="chars lite-grid">${bench.map(p => playerTile(p, 'bench')).join('')}</div>` : '';
   priorityHtml();
