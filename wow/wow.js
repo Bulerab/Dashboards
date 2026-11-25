@@ -104,7 +104,37 @@ const f2 = v => { const n = parseFloat(String(v ?? '').replace(/[^\d.]/g, '')); 
 /* Spec initials as small tags (hover a row for full names) */
 /* Secondary stat priority per spec (Murlok.io Mythic+, Patch 12.1; Death Knight from the hub's Stat Priorities tab) */
 const SPEC_STATS = { Vengeance: ['Haste', 'Crit', 'Mastery', 'Vers'], Havoc: ['Crit', 'Mastery', 'Haste', 'Vers'], Guardian: ['Haste', 'Crit', 'Mastery', 'Vers'],
-  Feral: ['Mastery', 'Haste', 'Crit', 'Vers'], Blood: ['Haste', 'Crit', 'Mastery', 'Vers'], Frost: ['Crit', 'Mastery', 'Haste', 'Vers'], Unholy: ['Crit', 'Mastery', 'Haste', 'Vers'] };
+  Feral: ['Mastery', 'Haste', 'Crit', 'Vers'], Blood: ['Haste', 'Crit', 'Mastery', 'Vers'], Frost: ['Crit', 'Mastery', 'Haste', 'Vers'], Unholy: ['Crit', 'Mastery', 'Haste', 'Vers'],
+  // Friends' and guests' specs (Murlok.io Mythic+, 2026-11-25). Names shared by two classes carry the class.
+  Mistweaver: ['Haste', 'Mastery', 'Crit', 'Vers'], 'Protection Paladin': ['Crit', 'Haste', 'Mastery', 'Vers'], 'Frost Mage': ['Mastery', 'Crit', 'Haste', 'Vers'],
+  'Restoration Shaman': ['Crit', 'Haste', 'Vers', 'Mastery'], 'Holy Priest': ['Haste', 'Crit', 'Mastery', 'Vers'], Fire: ['Haste', 'Mastery', 'Vers', 'Crit'] };
+const statsFor = (cls, spec) => { const sp = String(spec || '').replace(/ PvP$/, ''); return SPEC_STATS[sp + ' ' + (cls || '')] || SPEC_STATS[sp] || []; };
+
+/* Tier pieces vs the spec's top two secondary stats. Catalysed pieces keep the stats of the item that went in (patch 12.1). */
+function tierCheck(c, spec) {
+  const top = statsFor(c.cls, spec).slice(0, 2);
+  return (c.tier || []).map(t => {
+    const two = (t.stats || []).slice(0, 2).map(x => x[0]);
+    const hit = two.filter(x => top.includes(x)).length;
+    const state = !t.item ? 'none' : !t.tier ? 'notier' : !top.length ? 'unknown' : hit === 2 ? 'ok' : hit === 1 ? 'mid' : 'bad';
+    return Object.assign({ two, hit, state, top }, t);
+  });
+}
+function tierBlock(c, spec) {
+  const rows = tierCheck(c, spec);
+  if (!rows.length) return '';
+  const top = statsFor(c.cls, spec).slice(0, 2), want = top.join(' / ') || 'your best stats';
+  const good = rows.filter(r => r.state === 'ok').length;
+  const LABEL = { ok: ['ok', '&#10003; Best stats'], mid: ['mid', '1 of 2 stats'], bad: ['bad', '&#10005; Wrong stats'], notier: ['mid', 'Not tier'], none: ['bad', 'Empty'], unknown: ['', 'No stat list'] };
+  const TIP = r => r.state === 'ok' ? `Has ${want}: keep it` : r.state === 'notier' ? `Not a tier piece. Catalyse a ${r.slot.toLowerCase()} with ${want} for the set bonus and the right stats`
+    : r.state === 'unknown' ? 'No stat priority saved for this spec yet' : `Has ${r.two.join(' / ') || 'no secondary stats'}. Catalyse a ${r.slot.toLowerCase()} with ${want} to replace it`;
+  return `<div class="sec"><div class="sec-title"><span>Tier set stats${spec ? ' &middot; ' + esc(spec) : ''}</span><span class="hint">wants ${esc(want)} &middot; ${good}/${rows.length} best</span></div>
+    <div class="tier-grid">${rows.map(r => `<span class="slot">${esc(r.slot)}</span><span class="tn" data-tip="${esc(r.item || 'Nothing equipped')}${r.ilvl ? ' (' + r.ilvl + ')' : ''}">${esc(r.item || '-')}</span>
+      <span class="tst">${r.two.map(x => `<b class="${r.top.includes(x) ? 'ok' : 'no'}">${esc(x)}</b>`).join(' / ') || '-'}</span>
+      <span class="tv ${LABEL[r.state][0]}" data-tip="${esc(TIP(r))}">${LABEL[r.state][1]}</span>`).join('')}</div></div>`;
+}
+const tierPill = (c, spec) => { const rows = tierCheck(c, spec).filter(r => r.state === 'bad' || r.state === 'mid' || r.state === 'notier');
+  return c.tier ? (rows.length ? `<span class="pill bad" data-tip="${esc(rows.map(r => r.slot + ': ' + (r.state === 'notier' ? 'not tier' : r.two.join('/'))).join('<br>'))}">Tier stats: ${rows.length} to improve</span>` : '<span class="pill ok">Tier stats OK</span>') : ''; };
 const SPEC_ICON = { Blood: 'spell_deathknight_bloodpresence', Frost: 'spell_deathknight_frostpresence', Unholy: 'spell_deathknight_unholypresence',
   Havoc: 'ability_demonhunter_specdps', Vengeance: 'ability_demonhunter_spectank', Feral: 'ability_druid_catform', Guardian: 'ability_racial_bearform',
   Balance: 'spell_nature_starfall', Restoration: 'spell_nature_healingtouch' };
@@ -534,6 +564,9 @@ function friendBis(c) {
   return { bar, rows: sets.length, more: (sets.length > 1 ? `<div class="hint" style="margin:4px 0 2px">Targets for ${esc(set.spec)} (click a BiS bar to switch)</div>` : '') + (set.need.length ? g.more : `<p class="empty">Full BiS for ${esc(set.spec)}.</p>`) };
 }
 
+const tierSpec = c => { const sets = c.bisSets || []; const set = sets.find(x => x.spec === friendBisSpec[c.name]) || sets.find(x => x.spec === c.mainSpec);
+  return set ? set.spec : c.mainSpec || c.spec; };
+
 /* One collapsible tile with everything known about a character that has no tracker sheet */
 function liteCard(c, key, opts) {
   if (c.error && !c.cls) return `<div class="char"><div class="char-name">${esc(c.name)}</div><p class="empty">${esc(c.error)}</p></div>`;
@@ -556,10 +589,10 @@ function liteCard(c, key, opts) {
         <div class="mini"><div class="k">Logs raid</div><div class="v">${L ? pctHtml(L.raidAvg) : '-'}</div></div>
         <div class="mini"><div class="k">Logs M+</div><div class="v">${L ? pctHtml(L.dungeonAvg) : '-'}</div></div>
       </div>
-      <div style="margin-top:8px">${liteEnchants(c)}</div>
+      <div style="margin-top:8px">${liteEnchants(c)}${tierPill(c, tierSpec(c))}</div>
     </div>
     <div class="pvp-more">${logsBlock(c)}<div class="pvp-more-grid" style="grid-template-columns:1fr 1fr">
-      <div>${killsBlock(c)}${bis ? bis.more : ''}</div><div>${weeklyRunsBlock(c)}${bestRunsBlock(c)}</div></div>
+      <div>${killsBlock(c)}${bis ? bis.more : ''}</div><div>${weeklyRunsBlock(c)}${tierBlock(c, tierSpec(c))}${bestRunsBlock(c)}</div></div>
       <div class="foot">Updated ${esc(c.pulled || '-')}</div></div>
   </div>`;
 }
@@ -950,7 +983,8 @@ function render(state, live, when) {
       if (!list) list = `<p class="empty">${kind === 'world' ? 'No BiS here; item level upgrades only.' : 'No BiS items from here.'}</p>`;
       return `<div class="bc-cat"><span>${label}</span></div>${list}`;
     }).join('');
-    return `<div class="bc" style="--accent:${accentFor(c.cls)}"><div class="bc-head"><span class="n" style="color:${CHAR_COLOR[name] || '#fff'}">${esc(name)}</span><span class="hint">Great Vault</span></div>${sections}</div>`;
+    const tb = c.tier ? tierBlock(c, (c.main || [])[0] || c.specSelected || (String((c.bis || [])[0] || '').match(/^([^:]+):/) || [])[1]) : '';
+    return `<div class="bc" style="--accent:${accentFor(c.cls)}"><div class="bc-head"><span class="n" style="color:${CHAR_COLOR[name] || '#fff'}">${esc(name)}</span><span class="hint">Great Vault</span></div>${sections}${tb ? `<div class="bc-cat"><span>Tier pieces</span><span class="hint">catalyst keeps the stats of the item you put in</span></div>${tb}` : ''}</div>`;
   }).join('');
   paintBonusView();
 
