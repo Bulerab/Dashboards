@@ -533,7 +533,7 @@ function bestRunsBlock(c) {
 }
 
 function liteEnchants(c) {
-  const miss = c.missingEnchants || [];
+  const miss = (c.missingEnchants || []).filter(x => !/^(Hands|Back|Wrist)$/.test(x));   // hands: delve-only Battle Art, not in the API
   return `<div class="ench-summary">${miss.length ? `<span class="pill bad">Missing enchant: ${esc(miss.map(slotName).join(', '))}</span>` : (c.missingEnchants ? '<span class="pill ok">Enchants OK</span>' : '')}${c.gemCount != null ? (c.diamond ? '<span class="pill ok">Eversong Diamond</span>' : '<span class="pill bad">No Eversong Diamond</span>') : ''}</div>`;
 }
 
