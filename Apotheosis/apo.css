@@ -206,3 +206,11 @@ p .tal-cell { font-weight: 700; }
 .pt-crestbox { background: rgba(121,192,255,.05); border: 1px solid rgba(121,192,255,.18); border-radius: 8px; padding: 8px 10px 2px; margin-bottom: 12px; }
 .pt-ch { font-size: 11px; text-transform: uppercase; letter-spacing: .04em; color: #79c0ff; font-weight: 700; margin-bottom: 2px; }
 .pt-crests > div { line-height: 1.45; }
+
+/* Player tiles: every collapsed tile has the same rows, one line each */
+.player-tile .pt-row { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; display: block; }
+.player-tile .bt-stats.pt-row > span { margin-right: 9px; }
+.player-tile .pt-crests { margin-top: 6px; } .player-tile .pt-crests .pt-row::before { content: '• '; color: #79c0ff; }
+.player-tile .pt-rolls { display: block; margin-top: 6px; } .player-tile .pt-rolls .pt-row { line-height: 1.6; }
+.player-tile .bt-title { min-width: 0; } .player-tile .bt-title .lb-name, .player-tile .bt-title small { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.pt-gold { font-size: 12px; white-space: nowrap; align-self: center; }
