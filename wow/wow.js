@@ -571,6 +571,9 @@ function friendBis(c) {
 const tierSpec = c => { const sets = c.bisSets || []; const set = sets.find(x => x.spec === friendBisSpec[c.name]) || sets.find(x => x.spec === c.mainSpec);
   return set ? set.spec : c.mainSpec || c.spec; };
 
+// Invisible bars, same size as real ones, so Vault Rewards lines up across tiles with 1, 2 or 3 specs
+const padBars = n => n > 0 ? Array(n).fill('<div class="bis bis-pick" aria-hidden="true" style="visibility:hidden"><div class="bis-label"><span>-</span><span>-</span></div><div class="meter"><div></div></div></div>').join('') : '';
+
 /* One collapsible tile with everything known about a character that has no tracker sheet */
 function liteCard(c, key, opts) {
   if (c.error && !c.cls) return `<div class="char"><div class="char-name">${esc(c.name)}</div><p class="empty">${esc(c.error)}</p></div>`;
@@ -585,7 +588,7 @@ function liteCard(c, key, opts) {
           <div class="char-meta meta-row">${esc([c.spec, c.cls].filter(Boolean).join(' '))}${c.realm && c.realm !== 'eldrethalas' ? ' &middot; ' + esc(c.realm) : ''}<button type="button" class="toggle-btn" data-litetoggle="${esc(id)}">${open ? 'Collapse' : 'Expand'} <span class="chev">&#9662;</span></button></div></div>
         <div class="headline-row"><div class="headline"><div class="lbl">M+ rating</div><div class="big">${f1(c.score)}</div></div>
           <div class="headline"><div class="lbl">ilvl</div><div class="big">${f2(c.ilvl)}</div></div></div></div>
-      ${bis ? `<div class="sec bis-stack" style="min-height:${(opts.bisRows || 1) * 34}px">${bis.bar}</div>` : opts && opts.bisRows ? `<div class="sec bis-stack" style="min-height:${opts.bisRows * 34}px"><p class="empty">No BiS list yet.</p></div>` : ''}
+      ${bis ? `<div class="sec bis-stack">${bis.bar}${padBars((opts.bisRows || 1) - (bis.rows || 1))}</div>` : opts && opts.bisRows ? `<div class="sec bis-stack"><p class="empty" style="margin:0 0 6px">No BiS list yet.</p>${padBars(opts.bisRows - 1)}</div>` : ''}
       ${vaultBlock(c)}
       <div class="minis">
         <div class="mini"><div class="k">Raid bosses</div><div class="v">${c.raidKills ? kills + ' / 10' : '-'}</div></div>

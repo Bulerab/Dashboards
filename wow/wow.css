@@ -391,3 +391,6 @@
 .tier-grid .tv.ok { color: var(--ok); border-color: rgba(63,185,80,.5); }
 .tier-grid .tv.mid { color: #e3b341; border-color: rgba(227,179,65,.5); }
 .tier-grid .tv.bad { color: #f85149; border-color: rgba(248,81,73,.5); }
+.bis-stack .bis { padding: 2px 4px; margin-left: -4px; margin-right: -4px; border: 1px solid transparent; border-radius: 6px; }
+.bis-stack .bis.bis-pick.on { border-color: rgba(88,166,255,.45); }
+.bis-stack .bis-label { height: 18px; align-items: center; } .bis-stack .bis-label img { height: 16px; width: 16px; vertical-align: middle; }
