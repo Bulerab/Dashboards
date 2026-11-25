@@ -190,14 +190,23 @@ function priorityHtml() {
 
 /* ------------------------------------------------------------------ Guild tab */
 const rk = n => n ? '#' + Number(n).toLocaleString() : '-';
+/* Progress in WoW difficulty colours (Normal green, Heroic purple, Mythic orange); ranks on a parse-style scale */
+const DIFF_COLOR = { N: '#1eff00', H: '#a335ee', M: '#ff8000' };
+const progHtml = sum => { const m = String(sum || '').match(/(\d+)\/(\d+)\s*([NHM])/);
+  if (!m) return esc(sum || '-');
+  const full = +m[1] >= +m[2];
+  return `<b style="color:${DIFF_COLOR[m[3]]};${full ? '' : 'opacity:.75'}" data-tip="${{ N: 'Normal', H: 'Heroic', M: 'Mythic' }[m[3]]}: ${m[1]} of ${m[2]} bosses">${esc(sum)}</b>`; };
+const RANK_STEPS = { realm: [1, 3, 10, 25], region: [10, 100, 1000, 5000], world: [25, 250, 2500, 10000] };
+const rankColor = (n, scope) => { const t = RANK_STEPS[scope]; return !n ? '#666' : n <= t[0] ? '#e5cc80' : n <= t[1] ? '#ff8000' : n <= t[2] ? '#a335ee' : n <= t[3] ? '#0070ff' : '#1eff00'; };
+const rkc = (n, scope) => n ? `<span style="color:${rankColor(n, scope)};font-weight:600">${rk(n)}</span>` : '<span class="hint">-</span>';
 function guildHtml() {
   const g = STATE.guild || {}, rio = g.rio, wcl = g.wcl;
   $('guild-rio').innerHTML = !rio ? '<p class="empty">Loads after the first refresh.</p>' : rio.error ? `<p class="empty">${esc(rio.error)}</p>` :
     `<table class="logs-table"><thead><tr><th>Raid</th><th>Progress</th><th>Normal (realm / region / world)</th><th>Heroic</th><th>Mythic</th></tr></thead><tbody>${rio.raids.map(r => {
-      const d = k => { const x = r.ranks && r.ranks[k]; return x && x.world ? `${rk(x.realm)} / ${rk(x.region)} / ${rk(x.world)}` : '<span class="hint">-</span>'; };
-      return `<tr><td><b>${esc(r.name)}</b></td><td><b>${esc(r.progress.summary)}</b></td><td>${d('normal')}</td><td>${d('heroic')}</td><td>${d('mythic')}</td></tr>`; }).join('')}</tbody></table>
-     <p class="hint" style="margin:8px 0 0">Ranks are realm / region (NA) / world. <a href="${esc(rio.url || 'https://raider.io/guilds/us/eldrethalas/Apotheosis')}" target="_blank" rel="noopener">Raider.io guild page</a></p>`;
-  const ranks = r => r ? `${rk(r.server)} / ${rk(r.region)} / ${rk(r.world)}` : '<span class="hint">-</span>';
+      const d = k => { const x = r.ranks && r.ranks[k]; return x && x.world ? `${rkc(x.realm, 'realm')} / ${rkc(x.region, 'region')} / ${rkc(x.world, 'world')}` : '<span class="hint">-</span>'; };
+      return `<tr><td><b>${esc(r.name)}</b></td><td>${progHtml(r.progress.summary)}</td><td>${d('normal')}</td><td>${d('heroic')}</td><td>${d('mythic')}</td></tr>`; }).join('')}</tbody></table>
+     <p class="hint" style="margin:8px 0 0">Ranks are realm / region (NA) / world. Colours: <span style="color:#e5cc80">top</span> &rsaquo; <span style="color:#ff8000">orange</span> &rsaquo; <span style="color:#a335ee">purple</span> &rsaquo; <span style="color:#0070ff">blue</span> &rsaquo; <span style="color:#1eff00">green</span> (realm #1 / top 3 / 10 / 25; region top 10 / 100 / 1,000 / 5,000; world top 25 / 250 / 2,500 / 10,000). <a href="${esc(rio.url || 'https://raider.io/guilds/us/eldrethalas/Apotheosis')}" target="_blank" rel="noopener">Raider.io guild page</a></p>`;
+  const ranks = r => r ? `${rkc(r.server, 'realm')} / ${rkc(r.region, 'region')} / ${rkc(r.world, 'world')}` : '<span class="hint">-</span>';
   $('guild-wcl').innerHTML = !wcl ? '<p class="empty">Loads after the first refresh.</p>' : (wcl.zones && wcl.zones.length ?
     `<table class="logs-table"><thead><tr><th>Raid</th><th>Progress (realm / region / world)</th><th>Speed</th></tr></thead><tbody>${wcl.zones.map(z => `<tr><td><b>${esc(z.name)}</b></td><td>${ranks(z.progress)}</td><td>${ranks(z.speed)}</td></tr>`).join('')}</tbody></table>` : '') +
     (wcl.error ? `<p class="empty">${esc(wcl.error)}</p>` : '') +
@@ -243,7 +252,7 @@ function render() {
   document.querySelectorAll('#tabs a').forEach(a => a.classList.toggle('on', a.dataset.tab === tab));
   const rio = STATE.guild && STATE.guild.rio;
   const cur = rio && rio.raids ? rio.raids.find(r => /^tier-/.test(r.slug)) || rio.raids[0] : null;
-  $('prog-line').innerHTML = cur ? `Progress <b>${esc(cur.progress.summary)}</b> &middot; Raid team ${raidPlayers().length} players` : 'Raid &amp; guild tracker';
+  $('prog-line').innerHTML = cur ? `Progress ${progHtml(cur.progress.summary)} &middot; Raid team ${raidPlayers().length} players` : 'Raid &amp; guild tracker';
   const team = raidPlayers().map(picked);
   $('roster-summary').innerHTML = summaryHtml(team);
   $('boss-breakdown').innerHTML = bossBreakdown(team);
