@@ -192,6 +192,13 @@
   .res-need { background: #2a2a2a; border: 1px solid #444; border-radius: 6px; padding: 2px 8px; font-size: 12.5px; }
   .res-need b { color: #ff9d6e; }
   .res-limit { color: #ff9d6e; }
+  .dbtn { margin-left: 8px; font-size: 10.5px; padding: 1px 8px; border-radius: 9px; background: #2a2a2a; border: 1px solid #444; color: #ccc; cursor: pointer; }
+  .dbtn:hover { border-color: #3987e5; color: #fff; }
+  .matrix tr.drow td { text-align: left; background: #191f27; padding: 8px 12px; }
+  .ddet { font-size: 12.5px; line-height: 1.6; color: #d0d0d0; }
+  .dchecks, .dtimes { display: flex; flex-wrap: wrap; gap: 6px 12px; margin-top: 3px; }
+  .dchk.ok { color: var(--ok); } .dchk.no { color: var(--bad); }
+  .dtime { background: #222; border: 1px solid #333; border-radius: 5px; padding: 0 7px; font-variant-numeric: tabular-nums; }
   .toolkit { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; }
   .tk-h { font-size: 10.5px; text-transform: uppercase; letter-spacing: .5px; color: var(--muted-2); font-weight: 600; margin: 8px 0 4px; }
   .tk-col .tk-h:first-child { margin-top: 0; }
@@ -1009,6 +1016,40 @@ function toolkitHtml(ms) {
     <div class="tk-col"><div class="tk-h">Dispels &amp; cleanses</div>${disp}<div class="tk-h">Other utility</div>${utils}</div></div>`;
 }
 
+/* What each Season 2 dungeon asks of a group (conquestcapped.com Mythic+ comps guide). check: utility the toolkit can verify */
+const DUNGEON_NOTES = {
+  'Den of Nalorakk':      { notes: 'Interrupts; a Rogue (Shroud) or another way through the skip.', checks: ['skip'] },
+  'Temple of Sethraliss': { notes: 'Poison dispels, crowd control and quick target swaps.', checks: ['Poison'] },
+  'Ruby Life Pools':      { notes: 'Interrupts for the Primalist Cinderweavers.', checks: [] },
+  'Voidscar Arena':       { notes: 'Mobility and crowd control for the arena room raptor.', checks: [] },
+  'Altar of Fangs':       { notes: 'Poison dispels (Paralyzing Shots, Envenom); Soothe for Ravenous Claws; interrupt Piercing Hiss; crowd control the Evolve cast.', checks: ['Poison', 'soothe'] },
+  "Kings' Rest":          { notes: 'Lots of interrupts; a ranged DPS to tag the animated guardian.', checks: ['ranged'] },
+  'The Blinding Vale':    { notes: 'Healing and soaking on the first boss; focus the Sporeblight Belchers.', checks: [] },
+  'Murder Row':           { notes: 'Interrupts and area stops for the fel casters; plan a kick order.', checks: [] },
+};
+const RANGED = { Mage: 1, Warlock: 1, Hunter: 1, Evoker: 1, Priest: 1 };
+const RANGED_SPECS = { Balance: 1, Elemental: 1, Shadow: 1 };
+const mmss = ms => { if (!ms) return '-'; const t = Math.round(Math.abs(ms) / 1000); return Math.floor(t / 60) + ':' + String(t % 60).padStart(2, '0'); };
+const openDungeon = new Set((() => { try { return JSON.parse(localStorage.getItem('wowOpenDungeon') || '[]'); } catch (e) { return []; } })());
+function dungeonDetails(teamName, d, ok) {
+  const info = DUNGEON_NOTES[d] || { notes: '', checks: [] };
+  const kits = ok.map(m => ({ m, k: kitOf(m) }));
+  const has = f => kits.filter(x => f(x)).map(x => x.m.name);
+  const check = (label, list, missing) => `<span class="dchk ${list.length ? 'ok' : 'no'}">${list.length ? '&#10003;' : '&#10005;'} ${label}: ${list.length ? esc(list.join(', ')) : missing}</span>`;
+  const checks = info.checks.map(c => c === 'Poison' ? check('Poison dispel', has(x => x.k.dispel.includes('Poison')), 'missing')
+    : c === 'soothe' ? check('Soothe', has(x => x.k.soothe), 'missing')
+    : c === 'skip' ? check('Skip', has(x => x.m.cls === 'Rogue'), 'no Rogue: use potions or another skip')
+    : c === 'ranged' ? check('Ranged', has(x => RANGED[x.m.cls] || RANGED_SPECS[x.m.spec]), 'none in group') : '').join('');
+  const runs = ok.map(m => ({ m, r: (m.runs || []).find(x => x.dungeon === d) })).filter(x => x.r);
+  const par = (runs.find(x => x.r.par) || {}).r;
+  const times = runs.filter(x => x.r.clear).sort((a, b) => b.r.level - a.r.level || a.r.clear - b.r.clear).map(x => {
+    const left = (x.r.par || 0) - x.r.clear;
+    return `<span class="dtime"><span style="color:${classHex(x.m.cls)}">${esc(x.m.name)}</span> +${x.r.level} ${mmss(x.r.clear)} <span style="color:${left >= 0 ? 'var(--ok)' : 'var(--bad)'}">${mmss(left)} ${left >= 0 ? 'left' : 'over'}</span></span>`;
+  }).join('');
+  return `<div class="ddet"><div><b>Needs:</b> ${esc(info.notes || 'No notes yet.')}</div>${checks ? `<div class="dchecks">${checks}</div>` : ''}
+    <div class="dtimes"><b>Timer ${par ? mmss(par.par) : '-'}</b>${times ? ' &middot; best clears: ' + times : ''}</div></div>`;
+}
+
 function teamTile(t) {
   const ms = t.members.map(m => shownMember(t.name, m)).filter(m => !m.error);
   const avg = ms.length ? Math.round(ms.reduce((a, m) => a + (m.score || 0), 0) / ms.length) : 0;
@@ -1037,9 +1078,11 @@ function teamPanel(t) {
   const focusSet = new Set(rows.slice(0, 3).map(r => r.d));   // the team's three weakest dungeons
   const body = rows.map(r => {
     const focus = focusSet.has(r.d);
-    return `<tr class="${focus ? 'focus' : ''}"><td>${esc(r.d)}${focus ? '<span class="tag-focus">FOCUS</span>' : ''}</td>` +
+    const dkey = t.name + '|' + r.d, dOpen = openDungeon.has(dkey);
+    return `<tr class="${focus ? 'focus' : ''}"><td>${esc(r.d)}${focus ? '<span class="tag-focus">FOCUS</span>' : ''}<button type="button" class="dbtn" data-dungeon="${esc(dkey)}">${dOpen ? 'Collapse &#9652;' : 'Details &#9662;'}</button></td>` +
       ok.map(m => { const x = runOf(m, r.d); return `<td class="cell">${x ? `<span class="lv ${lvClass(x.score)}${x.timed ? '' : ' untimed'}" data-tip="${esc(m.name)}: +${x.level} ${x.timed ? 'timed' + (x.upgrades > 1 ? ' (+' + x.upgrades + ')' : '') : 'not timed'}, ${x.score.toFixed(1)} points">+${x.level}</span><span class="sc">${x.score.toFixed(0)}</span>` : '<span class="empty">-</span>'}</td>`; }).join('') +
-      `<td><b${r.min === resTeam ? ' class="res-limit" data-tip="This dungeon sets the team resilient level"' : ''}>${r.min ? '+' + r.min : '-'}</b></td><td><b style="color:${focus ? '#ff9d6e' : 'var(--ok)'}">+${Math.max(r.min + 1, 2)}</b></td></tr>`;
+      `<td><b${r.min === resTeam ? ' class="res-limit" data-tip="This dungeon sets the team resilient level"' : ''}>${r.min ? '+' + r.min : '-'}</b></td><td><b style="color:${focus ? '#ff9d6e' : 'var(--ok)'}">+${Math.max(r.min + 1, 2)}</b></td></tr>` +
+      (dOpen ? `<tr class="drow"><td colspan="${ok.length + 3}">${dungeonDetails(t.name, r.d, ok)}</td></tr>` : '');
   }).join('');
   const near = goal.table.filter(([l]) => l >= goal.level - 2 && l <= goal.level + 1).map(([l, sc]) => `+${l} &asymp; ${Math.round(sc)}`).join(', ');
   const goalLine = `<p class="hint" style="margin:0 0 10px">3,600 needs about ${PER_DUNGEON} points in each dungeon. From the team's own timed runs: ${near || 'no timed runs yet'},
@@ -1328,6 +1371,8 @@ document.addEventListener('click', e => {
   }
   const tt = e.target.closest('[data-team]');
   if (tt) { openTeam = openTeam === tt.dataset.team ? '' : tt.dataset.team; try { localStorage.setItem('wowOpenTeam', openTeam); } catch (er) { /* storage blocked */ } renderAll(); return; }
+  const db = e.target.closest('[data-dungeon]');
+  if (db) { const k = db.dataset.dungeon; openDungeon.has(k) ? openDungeon.delete(k) : openDungeon.add(k); try { localStorage.setItem('wowOpenDungeon', JSON.stringify([...openDungeon])); } catch (er) { /* storage blocked */ } renderAll(); return; }
   const tp = e.target.closest('[data-teampick]');
   if (tp) { const [tm, base, pick] = tp.dataset.teampick.split('|'); teamPick[tm + '|' + base] = pick; try { localStorage.setItem('wowTeamPick', JSON.stringify(teamPick)); } catch (er) { /* storage blocked */ } renderAll(); return; }
   const ls = e.target.closest('[data-logspec]');
