@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>WoW Midnight – Personal</title>
+<link rel="stylesheet" href="wow.css">
+</head>
+<body>
+<div class="container">
+  <div class="topbar">
+    <div>
+      <h1>&#9876;&#65039; WoW Midnight: Personal</h1>
+      <p class="sub" id="reset"></p>
+      <p class="generated"><span id="src" class="src snap">Snapshot</span><span id="when"></span></p>
+    </div>
+    <button class="lock" id="lock" type="button">&#128274; View only</button>
+  </div>
+  <nav class="nav"><a href="../index.html">&#8962; Home</a><a href="index.html" class="on">Personal</a><a href="guests.html">Guests</a><a href="teams.html">Mythic+ Teams</a><a href="blake.html">Blake</a></nav>
+
+  <div class="stats-grid" id="glance"></div>
+
+  <div class="section-title"><h2>Player vs Environment</h2><span class="acct" id="pve-acct"></span></div>
+  <div class="chars" id="pve"></div>
+
+  <div class="section-title"><h2>Player vs Player</h2><span class="acct" id="pvp-acct"></span></div>
+  <div class="chars pvp-grid" id="pvp"></div>
+
+  <div class="card">
+    <div class="card-head"><h2>To-Do</h2><div class="filters" id="todo-filters"></div></div>
+    <div id="todo"></div>
+    <form class="addform" id="addform" autocomplete="off">
+      <input type="text" id="new-task" placeholder="New task" maxlength="300">
+      <select id="new-pri"><option>High</option><option selected>Medium</option><option>Low</option></select>
+      <select id="new-who"></select>
+      <select id="new-cat"></select>
+      <select id="new-rep"><option selected>None</option><option>Daily</option><option>Weekly</option></select>
+      <button class="btn" type="submit" id="new-add">Add</button>
+    </form>
+  </div>
+
+  <div class="card">
+    <div class="card-head">
+      <div style="display:flex;gap:14px;align-items:center;flex-wrap:wrap"><h2>Bonus Rolls &amp; Vaults</h2>
+        <div class="filters" id="bonus-tabs"><button type="button" class="chip" data-bview="boss">By source</button><button type="button" class="chip" data-bview="char">By character</button><button type="button" class="chip" data-bview="vault">By vault</button></div></div>
+      <div class="legend" id="bonus-legend">
+        <span><span class="sw" style="border:1px dashed #666;background:#2a2a2a"></span>Suggested by the sheet</span>
+        <span><span class="sw" style="border:1px solid #3987e5;background:#1d3b5f"></span>Your pick</span>
+      </div>
+    </div>
+    <div class="table-wrap" id="bonus-boss"><table id="bonus"></table></div>
+    <div class="bychar" id="bonus-char"></div>
+    <div class="bychar" id="bonus-vault"></div>
+  </div>
+
+  <div class="card">
+    <div class="card-head"><h2>Mythic+ by dungeon</h2><span class="hint">Best run per dungeon this season, highest score first</span></div>
+    <div class="mplus" id="mplus"></div>
+  </div>
+
+
+</div>
+<div id="tip"></div>
+<div id="toast"></div>
+<script src="wow.js"></script>
+</body>
+</html>
