@@ -374,3 +374,10 @@
 .nav a:hover { border-color: #3987e5; color: #fff; }
 .nav a.on { background: #1d3b5f; border-color: #3987e5; color: #fff; }
 .lite:not(.open) .minis { grid-template-columns: repeat(2, 1fr); }
+
+/* Stacked BiS bars on friend tiles: same height in every tile of a row; click one to pick the spec for bonus roll targets */
+.bis-stack .bis { margin-bottom: 6px; }
+.bis-pick { cursor: pointer; border-radius: 6px; padding: 2px 4px; margin-left: -4px; margin-right: -4px; border: 1px solid transparent; }
+.bis-pick:hover { background: rgba(255,255,255,.04); }
+.bis-pick.on { border-color: rgba(88,166,255,.45); background: rgba(88,166,255,.06); }
+.bis-label .sl { margin-right: 2px; }

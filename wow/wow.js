@@ -511,7 +511,7 @@ function guestBis(g) {
   const rolls = BOSS_ORDER.filter(b => byBoss[b]);
   const rollBlock = `<div class="sec"><div class="sec-title"><span>Bonus roll targets</span><span class="hint">raid order</span></div>` +
     (rolls.length ? `<div class="targets">${rolls.map(b => { const k = (g.raidKills || []).find(x => x.boss === b);
-      return `<div class="target"><span class="boss">${esc(b)}</span>${k ? ' <span class="kdone">&#10003; killed</span>' : ''}<div class="need-grid one-line" style="grid-template-columns:72px minmax(0,1fr);margin-top:3px">${byBoss[b].map(x =>
+      return `<div class="target"><span class="boss">${esc(b)}</span>${k ? ' <span class="kdone">&#10003; Killed ' + ['LFR', 'NORMAL', 'HEROIC', 'MYTHIC'].filter(d => (k.diffs || []).includes(d)).map(d => `<span class="dbadge" style="color:${DIFF[d][1]};border-color:${DIFF[d][1]}">${DIFF[d][0]}</span>`).join('') + '</span>' : ''}<div class="need-grid one-line" style="grid-template-columns:72px minmax(0,1fr);margin-top:3px">${byBoss[b].map(x =>
       `<span class="slot">${esc(slotName(x.slot))}</span><span>${esc(x.bis)}</span>`).join('')}</div></div>`; }).join('')}</div>` : `<p class="empty">No raid drops needed.</p>`) + `</div>`;
   const other = need.filter(x => !bossOf(x.source));
   const otherBlock = other.length ? `<div class="sec"><div class="sec-title"><span>Other BiS still needed</span></div><div class="need-grid one-line" style="grid-template-columns:72px minmax(0,1fr) auto">${other.map(x =>
@@ -526,13 +526,12 @@ function friendBis(c) {
   const sets = c.bisSets || [];
   if (!sets.length) return null;
   const set = sets.find(x => x.spec === friendBisSpec[c.name]) || sets.find(x => x.spec === c.mainSpec) || sets[0];
-  const chips = sets.length > 1 ? `<div class="filters" style="margin:6px 0 0">${sets.map(x =>
-    `<button type="button" class="chip${x === set ? ' on' : ''}" data-friendbis="${esc(c.name + '|' + x.spec)}">${specLetters([x.spec])} ${esc(x.spec)}</button>`).join('')}</div>` : '';
   // Same blocks as guests: need list -> bonus roll targets and other BiS; the bar uses the sheet's own count
   const g = guestBis({ gear: set.need.map(n => ({ slot: n.slot, bis: n.bis, source: n.source, have: false })), spec: set.spec, raidKills: c.raidKills });
-  const pct = set.total ? Math.round(set.have / set.total * 100) : 0;
-  const bar = `<div class="bis"><div class="bis-label"><span>${esc(set.spec)} BiS</span><span>${set.have} / ${set.total}</span></div><div class="meter"><div style="width:${pct}%"></div></div></div>${chips}`;
-  return { bar, more: set.need.length ? g.more : `<p class="empty">Full BiS for ${esc(set.spec)}.</p>` };
+  // Every spec gets its own bar; click one to show that spec's bonus roll targets when expanded
+  const bar = sets.map(x => { const pct = x.total ? Math.round(x.have / x.total * 100) : 0;
+    return `<div class="bis bis-pick${sets.length > 1 && x === set ? ' on' : ''}"${sets.length > 1 ? ` data-friendbis="${esc(c.name + '|' + x.spec)}" data-tip="Show ${esc(x.spec)} bonus roll targets"` : ''}><div class="bis-label"><span>${specLetters([x.spec])} ${esc(x.spec)} BiS</span><span>${x.have} / ${x.total}</span></div><div class="meter"><div style="width:${pct}%"></div></div></div>`; }).join('');
+  return { bar, rows: sets.length, more: (sets.length > 1 ? `<div class="hint" style="margin:4px 0 2px">Targets for ${esc(set.spec)} (click a BiS bar to switch)</div>` : '') + (set.need.length ? g.more : `<p class="empty">Full BiS for ${esc(set.spec)}.</p>`) };
 }
 
 /* One collapsible tile with everything known about a character that has no tracker sheet */
@@ -549,7 +548,7 @@ function liteCard(c, key, opts) {
           <div class="char-meta meta-row">${esc([c.spec, c.cls].filter(Boolean).join(' '))}${c.realm && c.realm !== 'eldrethalas' ? ' &middot; ' + esc(c.realm) : ''}<button type="button" class="toggle-btn" data-litetoggle="${esc(id)}">${open ? 'Collapse' : 'Expand'} <span class="chev">&#9662;</span></button></div></div>
         <div class="headline-row"><div class="headline"><div class="lbl">M+ rating</div><div class="big">${f1(c.score)}</div></div>
           <div class="headline"><div class="lbl">ilvl</div><div class="big">${f2(c.ilvl)}</div></div></div></div>
-      ${bis ? `<div class="sec">${bis.bar}</div>` : ''}
+      ${bis ? `<div class="sec bis-stack" style="min-height:${(opts.bisRows || 1) * 34}px">${bis.bar}</div>` : opts && opts.bisRows ? `<div class="sec bis-stack" style="min-height:${opts.bisRows * 34}px"><p class="empty">No BiS list yet.</p></div>` : ''}
       ${vaultBlock(c)}
       <div class="minis">
         <div class="mini"><div class="k">Raid bosses</div><div class="v">${c.raidKills ? kills + ' / 10' : '-'}</div></div>
@@ -976,7 +975,8 @@ function render(state, live, when) {
       fr.innerHTML = order.map(sec => {
         const ms = roster.members.filter(m => (m.section || 'Other toons') === sec);
         return `<div class="section-title"><h2>${esc(sec)}</h2><span class="hint">${ms.length} character${ms.length === 1 ? '' : 's'}</span></div>` +
-          (ms.length ? `<div class="chars lite-grid">${ms.map(m => liteCard(m, 'friend-' + roster.name, { friend: true })).join('')}</div>`
+          (ms.length ? `<div class="chars lite-grid">${(() => { const rows = Math.max(1, ...ms.map(m => m.bisList ? 1 : (m.bisSets || []).length));
+            return ms.map(m => liteCard(m, 'friend-' + roster.name, { friend: true, bisRows: rows })).join(''); })()}</div>`
             : `<p class="empty" style="margin-bottom:18px">None yet: add them on the ${esc(roster.name)} tab of the Friends Rosters sheet with Section "${esc(sec)}".</p>`);
       }).join('');
     }
