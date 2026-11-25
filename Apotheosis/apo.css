@@ -138,3 +138,22 @@ p .tal-cell { font-weight: 700; }
 .lp-boss { width: 100%; font-size: 12px; color: var(--muted-2, #999); font-weight: 600; }
 .st-ic { display: inline-flex; gap: 2px; vertical-align: -3px; } .st-ic .role-ic { width: 16px; height: 16px; }
 .st-src { font-weight: 400; color: var(--muted-2, #999); font-size: 12px; }
+
+/* Loot Targets: summary tiles, raid sections, boss headers */
+.lt-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 12px; margin-bottom: 16px; }
+.lt-tile { background: var(--card, #1c1c1c); border: 1px solid #333; border-radius: 10px; padding: 12px 14px; cursor: pointer; }
+.lt-tile:hover { border-color: #555; }
+.lt-head { display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 8px; font-size: 14px; }
+.lt-row { display: grid; grid-template-columns: minmax(0, 1.8fr) 1fr 22px; gap: 8px; align-items: center; font-size: 12px; padding: 2px 0; }
+.lt-l { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.lt-bar { height: 7px; background: #2a2a2a; border-radius: 4px; overflow: hidden; } .lt-bar span { display: block; height: 100%; background: #3987e5; border-radius: 4px; }
+.lt-row b { text-align: right; }
+.loot-raid .card-head h2 { font-size: 20px; }
+.loot-boss { padding: 12px 0 14px; }
+.lb-head { display: flex; flex-wrap: wrap; gap: 6px 14px; align-items: center; background: linear-gradient(90deg, rgba(57,135,229,.16), rgba(57,135,229,0) 70%);
+  border-left: 3px solid #3987e5; border-radius: 6px; padding: 7px 12px; margin-bottom: 9px; }
+.lb-rank { font-weight: 800; color: #8bb9f0; min-width: 16px; }
+.lb-name { font-size: 17px; font-weight: 800; color: #fff; }
+.lb-stats { display: flex; gap: 12px; font-size: 12.5px; color: var(--muted-2, #aaa); } .lb-stats b { color: #ddd; } .lb-stats .up { color: #7ee787; font-weight: 700; }
+.lb-roll { margin-left: auto; font-size: 12.5px; color: #e5cc80; }
+.br-star { display: inline-block; color: #111; background: #e5cc80; border-radius: 8px; font-size: 10.5px; font-weight: 800; padding: 0 6px; margin-left: 6px; vertical-align: 1px; cursor: default; }
