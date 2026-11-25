@@ -989,6 +989,14 @@ function seasonTools() {
 }
 
 /* ------------------------------------------------------------------ Attendance and Performance (officers) */
+// What the last guild-log read did (so an empty tab explains itself)
+function logInfoHtml() {
+  const i = OFF && OFF.logInfo;
+  if (!i) return '<p class="hint" style="margin:8px 0 0">Guild logs have not been read yet. In the sheet: <b>Apotheosis &gt; Read guild logs now</b>.</p>';
+  if (i.error) return `<p class="hint" style="margin:8px 0 0;color:#ff7b72">Reading guild logs failed: ${esc(i.error)}</p>`;
+  return `<p class="hint" style="margin:8px 0 0">Guild logs ${i.at ? 'read ' + new Date(i.at).toLocaleString([], { month: 'short', day: 'numeric', hour: 'numeric', minute: '2-digit' }) : ''}: ${i.found} reports in the last 9 weeks, ${i.raid} in ${esc((i.raidZones || []).join(' / '))}, ${i.stored} read${i.left ? `, <b>${i.left} still to read</b> (a few each refresh, or <b>Apotheosis &gt; Read guild logs now</b>)` : ''}${
+    i.otherZones && i.otherZones.length && !i.raid ? ` &middot; other zones found: ${esc(i.otherZones.join(', '))}` : ''}${i.skippedPoints ? ` &middot; ${i.skippedPoints} skipped (Warcraft Logs points)` : ''}${(i.errors || []).length ? `<br><span style="color:#ff7b72">Errors: ${esc(i.errors.join(' | '))}</span>` : ''}</p>`;
+}
 const parseColor = v => v == null ? '#666' : v >= 99 ? '#e268a8' : v >= 95 ? '#ff8000' : v >= 75 ? '#a335ee' : v >= 50 ? '#0070ff' : v >= 25 ? '#1eff00' : '#9d9d9d';
 const offPlayers = () => (OFF.players || []).filter(x => x.raid || (x.att || []).some(Boolean)).sort((a, b) => (b.raid - a.raid) || a.player.localeCompare(b.player));
 function attendanceHtml() {
@@ -1001,7 +1009,7 @@ function attendanceHtml() {
     <div class="table-wrap"><table class="logs-table att-table"><thead><tr><th>Raider</th><th>%</th>${nights.map(n => `<th data-tip="${esc(n.zones.join(', '))}: ${n.pulls} pulls, ${n.kills} kills">${d(n.date)}</th>`).join('')}</tr></thead><tbody>${
       ps.map(x => `<tr${x.raid ? '' : ' class="bench"'}><td>${nameHtml(x.main)}${x.raid ? '' : ' <span class="hint">bench</span>'}</td><td><b style="color:${x.attPct >= 90 ? '#7ee787' : x.attPct >= 75 ? '#e3b341' : '#ff7b72'}">${x.attPct == null ? '-' : x.attPct + '%'}</b></td>${
         x.att.map(a => `<td class="att ${a ? 'y' : 'n'}">${a ? '&#10003;' : '&middot;'}</td>`).join('')}</tr>`).join('')}</tbody></table></div>`
-      : '<p class="empty">No raid nights logged in the last 8 weeks yet (the script reads the guild\'s Warcraft Logs reports a few at a time each refresh).</p>'}</div>`;
+      : '<p class="empty">No raid nights logged in the last 8 weeks yet.</p>'}${logInfoHtml()}</div>`;
 }
 function performanceHtml() {
   if (!OFF) { $('perf-body').innerHTML = offNeed(); return; }
@@ -1026,7 +1034,7 @@ function performanceHtml() {
           x.weekly.map(v => `<td><span style="color:${parseColor(v)}">${v == null ? '<span class="hint">-</span>' : v}</span></td>`).join('')}<td>${x.kills}</td>
           <td data-tip="${esc(Object.keys(x.firstBy).map(b => b + ': ' + x.firstBy[b]).join('<br>') || 'none')}">${x.firsts} <span class="hint">/ ${x.pulls} (${fd(x)}%)</span></td>
           <td class="hint">${best ? `<span style="color:${parseColor(best.avg)}">${esc(best.boss)} ${best.avg}</span>${worst && worst !== best ? ` &middot; <span style="color:${parseColor(worst.avg)}">${esc(worst.boss)} ${worst.avg}</span>` : ''}` : '-'}</td></tr>`; }).join('')}</tbody></table></div>`
-      : '<p class="empty">No raid logs read yet (the script reads the guild\'s Warcraft Logs reports a few at a time each refresh).</p>'}</div>`;
+      : '<p class="empty">No raid logs read yet.</p>'}${logInfoHtml()}</div>`;
 }
 
 /* ------------------------------------------------------------------ render */
