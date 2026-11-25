@@ -118,6 +118,7 @@
   .pvpc.open .pvp-more { display: block; }
   .pvp-more-grid { display: grid; grid-template-columns: 260px 1fr; gap: 24px; }
   .minis { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; margin-top: 12px; }
+  #pve .pvpc:not(.open) .minis { grid-template-columns: repeat(2, 1fr); }
   .mini { background: #252525; border-radius: 6px; padding: 7px 10px; }
   .mini .k { font-size: 10.5px; color: var(--muted-2); text-transform: uppercase; letter-spacing: .4px; }
   .mini .v { font-size: 17px; font-weight: 700; color: var(--text-strong); margin-top: 2px; font-variant-numeric: tabular-nums; }
@@ -562,8 +563,44 @@ function pvpCard(c) {
   </div>`;
 }
 
+function pveCard(c) {
+  const open = pvpOpen.has(c.name);
+  const mp = String(c.rating || '').replace(/^M\+\s*/, '');
+  const raid = (STATE.needs || []).filter(n => n.character === c.name && n.kind === 'Gear' && bossOf(n.source));
+  const items = new Set(raid.map(n => n.needed)).size;
+  const bossCount = {};
+  raid.forEach(n => { const b = bossOf(n.source); bossCount[b] = (bossCount[b] || new Set()).add(n.needed); });
+  const top = Object.entries(bossCount).sort((a, b) => b[1].size - a[1].size || BOSS_ORDER.indexOf(a[0]) - BOSS_ORDER.indexOf(b[0]))[0];
+  const ench = [...(c.enchants || []), ...(c.gems || [])];
+  const bad = ench.filter(e => e.status === 'Missing').length, warn = ench.filter(e => e.status === 'Different').length;
+  const wk = STATE.weekly || { characters: [], rows: [] };
+  const col = wk.characters.indexOf(c.name);
+  const wrows = col < 0 ? [] : wk.rows.filter(r => r.cells[col] !== null && r.cells[col] !== undefined);
+  const wdone = wrows.filter(r => r.cells[col]).length;
+  const issues = bad + warn;
+  return `<div class="char pvpc${open ? ' open' : ''}" style="--accent:${accentFor(c.cls)}" data-pvpcard="${esc(c.name)}">
+    <div class="pvp-sum">
+      <div class="char-head"><div><div class="char-name">${esc(c.name)}</div><div class="char-meta">${esc(c.cls)}</div></div>
+        <div class="headline-row"><div class="headline"><div class="lbl">M+ rating</div><div class="big">${esc(mp || '-')}</div></div>
+          <div class="headline"><div class="lbl">ilvl</div><div class="big">${esc(c.ilvl || '-')}</div></div></div></div>
+      <div class="sec">${bisBlock(c)}</div>
+      ${vaultBlock(c)}
+      <div class="minis">
+        <div class="mini"><div class="k">Raid items</div><div class="v">${(STATE.needs || []).length ? items : '-'}</div></div>
+        <div class="mini" ${top ? `data-tip="${esc(top[0])}: ${top[1].size} item${top[1].size === 1 ? '' : 's'}"` : ''}><div class="k">Top boss</div><div class="v" style="font-size:13px;line-height:21px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${top ? esc(top[0]) + ' (' + top[1].size + ')' : '-'}</div></div>
+        <div class="mini"><div class="k">Enchants &amp; gems</div><div class="v${ench.length && !issues ? ' ok' : ''}" style="${bad ? 'color:var(--bad)' : warn ? 'color:var(--warn)' : ''}">${ench.length ? (issues ? `${bad ? bad + ' missing' : ''}${bad && warn ? ', ' : ''}${warn ? warn + ' diff' : ''}` : 'All set') : '-'}</div></div>
+        <div class="mini"><div class="k">This week</div><div class="v${wrows.length && wdone === wrows.length ? ' ok' : ''}">${wrows.length ? wdone + ' / ' + wrows.length : '-'}</div></div>
+      </div>
+      <div class="expand"><span>${open ? 'Hide details' : 'Raid targets, enchants &amp; weekly checks'}</span><span class="chev">&#9662;</span></div>
+    </div>
+    <div class="pvp-more"><div class="pvp-more-grid" style="grid-template-columns:1fr 1fr"><div>${targetsBlock(c)}</div><div>${enchantBlock(c)}${weeklyChecks(c)}</div></div>
+      <div class="foot">Gear pulled ${esc(c.pulled || '-')}</div></div>
+  </div>`;
+}
+
 function charCard(c) {
   if (c.pvp && !c.error) return pvpCard(c);
+  if (!c.error) return pveCard(c);
   if (c.error) return `<div class="char"><div class="char-name">${esc(c.name)}</div><p class="empty">Could not read this sheet: ${esc(c.error)}</p></div>`;
   let headline;
   if (c.pvp) {
