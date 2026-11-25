@@ -549,7 +549,7 @@ function talentsHtml() {
   const T = STATE.talents || { specs: [], checks: {} }, info = T.info;
   const kill = info && info.fromKill, prof = info && info.fromProfile;
   $('tal-info').innerHTML = info && info.fetched ? `updated ${new Date(info.fetched).toLocaleDateString([], { month: 'short', day: 'numeric' })} &middot; ` +
-    (kill && !prof ? 'talents from each top kill' : kill ? `talents from ${kill} top kills, ${prof} current builds` : 'top players\' current builds') + ' &middot; refreshes Wednesdays' : '';
+    'top 15 US players per boss &middot; ' + (kill && !prof ? 'talents from each top kill' : kill ? `talents from ${kill} top kills, ${prof} current builds` : 'top players\' current builds') + ' &middot; refreshes Wednesdays' : '';
   if (!T.specs.length) {
     $('tal-boss').innerHTML = '';
     $('tal-body').innerHTML = `<div class="card"><p class="empty">No top builds yet. In the sheet: <b>Apotheosis &gt; Refresh talent builds</b> (takes a few minutes; after that it runs every Wednesday).</p></div>`;
@@ -571,28 +571,34 @@ function talentsHtml() {
   const copyBtn = (code, label) => code ? `<button type="button" class="rb-btn tal-copy" data-copy="${esc(code)}">${label}</button>` : '';
   let body;
   if (!talBoss) {
-    body = groups.map(({ sp, who }) => {
-      const bs = bosses.filter(b => sp.bosses[b]);
-      const heroes = [...new Set(bs.map(b => sp.bosses[b].heroName).filter(Boolean))];
-      const rows = who.map(({ c }) => `<tr><td>${nameHtml(c)}</td><td class="hint">${esc(c.tal.heroName || '')}</td>${bs.map(b => { const s = statusOf(c, b), n = diffs(s);
-        return `<td class="tal-cell ${n == null ? '' : n === 0 ? 'ok' : !s.hero ? 'hero' : n <= 2 ? 'near' : 'off'}" data-tip="${esc(tipOf(s, sp, b))}">${n == null ? '-' : n === 0 ? '&#10003;' : !s.hero ? 'H' + (n > 1 ? '+' + (n - 1) : '') : n}</td>`; }).join('')}
-        <td>${copyBtn(c.tal.code, 'Copy theirs')}</td></tr>`).join('');
-      return `<div class="card"><div class="card-head"><h2>${classIcon(sp.cls, 'sm')} <span style="color:${classHex(sp.cls)}">${esc(sp.spec)} ${esc(sp.cls)}</span></h2>
-        <span class="hint">top players' hero tree: ${heroes.length ? heroes.map(esc).join(' / ') : '?'}</span></div>
-        <div class="table-wrap"><table class="logs-table tal-table"><thead><tr><th>Raider</th><th>Hero tree</th>${bs.map(b => `<th data-talboss="${esc(b)}" class="tal-bh" data-tip="Open ${esc(b)}">${esc(b.split(/[ ,]/)[0])}</th>`).join('')}<th></th></tr></thead><tbody>${rows}</tbody></table></div>
-        <p class="hint" style="margin:6px 0 0">&#10003; matches the top players &middot; number = talents that differ &middot; H = different hero tree &middot; hover for details, click a boss for its build</p></div>`;
-    }).join('');
+    // One table: every compared raider (grouped by role, then class/spec) x every boss
+    const rows = groups.flatMap(({ sp, who }) => who.map(({ c }) => ({ sp, c })));
+    const cell = (s, sp, b) => {
+      if (!s) return `<td class="tal-cell">-</td>`;
+      const tip = esc(`Same build as ${s.match} of the top ${s.n} US players (same hero tree, 2 talents or fewer different)` + (tipOf(s, sp, b) !== 'Matches' ? '<br>' + tipOf(s, sp, b) : ''));
+      const cls = !s.hero ? 'hero' : s.match >= 3 ? 'ok' : s.match >= 1 ? 'near' : 'off';
+      const txt = !s.hero ? 'H' : s.match >= 3 ? '&#10003; ' + s.match : s.match >= 1 ? s.match : '&#10007;';
+      return `<td class="tal-cell ${cls}" data-tip="${tip}">${txt}</td>`;
+    };
+    body = `<div class="card"><div class="table-wrap"><table class="logs-table tal-table"><thead><tr><th>Raider</th><th>Spec</th><th>Hero tree</th>${bosses.map(b =>
+      `<th data-talboss="${esc(b)}" class="tal-bh" data-tip="Open ${esc(b)}: top build to copy">${esc(b.split(/[ ,]/)[0])}</th>`).join('')}</tr></thead><tbody>${rows.map(({ sp, c }) => {
+        const heroes = [...new Set(bosses.map(b => sp.bosses[b] && sp.bosses[b].heroName).filter(Boolean))];
+        const heroOk = !heroes.length || heroes.includes(c.tal.heroName);
+        return `<tr><td>${nameHtml(c)}</td><td class="hint">${esc(sp.spec)}</td><td class="${heroOk ? 'hint' : 'tal-herobad'}"${heroOk ? '' : ` data-tip="Top players use ${esc(heroes.join(' / '))}"`}>${esc(c.tal.heroName || '?')}</td>${bosses.map(b => cell(statusOf(c, b), sp, b)).join('')}</tr>`; }).join('')}</tbody></table></div>
+      <p class="hint" style="margin:8px 0 0"><span class="tal-cell ok">&#10003; 5</span> same build as 5 of the top 15 US players (3 or more) &middot; <span class="tal-cell near">2</span> matches 1-2 &middot;
+        <span class="tal-cell off">&#10007;</span> matches none &middot; <span class="tal-cell hero">H</span> different hero tree &middot; hover a cell for missing / extra talents, click a boss for its top build to copy</p></div>`;
   } else {
     const b = talBoss;
     body = groups.filter(g => g.sp.bosses[b]).map(({ sp, who }) => {
       const x = sp.bosses[b], r = x.ref;
       const rows = who.map(({ c }) => { const s = statusOf(c, b), n = diffs(s);
-        const what = !s ? '<span class="hint">no data</span>' : n === 0 ? '<span class="pill tal-ok">&#10003; Matches</span>' :
+        const mt = s ? `<span class="tal-mt ${!s.hero ? 'hero' : s.match >= 3 ? 'ok' : s.match >= 1 ? 'near' : 'off'}">same as ${s.match}/${s.n}</span>` : '';
+        const what = !s ? '<span class="hint">no data</span>' : n === 0 ? '<span class="pill tal-ok">&#10003; Matches the usual build</span>' :
           [!s.hero ? `<span class="pill tal-hero">Hero tree: ${esc(c.tal.heroName || '?')}, top use ${esc(x.heroName || '?')}</span>` : '',
            s.miss.length ? `<div><b class="tal-miss">Missing:</b> ${nList(s.miss, 8)}</div>` : '', s.extra.length ? `<div><b class="tal-extra">Extra:</b> ${nList(s.extra, 8)}</div>` : ''].join('');
-        return `<div class="tal-row"><span class="tn">${nameHtml(c)}</span><span class="tw">${what}</span></div>`; }).join('');
+        return `<div class="tal-row"><span class="tn">${nameHtml(c)}</span>${mt}<span class="tw">${what}</span></div>`; }).join('');
       return `<div class="card"><div class="card-head"><h2>${classIcon(sp.cls, 'sm')} <span style="color:${classHex(sp.cls)}">${esc(sp.spec)} ${esc(sp.cls)}</span></h2>
-        <span class="hint">top ${x.n} on ${esc(b)} &middot; hero tree ${esc(x.heroName || '?')} (${x.heroPct}%)</span></div>
+        <span class="hint">top ${x.n} US on ${esc(b)} &middot; hero tree ${esc(x.heroName || '?')} (${x.heroPct}%)</span></div>
         <div class="tal-ref">${r ? `${copyBtn(r.code, 'Copy build')} <span>from <a href="${esc(r.rio)}" target="_blank" rel="noopener">${esc(r.name)}</a> <span class="hint">(${esc(r.region.toUpperCase())}, ${Number(r.amount).toLocaleString()} ${sp.metric.toUpperCase()}${r.log ? `, <a href="${esc(r.log)}" target="_blank" rel="noopener">log</a>` : ''})</span></span>` +
           (r.same != null && r.same < 90 ? ` <span class="hint" data-tip="The copy is this player's current build; it is ${r.same}% the same as what they took on this kill">current build, ${r.same}% same as the kill</span>` : '') : '<span class="hint">No top player with a copyable build for this boss.</span>'}</div>
         ${x.add.length || x.drop.length ? `<p class="tal-swap">On this boss the top players ${x.add.length ? `<b class="tal-extra">add</b> ${nList(x.add, 6)}` : ''}${x.add.length && x.drop.length ? ' and ' : ''}${x.drop.length ? `<b class="tal-miss">drop</b> ${nList(x.drop, 6)}` : ''}</p>` : ''}

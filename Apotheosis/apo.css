@@ -103,7 +103,10 @@ tr.notready td { opacity: .85; }
 
 /* Talents Check */
 .tal-table td.tal-cell { text-align: center; font-weight: 700; cursor: default; }
-.tal-cell.ok { color: var(--ok); } .tal-cell.near { color: #e3b341; } .tal-cell.off { color: var(--bad); } .tal-cell.hero { color: #a335ee; }
+.tal-cell.ok, .tal-mt.ok { color: #7ee787; } .tal-cell.near, .tal-mt.near { color: #e3b341; } .tal-cell.off, .tal-mt.off { color: #ff7b72; } .tal-cell.hero, .tal-mt.hero { color: #c67bff; }
+.tal-mt { min-width: 92px; font-size: 12px; font-weight: 700; }
+.tal-herobad { color: #c67bff; font-weight: 600; }
+p .tal-cell { font-weight: 700; }
 .tal-bh { cursor: pointer; text-decoration: underline dotted; }
 .tal-row { display: flex; gap: 12px; padding: 7px 0; border-top: 1px solid var(--line, #333); align-items: baseline; }
 .tal-row .tn { min-width: 150px; } .tal-row .tw { flex: 1; font-size: 13px; line-height: 1.5; }
