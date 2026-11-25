@@ -442,6 +442,70 @@ function weekTogether(t) {
   return `<div class="sec"><div class="sec-title"><span>Keys together this week</span><span class="hint">${runs.filter(r => r.who.length >= 3).length} with 3+ of the team &middot; since the Tuesday reset</span></div>${rows || '<p class="empty">No keys with 2 or more of the team since the Tuesday reset.</p>'}</div>`;
 }
 
+/* ------------------------------------------------------------------ Talents Check tab */
+let talBoss = store('apoTalBoss', '');
+const SEC_ORDER = { Tanks: 0, Healers: 1, Melee: 2, Ranged: 3 };
+const talKey = c => (c.name + '-' + c.realm).toLowerCase();
+const nList = (a, n) => a.length <= n ? a.map(esc).join(', ') : a.slice(0, n).map(esc).join(', ') + ` <span class="hint">+${a.length - n} more</span>`;
+function talentsHtml() {
+  const T = STATE.talents || { specs: [], checks: {} }, info = T.info;
+  const kill = info && info.fromKill, prof = info && info.fromProfile;
+  $('tal-info').innerHTML = info && info.fetched ? `updated ${new Date(info.fetched).toLocaleDateString([], { month: 'short', day: 'numeric' })} &middot; ` +
+    (kill && !prof ? 'talents from each top kill' : kill ? `talents from ${kill} top kills, ${prof} current builds` : 'top players\' current builds') + ' &middot; refreshes Wednesdays' : '';
+  if (!T.specs.length) {
+    $('tal-boss').innerHTML = '';
+    $('tal-body').innerHTML = `<div class="card"><p class="empty">No top builds yet. In the sheet: <b>Apotheosis &gt; Refresh talent builds</b> (takes a few minutes; after that it runs every Wednesday).</p></div>`;
+    return;
+  }
+  const bosses = bossList().filter(b => T.specs.some(s => s.bosses[b]));
+  if (talBoss && !bosses.includes(talBoss)) talBoss = '';
+  $('tal-boss').innerHTML = [['', 'All bosses']].concat(bosses.map(b => [b, b])).map(([k, l]) => `<button type="button" class="chip${talBoss === k ? ' on' : ''}" data-talboss="${esc(k)}">${esc(l)}</button>`).join('');
+  // Raid team's picked toons, grouped by the spec they are in now
+  const team = raidPlayers().map(p => ({ p, c: picked(p) }));
+  const groups = T.specs.map(sp => ({ sp, who: team.filter(x => x.c.tal && x.c.tal.spec === sp.spec && x.c.cls === sp.cls) })).filter(g => g.who.length)
+    .sort((a, b) => SEC_ORDER[sectionOf(a.who[0].c.role, a.sp.cls, a.sp.spec)] - SEC_ORDER[sectionOf(b.who[0].c.role, b.sp.cls, b.sp.spec)] || a.sp.cls.localeCompare(b.sp.cls));
+  const covered = new Set(groups.flatMap(g => g.who.map(x => x.p.player)));
+  const left = team.filter(x => !covered.has(x.p.player));
+  const statusOf = (c, b) => ((T.checks[talKey(c)] || {})[b]) || null;
+  const diffs = s => s ? s.miss.length + s.extra.length + (s.hero ? 0 : 1) : null;
+  const tipOf = (s, sp, b) => { if (!s) return 'No data'; const x = sp.bosses[b] || {};
+    return [!s.hero ? `Hero tree: top players use ${x.heroName || 'another tree'}` : '', s.miss.length ? 'Missing: ' + s.miss.join(', ') : '', s.extra.length ? 'Extra: ' + s.extra.join(', ') : ''].filter(Boolean).join('<br>') || 'Matches'; };
+  const copyBtn = (code, label) => code ? `<button type="button" class="rb-btn tal-copy" data-copy="${esc(code)}">${label}</button>` : '';
+  let body;
+  if (!talBoss) {
+    body = groups.map(({ sp, who }) => {
+      const bs = bosses.filter(b => sp.bosses[b]);
+      const heroes = [...new Set(bs.map(b => sp.bosses[b].heroName).filter(Boolean))];
+      const rows = who.map(({ c }) => `<tr><td>${nameHtml(c)}</td><td class="hint">${esc(c.tal.heroName || '')}</td>${bs.map(b => { const s = statusOf(c, b), n = diffs(s);
+        return `<td class="tal-cell ${n == null ? '' : n === 0 ? 'ok' : !s.hero ? 'hero' : n <= 2 ? 'near' : 'off'}" data-tip="${esc(tipOf(s, sp, b))}">${n == null ? '-' : n === 0 ? '&#10003;' : !s.hero ? 'H' + (n > 1 ? '+' + (n - 1) : '') : n}</td>`; }).join('')}
+        <td>${copyBtn(c.tal.code, 'Copy theirs')}</td></tr>`).join('');
+      return `<div class="card"><div class="card-head"><h2>${classIcon(sp.cls, 'sm')} <span style="color:${classHex(sp.cls)}">${esc(sp.spec)} ${esc(sp.cls)}</span></h2>
+        <span class="hint">top players' hero tree: ${heroes.length ? heroes.map(esc).join(' / ') : '?'}</span></div>
+        <div class="table-wrap"><table class="logs-table tal-table"><thead><tr><th>Raider</th><th>Hero tree</th>${bs.map(b => `<th data-talboss="${esc(b)}" class="tal-bh" data-tip="Open ${esc(b)}">${esc(b.split(/[ ,]/)[0])}</th>`).join('')}<th></th></tr></thead><tbody>${rows}</tbody></table></div>
+        <p class="hint" style="margin:6px 0 0">&#10003; matches the top players &middot; number = talents that differ &middot; H = different hero tree &middot; hover for details, click a boss for its build</p></div>`;
+    }).join('');
+  } else {
+    const b = talBoss;
+    body = groups.filter(g => g.sp.bosses[b]).map(({ sp, who }) => {
+      const x = sp.bosses[b], r = x.ref;
+      const rows = who.map(({ c }) => { const s = statusOf(c, b), n = diffs(s);
+        const what = !s ? '<span class="hint">no data</span>' : n === 0 ? '<span class="pill tal-ok">&#10003; Matches</span>' :
+          [!s.hero ? `<span class="pill tal-hero">Hero tree: ${esc(c.tal.heroName || '?')}, top use ${esc(x.heroName || '?')}</span>` : '',
+           s.miss.length ? `<div><b class="tal-miss">Missing:</b> ${nList(s.miss, 8)}</div>` : '', s.extra.length ? `<div><b class="tal-extra">Extra:</b> ${nList(s.extra, 8)}</div>` : ''].join('');
+        return `<div class="tal-row"><span class="tn">${nameHtml(c)}</span><span class="tw">${what}</span></div>`; }).join('');
+      return `<div class="card"><div class="card-head"><h2>${classIcon(sp.cls, 'sm')} <span style="color:${classHex(sp.cls)}">${esc(sp.spec)} ${esc(sp.cls)}</span></h2>
+        <span class="hint">top ${x.n} on ${esc(b)} &middot; hero tree ${esc(x.heroName || '?')} (${x.heroPct}%)</span></div>
+        <div class="tal-ref">${r ? `${copyBtn(r.code, 'Copy build')} <span>from <a href="${esc(r.rio)}" target="_blank" rel="noopener">${esc(r.name)}</a> <span class="hint">(${esc(r.region.toUpperCase())}, ${Number(r.amount).toLocaleString()} ${sp.metric.toUpperCase()}${r.log ? `, <a href="${esc(r.log)}" target="_blank" rel="noopener">log</a>` : ''})</span></span>` +
+          (r.same != null && r.same < 90 ? ` <span class="hint" data-tip="The copy is this player's current build; it is ${r.same}% the same as what they took on this kill">current build, ${r.same}% same as the kill</span>` : '') : '<span class="hint">No top player with a copyable build for this boss.</span>'}</div>
+        ${x.add.length || x.drop.length ? `<p class="tal-swap">On this boss the top players ${x.add.length ? `<b class="tal-extra">add</b> ${nList(x.add, 6)}` : ''}${x.add.length && x.drop.length ? ' and ' : ''}${x.drop.length ? `<b class="tal-miss">drop</b> ${nList(x.drop, 6)}` : ''}</p>` : ''}
+        ${rows}</div>`;
+    }).join('');
+  }
+  const leftHtml = left.length ? `<div class="card"><div class="card-head"><h2>Not compared</h2></div>${left.map(({ c }) =>
+    `<div class="tal-row"><span class="tn">${nameHtml(c)}</span><span class="tw hint">${!c.tal ? 'no talents on Raider.io' : `no top builds for ${esc(c.tal.spec)} ${esc(c.cls)} yet (next talent refresh)`}</span></div>`).join('')}</div>` : '';
+  $('tal-body').innerHTML = (body || '<div class="card"><p class="empty">Nobody on the raid team is in a spec with top builds for this boss.</p></div>') + leftHtml;
+}
+
 /* ------------------------------------------------------------------ render */
 function render() {
   if (!STATE) return;
@@ -472,6 +536,7 @@ function render() {
   priorityHtml();
   simsHtml();
   paintLock();
+  talentsHtml();
   guildHtml();
   mplusHtml();
 }
@@ -502,6 +567,11 @@ document.addEventListener('click', e => {
   if (wd) { e.preventDefault(); const [name, realm, item, kind] = wd.dataset.wishdel.split('|');
     if (!confirm('Remove ' + item + ' from ' + name + "'s wishlist?")) return;
     officerPost({ action: 'wishDelete', name, realm, item, kind }).then(() => load()).catch(err => alert(err.message)); return; }
+  const tb2 = e.target.closest('[data-talboss]');
+  if (tb2) { talBoss = tb2.dataset.talboss; save('apoTalBoss', talBoss); render(); return; }
+  const cp = e.target.closest('[data-copy]');
+  if (cp) { const code = cp.dataset.copy, done = () => { const t = cp.textContent; cp.textContent = 'Copied ✓'; setTimeout(() => { cp.textContent = t; }, 1500); };
+    (navigator.clipboard ? navigator.clipboard.writeText(code).then(done) : Promise.reject()).catch(() => prompt('Copy this talent string (Ctrl+C):', code)); return; }
   const sv = e.target.closest('[data-simview]');
   if (sv) { simView = sv.dataset.simview; save('apoSimView', simView); render(); return; }
   const sk = e.target.closest('[data-simkind]');

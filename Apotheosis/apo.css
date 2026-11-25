@@ -100,3 +100,15 @@ tr.notready td { opacity: .85; }
 
 .sim-tabs { grid-template-columns: 1fr 1fr 1fr; }
 .bf.wishbar { background: linear-gradient(90deg, #a07a1f, #e3b341); }
+
+/* Talents Check */
+.tal-table td.tal-cell { text-align: center; font-weight: 700; cursor: default; }
+.tal-cell.ok { color: var(--ok); } .tal-cell.near { color: #e3b341; } .tal-cell.off { color: var(--bad); } .tal-cell.hero { color: #a335ee; }
+.tal-bh { cursor: pointer; text-decoration: underline dotted; }
+.tal-row { display: flex; gap: 12px; padding: 7px 0; border-top: 1px solid var(--line, #333); align-items: baseline; }
+.tal-row .tn { min-width: 150px; } .tal-row .tw { flex: 1; font-size: 13px; line-height: 1.5; }
+.tal-ref { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; margin: 4px 0 8px; }
+.tal-copy { cursor: pointer; font: inherit; font-size: 12px; }
+.tal-swap { font-size: 13px; margin: 0 0 8px; }
+.tal-miss { color: var(--bad); } .tal-extra { color: #e3b341; }
+.pill.tal-ok { color: var(--ok); border-color: rgba(63,185,80,.5); } .pill.tal-hero { color: #c67bff; border-color: rgba(163,53,238,.5); }

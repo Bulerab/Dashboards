@@ -7,7 +7,7 @@
 <link rel="preconnect" href="https://script.google.com">
 <link rel="preconnect" href="https://script.googleusercontent.com" crossorigin>
 <link rel="stylesheet" href="app.css?v=1">
-<link rel="stylesheet" href="apo.css?v=10">
+<link rel="stylesheet" href="apo.css?v=11">
 </head>
 <body>
 <div class="container">
@@ -20,7 +20,7 @@
     <button class="lock" id="lock" type="button" data-lock="1">&#128274; Officer</button>
   </div>
   <nav class="nav apo-tabs" id="tabs">
-    <a href="#roster" data-tab="roster">Roster</a><a href="#priority" data-tab="priority">BiS Priority</a><a href="#sims" data-tab="sims">Sims Priority</a><a href="#guild" data-tab="guild">Guild</a><a href="#mplus" data-tab="mplus">Mythic+</a>
+    <a href="#roster" data-tab="roster">Roster</a><a href="#priority" data-tab="priority">BiS Priority</a><a href="#sims" data-tab="sims">Sims Priority</a><a href="#talents" data-tab="talents">Talents Check</a><a href="#guild" data-tab="guild">Guild</a><a href="#mplus" data-tab="mplus">Mythic+</a>
   </nav>
 
   <section class="tab" id="tab-roster">
@@ -49,6 +49,14 @@
     <div id="sim-cards"></div>
   </section>
 
+  <section class="tab" id="tab-talents">
+    <div class="card"><div class="card-head"><h2>Talents Check</h2><span class="hint" id="tal-info"></span></div>
+      <p class="hint" style="margin:0 0 10px">Each raider's current talents (Raider.io) compared with what the top Warcraft Logs players of their spec took on each boss.
+        <b>Missing</b> = taken by 70%+ of the top players, <b>Extra</b> = taken by 20% or fewer. <b>Copy build</b> gives an in-game import string.</p>
+      <div class="filters" id="tal-boss"></div></div>
+    <div id="tal-body"></div>
+  </section>
+
   <section class="tab" id="tab-guild">
     <div class="card"><div class="card-head"><h2>Raid progression</h2><span class="hint">Raider.io</span></div><div id="guild-rio"></div></div>
     <div class="card"><div class="card-head"><h2>Warcraft Logs rankings</h2><span class="hint">progress and speed</span></div><div id="guild-wcl"></div></div>
@@ -68,6 +76,6 @@
 </div>
 <div class="tip" id="tip"></div>
 <script src="shared.js?v=1"></script>
-<script src="app.js?v=15"></script>
+<script src="app.js?v=16"></script>
 </body>
 </html>
