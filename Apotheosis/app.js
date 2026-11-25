@@ -14,6 +14,8 @@ let bbMode = store('apoBossMode', 'overall');           // boss breakdown: ilvl 
 let ilvlAll = store('apoIlvlAll', false);               // top item level: top 5 or whole raid
 let mainsOpen = false;                                  // mains vs secondary mains pop-out
 
+const inPvp = c => !!(c && c.pvp && c.pvp.mostly);      // more than half their gear is PvP gear
+const pvpText = c => `In PvP gear (${c.pvp.count} of ${c.pvp.total} pieces)`;
 const ROLE = c => c.role === 'TANK' ? 'Tank' : c.role === 'HEALING' ? 'Healer' : 'DPS';
 const nameHtml = c => `<span style="color:${classHex(c.cls)};white-space:nowrap">${classIcon(c.cls, 'sm')}${esc(c.name)}</span>`;
 const toonsOfP = p => [p.main].concat(p.alts || []);
@@ -128,7 +130,7 @@ function playerTile(p, key) {
     `<button type="button" class="pick${o === c ? ' on' : ''}" data-rpick="${esc(p.player + '|' + o.name)}" style="${o === c ? '' : 'color:' + classHex(o.cls)}">${esc(o.name)}</button>`).join('')}</div></div>` : '';
   if (c.error && !c.cls) return `<div class="char"><div class="char-name">${esc(c.name)}</div><p class="empty">${esc(c.error)}</p>${pick}</div>`;
   const L = c.logs && !c.logs.error ? c.logs : null;
-  const bis = c.bis ? `<div class="bis"><div class="bis-label"><span>${esc(c.spec)} BiS</span><span>${c.bis.have} / ${c.bis.total}</span></div><div class="meter"><div style="width:${Math.round(c.bis.have / c.bis.total * 100)}%"></div></div></div>`
+  const bis = inPvp(c) ? `<div class="ench-summary" style="margin:6px 0"><span class="pill warn">${esc(pvpText(c))}</span></div>` : c.bis ? `<div class="bis"><div class="bis-label"><span>${esc(c.spec)} BiS</span><span>${c.bis.have} / ${c.bis.total}</span></div><div class="meter"><div style="width:${Math.round(c.bis.have / c.bis.total * 100)}%"></div></div></div>`
     : `<p class="empty" style="margin:6px 0">No BiS list for ${esc(c.spec || 'this spec')} yet.</p>`;
   const pills = [(c.missingEnchants || []).length ? `<span class="pill bad">Missing enchant: ${esc(c.missingEnchants.map(slotName).join(', '))}</span>` : '<span class="pill ok">Enchants OK</span>',
     c.gems ? (c.gems.empty ? `<span class="pill bad">${c.gems.empty} empty socket${c.gems.empty > 1 ? 's' : ''}</span>` : '<span class="pill ok">Gems OK</span>') : '',
@@ -148,13 +150,13 @@ function playerTile(p, key) {
       <div class="minis" style="grid-template-columns:repeat(3,1fr)">
         <div class="mini"><div class="k">${L && L.metric === 'hps' ? 'Heal parse' : 'Raid parse'}</div><div class="v">${L ? pctHtml(L.avg) : '-'}</div></div>
         <div class="mini"><div class="k">Bosses logged</div><div class="v">${L ? L.bosses.length : '-'}</div></div>
-        <div class="mini"><div class="k">BiS needed</div><div class="v">${c.bis ? c.bis.need.length : '-'}</div></div>
+        <div class="mini"><div class="k">BiS needed</div><div class="v">${inPvp(c) ? 'PvP' : c.bis ? c.bis.need.length : '-'}</div></div>
       </div>
       <div class="ench-summary" style="margin-top:8px">${pills}</div>${offBadges(p)}${pick}
     </div>
     <div class="pvp-more"><div class="pvp-more-grid" style="grid-template-columns:1fr 1fr">
       <div><div class="sec"><div class="sec-title"><span>Warcraft Logs &middot; ${esc((L && L.difficulty) || '')} raid</span><span class="hint">overall %</span></div>${logsTable}</div></div>
-      <div><div class="sec"><div class="sec-title"><span>BiS still needed</span><span class="hint">by source</span></div>${need || (c.bis ? '<p class="empty" style="color:var(--ok)">Full BiS.</p>' : '<p class="empty">No BiS list yet.</p>')}</div></div>
+      <div><div class="sec"><div class="sec-title"><span>BiS still needed</span><span class="hint">by source</span></div>${inPvp(c) ? `<p class="empty">${esc(pvpText(c))}: left out of BiS and bonus roll priority until they switch to PvE gear.</p>` : need || (c.bis ? '<p class="empty" style="color:var(--ok)">Full BiS.</p>' : '<p class="empty">No BiS list yet.</p>')}</div></div>
     </div></div>
   </div>`;
 }
@@ -171,8 +173,10 @@ function mainsPopout() {
 /* ------------------------------------------------------------------ Priority tab */
 function priorityHtml() {
   const by = {}, other = {};
+  const pvpSkipped = [];
   raidPlayers().forEach(p => {
     const c = picked(p);
+    if (inPvp(c)) { pvpSkipped.push(c); return; }
     ((c.bis && c.bis.need) || []).forEach(n => {
       const b = bossOfSrc(n.source);
       const bucket = b ? by : other, k = b || n.source || 'Unknown source';
@@ -186,6 +190,7 @@ function priorityHtml() {
   const hasBis = raidPlayers().some(p => picked(p).bis);
   $('prio-bosses').innerHTML = block(by, true) || `<p class="empty">${hasBis ? 'Nobody needs raid drops.' : 'Fills in once BiS lists are added to the sheet.'}</p>`;
   $('prio-other').innerHTML = block(other, false) || '<p class="empty">Nothing else needed.</p>';
+  if (pvpSkipped.length) $('prio-bosses').innerHTML += `<p class="hint" style="margin:10px 0 0">Not counted, in PvP gear: ${pvpSkipped.map(c => `${nameHtml(c)} <span class="hint">(${c.pvp.count}/${c.pvp.total})</span>`).join(' &middot; ')}</p>`;
 }
 
 /* ------------------------------------------------------------------ Guild tab */
