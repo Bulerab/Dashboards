@@ -157,3 +157,6 @@ p .tal-cell { font-weight: 700; }
 .lb-stats { display: flex; gap: 12px; font-size: 12.5px; color: var(--muted-2, #aaa); } .lb-stats b { color: #ddd; } .lb-stats .up { color: #7ee787; font-weight: 700; }
 .lb-roll { margin-left: auto; font-size: 12.5px; color: #e5cc80; }
 .br-star { display: inline-block; color: #111; background: #e5cc80; border-radius: 8px; font-size: 10.5px; font-weight: 800; padding: 0 6px; margin-left: 6px; vertical-align: 1px; cursor: default; }
+
+.setup-edit { margin: 4px 0 12px; font-size: 13px; } .setup-edit summary { cursor: pointer; color: var(--muted-2, #aaa); } .setup-edit summary:hover { color: #ddd; }
+.setup-edit input { flex: 1; }

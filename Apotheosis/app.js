@@ -333,7 +333,8 @@ const SIM_TABS = Object.assign({}, SIM_KINDS, { manual: 'Manual entry' });   // 
 let simKind = store('apoSimKind', 'drops');
 let simMsg = '';
 let simView = store('apoSimView', 'player');
-let wishMsg = '';   // Drops section: by player or by boss
+let wishMsg = '';
+let setupMsg = '';   // Drops section: by player or by boss
 let officerKey = (() => { try { return localStorage.getItem('apoOfficerKey') || ''; } catch (e) { return ''; } })();
 const simsOf = c => (STATE.sims || []).filter(x => x.name.toLowerCase() === String(c.name).toLowerCase() && (!x.realm || x.realm === String(c.realm).toLowerCase()));
 const simOf = (c, kind) => simsOf(c).find(x => x.kind === kind);
@@ -399,12 +400,17 @@ function simsHtml() {
   $('sim-run').innerHTML = `<div class="card-head"><h2>Run: ${SIM_KINDS[simKind]}</h2><span class="hint">Raidbots keeps the last setup you loaded for every character you open after it</span></div>
     <div class="run-steps">
       <div class="run-step"><span class="rb-step big">1</span>${setup ? `<a class="rb-btn big" href="${esc(setup)}" target="raidbots" rel="noopener">${fav('raidbots.com', 'RB')} Apply ${esc(SIM_KINDS[simKind])} setup</a>`
-        : '<span class="hint">Add the Share Setup link in the sheet\'s Settings tab first.</span>'}<span class="hint">On Raidbots, <b>untick Character</b>, then Load Setup. Once per session.</span></div>
+        : `<span class="hint">No setup link yet: ${officerKey ? 'add one with <b>Change the setup link</b> below' : 'an officer adds one (or the sheet\'s Settings tab)'}.</span>`}<span class="hint">On Raidbots, <b>untick Character</b>, then Load Setup. Once per session.</span></div>
       <div class="run-step"><span class="rb-step big">2</span><button type="button" class="rb-btn big" data-openall="${simKind}">Open all ${team.length} ready raiders</button>
         <button type="button" class="rb-btn" data-openall="${simKind}" data-stale="1">Open only missing / older than 2 weeks</button><span class="hint" id="openall-msg"></span>
         <span class="hint popup-note">First time: allow pop-ups for this site (icon at the right of the address bar), or only one tab opens.</span></div>
       <div class="run-step"><span class="rb-step big">3</span><span class="hint">Click <b>Run Droptimizer</b> in each tab. When they finish, paste the report links below.</span></div>
     </div>
+    ${officerKey ? `<details class="setup-edit"${setupMsg ? ' open' : ''}><summary>Change the ${esc(SIM_KINDS[simKind])} setup link</summary>
+      <p class="hint" style="margin:6px 0">On Raidbots, set the Droptimizer up the way the guild should run it (sources, difficulty, upgrade level, fight style), click <b>Share Setup</b>, and paste that link here.
+        It replaces the link on the sheet's Settings tab${setup ? ` (now <a href="${esc(setup)}" target="_blank" rel="noopener">${esc(setup.replace(/.*share\//, ''))}</a>)` : ''}.</p>
+      <form class="sim-form" id="setup-form" data-kind="${simKind}"><input id="setup-url" placeholder="https://www.raidbots.com/simbot/share/..." required><button type="submit" class="toggle-btn" id="setup-go">Save setup</button></form>
+      <div class="hint" id="setup-msg" style="margin-top:6px">${esc(setupMsg)}</div></details>` : ''}
     <table class="logs-table sim-status"><thead><tr><th>Raider</th><th>Spec</th><th>Raidbots</th><th>Last imported</th><th>Best upgrade</th><th>Upgrades</th></tr></thead><tbody>${team.map(statusRow).join('') || '<tr><td colspan="6" class="none">Nobody ready to sim.</td></tr>'}</tbody></table>
     ${notReady.length ? `<div class="sec-title" style="margin-top:14px"><span>Not in correct gear or spec</span><span class="hint">left out of Open all &middot; spec and gear update when they log in and the page refreshes</span></div>
       <table class="logs-table sim-status"><tbody>${notReady.map(x => `<tr class="notready"><td>${nameHtml(x.c)}</td><td><span class="pill warn">${esc(x.why)}</span></td>
@@ -708,7 +714,7 @@ document.addEventListener('click', e => {
   const sv = e.target.closest('[data-simview]');
   if (sv) { simView = sv.dataset.simview; save('apoSimView', simView); render(); return; }
   const sk = e.target.closest('[data-simkind]');
-  if (sk) { simKind = sk.dataset.simkind; save('apoSimKind', simKind); render(); return; }
+  if (sk) { setupMsg = ''; simKind = sk.dataset.simkind; save('apoSimKind', simKind); render(); return; }
   const sd = e.target.closest('[data-simdel]');
   if (sd) { e.preventDefault(); const [name, realm, kind] = sd.dataset.simdel.split('|');
     if (!confirm('Remove ' + name + "'s " + SIM_KINDS[kind] + ' report?')) return;
@@ -758,6 +764,15 @@ document.addEventListener('submit', e => {
     officerPost({ action: 'wishAdd', name, realm, item, slot: $('wish-item').dataset.slot || '', boss: $('wish-boss').value === 'Other' ? '' : $('wish-boss').value, kind: 'manual', note: $('wish-note').value.trim() })
       .then(msg => { wishMsg = msg; return load(); }).catch(err => { wishMsg = 'Not added: ' + err.message; $('wish-msg').textContent = wishMsg; })
       .finally(() => { const b = document.getElementById('wish-go'); if (b) b.disabled = false; });
+    return;
+  }
+  if (e.target.id === 'setup-form') {
+    e.preventDefault();
+    const url = $('setup-url').value.trim();
+    $('setup-go').disabled = true; $('setup-msg').textContent = 'Checking the setup on Raidbots…';
+    officerPost({ action: 'setSetup', kind: e.target.dataset.kind, url })
+      .then(msg => { setupMsg = '✓ ' + msg; return load(); }).catch(err => { setupMsg = 'Not saved: ' + err.message; render(); })
+      .finally(() => { const b = document.getElementById('setup-go'); if (b) b.disabled = false; });
     return;
   }
   if (e.target.id !== 'sim-form') return;
