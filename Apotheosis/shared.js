@@ -49,7 +49,7 @@ const GOAL = 3600, PER_DUNGEON = 450;
 const CLASS_HEX = { 'demon hunter': '#c27be0', 'death knight': '#ff5c75', 'druid': '#ff9d4d', 'mage': '#3fc7eb', 'warrior': '#c69b6d',
   'paladin': '#f48cba', 'hunter': '#aad372', 'rogue': '#fff468', 'priest': '#ffffff', 'shaman': '#3d9bff', 'warlock': '#8788ee', 'monk': '#00ff98', 'evoker': '#33c3a0' };
 const classHex = cls => CLASS_HEX[String(cls || '').toLowerCase()] || '#ddd';
-let openTeam = (() => { try { return localStorage.getItem('apoOpenTeam') || ''; } catch (e) { return ''; } })();
+let openTeam = '';
 const teamPick = (() => { try { return JSON.parse(localStorage.getItem('apoTeamPick') || '{}'); } catch (e) { return {}; } })();
 const toonsOf = m => [m].concat(m.alts || (m.alt ? [m.alt] : []));
 const shownMember = (team, m) => toonsOf(m).find(o => o.name === teamPick[team + '|' + m.name]) || m;
@@ -135,7 +135,7 @@ const DUNGEON_NOTES = {
 const RANGED = { Mage: 1, Warlock: 1, Hunter: 1, Evoker: 1, Priest: 1 };
 const RANGED_SPECS = { Balance: 1, Elemental: 1, Shadow: 1 };
 const mmss = ms => { if (!ms) return '-'; const t = Math.round(Math.abs(ms) / 1000); return Math.floor(t / 60) + ':' + String(t % 60).padStart(2, '0'); };
-const openDungeon = new Set((() => { try { return JSON.parse(localStorage.getItem('apoOpenDungeon') || '[]'); } catch (e) { return []; } })());
+const openDungeon = new Set();
 function dungeonDetails(teamName, d, ok) {
   const info = DUNGEON_NOTES[d] || { notes: '', checks: [] };
   const kits = ok.map(m => ({ m, k: kitOf(m) }));

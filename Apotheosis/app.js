@@ -7,9 +7,10 @@ const store = (k, d) => { try { return JSON.parse(localStorage.getItem(k) || 'nu
 const save = (k, v) => { try { localStorage.setItem(k, JSON.stringify(v)); } catch (e) { /* storage blocked */ } };
 
 let STATE = null, WHEN = '';
-let tab = (location.hash || '#roster').slice(1);
+let tab = (location.hash || '#guild').slice(1);
 const rosterPick = store('apoRosterPick', {});           // player -> picked toon name
-const tileOpen = new Set(store('apoTileOpen', []));
+['apoTileOpen', 'apoLootOpen', 'apoDropOpen', 'apoTalOpen', 'apoOpenTeam', 'apoOpenDungeon'].forEach(k => { try { localStorage.removeItem(k); } catch (e) { /* blocked */ } });
+const tileOpen = new Set();   // open tiles are not remembered: everything starts collapsed
 let bbMode = store('apoBossMode', 'overall');           // boss breakdown: ilvl | overall | raw
 let ilvlAll = store('apoIlvlAll', false);               // top item level: top 5 or whole raid
 let mainsOpen = false;                                  // mains vs secondary mains pop-out
@@ -257,7 +258,7 @@ function priorityHtml() {
 /* ------------------------------------------------------------------ Loot Targets tab: BiS + Raidbots + manual entries in one list */
 let lootView = store('apoLootView', 'boss');
 const GOLD_PCT = 1;
-const lootOpen = new Set(store('apoLootOpen', []));
+const lootOpen = new Set();
 const SRC_TAG = { bis: 'BiS', sim: 'Sim', bonus: 'Bonus', wish: 'Wish' };
 const TRACKS = ['Explorer', 'Adventurer', 'Veteran', 'Champion', 'Hero', 'Myth'];
 const trackRank = t => TRACKS.indexOf(t);
@@ -557,7 +558,7 @@ function simsHtml() {
 
 /* Drops cards (all three Sims Priority tabs): every raider, their Heroic and Bonus sim upgrades plus manual entries,
    collapsed to one line per boss; click to show the items. By Player or By Role (Tanks / Healers / DPS). */
-const dropOpen = new Set(store('apoDropOpen', []));
+const dropOpen = new Set();
 const ROLE_BUCKETS = [['Tanks', 'Tank'], ['Healers', 'Healer'], ['DPS', 'DPS']];
 const bucketOf = p => { const s2 = playerSection(p); return s2 === 'Tanks' || s2 === 'Healers' ? s2 : 'DPS'; };
 function dropItems(c) {
@@ -707,7 +708,7 @@ function weekTogether(t) {
 
 /* ------------------------------------------------------------------ Talents Check tab */
 let talBoss = store('apoTalBoss', '');
-const talOpen = new Set(store('apoTalOpen', []));
+const talOpen = new Set();
 const SEC_ORDER = { Tanks: 0, Healers: 1, Melee: 2, Ranged: 3 };
 const talKey = c => (c.name + '-' + c.realm).toLowerCase();
 // Match % = share of the top players' core talents (taken by 70%+ of them) the raider has; flexible picks never count
@@ -788,8 +789,21 @@ function talentsHtml() {
 }
 
 /* ------------------------------------------------------------------ render */
+// Guild links in the header: Warcraft Logs, Raider.io, Armory, Discord (Discord link from the sheet's Settings tab)
+function guildLinks() {
+  const g = (STATE && STATE.guild) || {}, region = g.region || 'us', realm = g.realm || 'eldrethalas', name = g.name || 'Apotheosis';
+  const wclId = g.wcl && g.wcl.id;
+  const links = [
+    ['warcraftlogs.com', 'Warcraft Logs', wclId ? `https://www.warcraftlogs.com/guild/id/${wclId}` : `https://www.warcraftlogs.com/guild/${region}/${realm}/${encodeURIComponent(name)}`],
+    ['raider.io', 'Raider.io', (g.rio && g.rio.url) || `https://raider.io/guilds/${region}/${realm}/${encodeURIComponent(name)}`],
+    ['worldofwarcraft.blizzard.com', 'Armory', `https://worldofwarcraft.blizzard.com/en-us/guild/${region}/${realm}/${encodeURIComponent(name.toLowerCase())}`],
+    ['discord.com', 'Discord', g.discord || '']
+  ].filter(l => l[2]);
+  $('guild-links').innerHTML = links.map(([d, l, u]) => `<a class="glink" href="${esc(u)}" target="_blank" rel="noopener">${fav(d, l[0])}<span>${l}</span></a>`).join('');
+}
 function render() {
   if (!STATE) return;
+  guildLinks();
   document.querySelectorAll('.tab').forEach(s => { s.style.display = s.id === 'tab-' + tab ? '' : 'none'; });
   document.querySelectorAll('#tabs a').forEach(a => a.classList.toggle('on', a.dataset.tab === tab));
   const rio = STATE.guild && STATE.guild.rio;
@@ -850,18 +864,18 @@ document.addEventListener('click', e => {
     if (!confirm('Remove ' + item + ' from ' + name + "'s wishlist?")) return;
     officerPost({ action: 'wishDelete', name, realm, item, kind }).then(() => load()).catch(err => alert(err.message)); return; }
   const lt = e.target.closest('[data-loottile]');
-  if (lt && !e.target.closest('a')) { const k = lt.dataset.loottile; lootOpen.has(k) ? lootOpen.delete(k) : lootOpen.add(k); save('apoLootOpen', [...lootOpen]); render(); return; }
+  if (lt && !e.target.closest('a')) { const k = lt.dataset.loottile; lootOpen.has(k) ? lootOpen.delete(k) : lootOpen.add(k); render(); return; }
   const lv = e.target.closest('[data-lootview]');
   if (lv) { lootView = lv.dataset.lootview; save('apoLootView', lootView); render(); return; }
   const tt2 = e.target.closest('[data-taltile]');
-  if (tt2 && !e.target.closest('a,button')) { const k = tt2.dataset.taltile; talOpen.has(k) ? talOpen.delete(k) : talOpen.add(k); save('apoTalOpen', [...talOpen]); render(); return; }
+  if (tt2 && !e.target.closest('a,button')) { const k = tt2.dataset.taltile; talOpen.has(k) ? talOpen.delete(k) : talOpen.add(k); render(); return; }
   const tb2 = e.target.closest('[data-talboss]');
   if (tb2) { talBoss = tb2.dataset.talboss; save('apoTalBoss', talBoss); render(); return; }
   const cp = e.target.closest('[data-copy]');
   if (cp) { const code = cp.dataset.copy, done = () => { const t = cp.textContent; cp.textContent = 'Copied ✓'; setTimeout(() => { cp.textContent = t; }, 1500); };
     (navigator.clipboard ? navigator.clipboard.writeText(code).then(done) : Promise.reject()).catch(() => prompt('Copy this talent string (Ctrl+C):', code)); return; }
   const dt = e.target.closest('[data-droptoggle]');
-  if (dt && !e.target.closest('a')) { const k = dt.dataset.droptoggle; dropOpen.has(k) ? dropOpen.delete(k) : dropOpen.add(k); save('apoDropOpen', [...dropOpen]); render(); return; }
+  if (dt && !e.target.closest('a')) { const k = dt.dataset.droptoggle; dropOpen.has(k) ? dropOpen.delete(k) : dropOpen.add(k); render(); return; }
   const sv = e.target.closest('[data-simview]');
   if (sv) { simView = sv.dataset.simview; save('apoSimView', simView); render(); return; }
   const sk = e.target.closest('[data-simkind]');
@@ -880,13 +894,13 @@ document.addEventListener('click', e => {
   const rp = e.target.closest('[data-rpick]');
   if (rp) { const [pl, name] = rp.dataset.rpick.split('|'); rosterPick[pl] = name; save('apoRosterPick', rosterPick); render(); return; }
   const tg = e.target.closest('[data-apotoggle]');
-  if (tg) { const k = tg.dataset.apotoggle; tileOpen.has(k) ? tileOpen.delete(k) : tileOpen.add(k); save('apoTileOpen', [...tileOpen]); render(); return; }
+  if (tg) { const k = tg.dataset.apotoggle; tileOpen.has(k) ? tileOpen.delete(k) : tileOpen.add(k); render(); return; }
   const tt = e.target.closest('[data-team]');
-  if (tt) { e.preventDefault(); openTeam = openTeam === tt.dataset.team ? '' : tt.dataset.team; try { localStorage.setItem('apoOpenTeam', openTeam); } catch (er) { /* blocked */ } render(); return; }
+  if (tt) { e.preventDefault(); openTeam = openTeam === tt.dataset.team ? '' : tt.dataset.team; render(); return; }
   const tp = e.target.closest('[data-teampick]');
   if (tp) { const [tm, base, pick] = tp.dataset.teampick.split('|'); teamPick[tm + '|' + base] = pick; try { localStorage.setItem('apoTeamPick', JSON.stringify(teamPick)); } catch (er) { /* blocked */ } render(); return; }
   const db = e.target.closest('[data-dungeon]');
-  if (db) { const k = db.dataset.dungeon; openDungeon.has(k) ? openDungeon.delete(k) : openDungeon.add(k); try { localStorage.setItem('apoOpenDungeon', JSON.stringify([...openDungeon])); } catch (er) { /* blocked */ } render(); return; }
+  if (db) { const k = db.dataset.dungeon; openDungeon.has(k) ? openDungeon.delete(k) : openDungeon.add(k); render(); return; }
 });
 
 // Healer wishlist form: picking a healer fills the "missing BiS" list; picking a BiS item fills in its boss

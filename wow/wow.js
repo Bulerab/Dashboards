@@ -360,7 +360,8 @@ function gearBlock(c) {
   return `<div class="sec">${head}<table class="gear"><thead><tr><th>Slot</th><th>Equipped</th><th style="text-align:right">ilvl</th><th>BiS</th><th style="text-align:right">Cost</th></tr></thead><tbody>${rows}</tbody>${foot}</table></div>`;
 }
 
-const openCard = (() => { try { return JSON.parse(localStorage.getItem('wowOpenCard') || '{}'); } catch (e) { return {}; } })();
+['wowOpenCard', 'wowLiteOpen', 'wowOpenTeam', 'wowOpenDungeon'].forEach(k => { try { localStorage.removeItem(k); } catch (e) { /* blocked */ } });
+const openCard = {};   // open cards are not remembered: everything starts collapsed
 const isOpen = c => openCard[c.pvp ? 'pvp' : 'pve'] === c.name;
 
 function pvpTotals(c) {
@@ -512,7 +513,7 @@ function todoRow(t) {
 }
 
 /* ------------------------------------------------------------------ lite tiles (guests and friends' rosters) */
-const liteOpen = new Set((() => { try { return JSON.parse(localStorage.getItem('wowLiteOpen') || '[]'); } catch (e) { return []; } })());
+const liteOpen = new Set();
 
 function weeklyRunsBlock(c) {
   const runs = (c.weeklyRuns || []).slice().sort((a, b) => b.level - a.level);
@@ -615,7 +616,7 @@ const GOAL = 3600, PER_DUNGEON = 450;
 const CLASS_HEX = { 'demon hunter': '#c27be0', 'death knight': '#ff5c75', 'druid': '#ff9d4d', 'mage': '#3fc7eb', 'warrior': '#c69b6d',
   'paladin': '#f48cba', 'hunter': '#aad372', 'rogue': '#fff468', 'priest': '#ffffff', 'shaman': '#3d9bff', 'warlock': '#8788ee', 'monk': '#00ff98', 'evoker': '#33c3a0' };
 const classHex = cls => CLASS_HEX[String(cls || '').toLowerCase()] || '#ddd';
-let openTeam = (() => { try { return localStorage.getItem('wowOpenTeam') || ''; } catch (e) { return ''; } })();
+let openTeam = '';
 const teamPick = (() => { try { return JSON.parse(localStorage.getItem('wowTeamPick') || '{}'); } catch (e) { return {}; } })();
 const toonsOf = m => [m].concat(m.alts || (m.alt ? [m.alt] : []));
 const shownMember = (team, m) => toonsOf(m).find(o => o.name === teamPick[team + '|' + m.name]) || m;
@@ -701,7 +702,7 @@ const DUNGEON_NOTES = {
 const RANGED = { Mage: 1, Warlock: 1, Hunter: 1, Evoker: 1, Priest: 1 };
 const RANGED_SPECS = { Balance: 1, Elemental: 1, Shadow: 1 };
 const mmss = ms => { if (!ms) return '-'; const t = Math.round(Math.abs(ms) / 1000); return Math.floor(t / 60) + ':' + String(t % 60).padStart(2, '0'); };
-const openDungeon = new Set((() => { try { return JSON.parse(localStorage.getItem('wowOpenDungeon') || '[]'); } catch (e) { return []; } })());
+const openDungeon = new Set();
 function dungeonDetails(teamName, d, ok) {
   const info = DUNGEON_NOTES[d] || { notes: '', checks: [] };
   const kits = ok.map(m => ({ m, k: kitOf(m) }));
@@ -1056,16 +1057,15 @@ document.addEventListener('click', e => {
     const ch = (STATE.characters || []).find(x => x.name === n);
     const key = ch && ch.pvp ? 'pvp' : 'pve';
     openCard[key] = openCard[key] === n ? null : n;
-    try { localStorage.setItem('wowOpenCard', JSON.stringify(openCard)); } catch (er) { /* storage blocked */ }
     renderAll();
     return;
   }
   const lt = e.target.closest('[data-litetoggle]');
-  if (lt) { const k = lt.dataset.litetoggle; liteOpen.has(k) ? liteOpen.delete(k) : liteOpen.add(k); try { localStorage.setItem('wowLiteOpen', JSON.stringify([...liteOpen])); } catch (er) { /* storage blocked */ } renderAll(); return; }
+  if (lt) { const k = lt.dataset.litetoggle; liteOpen.has(k) ? liteOpen.delete(k) : liteOpen.add(k); renderAll(); return; }
   const tt = e.target.closest('[data-team]');
-  if (tt) { openTeam = openTeam === tt.dataset.team ? '' : tt.dataset.team; try { localStorage.setItem('wowOpenTeam', openTeam); } catch (er) { /* storage blocked */ } renderAll(); return; }
+  if (tt) { openTeam = openTeam === tt.dataset.team ? '' : tt.dataset.team; renderAll(); return; }
   const db = e.target.closest('[data-dungeon]');
-  if (db) { const k = db.dataset.dungeon; openDungeon.has(k) ? openDungeon.delete(k) : openDungeon.add(k); try { localStorage.setItem('wowOpenDungeon', JSON.stringify([...openDungeon])); } catch (er) { /* storage blocked */ } renderAll(); return; }
+  if (db) { const k = db.dataset.dungeon; openDungeon.has(k) ? openDungeon.delete(k) : openDungeon.add(k); renderAll(); return; }
   const tp = e.target.closest('[data-teampick]');
   if (tp) { const [tm, base, pick] = tp.dataset.teampick.split('|'); teamPick[tm + '|' + base] = pick; try { localStorage.setItem('wowTeamPick', JSON.stringify(teamPick)); } catch (er) { /* storage blocked */ } renderAll(); return; }
   const ls = e.target.closest('[data-logspec]');

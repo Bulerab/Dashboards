@@ -7,7 +7,7 @@
 <link rel="preconnect" href="https://script.google.com">
 <link rel="preconnect" href="https://script.googleusercontent.com" crossorigin>
 <link rel="stylesheet" href="app.css?v=1">
-<link rel="stylesheet" href="apo.css?v=31">
+<link rel="stylesheet" href="apo.css?v=33">
 </head>
 <body>
 <div class="container">
@@ -19,9 +19,16 @@
     </div>
     <button class="lock" id="lock" type="button" data-lock="1">&#128274; Officer</button>
   </div>
+  <div class="guild-links" id="guild-links"></div>
   <nav class="nav apo-tabs" id="tabs">
-    <a href="#roster" data-tab="roster">Roster</a><a href="#loot" data-tab="loot">Loot Targets</a><a href="#priority" data-tab="priority">BiS Priority</a><a href="#sims" data-tab="sims">Sims Priority</a><a href="#talents" data-tab="talents">Talents Check</a><a href="#guild" data-tab="guild">Guild</a><a href="#mplus" data-tab="mplus">Mythic+</a>
+    <a href="#guild" data-tab="guild">Guild</a><a href="#roster" data-tab="roster">Roster</a><a href="#loot" data-tab="loot">Loot Targets</a><a href="#priority" data-tab="priority">BiS Priority</a><a href="#sims" data-tab="sims">Sims Priority</a><a href="#talents" data-tab="talents">Talents Check</a><a href="#mplus" data-tab="mplus">Mythic+</a>
   </nav>
+
+  <section class="tab" id="tab-guild">
+    <div class="card"><div class="card-head"><h2>Raid progression</h2><span class="hint">Raider.io</span></div><div id="guild-rio"></div></div>
+    <div class="card"><div class="card-head"><h2>Warcraft Logs rankings</h2><span class="hint">progress and speed</span></div><div id="guild-wcl"></div></div>
+    <div class="card"><div class="card-head"><h2>Recent guild logs</h2><span class="hint">Warcraft Logs</span></div><div id="guild-reports"></div></div>
+  </section>
 
   <section class="tab" id="tab-roster">
     <div class="sum-grid" id="roster-summary"></div>
@@ -72,11 +79,6 @@
     <div id="tal-body"></div>
   </section>
 
-  <section class="tab" id="tab-guild">
-    <div class="card"><div class="card-head"><h2>Raid progression</h2><span class="hint">Raider.io</span></div><div id="guild-rio"></div></div>
-    <div class="card"><div class="card-head"><h2>Warcraft Logs rankings</h2><span class="hint">progress and speed</span></div><div id="guild-wcl"></div></div>
-    <div class="card"><div class="card-head"><h2>Recent guild logs</h2><span class="hint">Warcraft Logs</span></div><div id="guild-reports"></div></div>
-  </section>
 
   <section class="tab" id="tab-mplus">
     <div class="sum-grid">
@@ -90,7 +92,7 @@
   <p class="foot hint">Data from Raider.io, Warcraft Logs and Blizzard, refreshed every 6 hours. Changes are made in the guild's Google Sheet; officers can import sims with the officer key.</p>
 </div>
 <div class="tip" id="tip"></div>
-<script src="shared.js?v=1"></script>
-<script src="app.js?v=37"></script>
+<script src="shared.js?v=2"></script>
+<script src="app.js?v=39"></script>
 </body>
 </html>
