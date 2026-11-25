@@ -565,7 +565,7 @@ function vaultBlock(c) {
     const counter = v.kind !== 'world'
       ? `<div class="count"><span class="n">${v.done}</span></div>`
       : `<div class="count"><button class="step" data-vault="${esc(c.name)}|${v.kind}|-1"${DIS()} aria-label="One less">&minus;</button><span class="n">${v.done}</span><button class="step" data-vault="${esc(c.name)}|${v.kind}|1"${DIS()} aria-label="One more">+</button></div>`;
-    return `<div class="vault-row"><span>${names[v.kind]}${v.kind !== 'world' ? '<span class="auto" style="display:block">auto</span>' : ''}</span><div class="tiles">${tiles}</div>${counter}</div>`;
+    return `<div class="vault-row"><span>${names[v.kind]}<span class="auto" style="display:block">${v.kind === 'world' ? 'auto + Prey' : 'auto'}</span></span><div class="tiles">${tiles}</div>${counter}</div>`;
   }).join('') + `</div>`;
 }
 
