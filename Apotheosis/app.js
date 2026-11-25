@@ -573,17 +573,7 @@ function manualHtml() {
   const rp = raidPlayers(), all = rp.map(picked);
   const healers = healerPlayers().map(picked), others = all.filter(c => !healers.includes(c));
   const wantedBy = c => wishOf(c).filter(w => !w.have);
-  $('sim-run').style.display = '';
-  $('sim-run').innerHTML = `<div class="card-head"><h2>Manual entry</h2><span class="hint">items picked by hand: healers (no Raidbots sims), or anyone else</span></div>
-    ${officerKey ? `<form class="sim-form wish-form" id="wish-form">
-      <select id="wish-who" required><option value="">Raider…</option><optgroup label="Healers">${healers.map(c => `<option value="${esc(c.name + '|' + c.realm)}">${esc(c.name)} (${esc(c.spec || '')})</option>`).join('')}</optgroup>
-        <optgroup label="Everyone else (anything Raidbots can't sim)">${others.map(c => `<option value="${esc(c.name + '|' + c.realm)}">${esc(c.name)} (${esc(c.spec || '')})</option>`).join('')}</optgroup></select>
-      <select id="wish-bis"><option value="">Pick from their missing BiS…</option></select>
-      <input id="wish-item" placeholder="or type an item name">
-      <select id="wish-boss"><option value="">Boss / source…</option>${bossList().map(b => `<option>${esc(b)}</option>`).join('')}<option>Trash drops</option><option>Other</option></select>
-      <input id="wish-note" placeholder="note (optional)" style="flex:0 1 160px">
-      <button type="submit" class="toggle-btn" id="wish-go">Add</button></form><div class="hint" id="wish-msg" style="margin-top:6px">${esc(wishMsg)}</div>`
-      : '<p class="hint">Officers add items here (click the lock button). Each item is crossed off automatically once the raider is wearing it.</p>'}`;
+  $('sim-run').style.display = 'none';   // the add form lives on the Upload Sims tab (officers)
   $('sim-chart-title').textContent = 'Wanted items by boss';
   $('drops-hint').textContent = "every raider's sims and manual entries (picked toons); click a card for the items; By Boss shows manual entries";
   // Chart: wanted items per boss
@@ -759,6 +749,17 @@ function talentsHtml() {
 }
 
 
+/* ------------------------------------------------------------------ Alts (Roster tab): shown to everyone or officers only (Approvals > Show / Hide alts) */
+function altsHtml() {
+  const show = !!(STATE.guild && STATE.guild.showAlts);
+  if (!show && !officerKey) return '';
+  const ps = (STATE.roster || []).filter(p => (p.extras || []).length).sort((a, b) => a.player.localeCompare(b.player));
+  if (!ps.length) return '';
+  return `<div class="section-title"><h2>Alts</h2><span class="hint">${ps.reduce((n, p) => n + p.extras.length, 0)} alts${show ? '' : ' &middot; hidden from raiders (officers only)'}</span></div>
+    <div class="card alts-card">${ps.map(p => `<div class="alt-row"><span class="alt-p">${nameHtml(p.main)}</span><span class="alt-list">${p.extras.map(c =>
+      `<span class="alt-chip">${nameHtml(c)} <span class="hint">${esc(c.spec || '')}${c.ilvl ? ' &middot; ' + f1(c.ilvl) : ''}${c.score ? ' &middot; M+ ' + Math.round(c.score) : ''}</span></span>`).join('')}</span></div>`).join('')}</div>`;
+}
+
 /* ------------------------------------------------------------------ Tier set (roster tiles) */
 const tierHead = c => c.tier ? `<div class="headline" data-tip="${esc(c.tier.name)}: ${c.tier.n} of ${c.tier.max} pieces equipped"><div class="lbl">Tier</div><div class="big" style="color:${c.tier.n >= 4 ? '#7ee787' : c.tier.n >= 2 ? '#e3b341' : '#ff7b72'}">${c.tier.n}/${c.tier.max}</div></div>` : '';
 
@@ -806,10 +807,27 @@ function runPanel(kind) {
         <td>${x.c.cls ? `<a class="hint" href="${rbUrl('droptimizer', x.c)}" target="_blank" rel="noopener">Droptimizer anyway</a>` : ''}</td><td>${dateHtml(simOf(x.c, kind))}</td></tr>`).join('')}</tbody></table>` : ''}`;
 }
 
+/* Manual entry form (Upload Sims tab, officers): items picked by hand for healers or anything Raidbots can't sim */
+function manualForm() {
+  const rp = raidPlayers(), all = rp.map(picked);
+  const healers = healerPlayers().map(picked), others = all.filter(c => !healers.includes(c));
+  return `<div class="card-head"><h2>Manual entry</h2><span class="hint">items picked by hand: healers (no Raidbots sims), or anyone else</span></div>
+    ${officerKey ? `<form class="sim-form wish-form" id="wish-form">
+      <select id="wish-who" required><option value="">Raider…</option><optgroup label="Healers">${healers.map(c => `<option value="${esc(c.name + '|' + c.realm)}">${esc(c.name)} (${esc(c.spec || '')})</option>`).join('')}</optgroup>
+        <optgroup label="Everyone else (anything Raidbots can't sim)">${others.map(c => `<option value="${esc(c.name + '|' + c.realm)}">${esc(c.name)} (${esc(c.spec || '')})</option>`).join('')}</optgroup></select>
+      <select id="wish-bis"><option value="">Pick from their missing BiS…</option></select>
+      <input id="wish-item" placeholder="or type an item name">
+      <select id="wish-boss"><option value="">Boss / source…</option>${bossList().map(b => `<option>${esc(b)}</option>`).join('')}<option>Trash drops</option><option>Other</option></select>
+      <input id="wish-note" placeholder="note (optional)" style="flex:0 1 160px">
+      <button type="submit" class="toggle-btn" id="wish-go">Add</button></form><div class="hint" id="wish-msg" style="margin-top:6px">${esc(wishMsg)}</div>`
+      : '<p class="hint">Officers add items here (click the lock button). Each item is crossed off automatically once the raider is wearing it.</p>'}`;
+}
+
 function uploadHtml() {
   $('upload-kinds').innerHTML = Object.keys(SIM_KINDS).map(k => `<button type="button" class="sim-tab${uploadKind === k ? ' on' : ''}" data-uploadkind="${k}"><span>${SIM_KINDS[k]} <span class="st-src">(Raidbots)</span></span>
-    <span class="hint">${readyToons().filter(c => simOf(c, k) && ageDays(simOf(c, k).date) <= STALE_DAYS).length}/${readyToons().length} current</span></button>`).join('');
-  runPanel(uploadKind);
+    <span class="hint">${readyToons().filter(c => simOf(c, k) && ageDays(simOf(c, k).date) <= STALE_DAYS).length}/${readyToons().length} current</span></button>`).join('') +
+    `<button type="button" class="sim-tab${uploadKind === 'manual' ? ' on' : ''}" data-uploadkind="manual"><span>Manual entry <span class="st-ic">${roleIcon('Healer')}</span></span><span class="hint">${(STATE.wishlist || []).filter(w => !w.have).length} wanted</span></button>`;
+  if (uploadKind === 'manual') $('upload-run').innerHTML = manualForm(); else runPanel(uploadKind);
   // Import (officers): the kind is worked out from the report's settings
   $('sim-import').innerHTML = `<div class="card-head"><h2>Import reports</h2><span class="hint">${officerKey ? 'officer mode' : 'officers: click the lock button to import'}</span></div>
     ${officerKey ? `<form class="sim-form" id="sim-form"><textarea id="sim-url" rows="3" placeholder="Paste one or more Raidbots report links (one per line)" required></textarea>
@@ -887,7 +905,7 @@ function vaultHtml() {
 /* ------------------------------------------------------------------ Requests (public) and Approvals (officers) */
 const ALL_SPECS = ['Blood', 'Frost', 'Unholy', 'Havoc', 'Vengeance', 'Devourer', 'Balance', 'Feral', 'Guardian', 'Restoration', 'Devastation', 'Preservation', 'Augmentation', 'Beast Mastery', 'Marksmanship', 'Survival',
   'Arcane', 'Fire', 'Brewmaster', 'Mistweaver', 'Windwalker', 'Holy', 'Protection', 'Retribution', 'Discipline', 'Shadow', 'Assassination', 'Outlaw', 'Subtlety', 'Elemental', 'Enhancement', 'Affliction', 'Demonology', 'Destruction', 'Arms', 'Fury'];
-let reqMsg = { secondary: '', alt: '' };
+let reqMsg = { secondary: '', alt: '', main: '' };
 function realmOptions() {
   const list = (STATE.realms && STATE.realms.length ? STATE.realms : []).slice();
   const g = (STATE.guild && STATE.guild.realm) || 'eldrethalas';
@@ -900,8 +918,8 @@ function requestsHtml() {
   $('req-hint').textContent = pend ? pend + ' waiting for an officer' : '';
   const form = (type, title, help) => `<div class="card"><div class="card-head"><h2>${title}</h2></div><p class="hint" style="margin:0 0 10px">${help}</p>
     <form class="req-form" data-reqform="${type}">
-      <label>Your main<select name="player" required><option value="">Pick your main…</option>${players.map(n => `<option>${esc(n)}</option>`).join('')}</select></label>
-      <label>${type === 'alt' ? 'Alt' : 'Secondary main'} name<input name="name" required maxlength="12" placeholder="Character name"></label>
+      <label>${type === 'main' ? 'Your current main' : 'Your main'}<select name="player" required><option value="">Pick your main…</option>${players.map(n => `<option>${esc(n)}</option>`).join('')}</select></label>
+      <label>${type === 'alt' ? 'Alt' : type === 'main' ? 'New main' : 'Secondary main'} name<input name="name" required maxlength="12" placeholder="Character name"></label>
       <label>Server<select name="realm">${realmOptions()}</select></label>
       <label>Spec${type === 'alt' ? '' : ' <span class="hint">(the spec you would raid as)</span>'}<input name="spec" list="spec-list" placeholder="e.g. Retribution"${type === 'alt' ? ' required' : ''}></label>
       <label class="wide">Note <span class="hint">(optional)</span><input name="note" maxlength="200" placeholder="Anything officers should know"></label>
@@ -909,7 +927,8 @@ function requestsHtml() {
     </form></div>`;
   $('req-forms').innerHTML = `<datalist id="spec-list">${ALL_SPECS.map(x => `<option value="${x}">`).join('')}</datalist>` +
     form('secondary', 'Request a secondary main', 'A character you would bring to raid. Once approved it shows on the roster as your offspec, like Clamshell and Jacii.') +
-    form('alt', 'Request an alt', 'A character that is not for raid: tracked for Great Vault and activity.');
+    form('alt', 'Request an alt', 'A character that is not for raid: tracked for Great Vault and activity.') +
+    form('main', 'Request a new main', 'Swapping mains? Once approved this character replaces your current main on the roster (your secondary mains and alts stay).');
 }
 const okBad = (ok, txt) => `<span class="pill ${ok ? 'ok' : 'bad'}">${txt}</span>`;
 function rundownHtml(rd) {
@@ -929,18 +948,39 @@ let apprMsg = '';
 function approvalsHtml() {
   if (!OFF) { $('appr-body').innerHTML = offNeed(); return; }
   const reqs = OFF.requests || [], pend = reqs.filter(r => r.status === 'Pending'), done = reqs.filter(r => r.status !== 'Pending');
-  const card = r => `<div class="card req-card"><div class="card-head"><h2>${r.type === 'alt' ? 'Alt' : 'Secondary main'}: <span style="color:${classHex(r.rundown && r.rundown.cls)}">${esc(r.name)}</span> <span class="hint" style="font-size:13px">${esc(r.realm)}</span></h2>
+  const card = r => `<div class="card req-card"><div class="card-head"><h2>${r.type === 'alt' ? 'Alt' : r.type === 'main' ? 'New main' : 'Secondary main'}: <span style="color:${classHex(r.rundown && r.rundown.cls)}">${esc(r.name)}</span> <span class="hint" style="font-size:13px">${esc(r.realm)}</span></h2>
       <span class="hint">for <b>${esc(r.player)}</b> &middot; sent ${esc(r.submitted)}</span></div>
     ${r.note ? `<p style="margin:0 0 8px">&ldquo;${esc(r.note)}&rdquo;</p>` : ''}${rundownHtml(r.rundown)}
-    <div class="req-actions">${r.type === 'alt' ? '' : `<label class="hint">Raid spec <input data-reqspec="${esc(r.id)}" list="spec-list" value="${esc(r.spec || (r.rundown && r.rundown.spec) || '')}"></label>`}
+    ${r.type === 'main' ? `<p class="hint" style="margin:8px 0 0">Approving replaces <b>${esc((((STATE.roster || []).find(p => p.player === r.player) || {}).main || {}).name || '?')}</b> as ${esc(r.player)}'s main.</p>` : ''}
+    <div class="req-actions">${r.type !== 'secondary' ? '' : `<label class="hint">Raid spec <input data-reqspec="${esc(r.id)}" list="spec-list" value="${esc(r.spec || (r.rundown && r.rundown.spec) || '')}"></label>`}
       <button type="button" class="toggle-btn ok" data-reqdo="${esc(r.id)}|approve">Approve</button><button type="button" class="toggle-btn bad" data-reqdo="${esc(r.id)}|deny">Deny</button>
       <button type="button" class="toggle-btn" data-reqdo="${esc(r.id)}|recheck">Recheck gear</button></div></div>`;
   $('appr-body').innerHTML = `<datalist id="spec-list">${ALL_SPECS.map(x => `<option value="${x}">`).join('')}</datalist>
     <div class="card"><div class="card-head"><h2>Requests waiting</h2><span class="hint">${pend.length} pending &middot; approving adds the character to the Roster tab of the sheet</span></div>
       ${apprMsg ? `<p class="hint" style="margin:0">${esc(apprMsg)}</p>` : ''}${pend.length ? '' : '<p class="empty">Nothing waiting.</p>'}</div>
     <div class="req-grid">${pend.map(card).join('')}</div>
+    ${seasonTools()}
     ${done.length ? `<div class="card"><div class="card-head"><h2>Decided</h2><span class="hint">last 30</span></div><table class="logs-table"><tbody>${done.map(r =>
-      `<tr><td>${esc(r.name)} <span class="hint">${esc(r.realm)}</span></td><td class="hint">${r.type === 'alt' ? 'Alt' : 'Secondary main'} for ${esc(r.player)}</td><td>${r.status === 'Approved' ? '<span class="pill ok">Approved</span>' : '<span class="pill bad">Denied</span>'}</td><td class="hint">${esc(r.decided)}</td></tr>`).join('')}</tbody></table></div>` : ''}`;
+      `<tr><td>${esc(r.name)} <span class="hint">${esc(r.realm)}</span></td><td class="hint">${r.type === 'alt' ? 'Alt' : r.type === 'main' ? 'New main' : 'Secondary main'} for ${esc(r.player)}</td><td>${r.status === 'Approved' ? '<span class="pill ok">Approved</span>' : '<span class="pill bad">Denied</span>'}</td><td class="hint">${esc(r.decided)}</td></tr>`).join('')}</tbody></table></div>` : ''}`;
+}
+
+/* Season tools: show / hide alts, clear all alts, clear all secondary mains (pick each player's main first) */
+let resetOpen = false, toolMsg = '';
+function seasonTools() {
+  const show = !!(STATE.guild && STATE.guild.showAlts);
+  const withSec = (STATE.roster || []).filter(p => (p.alts || []).length);
+  const altN = (STATE.roster || []).reduce((n, p) => n + (p.extras || []).length, 0), secN = withSec.reduce((n, p) => n + p.alts.length, 0);
+  return `<div class="card"><div class="card-head"><h2>Roster &amp; season tools</h2><span class="hint">everything cleared is copied to a "Roster archive" tab on the sheet first</span></div>
+    ${toolMsg ? `<p class="hint" style="margin:0 0 8px">${esc(toolMsg)}</p>` : ''}
+    <div class="tool-row"><div><b>Alts on the Roster tab</b><span class="hint"> ${altN} alts &middot; ${show ? 'everyone can see them' : 'hidden from raiders (officers still see them)'}</span></div>
+      <button type="button" class="toggle-btn" data-tool="showAlts|${show ? '0' : '1'}">${show ? 'Hide alts' : 'Show alts'}</button></div>
+    <div class="tool-row"><div><b>Clear all alts</b><span class="hint"> empties the Alts column for everyone (new season)</span></div>
+      <button type="button" class="toggle-btn bad" data-tool="clearAlts"${altN ? '' : ' disabled'}>Clear ${altN} alts</button></div>
+    <div class="tool-row"><div><b>Clear all secondary mains</b><span class="hint"> ${withSec.length} players have ${secN}: pick who stays each player's main</span></div>
+      <button type="button" class="toggle-btn bad" data-tool="resetOpen"${secN ? '' : ' disabled'}>${resetOpen ? 'Cancel' : 'Clear secondary mains…'}</button></div>
+    ${resetOpen ? `<div class="reset-box"><p class="hint" style="margin:0 0 8px">Each player keeps one main. Pick it, then confirm: secondary mains and their offspec notes are removed.</p>
+      ${withSec.map(p => `<div class="reset-row"><b>${esc(p.player)}</b>${[p.main].concat(p.alts).map((t, i) => `<label class="reset-pick"><input type="radio" name="rm-${esc(p.player)}" value="${esc(t.name + '-' + t.realm)}"${i === 0 ? ' checked' : ''}>${nameHtml(t)}${i === 0 ? ' <span class="hint">(main now)</span>' : ''}</label>`).join('')}</div>`).join('')}
+      <button type="button" class="toggle-btn bad" data-tool="clearSecondaries" style="margin-top:10px">Clear all secondary mains</button></div>` : ''}</div>`;
 }
 
 /* ------------------------------------------------------------------ Attendance and Performance (officers) */
@@ -1027,6 +1067,7 @@ function render() {
   }).join('') : '<p class="empty">Add players on the sheet\'s Roster tab.</p>';
   $('mains-pop').innerHTML = mainsOpen ? mainsPopout() : '';
   $('mia').innerHTML = miaHtml();
+  $('alts-wrap').innerHTML = altsHtml();
   const bench = benchPlayers();
   $('bench-wrap').innerHTML = bench.length ? `<div class="section-title"><h2>Others on the roster</h2><span class="hint">${bench.length} players</span></div><div class="chars lite-grid">${bench.map(p => playerTile(p, 'bench')).join('')}</div>` : '';
   lootHtml();
@@ -1061,6 +1102,23 @@ document.addEventListener('click', e => {
     const m = document.getElementById('openall-msg');
     if (m) m.innerHTML = !list.length ? 'Everyone is up to date.' : blocked >= list.length - 1 && list.length > 1
       ? `Your browser blocked the pop-ups: allow pop-ups for this site (icon at the right of the address bar), then click again.` : `Opened ${list.length} tabs.`;
+    return;
+  }
+  const tl = e.target.closest('[data-tool]');
+  if (tl) {
+    const [what, val] = tl.dataset.tool.split('|');
+    if (what === 'resetOpen') { resetOpen = !resetOpen; render(); return; }
+    let body;
+    if (what === 'showAlts') body = { action: 'setOption', name: 'showAlts', value: val === '1' };
+    if (what === 'clearAlts') { if (prompt('Type CLEAR to remove every alt from the roster (they are copied to the Roster archive tab first):') !== 'CLEAR') return; body = { action: 'clearAlts' }; }
+    if (what === 'clearSecondaries') {
+      if (prompt('Type CLEAR to remove every secondary main (copied to the Roster archive tab first):') !== 'CLEAR') return;
+      const mains = {}; (STATE.roster || []).filter(p => (p.alts || []).length).forEach(p => { const r = document.querySelector(`input[name="rm-${CSS.escape(p.player)}"]:checked`); if (r) mains[p.player] = r.value; });
+      body = { action: 'clearSecondaries', mains };
+    }
+    if (!body) return;
+    tl.disabled = true; toolMsg = 'Saving…'; render();
+    officerPost(body).then(msg => { toolMsg = msg; resetOpen = false; return Promise.all([load(), loadOfficer()]); }).catch(err => { toolMsg = 'Not saved: ' + err.message; render(); });
     return;
   }
   const rq = e.target.closest('[data-reqdo]');

@@ -261,4 +261,14 @@ p .tal-cell { font-weight: 700; }
 .att-table td.att { text-align: center; font-weight: 700; } .att-table td.att.y { color: #7ee787; } .att-table td.att.n { color: #555; }
 .att-table tr.bench td { opacity: .75; }
 .perf-table td { white-space: nowrap; }
-.sim-tabs.upload-kinds { grid-template-columns: 1fr 1fr; }
+.sim-tabs.upload-kinds { grid-template-columns: 1fr 1fr 1fr; }
+
+/* Season tools, alts */
+.tool-row { display: flex; justify-content: space-between; align-items: center; gap: 12px; padding: 8px 0; border-top: 1px solid #2c2c2c; }
+.tool-row:first-of-type { border-top: 0; }
+.reset-box { background: rgba(248,81,73,.05); border: 1px solid rgba(248,81,73,.25); border-radius: 8px; padding: 10px 12px; margin-top: 8px; }
+.reset-row { display: flex; flex-wrap: wrap; gap: 6px 14px; align-items: center; padding: 5px 0; border-top: 1px solid #2c2c2c; }
+.reset-row b { min-width: 110px; } .reset-pick { display: inline-flex; gap: 5px; align-items: center; font-size: 13px; cursor: pointer; }
+.alts-card { padding: 10px 16px; } .alt-row { display: flex; gap: 12px; padding: 6px 0; border-top: 1px solid #2c2c2c; align-items: baseline; } .alt-row:first-child { border-top: 0; }
+.alt-p { min-width: 140px; } .alt-list { display: flex; flex-wrap: wrap; gap: 6px 14px; } .alt-chip { font-size: 13px; }
+.req-grid { grid-template-columns: repeat(auto-fill, minmax(380px, 1fr)); }
