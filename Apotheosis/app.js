@@ -751,12 +751,12 @@ function talentsHtml() {
       return `<td class="tal-cell ${cls}" data-tip="${tip}">${txt}</td>`;
     };
     body = `<div class="card"><div class="table-wrap"><table class="logs-table tal-table"><thead><tr><th>Raider</th><th>Spec</th><th>Hero tree</th>${bosses.map(b =>
-      `<th data-talboss="${esc(b)}" class="tal-bh" data-tip="Open ${esc(b)}: top build to copy">${esc(b.split(/[ ,]/)[0])}</th>`).join('')}</tr></thead><tbody>${rows.map(({ sp, c }) => {
+      `<th data-talboss="${esc(b)}" class="tal-bh" data-tip="Open ${esc(b)}: top build to copy">${esc(b.replace(/^The\s+/i, '').split(/[ ,]/)[0])}</th>`).join('')}</tr></thead><tbody>${rows.map(({ sp, c }) => {
         const heroes = [...new Set(bosses.map(b => sp.bosses[b] && sp.bosses[b].heroName).filter(Boolean))];
         const heroOk = !heroes.length || heroes.includes(c.tal.heroName);
         return `<tr><td>${nameHtml(c)}</td><td class="hint">${esc(sp.spec)}</td><td class="${heroOk ? 'hint' : 'tal-herobad'}"${heroOk ? '' : ` data-tip="Top players use ${esc(heroes.join(' / '))}"`}>${esc(c.tal.heroName || '?')}</td>${bosses.map(b => cell(statusOf(c, b), sp, b)).join('')}</tr>`; }).join('')}</tbody></table></div>
       <p class="hint" style="margin:8px 0 0">% = share of the core talents (taken by 70%+ of the top 15 US players) the raider has; situational talents some top players take never count.
-        <span class="tal-cell ok">&#10003; 90%+</span> &middot; <span class="tal-cell near">75-89%</span> &middot; <span class="tal-cell off">under 75%</span> &middot; <span class="tal-cell hero">H</span> different hero tree &middot; hover a cell for details, click a boss for its top build to copy</p></div>`;
+        <span class="tal-cell ok">&#10003; 90%+</span> &middot; <span class="tal-cell near">75-89%</span> &middot; <span class="tal-cell off">under 75%</span> &middot; <span class="tal-cell hero">H</span> different hero tree &middot; hover a cell for details.<br><b>To copy a build:</b> click a boss column (or a boss button above), find your spec, and click <b>Copy build</b>.</p></div>`;
   } else {
     const b = talBoss;
     body = groups.filter(g => g.sp.bosses[b]).map(({ sp, who }) => {
