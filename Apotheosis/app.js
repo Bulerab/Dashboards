@@ -287,17 +287,19 @@ const starHtml = (i, t) => `<span class="br-star" data-tip="Bonus roll ${i + 1}:
 function lootTiles(wants) {
   const raids = [...new Set(wants.filter(w => w.boss).map(w => w.raid || 'Other'))]
     .sort(raidOrder);
-  const bar = (label, n, max, who) => `<div class="lt-row"><span class="lt-l">${esc(label)}</span><span class="lt-bar"><span style="width:${Math.max(4, n / max * 100)}%"></span></span><b data-tip="${n} item${n === 1 ? '' : 's'} wanted by ${who} raider${who === 1 ? '' : 's'}">${n}</b></div>`;
+  const bar = (label, n, max, who, sub) => `<div class="lt-row"><span class="lt-l">${esc(label)}${sub ? `<small>${esc(sub)}</small>` : ''}</span><span class="lt-bar"><span style="width:${Math.max(4, n / max * 100)}%"></span></span><b data-tip="${n} item${n === 1 ? '' : 's'} wanted by ${who} raider${who === 1 ? '' : 's'}">${n}</b></div>`;
   const tile = (title, rows, view) => {
     const max = Math.max(1, ...rows.map(r => r.n));
     return `<div class="lt-tile" data-lootview="${view}"><div class="lt-head"><b>${esc(title)}</b><span class="hint">${(t => t + ' item' + (t === 1 ? '' : 's'))(rows.reduce((a, r) => a + r.n, 0))}</span></div>
-      ${rows.map(r => bar(r.k, r.n, max, r.who)).join('') || '<p class="hint" style="margin:0">Nothing needed</p>'}</div>`;
+      ${rows.map(r => bar(r.k, r.n, max, r.who, r.sub)).join('') || '<p class="hint" style="margin:0">Nothing needed</p>'}</div>`;
   };
   const rowsOf = (ws, keyFn, order) => { const g = {}; ws.forEach(w => { const k = keyFn(w); (g[k] = g[k] || []).push(w); });
     return Object.keys(g).map(k => ({ k, n: g[k].length, who: new Set(g[k].map(w => w.c)).size })).sort(order || ((a, b) => b.n - a.n)); };
-  const rOrder = (r, b) => raids.indexOf(r) * 1000 + (b === TRASH ? 999 : bossIdx(b));
-  const raidRows = rowsOf(wants.filter(w => w.boss), w => w.boss + '|' + (w.raid || 'Other'), (a, b) => rOrder(a.k.split('|')[1], a.k.split('|')[0]) - rOrder(b.k.split('|')[1], b.k.split('|')[0]))
-    .map(r => { const [boss, raid] = r.k.split('|'); return Object.assign(r, { k: boss === TRASH ? 'Trash (' + raid.replace(/^The /, '') + ')' : boss }); });
+  // Raids: every boss ranked like By Boss (raiders, then gold items, then total sim gain), with its raid underneath
+  const rg = {}; wants.filter(w => w.boss).forEach(w => { const k = w.boss + '|' + (w.raid || 'Other'); (rg[k] = rg[k] || []).push(w); });
+  const raidRows = Object.keys(rg).map(k => { const ws = rg[k], [boss, raid] = k.split('|');
+    return { k: boss, sub: raid, n: ws.length, who: new Set(ws.map(w => w.c)).size, strong: ws.filter(w => w.strong).length, pct: ws.reduce((a, w) => a + w.pct, 0) }; })
+    .sort((a, b) => b.who - a.who || b.strong - a.strong || b.pct - a.pct || bossIdx(a.k) - bossIdx(b.k));
   return tile('Raids', raidRows, 'boss') +
     tile('Crafting', rowsOf(wants.filter(w => w.kind === 'craft'), w => w.where), 'other') +
     tile('Other', rowsOf(wants.filter(w => w.kind === 'mplus' || w.kind === 'other' || (!w.kind && !w.boss)), w => w.kind === 'mplus' ? 'M+: ' + w.where.replace(/^.*\((.*)\)$/, '$1') : (w.where || 'Other')), 'other');

@@ -144,7 +144,7 @@ p .tal-cell { font-weight: 700; }
 .lt-tile { background: var(--card, #1c1c1c); border: 1px solid #333; border-radius: 10px; padding: 12px 14px; cursor: pointer; }
 .lt-tile:hover { border-color: #555; }
 .lt-head { display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 8px; font-size: 14px; }
-.lt-row { display: grid; grid-template-columns: minmax(0, 1.8fr) 1fr 22px; gap: 8px; align-items: center; font-size: 12px; padding: 2px 0; }
+.lt-row { display: grid; grid-template-columns: minmax(0, 1.8fr) 1fr 22px; gap: 8px; align-items: center; font-size: 12px; padding: 3px 0; }
 .lt-l { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .lt-bar { height: 7px; background: #2a2a2a; border-radius: 4px; overflow: hidden; } .lt-bar span { display: block; height: 100%; background: #3987e5; border-radius: 4px; }
 .lt-row b { text-align: right; }
@@ -172,3 +172,5 @@ p .tal-cell { font-weight: 700; }
 .drop-card.open .dc-boss .sim-rows { margin: 4px 0 4px 10px; }
 
 @media (max-width: 900px) { .lt-grid { grid-template-columns: 1fr; } }
+
+.lt-l small { display: block; font-size: 10.5px; color: var(--muted-2, #888); line-height: 1.2; }
