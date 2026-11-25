@@ -208,9 +208,13 @@ function priorityHtml() {
 const SIM_KINDS = { drops: 'Heroic drops (6/6)', bonus: 'Bonus rolls & vault' };
 let simKind = store('apoSimKind', 'drops');
 let simMsg = '';
+let simView = store('apoSimView', 'player');   // Drops section: by player or by boss
 let officerKey = (() => { try { return localStorage.getItem('apoOfficerKey') || ''; } catch (e) { return ''; } })();
 const simsOf = c => (STATE.sims || []).filter(x => x.name.toLowerCase() === String(c.name).toLowerCase() && (!x.realm || x.realm === String(c.realm).toLowerCase()));
 const simOf = (c, kind) => simsOf(c).find(x => x.kind === kind);
+const SLOT_LABEL = { head: 'Head', neck: 'Neck', shoulder: 'Shoulder', shoulders: 'Shoulder', back: 'Back', chest: 'Chest', wrist: 'Wrist', wrists: 'Wrist', hands: 'Hands',
+  waist: 'Waist', legs: 'Legs', feet: 'Feet', finger1: 'Ring', finger2: 'Ring', trinket1: 'Trinket', trinket2: 'Trinket', main_hand: 'Main hand', off_hand: 'Off hand' };
+const slotLabel = sl => SLOT_LABEL[sl] || sl;
 const STALE_DAYS = 14;
 const ageDays = d => { const t = Date.parse(String(d).replace(' ', 'T')); return isNaN(t) ? null : (Date.now() - t) / 86400000; };
 const dateHtml = sim => { if (!sim) return '<span class="stale">never</span>'; const a = ageDays(sim.date);
@@ -242,7 +246,8 @@ function simsHtml() {
       <div class="run-step"><span class="rb-step big">1</span>${setup ? `<a class="rb-btn big" href="${esc(setup)}" target="raidbots" rel="noopener">${fav('raidbots.com', 'RB')} Apply ${esc(SIM_KINDS[simKind])} setup</a>`
         : '<span class="hint">Add the Share Setup link in the sheet\'s Settings tab (row 11) first.</span>'}<span class="hint">On Raidbots, <b>untick Character</b>, then Load Setup. Once per session.</span></div>
       <div class="run-step"><span class="rb-step big">2</span><button type="button" class="rb-btn big" data-openall="${simKind}">Open all ${team.length} raiders</button>
-        <button type="button" class="rb-btn" data-openall="${simKind}" data-stale="1">Open only missing / older than 2 weeks</button><span class="hint" id="openall-msg"></span></div>
+        <button type="button" class="rb-btn" data-openall="${simKind}" data-stale="1">Open only missing / older than 2 weeks</button><span class="hint" id="openall-msg"></span>
+        <span class="hint popup-note">First time: allow pop-ups for this site (icon at the right of the address bar), or only one tab opens.</span></div>
       <div class="run-step"><span class="rb-step big">3</span><span class="hint">Click <b>Run Droptimizer</b> in each tab. When they finish, paste the report links below.</span></div>
     </div>
     <table class="logs-table sim-status"><thead><tr><th>Raider</th><th>Spec</th><th>Raidbots</th><th>Last imported</th><th>Best upgrade</th><th>Upgrades</th></tr></thead><tbody>${team.map(c => { const sim = simOf(c, simKind), up = sim ? sim.rows.filter(r => r.pct > 0) : [];
@@ -270,7 +275,20 @@ function simsHtml() {
       <select id="sim-kindsel"><option value="auto" selected>Auto-detect (matches the guild setups)</option>${Object.keys(SIM_KINDS).map(k => `<option value="${k}">Import as ${SIM_KINDS[k]}</option>`).join('')}</select>
       <button type="submit" class="toggle-btn" id="sim-go">Import</button></form><div class="hint" id="sim-msg" style="margin-top:6px;white-space:pre-line">${esc(simMsg)}</div>`
       : '<p class="hint">Reports are imported by an officer: paste the finished report links and the page works out the raider and which setup was run.</p>'}`;
-  // Raider cards
+  // Drops: by player (each raider's two lists) or by boss (who gains what from each boss, for the selected kind)
+  $('sim-view-chips').innerHTML = [['player', 'By Player'], ['boss', 'By Boss']].map(([k, l]) => `<button type="button" class="chip${simView === k ? ' on' : ''}" data-simview="${k}">${l}</button>`).join('');
+  if (simView === 'boss') {
+    const order = b => bossList().indexOf(b) + 1 || 99;
+    $('sim-cards').innerHTML = bars.length ? `<div class="sim-grid">${bars.slice().sort((a, b) => order(a.b) - order(b.b)).map(x => {
+      const rows = [];
+      team.forEach(c => { const sim = simOf(c, simKind); if (!sim) return; sim.rows.filter(r => r.pct > 0 && r.boss === x.b).forEach(r => rows.push({ c, r })); });
+      rows.sort((a, b) => b.r.pct - a.r.pct);
+      return `<div class="char sim-card"><div class="name-row"><span class="char-name">${esc(x.b)}</span><span class="hint" style="margin-left:auto">${x.who.length} raider${x.who.length === 1 ? '' : 's'} &middot; best total <b class="sp up2">+${x.total.toFixed(2)}%</b></span></div>
+        <div class="sim-rows">${rows.map(({ c, r }) => `<div class="sim-row boss-row"><span>${nameHtml(c)}</span><span class="sn"><span class="si" data-tip="${esc(r.item)}${r.ilvl ? ' (' + r.ilvl + ')' : ''}">${esc(r.item)}</span><span class="hint sb">${esc(slotLabel(r.slot))}${r.ilvl ? ' &middot; ' + r.ilvl : ''}</span></span>
+          <b class="sp ${pctCls(r.pct)}" data-tip="${r.dps > 0 ? '+' : ''}${Math.round(r.dps).toLocaleString()} DPS">${pctTxt(r.pct)}</b></div>`).join('')}</div></div>`; }).join('')}</div>`
+      : `<p class="empty">No upgrades imported for ${esc(SIM_KINDS[simKind])} yet.</p>`;
+    return;
+  }
   $('sim-cards').innerHTML = `<div class="sim-grid">${raidPlayers().map(p => { const c = picked(p);
     return `<div class="char sim-card" style="--accent:${accentFor(c.cls)}"><div class="name-row">${classIcon(c.cls)}<span class="char-name">${esc(c.name)}</span>${profileLinks(c.name, c.realm)}<span class="hint" style="margin-left:auto">${esc(c.spec || '')}</span></div>
       <div class="rb-links"><span class="rb-step">1</span><a class="rb-btn" href="${rbUrl('droptimizer', c)}" target="raidbots" rel="noopener">${fav('raidbots.com', 'RB')} Droptimizer</a>
@@ -280,7 +298,6 @@ function simsHtml() {
       <div class="sim-cols"><div><div class="sec-title"><span>${SIM_KINDS.drops}</span></div>${simList(simOf(c, 'drops'))}</div>
         <div><div class="sec-title"><span>${SIM_KINDS.bonus}</span></div>${simList(simOf(c, 'bonus'))}</div></div></div>`; }).join('')}</div>`;
 }
-
 async function officerPost(payload) {
   const res = await fetch(WEBAPP_URL, { method: 'POST', body: JSON.stringify(Object.assign({ key: officerKey }, payload)) });
   const out = await res.json();
@@ -402,6 +419,8 @@ document.addEventListener('click', e => {
       ? `Your browser blocked the pop-ups: allow pop-ups for this site (icon at the right of the address bar), then click again.` : `Opened ${list.length} tabs.`;
     return;
   }
+  const sv = e.target.closest('[data-simview]');
+  if (sv) { simView = sv.dataset.simview; save('apoSimView', simView); render(); return; }
   const sk = e.target.closest('[data-simkind]');
   if (sk) { simKind = sk.dataset.simkind; save('apoSimKind', simKind); render(); return; }
   const sd = e.target.closest('[data-simdel]');
