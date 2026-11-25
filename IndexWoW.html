@@ -169,6 +169,18 @@
   select.plan { min-width: 150px; }
   select.plan.suggested { color: #9a9a9a; font-style: italic; border-style: dashed; }
   select.plan.chosen { color: #fff; font-weight: 600; border-color: #3987e5; background: #1d3b5f; }
+  .bychar { display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 16px; }
+  .bc { background: #252525; border-radius: 8px; padding: 12px 14px; border-top: 3px solid var(--accent, #555); }
+  .bc-head { display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 8px; }
+  .bc-head .n { font-size: 16px; font-weight: 700; }
+  .bc-inst { font-size: 10.5px; text-transform: uppercase; letter-spacing: .5px; color: var(--muted); margin: 10px 0 4px; }
+  .bc-boss { background: #1e1e1e; border-radius: 6px; padding: 6px 9px; margin-bottom: 5px; }
+  .bc-boss .top { display: flex; justify-content: space-between; gap: 8px; align-items: baseline; }
+  .bc-boss .b { font-weight: 600; color: var(--text-strong); font-size: 12.5px; }
+  .roll-tag { font-size: 10.5px; padding: 1px 7px; border-radius: 9px; white-space: nowrap; }
+  .roll-tag.chosen { background: #1d3b5f; border: 1px solid #3987e5; color: #fff; }
+  .roll-tag.suggested { border: 1px dashed #666; color: #9a9a9a; font-style: italic; }
+  .roll-tag.other { color: var(--muted); border: 1px solid #333; }
   .legend { font-size: 12px; color: var(--muted-2); display: flex; gap: 14px; flex-wrap: wrap; }
   .legend .sw { display: inline-block; width: 26px; height: 14px; border-radius: 3px; vertical-align: middle; margin-right: 5px; }
 
@@ -230,13 +242,15 @@
 
   <div class="card">
     <div class="card-head">
-      <h2>Bonus rolls</h2>
-      <div class="legend">
+      <div style="display:flex;gap:14px;align-items:center;flex-wrap:wrap"><h2>Bonus rolls</h2>
+        <div class="filters" id="bonus-tabs"><button type="button" class="chip" data-bview="boss">By boss</button><button type="button" class="chip" data-bview="char">By character</button></div></div>
+      <div class="legend" id="bonus-legend">
         <span><span class="sw" style="border:1px dashed #666;background:#2a2a2a"></span>Suggested by the sheet</span>
         <span><span class="sw" style="border:1px solid #3987e5;background:#1d3b5f"></span>Your pick</span>
       </div>
     </div>
-    <div class="table-wrap"><table id="bonus"></table></div>
+    <div class="table-wrap" id="bonus-boss"><table id="bonus"></table></div>
+    <div class="bychar" id="bonus-char"></div>
   </div>
 
   <div class="card">
@@ -646,6 +660,43 @@ function render(state, live, when) {
     (body || `<tr><td colspan="5" class="empty">Loads with live data.</td></tr>`) +
     `<tr><td colspan="4"><b>Total rolls planned</b></td><td class="cb"><b>${totalRolls}</b></td></tr></tbody>`;
 
+  // Per-character view: each toon's raid BiS still needed, grouped by raid and boss, with who is set to roll there
+  const bossInst = {};
+  (state.bonus || []).forEach(b => { bossInst[b.boss] = b; });
+  const instOfBoss = boss => (bossInst[boss] || {}).instance || '';
+  $('bonus-char').innerHTML = PLAN_CHARS.map(name => {
+    const c = chars.find(x => x.name === name) || { name, cls: '' };
+    const m = {};
+    (state.needs || []).filter(n => n.character === name && n.kind === 'Gear' && bossOf(n.source)).forEach(n => {
+      const b = bossOf(n.source);
+      m[b] = m[b] || {};
+      m[b][n.needed] = m[b][n.needed] || { item: n.needed, slot: n.slot, specs: new Set() };
+      m[b][n.needed].specs.add(n.spec);
+    });
+    const bosses = BOSS_ORDER.filter(b => m[b]);
+    const count = bosses.reduce((t, b) => t + Object.keys(m[b]).length, 0);
+    let lastInst = '';
+    const body = bosses.map(b => {
+      const row = bossInst[b] || {};
+      const roller = row.plan || row.suggested || '';
+      const tag = !roller ? '' : roller === name
+        ? `<span class="roll-tag ${row.plan ? 'chosen' : 'suggested'}">${row.plan ? '&#127922; rolling here' : 'suggested roll'}</span>`
+        : `<span class="roll-tag other">${esc(roller)} rolls</span>`;
+      const inst = instOfBoss(b);
+      const head = inst && inst !== lastInst ? `<div class="bc-inst">${esc(inst)}</div>` : '';
+      lastInst = inst || lastInst;
+      const items = Object.values(m[b]).sort((x, y) => isMainSpec(c, [...y.specs][0]) - isMainSpec(c, [...x.specs][0]));
+      return head + `<div class="bc-boss"><div class="top"><span class="b">${esc(b)}</span>${tag}</div>
+        <div class="need-grid" style="grid-template-columns:72px 1fr auto;margin-top:3px">${items.map(i => {
+          const main = [...i.specs].some(sp => isMainSpec(c, sp));
+          return `<span class="slot">${esc(slotName(i.slot))}</span><span class="${main ? 'main-item' : ''}">${main ? '&#9733; ' : ''}${esc(i.item)}</span><span class="specs-tag">${esc([...i.specs].join(', '))}</span>`;
+        }).join('')}</div></div>`;
+    }).join('');
+    return `<div class="bc" style="--accent:${accentFor(c.cls)}"><div class="bc-head"><span class="n" style="color:${CHAR_COLOR[name] || '#fff'}">${esc(name)}</span><span class="hint">${count} raid item${count === 1 ? '' : 's'} &middot; ${bosses.length} boss${bosses.length === 1 ? '' : 'es'}</span></div>` +
+      (body || `<p class="empty">No raid drops needed.</p>`) + `</div>`;
+  }).join('');
+  paintBonusView();
+
   const guests = state.guests || [];
   $('guest-wrap').style.display = guests.length ? '' : 'none';
   $('guests').innerHTML = guests.map(guestCard).join('');
@@ -660,10 +711,20 @@ function render(state, live, when) {
   }).join('');
 }
 
+let bonusView = (() => { try { return localStorage.getItem('wowBonusView') || 'boss'; } catch (e) { return 'boss'; } })();
+function paintBonusView() {
+  document.querySelectorAll('[data-bview]').forEach(b => b.classList.toggle('on', b.dataset.bview === bonusView));
+  $('bonus-boss').style.display = bonusView === 'boss' ? '' : 'none';
+  $('bonus-legend').style.display = bonusView === 'boss' ? '' : 'none';
+  $('bonus-char').style.display = bonusView === 'char' ? '' : 'none';
+}
+
 /* ------------------------------------------------------------------ events */
 document.addEventListener('click', e => {
   const f = e.target.closest('[data-filter]');
   if (f) { todoFilter = f.dataset.filter; renderAll(); return; }
+  const bv = e.target.closest('[data-bview]');
+  if (bv) { bonusView = bv.dataset.bview; try { localStorage.setItem('wowBonusView', bonusView); } catch (er) { /* storage blocked */ } paintBonusView(); return; }
   const v = e.target.closest('[data-vault]');
   if (v && !v.disabled) {
     const [name, kind, delta] = v.dataset.vault.split('|');
