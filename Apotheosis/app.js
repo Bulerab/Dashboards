@@ -163,7 +163,7 @@ function playerTile(p, key) {
     <div class="pvp-sum">
       <div class="char-head"><div><div class="name-row">${classIcon(c.cls)}<span class="char-name">${esc(c.name)}</span>${profileLinks(c.name, c.realm)}</div>
         <div class="char-meta meta-row">${esc([c.spec, c.cls].filter(Boolean).join(' '))}${p.player !== c.name ? ' &middot; ' + esc(p.player) : ''}<button type="button" class="toggle-btn" data-apotoggle="${esc(id)}">${open ? 'Collapse' : 'Expand'} <span class="chev">&#9662;</span></button></div></div>
-        <div class="headline-row"><div class="headline"><div class="lbl">ilvl</div><div class="big">${f2(c.ilvl)}</div></div><div class="headline"><div class="lbl">M+</div><div class="big">${f1(c.score)}</div></div></div></div>
+        <div class="headline-row"><div class="headline"><div class="lbl">ilvl</div><div class="big">${f2(c.ilvl)}</div></div><div class="headline"><div class="lbl">M+</div><div class="big">${f1(c.score)}</div></div>${tierHead(c)}</div></div>
       ${bis}
       <div class="minis" style="grid-template-columns:repeat(3,1fr)">
         <div class="mini"><div class="k">${L && L.metric === 'hps' ? 'Heal parse' : 'Raid parse'}</div><div class="v">${L ? pctHtml(L.avg) : '-'}</div></div>
@@ -530,13 +530,6 @@ function simsHtml() {
   $('sim-chart').innerHTML = bars.length ? (raidBars.length ? `<div class="sec-title"><span>Raid bosses</span></div>${barList(raidBars)}` : '') +
       (dungBars.length ? `<div class="sec-title" style="margin-top:14px"><span>Dungeons (Mythic+)</span><span class="hint">from the bonus roll &amp; vault sim</span></div>${barList(dungBars)}` : '')
     : `<p class="empty">${simmed ? 'No upgrades in the imported reports.' : 'Import Droptimizer reports to fill this chart.'}</p>`;
-  // Import (officers): the kind is worked out from the report's settings
-  $('sim-import').style.display = '';
-  $('sim-import').innerHTML = `<div class="card-head"><h2>Import reports</h2><span class="hint">${officerKey ? 'officer mode' : 'officers: click the lock button to import'}</span></div>
-    ${officerKey ? `<form class="sim-form" id="sim-form"><textarea id="sim-url" rows="3" placeholder="Paste one or more Raidbots report links (one per line)" required></textarea>
-      <select id="sim-kindsel"><option value="auto" selected>Auto-detect (matches the guild setups)</option>${Object.keys(SIM_KINDS).map(k => `<option value="${k}">Import as ${SIM_KINDS[k]}</option>`).join('')}</select>
-      <button type="submit" class="toggle-btn" id="sim-go">Import</button></form><div class="hint" id="sim-msg" style="margin-top:6px;white-space:pre-line">${esc(simMsg)}</div>`
-      : '<p class="hint">Reports are imported by an officer: paste the finished report links and the page works out the raider and which setup was run.</p>'}`;
   // Drops: by player or by boss (for the selected kind); healers' open wishlist items count under their boss
   $('sim-view-chips').innerHTML = DROP_VIEWS.map(([k, l]) => `<button type="button" class="chip${simView === k ? ' on' : ''}" data-simview="${k}">${l}</button>`).join('');
   if (simView === 'boss') {
@@ -613,7 +606,6 @@ function manualHtml() {
       <input id="wish-note" placeholder="note (optional)" style="flex:0 1 160px">
       <button type="submit" class="toggle-btn" id="wish-go">Add</button></form><div class="hint" id="wish-msg" style="margin-top:6px">${esc(wishMsg)}</div>`
       : '<p class="hint">Officers add items here (click the lock button). Each item is crossed off automatically once the raider is wearing it.</p>'}`;
-  $('sim-import').style.display = 'none';
   $('sim-chart-title').textContent = 'Wanted items by boss';
   $('drops-hint').textContent = "every raider's sims and manual entries (picked toons); click a card for the items; By Boss shows manual entries";
   // Chart: wanted items per boss
@@ -645,7 +637,7 @@ async function officerPost(payload) {
   const res = await fetch(WEBAPP_URL, { method: 'POST', body: JSON.stringify(Object.assign({ key: officerKey }, payload)) });
   const out = await res.json();
   if (!out.ok) { if (/officer key/i.test(out.error)) { officerKey = ''; try { localStorage.removeItem('apoOfficerKey'); } catch (e) { /* */ } } throw new Error(out.error); }
-  return out.message;
+  return out.data !== undefined ? out.data : out.message;
 }
 function paintLock() { $('lock').innerHTML = officerKey ? '&#128275; Officer mode' : '&#128274; Officer'; $('lock').classList.toggle('on', !!officerKey); }
 
@@ -788,6 +780,201 @@ function talentsHtml() {
   $('tal-body').innerHTML = (body || '<div class="card"><p class="empty">Nobody on the raid team is in a spec with top builds for this boss.</p></div>') + leftHtml;
 }
 
+
+/* ------------------------------------------------------------------ Tier set (roster tiles) */
+const tierHead = c => c.tier ? `<div class="headline" data-tip="${esc(c.tier.name)}: ${c.tier.n} of ${c.tier.max} pieces equipped"><div class="lbl">Tier</div><div class="big" style="color:${c.tier.n >= 4 ? '#7ee787' : c.tier.n >= 2 ? '#e3b341' : '#ff7b72'}">${c.tier.n}/${c.tier.max}</div></div>` : '';
+
+/* ------------------------------------------------------------------ Officer tabs: hidden until the officer key is entered.
+   Their data (requests, attendance, performance) only comes from the script with the key, never in the public page data. */
+const OFF_TABS = ['approvals', 'upload', 'attendance', 'performance'];
+let OFF = null, offErr = '', offLoading = false;
+async function loadOfficer() {
+  if (!officerKey || offLoading) return;
+  offLoading = true;
+  try { OFF = await officerPost({ action: 'officerData' }); offErr = ''; } catch (e) { offErr = e.message; }
+  offLoading = false; render();
+}
+const offNeed = () => `<div class="card"><p class="empty">${offErr ? 'Could not load: ' + esc(offErr) : 'Loading officer data…'}</p></div>`;
+
+function uploadHtml() {
+  // Import (officers): the kind is worked out from the report's settings
+  $('sim-import').innerHTML = `<div class="card-head"><h2>Import reports</h2><span class="hint">${officerKey ? 'officer mode' : 'officers: click the lock button to import'}</span></div>
+    ${officerKey ? `<form class="sim-form" id="sim-form"><textarea id="sim-url" rows="3" placeholder="Paste one or more Raidbots report links (one per line)" required></textarea>
+      <select id="sim-kindsel"><option value="auto" selected>Auto-detect (matches the guild setups)</option>${Object.keys(SIM_KINDS).map(k => `<option value="${k}">Import as ${SIM_KINDS[k]}</option>`).join('')}</select>
+      <button type="submit" class="toggle-btn" id="sim-go">Import</button></form><div class="hint" id="sim-msg" style="margin-top:6px;white-space:pre-line">${esc(simMsg)}</div>`
+      : '<p class="hint">Reports are imported by an officer: paste the finished report links and the page works out the raider and which setup was run.</p>'}`;
+  const rows = raidPlayers().map(p => ({ p, c: picked(p) })).filter(x => !isHealerP(x.p, x.c));
+  $('upload-status').innerHTML = `<table class="logs-table sim-status"><thead><tr><th>Raider</th><th>Spec</th><th>${esc(SIM_KINDS.drops)}</th><th>${esc(SIM_KINDS.bonus)}</th><th>Raidbots</th></tr></thead><tbody>${
+    rows.map(({ c }) => `<tr><td>${nameHtml(c)}</td><td class="hint">${esc(c.spec || '')}</td><td>${dateHtml(simOf(c, 'drops'))}</td><td>${dateHtml(simOf(c, 'bonus'))}</td>
+      <td><a href="${rbUrl('droptimizer', c)}" target="_blank" rel="noopener">Droptimizer</a></td></tr>`).join('')}</tbody></table>`;
+}
+
+/* ------------------------------------------------------------------ Great Vault (public) */
+const VTRACKS = [['Myth', '#ff8000'], ['Hero', '#a335ee'], ['Champion', '#0070dd'], ['Veteran', '#1eff00'], ['Adventurer', '#cccccc'], ['Explorer', '#9d9d9d']];
+const vTrackOf = txt => VTRACKS.find(([n]) => new RegExp(n === 'Champion' ? 'Champ' : n, 'i').test(String(txt || ''))) || null;
+const vUnlocked = c => (c.vault || []).reduce((n, v) => n + (v.thresholds || []).filter(t => v.done >= t).length, 0);
+function vaultBlock(c) {
+  if (!c.vault) return '<p class="empty">No Great Vault data yet (next refresh).</p>';
+  const names = { mplus: 'Mythic+', raid: 'Raid', world: 'World' }, order = ['raid', 'mplus', 'world'];
+  const rows = c.vault.slice().sort((a, b) => order.indexOf(a.kind) - order.indexOf(b.kind));
+  return rows.map(v => {
+    const tiles = (v.thresholds || []).map((t, i) => {
+      const on = v.done >= t, raw = String(v.slots[i] || '');
+      const raidTrack = { 'Raid Finder': 'Champion', LFR: 'Champion', Normal: 'Hero', Heroic: 'Myth', Mythic: 'Myth' };
+      let tr = null, reward;
+      if (on && v.kind === 'raid') { const m = raw.match(/Unlocked:\s*(Raid Finder|LFR|Normal|Heroic|Mythic)/); tr = m ? vTrackOf(raidTrack[m[1]]) : null; }
+      else if (on) tr = vTrackOf(raw);
+      reward = on ? (tr ? tr[0] : v.kind === 'mplus' ? (raw.match(/^\+\d+/) || ['Unlocked'])[0] : 'Unlocked') : `${t} ${v.kind === 'mplus' ? (t > 1 ? 'runs' : 'run') : v.kind === 'raid' ? 'bosses' : 'activities'}`;
+      const style = tr ? ` style="border-color:${tr[1]};background:${tr[1]}26;color:#fff"` : '';
+      return `<div class="tile${on ? ' on' : ''}"${style} data-tip="${esc(names[v.kind])} slot ${i + 1}: ${on ? 'unlocked' + (raw ? ' (' + esc(raw) + ')' : '') : 'needs ' + t}"><b${tr ? ` style="color:${tr[1]}"` : ''}>${on ? '&#10003; ' : ''}Slot ${i + 1}</b>${reward}</div>`;
+    }).join('');
+    return `<div class="vault-row"><span>${names[v.kind]}</span><div class="tiles">${tiles}</div><div class="count"><span class="n">${v.done}</span></div></div>`;
+  }).join('');
+}
+// A player's activity across all their characters: this week and season, and whether they only raid
+function playerActivity(p) {
+  const cs = [p.main].concat(p.alts || [], p.extras || []).filter(c => c.act);
+  const sum = f => cs.reduce((a, c) => a + (c.act[f] || 0), 0);
+  const weeks = {}; cs.forEach(c => (c.act.hist || []).forEach(h => { const w = weeks[h.week] = weeks[h.week] || { week: h.week, r: 0, m: 0, w: 0 }; w.r = Math.max(w.r, h.r); w.m += h.m; w.w += h.w; }));
+  const hist = Object.values(weeks).sort((a, b) => a.week - b.week).slice(-8);
+  const keysWeek = cs.reduce((a, c) => a + ((c.vault || []).find(v => v.kind === 'mplus') || { done: 0 }).done, 0);
+  const delvesWeek = cs.reduce((a, c) => a + ((c.vault || []).find(v => v.kind === 'world') || { done: 0 }).done, 0);
+  const raidWeek = Math.max(0, ...cs.map(c => ((c.vault || []).find(v => v.kind === 'raid') || { done: 0 }).done));
+  const best = Math.max(0, ...cs.map(c => c.act.score || 0));
+  const seasonDungeons = Math.max(0, ...cs.map(c => c.act.seasonDungeons || 0));
+  const delves = cs.some(c => c.act.delves != null) ? sum('delves') : null, dungeons = cs.some(c => c.act.dungeons != null) ? sum('dungeons') : null;
+  const outside = hist.filter(h => h.m > 0 || h.w > 0).length;
+  // Raid only: almost no Mythic+ this season and nothing outside raid in the weeks tracked (needs some data first)
+  const raidOnly = cs.length > 0 && seasonDungeons <= 2 && outside === 0 && keysWeek === 0 && delvesWeek === 0;
+  return { cs, raidKills: sum('raidKills'), best, seasonDungeons, keysWeek, delvesWeek, raidWeek, delves, dungeons, hist, outside, raidOnly,
+    since: Math.min(...cs.map(c => c.act.since || Infinity)) };
+}
+function vaultHtml() {
+  const ps = raidPlayers();
+  const rows = ps.map(p => ({ p, a: playerActivity(p), c: p.main }));
+  $('vault-hint').textContent = `${ps.length} raiders · ${rows.filter(r => r.a.raidOnly).length} only raiding`;
+  const spark = hist => `<span class="vh-spark">${hist.map(h => `<span class="vh-w" data-tip="Week of ${new Date(h.week).toLocaleDateString([], { month: 'short', day: 'numeric' })}: ${h.r} raid bosses, ${h.m} keys, ${h.w} delves">
+    <i style="height:${Math.min(100, h.r / 8 * 100)}%;background:#a335ee"></i><i style="height:${Math.min(100, h.m / 8 * 100)}%;background:#3987e5"></i><i style="height:${Math.min(100, h.w / 8 * 100)}%;background:#3fb950"></i></span>`).join('')}</span>`;
+  const sinceTxt = a => a.since && a.since !== Infinity ? new Date(a.since).toLocaleDateString([], { month: 'short', day: 'numeric' }) : '';
+  $('vault-summary').innerHTML = `<div class="table-wrap"><table class="logs-table vault-table"><thead><tr><th>Raider</th><th data-tip="Vault rewards unlocked on their main">Vault</th>
+    <th>This week</th><th data-tip="Raid boss kills in this season's raids, all difficulties, all their characters">Raid kills (season)</th><th data-tip="Best Mythic+ score this season and dungeons with a timed or completed run">Mythic+ (season)</th>
+    <th data-tip="Dungeon clears and delves on all their characters since the page started tracking">Dungeons / delves</th><th data-tip="Last 8 weeks: purple raid bosses, blue keys, green delves">Weeks</th><th></th></tr></thead><tbody>${
+    rows.sort((a, b) => b.a.raidOnly - a.a.raidOnly || a.p.player.localeCompare(b.p.player)).map(({ p, a, c }) => `<tr${a.raidOnly ? ' class="raid-only"' : ''}>
+      <td>${nameHtml(c)}</td><td><b>${vUnlocked(c)}</b>/9</td>
+      <td class="hint"><b style="color:#d2a8ff">${a.raidWeek}</b> bosses &middot; <b style="color:#79c0ff">${a.keysWeek}</b> keys &middot; <b style="color:#7ee787">${a.delvesWeek}</b> delves</td>
+      <td>${a.cs.length ? a.raidKills : '-'}</td><td>${a.cs.length ? `<b>${Math.round(a.best)}</b> <span class="hint">&middot; ${a.seasonDungeons} dungeons</span>` : '-'}</td>
+      <td class="hint">${a.dungeons == null ? '-' : `${a.dungeons} dungeons &middot; ${a.delves} delves <span data-tip="Counting since ${esc(sinceTxt(a))}">since ${esc(sinceTxt(a))}</span>`}</td>
+      <td>${a.hist.length ? spark(a.hist) : '<span class="hint">-</span>'}</td>
+      <td>${a.raidOnly ? '<span class="pill warn" data-tip="Almost no Mythic+ this season and no keys or delves in the weeks tracked">Raid only</span>' : a.cs.length ? '<span class="pill ok">Active</span>' : '<span class="hint">no data yet</span>'}</td></tr>`).join('')}</tbody></table></div>`;
+  $('vault-tiles').innerHTML = `<div class="boss-grid vault-grid">${ps.slice().sort((a, b) => a.player.localeCompare(b.player)).map(p => {
+    const key = 'v|' + p.player, open = tileOpen.has(key), others = (p.alts || []).concat(p.extras || []).filter(c => c.vault);
+    return `<div class="boss-tile player-tile${open ? ' open' : ''}" style="--accent:${accentFor(p.main.cls)}">
+      <div class="bt-top" data-apotoggle="${esc(key)}">${classIcon(p.main.cls)}<div class="bt-title"><span class="lb-name" style="color:${classHex(p.main.cls)}">${esc(p.main.name)}</span><small>${esc(p.main.spec || '')} &middot; ${vUnlocked(p.main)}/9 unlocked</small></div>${others.length ? `<span class="hint">${others.length} more</span>` : ''}<span class="dc-caret">${open ? '&#9652;' : '&#9662;'}</span></div>
+      <div class="vault-box">${vaultBlock(p.main)}</div>
+      ${open && others.length ? others.map(c => `<div class="vault-alt"><div class="vault-alt-n">${nameHtml(c)} <span class="hint">${esc(c.spec || '')} &middot; ${vUnlocked(c)}/9</span></div>${vaultBlock(c)}</div>`).join('') : ''}</div>`;
+  }).join('')}</div>`;
+}
+
+/* ------------------------------------------------------------------ Requests (public) and Approvals (officers) */
+const ALL_SPECS = ['Blood', 'Frost', 'Unholy', 'Havoc', 'Vengeance', 'Devourer', 'Balance', 'Feral', 'Guardian', 'Restoration', 'Devastation', 'Preservation', 'Augmentation', 'Beast Mastery', 'Marksmanship', 'Survival',
+  'Arcane', 'Fire', 'Brewmaster', 'Mistweaver', 'Windwalker', 'Holy', 'Protection', 'Retribution', 'Discipline', 'Shadow', 'Assassination', 'Outlaw', 'Subtlety', 'Elemental', 'Enhancement', 'Affliction', 'Demonology', 'Destruction', 'Arms', 'Fury'];
+let reqMsg = { secondary: '', alt: '' };
+function realmOptions() {
+  const list = (STATE.realms && STATE.realms.length ? STATE.realms : []).slice();
+  const g = (STATE.guild && STATE.guild.realm) || 'eldrethalas';
+  if (!list.some(r => r.slug === g)) list.unshift({ name: "Eldre'Thalas", slug: g });
+  return list.map(r => `<option value="${esc(r.slug)}"${r.slug === g ? ' selected' : ''}>${esc(r.name)}</option>`).join('');
+}
+function requestsHtml() {
+  const players = (STATE.roster || []).map(p => p.player).sort((a, b) => a.localeCompare(b));
+  const pend = STATE.pendingRequests || 0;
+  $('req-hint').textContent = pend ? pend + ' waiting for an officer' : '';
+  const form = (type, title, help) => `<div class="card"><div class="card-head"><h2>${title}</h2></div><p class="hint" style="margin:0 0 10px">${help}</p>
+    <form class="req-form" data-reqform="${type}">
+      <label>Your main<select name="player" required><option value="">Pick your main…</option>${players.map(n => `<option>${esc(n)}</option>`).join('')}</select></label>
+      <label>${type === 'alt' ? 'Alt' : 'Secondary main'} name<input name="name" required maxlength="12" placeholder="Character name"></label>
+      <label>Server<select name="realm">${realmOptions()}</select></label>
+      <label>Spec${type === 'alt' ? '' : ' <span class="hint">(the spec you would raid as)</span>'}<input name="spec" list="spec-list" placeholder="e.g. Retribution"${type === 'alt' ? ' required' : ''}></label>
+      <label class="wide">Note <span class="hint">(optional)</span><input name="note" maxlength="200" placeholder="Anything officers should know"></label>
+      <button type="submit" class="toggle-btn">Send request</button><span class="hint req-msg">${esc(reqMsg[type])}</span>
+    </form></div>`;
+  $('req-forms').innerHTML = `<datalist id="spec-list">${ALL_SPECS.map(x => `<option value="${x}">`).join('')}</datalist>` +
+    form('secondary', 'Request a secondary main', 'A character you would bring to raid. Once approved it shows on the roster as your offspec, like Clamshell and Jacii.') +
+    form('alt', 'Request an alt', 'A character that is not for raid: tracked for Great Vault and activity.');
+}
+const okBad = (ok, txt) => `<span class="pill ${ok ? 'ok' : 'bad'}">${txt}</span>`;
+function rundownHtml(rd) {
+  if (!rd) return '<p class="empty">Raider.io could not find this character (check the name and server, or they need to log in).</p>';
+  const g = rd.gems, t = rd.tier;
+  return `<div class="rd-grid">
+    <div class="mini"><div class="k">Class</div><div class="v" style="color:${classHex(rd.cls)}">${esc([rd.spec, rd.cls].filter(Boolean).join(' ')) || '?'}</div></div>
+    <div class="mini"><div class="k">Item level</div><div class="v">${rd.ilvl ? f2(rd.ilvl) : '-'}</div></div>
+    <div class="mini"><div class="k">Mythic+</div><div class="v"${rd.color ? ` style="color:${rd.color}"` : ''}>${rd.score ? f1(rd.score) : '0'}</div></div>
+    <div class="mini"><div class="k">Tier set</div><div class="v">${t ? t.n + '/' + t.max : '-'}</div></div></div>
+    <div class="ench-summary" style="margin-top:8px">${(rd.missingEnchants || []).length ? okBad(false, 'Missing enchant: ' + esc(rd.missingEnchants.join(', '))) : okBad(true, 'Enchants OK')}
+      ${g ? okBad(!g.empty, g.empty ? g.empty + ' empty socket' + (g.empty > 1 ? 's' : '') : 'Gems OK') + okBad(g.diamond, g.diamond ? 'Eversong Diamond' : 'No Eversong Diamond') : ''}
+      ${rd.pvp && rd.pvp.mostly ? okBad(false, `In PvP gear (${rd.pvp.count}/${rd.pvp.total})`) : ''}</div>
+    <p class="hint" style="margin:6px 0 0">Checked ${esc(rd.checked || '')}${rd.profile ? ` &middot; <a href="${esc(rd.profile)}" target="_blank" rel="noopener">Raider.io</a>` : ''}</p>`;
+}
+let apprMsg = '';
+function approvalsHtml() {
+  if (!OFF) { $('appr-body').innerHTML = offNeed(); return; }
+  const reqs = OFF.requests || [], pend = reqs.filter(r => r.status === 'Pending'), done = reqs.filter(r => r.status !== 'Pending');
+  const card = r => `<div class="card req-card"><div class="card-head"><h2>${r.type === 'alt' ? 'Alt' : 'Secondary main'}: <span style="color:${classHex(r.rundown && r.rundown.cls)}">${esc(r.name)}</span> <span class="hint" style="font-size:13px">${esc(r.realm)}</span></h2>
+      <span class="hint">for <b>${esc(r.player)}</b> &middot; sent ${esc(r.submitted)}</span></div>
+    ${r.note ? `<p style="margin:0 0 8px">&ldquo;${esc(r.note)}&rdquo;</p>` : ''}${rundownHtml(r.rundown)}
+    <div class="req-actions">${r.type === 'alt' ? '' : `<label class="hint">Raid spec <input data-reqspec="${esc(r.id)}" list="spec-list" value="${esc(r.spec || (r.rundown && r.rundown.spec) || '')}"></label>`}
+      <button type="button" class="toggle-btn ok" data-reqdo="${esc(r.id)}|approve">Approve</button><button type="button" class="toggle-btn bad" data-reqdo="${esc(r.id)}|deny">Deny</button>
+      <button type="button" class="toggle-btn" data-reqdo="${esc(r.id)}|recheck">Recheck gear</button></div></div>`;
+  $('appr-body').innerHTML = `<datalist id="spec-list">${ALL_SPECS.map(x => `<option value="${x}">`).join('')}</datalist>
+    <div class="card"><div class="card-head"><h2>Requests waiting</h2><span class="hint">${pend.length} pending &middot; approving adds the character to the Roster tab of the sheet</span></div>
+      ${apprMsg ? `<p class="hint" style="margin:0">${esc(apprMsg)}</p>` : ''}${pend.length ? '' : '<p class="empty">Nothing waiting.</p>'}</div>
+    <div class="req-grid">${pend.map(card).join('')}</div>
+    ${done.length ? `<div class="card"><div class="card-head"><h2>Decided</h2><span class="hint">last 30</span></div><table class="logs-table"><tbody>${done.map(r =>
+      `<tr><td>${esc(r.name)} <span class="hint">${esc(r.realm)}</span></td><td class="hint">${r.type === 'alt' ? 'Alt' : 'Secondary main'} for ${esc(r.player)}</td><td>${r.status === 'Approved' ? '<span class="pill ok">Approved</span>' : '<span class="pill bad">Denied</span>'}</td><td class="hint">${esc(r.decided)}</td></tr>`).join('')}</tbody></table></div>` : ''}`;
+}
+
+/* ------------------------------------------------------------------ Attendance and Performance (officers) */
+const parseColor = v => v == null ? '#666' : v >= 99 ? '#e268a8' : v >= 95 ? '#ff8000' : v >= 75 ? '#a335ee' : v >= 50 ? '#0070ff' : v >= 25 ? '#1eff00' : '#9d9d9d';
+const offPlayers = () => (OFF.players || []).filter(x => x.raid || (x.att || []).some(Boolean)).sort((a, b) => (b.raid - a.raid) || a.player.localeCompare(b.player));
+function attendanceHtml() {
+  if (!OFF) { $('att-body').innerHTML = offNeed(); return; }
+  const nights = OFF.nights || [], ps = offPlayers();
+  const avg = ps.filter(x => x.raid && x.attPct != null);
+  const d = s => { const [y, m, dd] = s.split('-'); return `${Number(m)}/${Number(dd)}`; };
+  $('att-body').innerHTML = `<div class="card"><div class="card-head"><h2>Attendance</h2><span class="hint">rolling 8 weeks &middot; ${OFF.difficulty} raid nights from the guild's Warcraft Logs &middot; any of a player's characters counts</span></div>
+    ${nights.length ? `<p class="hint" style="margin:0 0 8px">${nights.length} raid nights &middot; raid team average <b>${avg.length ? Math.round(avg.reduce((a, x) => a + x.attPct, 0) / avg.length) : '-'}%</b></p>
+    <div class="table-wrap"><table class="logs-table att-table"><thead><tr><th>Raider</th><th>%</th>${nights.map(n => `<th data-tip="${esc(n.zones.join(', '))}: ${n.pulls} pulls, ${n.kills} kills">${d(n.date)}</th>`).join('')}</tr></thead><tbody>${
+      ps.map(x => `<tr${x.raid ? '' : ' class="bench"'}><td>${nameHtml(x.main)}${x.raid ? '' : ' <span class="hint">bench</span>'}</td><td><b style="color:${x.attPct >= 90 ? '#7ee787' : x.attPct >= 75 ? '#e3b341' : '#ff7b72'}">${x.attPct == null ? '-' : x.attPct + '%'}</b></td>${
+        x.att.map(a => `<td class="att ${a ? 'y' : 'n'}">${a ? '&#10003;' : '&middot;'}</td>`).join('')}</tr>`).join('')}</tbody></table></div>`
+      : '<p class="empty">No raid nights logged in the last 8 weeks yet (the script reads the guild\'s Warcraft Logs reports a few at a time each refresh).</p>'}</div>`;
+}
+function performanceHtml() {
+  if (!OFF) { $('perf-body').innerHTML = offNeed(); return; }
+  const weeks = OFF.weeks || [], ps = offPlayers().filter(x => x.kills || x.pulls);
+  const wk = ms => new Date(ms).toLocaleDateString([], { month: 'numeric', day: 'numeric' });
+  const trend = x => { const v = x.weekly.filter(y => y != null); if (v.length < 2) return '<span class="hint">-</span>';
+    const last = v.slice(-2).reduce((a, y) => a + y, 0) / Math.min(2, v.length), before = v.slice(0, -2); if (!before.length) return '<span class="hint">-</span>';
+    const diff = Math.round(last - before.reduce((a, y) => a + y, 0) / before.length);
+    return `<b style="color:${diff > 2 ? '#7ee787' : diff < -2 ? '#ff7b72' : '#aaa'}">${diff > 0 ? '&#9650; +' : diff < 0 ? '&#9660; ' : ''}${diff}</b>`; };
+  const fd = x => x.pulls ? Math.round(x.firsts / x.pulls * 100) : 0;
+  const leaders = ps.filter(x => x.firsts).sort((a, b) => fd(b) - fd(a) || b.firsts - a.firsts).slice(0, 5);
+  $('perf-body').innerHTML = `<div class="sum-grid">
+    <div class="card"><div class="card-head"><h2>Dies first most</h2><span class="hint">share of pulls where they were the first death</span></div>
+      ${leaders.length ? leaders.map((x, i) => `<div class="sum-row"><span class="rk">${i + 1}</span>${nameHtml(x.main)}<span class="r"><b>${fd(x)}%</b> <span class="hint">${x.firsts} of ${x.pulls} pulls</span></span></div>`).join('') : '<p class="empty">No deaths logged yet.</p>'}</div>
+    <div class="card"><div class="card-head"><h2>Trending</h2><span class="hint">parse % last 2 weeks vs the weeks before</span></div>
+      ${(() => { const t = ps.map(x => { const v = x.weekly.filter(y => y != null); if (v.length < 3) return null; const last = v.slice(-2).reduce((a, y) => a + y, 0) / 2, before = v.slice(0, -2).reduce((a, y) => a + y, 0) / (v.length - 2); return { x, d: Math.round(last - before) }; }).filter(Boolean).sort((a, b) => b.d - a.d);
+        return t.length ? [t.slice(0, 3), t.slice(-3).reverse()].map((list, j) => list.filter(o => j ? o.d < 0 : o.d > 0).map(o => `<div class="sum-row">${nameHtml(o.x.main)}<span class="r"><b style="color:${o.d > 0 ? '#7ee787' : '#ff7b72'}">${o.d > 0 ? '&#9650; +' : '&#9660; '}${o.d}</b></span></div>`).join('')).join('') : '<p class="empty">Needs 3+ weeks of logs.</p>'; })()}</div></div>
+    <div class="card"><div class="card-head"><h2>Performance &amp; trends</h2><span class="hint">parse % on ${OFF.difficulty} kills per reset week (overall %), from the guild's Warcraft Logs reports &middot; 8 weeks</span></div>
+    ${ps.length ? `<div class="table-wrap"><table class="logs-table perf-table"><thead><tr><th>Raider</th><th>Avg</th><th data-tip="Last 2 weeks compared with the weeks before">Trend</th>${weeks.map(w => `<th>${wk(w)}</th>`).join('')}<th>Kills</th><th data-tip="Pulls where they died first / pulls they were in">First deaths</th><th>Best / worst boss</th></tr></thead><tbody>${
+      ps.map(x => { const bb = x.byBoss.slice().sort((a, b) => b.avg - a.avg); const best = bb[0], worst = bb[bb.length - 1];
+        return `<tr><td>${nameHtml(x.main)}</td><td><b style="color:${parseColor(x.avg)}">${x.avg == null ? '-' : x.avg}</b></td><td>${trend(x)}</td>${
+          x.weekly.map(v => `<td><span style="color:${parseColor(v)}">${v == null ? '<span class="hint">-</span>' : v}</span></td>`).join('')}<td>${x.kills}</td>
+          <td data-tip="${esc(Object.keys(x.firstBy).map(b => b + ': ' + x.firstBy[b]).join('<br>') || 'none')}">${x.firsts} <span class="hint">/ ${x.pulls} (${fd(x)}%)</span></td>
+          <td class="hint">${best ? `<span style="color:${parseColor(best.avg)}">${esc(best.boss)} ${best.avg}</span>${worst && worst !== best ? ` &middot; <span style="color:${parseColor(worst.avg)}">${esc(worst.boss)} ${worst.avg}</span>` : ''}` : '-'}</td></tr>`; }).join('')}</tbody></table></div>`
+      : '<p class="empty">No raid logs read yet (the script reads the guild\'s Warcraft Logs reports a few at a time each refresh).</p>'}</div>`;
+}
+
 /* ------------------------------------------------------------------ render */
 // Guild links in the header: Warcraft Logs, Raider.io, Armory, Discord (Discord link from the sheet's Settings tab)
 function guildLinks() {
@@ -804,6 +991,11 @@ function guildLinks() {
 function render() {
   if (!STATE) return;
   guildLinks();
+  // Officer tabs: hidden unless the officer key is entered
+  $('off-tabs').style.display = officerKey ? '' : 'none';
+  if (!officerKey && OFF_TABS.includes(tab)) { tab = 'guild'; history.replaceState(null, '', '#guild'); }
+  const pendN = OFF ? (OFF.requests || []).filter(r => r.status === 'Pending').length : (STATE.pendingRequests || 0);
+  $('appr-count').textContent = pendN ? ' ' + pendN : '';
   document.querySelectorAll('.tab').forEach(s => { s.style.display = s.id === 'tab-' + tab ? '' : 'none'; });
   document.querySelectorAll('#tabs a').forEach(a => a.classList.toggle('on', a.dataset.tab === tab));
   const rio = STATE.guild && STATE.guild.rio;
@@ -833,6 +1025,9 @@ function render() {
   simsHtml();
   paintLock();
   talentsHtml();
+  vaultHtml();
+  requestsHtml();
+  if (officerKey) { uploadHtml(); approvalsHtml(); attendanceHtml(); performanceHtml(); }
   guildHtml();
   mplusHtml();
 }
@@ -840,11 +1035,11 @@ function render() {
 document.addEventListener('click', e => {
   if (e.target.closest('[data-lock]')) {
     e.preventDefault();
-    if (officerKey) { officerKey = ''; try { localStorage.removeItem('apoOfficerKey'); } catch (er) { /* */ } render(); return; }
+    if (officerKey) { officerKey = ''; OFF = null; try { localStorage.removeItem('apoOfficerKey'); } catch (er) { /* */ } render(); return; }
     const k = prompt('Officer key (set in the sheet: Apotheosis > Set officer key):');
     if (!k || !k.trim()) return;
     officerKey = k.trim();
-    officerPost({ action: 'check' }).then(() => { try { localStorage.setItem('apoOfficerKey', officerKey); } catch (er) { /* */ } render(); })
+    officerPost({ action: 'check' }).then(() => { try { localStorage.setItem('apoOfficerKey', officerKey); } catch (er) { /* */ } render(); loadOfficer(); })
       .catch(err => { officerKey = ''; alert(err.message); render(); });
     return;
   }
@@ -857,6 +1052,16 @@ document.addEventListener('click', e => {
     const m = document.getElementById('openall-msg');
     if (m) m.innerHTML = !list.length ? 'Everyone is up to date.' : blocked >= list.length - 1 && list.length > 1
       ? `Your browser blocked the pop-ups: allow pop-ups for this site (icon at the right of the address bar), then click again.` : `Opened ${list.length} tabs.`;
+    return;
+  }
+  const rq = e.target.closest('[data-reqdo]');
+  if (rq) {
+    const [id, decision] = rq.dataset.reqdo.split('|');
+    if (decision === 'deny' && !confirm('Deny this request?')) return;
+    const specEl = document.querySelector(`[data-reqspec="${id}"]`);
+    rq.disabled = true; apprMsg = decision === 'recheck' ? 'Rechecking gear…' : 'Saving…'; approvalsHtml();
+    officerPost(decision === 'recheck' ? { action: 'requestRecheck', id } : { action: 'requestDecide', id, decision, spec: specEl ? specEl.value.trim() : '' })
+      .then(msg => { apprMsg = msg; return Promise.all([load(), loadOfficer()]); }).catch(err => { apprMsg = 'Not saved: ' + err.message; render(); });
     return;
   }
   const wd = e.target.closest('[data-wishdel]');
@@ -921,6 +1126,17 @@ document.addEventListener('change', e => {
 });
 
 document.addEventListener('submit', e => {
+  const rf = e.target.closest('[data-reqform]');
+  if (rf) {
+    e.preventDefault();
+    const type = rf.dataset.reqform, f = new FormData(rf), btn = rf.querySelector('button');
+    const body = { action: 'request', type, player: f.get('player'), name: String(f.get('name') || '').trim(), realm: f.get('realm'), spec: String(f.get('spec') || '').trim(), note: String(f.get('note') || '').trim() };
+    btn.disabled = true; rf.querySelector('.req-msg').textContent = 'Sending…';
+    fetch(WEBAPP_URL, { method: 'POST', body: JSON.stringify(body) }).then(r => r.json())
+      .then(out => { reqMsg[type] = out.ok ? '✓ ' + out.message : 'Not sent: ' + out.error; if (out.ok) { rf.reset(); return load(); } render(); })
+      .catch(err => { reqMsg[type] = 'Not sent: ' + err.message; render(); });
+    return;
+  }
   if (e.target.id === 'wish-form') {
     e.preventDefault();
     const [name, realm] = $('wish-who').value.split('|'), item = $('wish-item').value.trim();
@@ -974,6 +1190,7 @@ async function load() {
     const when = new Date().toLocaleString([], { dateStyle: 'medium', timeStyle: 'short' });
     show(state, when, true);
     save('apoSaved', { when, state });
+    if (officerKey && !OFF) loadOfficer();
   } catch (e) {
     if (!STATE) $('when').textContent = 'Could not load: ' + e.message;
   }

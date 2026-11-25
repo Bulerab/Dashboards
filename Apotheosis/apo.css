@@ -233,3 +233,31 @@ p .tal-cell { font-weight: 700; }
 .glink { display: inline-flex; align-items: center; gap: 6px; background: #1f1f1f; border: 1px solid #3a3a3a; border-radius: 8px; padding: 4px 10px; font-size: 12.5px; color: #ddd; text-decoration: none; }
 .glink:hover { border-color: #5a5a5a; color: #fff; }
 .glink img { width: 16px; height: 16px; border-radius: 3px; }
+
+/* Officer tabs */
+.off-tabs { display: contents; }
+.apo-tabs a.off-tab { border-color: rgba(227,179,65,.45); color: #e3b341; }
+.apo-tabs a.off-tab.on { background: rgba(227,179,65,.18); color: #fff; }
+.off-count { background: #e3b341; color: #111; border-radius: 8px; padding: 0 6px; margin-left: 5px; font-size: 11px; font-weight: 800; }
+.off-count:empty { display: none; }
+/* Requests */
+.req-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(420px, 1fr)); gap: 16px; }
+.req-form { display: grid; grid-template-columns: 1fr 1fr; gap: 10px 14px; align-items: end; }
+.req-form label { display: flex; flex-direction: column; gap: 4px; font-size: 12.5px; color: var(--muted-2, #aaa); }
+.req-form label.wide { grid-column: 1 / -1; }
+.req-form input, .req-form select, .req-actions input { background: #1a1a1a; color: #eee; border: 1px solid #3a3a3a; border-radius: 6px; padding: 6px 8px; font: inherit; font-size: 13px; }
+.req-form .req-msg { grid-column: 1 / -1; white-space: pre-line; }
+.rd-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; }
+.req-actions { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; margin-top: 12px; }
+.toggle-btn.ok { border-color: rgba(63,185,80,.6); color: #7ee787; } .toggle-btn.bad { border-color: rgba(248,81,73,.6); color: #ff7b72; }
+/* Great Vault */
+.vault-table td { white-space: nowrap; } .vault-table tr.raid-only td { background: rgba(227,179,65,.07); }
+.vh-spark { display: inline-flex; gap: 3px; align-items: flex-end; height: 22px; }
+.vh-w { display: inline-flex; gap: 1px; align-items: flex-end; height: 22px; } .vh-w i { width: 3px; min-height: 1px; border-radius: 1px; }
+.vault-grid { margin-top: 4px; } .vault-box .vault-row { grid-template-columns: 58px 1fr 30px; }
+.vault-alt { border-top: 1px solid #333; margin-top: 10px; padding-top: 8px; } .vault-alt-n { font-size: 13px; margin-bottom: 4px; }
+.player-tile .vault-box { margin-top: 6px; }
+/* Attendance / performance */
+.att-table td.att { text-align: center; font-weight: 700; } .att-table td.att.y { color: #7ee787; } .att-table td.att.n { color: #555; }
+.att-table tr.bench td { opacity: .75; }
+.perf-table td { white-space: nowrap; }
