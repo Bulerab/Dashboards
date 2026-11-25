@@ -272,3 +272,9 @@ p .tal-cell { font-weight: 700; }
 .alts-card { padding: 10px 16px; } .alt-row { display: flex; gap: 12px; padding: 6px 0; border-top: 1px solid #2c2c2c; align-items: baseline; } .alt-row:first-child { border-top: 0; }
 .alt-p { min-width: 140px; } .alt-list { display: flex; flex-wrap: wrap; gap: 6px 14px; } .alt-chip { font-size: 13px; }
 .req-grid { grid-template-columns: repeat(auto-fill, minmax(380px, 1fr)); }
+/* Request forms: fields fill their column and never spill out of the card */
+.req-form > * { min-width: 0; }
+.req-form input, .req-form select { width: 100%; box-sizing: border-box; min-width: 0; }
+.req-form label .hint { display: inline; }
+.req-form button { justify-self: start; padding: 6px 16px; }
+.req-form label { display: block; } .req-form label input, .req-form label select { display: block; margin-top: 4px; }

@@ -921,7 +921,7 @@ function requestsHtml() {
       <label>${type === 'main' ? 'Your current main' : 'Your main'}<select name="player" required><option value="">Pick your main…</option>${players.map(n => `<option>${esc(n)}</option>`).join('')}</select></label>
       <label>${type === 'alt' ? 'Alt' : type === 'main' ? 'New main' : 'Secondary main'} name<input name="name" required maxlength="12" placeholder="Character name"></label>
       <label>Server<select name="realm">${realmOptions()}</select></label>
-      <label>Spec${type === 'alt' ? '' : ' <span class="hint">(the spec you would raid as)</span>'}<input name="spec" list="spec-list" placeholder="e.g. Retribution"${type === 'alt' ? ' required' : ''}></label>
+      <label>Spec${type === 'alt' ? '' : ' <span class="hint">(raid spec)</span>'}<input name="spec" list="spec-list" placeholder="e.g. Retribution"${type === 'alt' ? ' required' : ''}></label>
       <label class="wide">Note <span class="hint">(optional)</span><input name="note" maxlength="200" placeholder="Anything officers should know"></label>
       <button type="submit" class="toggle-btn">Send request</button><span class="hint req-msg">${esc(reqMsg[type])}</span>
     </form></div>`;
