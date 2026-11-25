@@ -223,6 +223,8 @@
   .logs-table th { background: transparent; color: var(--muted-2); font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: .4px; }
   .logs-table th:first-child, .logs-table td:first-child { text-align: left; }
   .logs-table td.none { color: #555; }
+  .logs-table td.cb, .logs-table th.cb { text-align: center; }
+  .logchip .spec-ic { vertical-align: -3px; }
   .logs-table td:first-child { white-space: nowrap; }
   @media (max-width: 760px) { .logs-grid { grid-template-columns: 1fr; } }
   .meta-row { display: flex; align-items: center; gap: 10px; margin-top: 4px; }
@@ -519,15 +521,15 @@ function logsBlock(c) {
   const specs = L.specs || [];
   const sel = specs.includes(logSpec[c.name]) ? logSpec[c.name] : '';
   const view = sel ? (L.bySpec || {})[sel] || {} : L;
-  const chip = (label, key, data) => `<button type="button" class="chip logchip${sel === key ? ' on' : ''}" data-logspec="${esc(c.name + '|' + key)}">${esc(label)}${data ? ` <span class="lc" data-tip="Raid: ilvl % / overall %&lt;br&gt;Mythic+: key level % / overall %">R${pctHtml(data.raidAvg)}/${pctHtml(data.raidAvgAll)} M+${pctHtml(data.dungeonAvg)}/${pctHtml(data.dungeonAvgAll)}</span>` : ''}</button>`;
+  const chip = (label, key, data) => `<button type="button" class="chip logchip${sel === key ? ' on' : ''}" data-logspec="${esc(c.name + '|' + key)}">${key ? specLetters([key]) + ' ' : ''}${esc(label)}${data ? ` <span class="lc" data-tip="Raid: ilvl % / overall %&lt;br&gt;Mythic+: key level % / overall %">R${pctHtml(data.raidAvg)}/${pctHtml(data.raidAvgAll)} M+${pctHtml(data.dungeonAvg)}/${pctHtml(data.dungeonAvgAll)}</span>` : ''}</button>`;
   const chips = specs.length ? `<div class="filters" style="margin-bottom:8px">${chip('Best of any spec', '', L)}${specs.map(sp => chip(sp, sp, (L.bySpec || {})[sp])).join('')}</div>` : '';
   const showSpec = !sel;
   // Mythic+ amounts arrive as (key level x 2) x 10,000,000 + DPS; split them back apart
   const mp = r => r.amount >= 1e7 ? { dps: r.amount % 1e7, key: Math.floor(r.amount / 1e7) / 2 } : { dps: r.amount, key: null };
-  const table = (rows, label, isRaid) => `<table class="logs-table"><thead><tr><th>${label}</th>${showSpec ? '<th>Spec</th>' : ''}<th>${isRaid ? 'Diff' : 'Key'}</th>
-      <th data-tip="${isRaid ? 'Compared with players at your item level' : 'Compared with players at the same key level'}">${isRaid ? 'ilvl %' : 'Key lvl %'}</th><th data-tip="Compared with every player of the spec">Overall %</th><th>Highest DPS</th><th>${isRaid ? 'Kills' : 'Runs'}</th></tr></thead><tbody>` +
+  const table = (rows, label, isRaid) => `<table class="logs-table"><thead><tr><th>${label}</th>${showSpec ? '<th class="cb">Spec</th>' : ''}<th>${isRaid ? 'Diff' : 'Key'}</th>
+      <th data-tip="${isRaid ? 'Compared with players at your item level' : 'Compared with players at the same key level'}">${isRaid ? 'ilvl %' : 'Key %'}</th><th data-tip="Compared with every player of the spec">All %</th><th data-tip="Highest DPS">Top DPS</th><th>${isRaid ? 'Kills' : 'Runs'}</th></tr></thead><tbody>` +
     (rows.length ? rows.map(r => { const m = isRaid ? { dps: r.amount, key: null } : mp(r);
-      return `<tr><td${r.kills ? '' : ' class="none"'}>${esc(r.name)}</td>${showSpec ? `<td class="hint">${r.kills ? esc(r.spec || '') : ''}</td>` : ''}<td class="hint">${isRaid ? esc(r.diff || '') : (r.kills && m.key ? '+' + m.key : '')}</td><td>${r.kills ? pctHtml(r.pct) : '<span class="none">-</span>'}</td><td>${r.kills && r.pctAll != null ? pctHtml(r.pctAll) : '<span class="none">-</span>'}</td><td>${r.kills ? abbr(m.dps) : '-'}</td><td>${r.kills || 0}</td></tr>`; }).join('')
+      return `<tr><td${r.kills ? '' : ' class="none"'}>${esc(r.name)}</td>${showSpec ? `<td class="cb">${r.kills && r.spec ? specLetters([r.spec]) : ''}</td>` : ''}<td class="hint">${isRaid ? esc(r.diff || '') : (r.kills && m.key ? '+' + m.key : '')}</td><td>${r.kills ? pctHtml(r.pct) : '<span class="none">-</span>'}</td><td>${r.kills && r.pctAll != null ? pctHtml(r.pctAll) : '<span class="none">-</span>'}</td><td>${r.kills ? abbr(m.dps) : '-'}</td><td>${r.kills || 0}</td></tr>`; }).join('')
       : `<tr><td colspan="7" class="none">No logs yet</td></tr>`) + `</tbody></table>`;
   const raid = (view.raid || []).slice().sort((a, b) => (BOSS_ORDER.indexOf(bossOf(a.name) || a.name) + 1 || 99) - (BOSS_ORDER.indexOf(bossOf(b.name) || b.name) + 1 || 99));
   return `<div class="sec"><div class="sec-title"><span>Warcraft Logs &middot; best DPS %${sel ? ' &middot; ' + esc(sel) : ''}</span>${L.updated ? `<span class="hint">updated ${esc(L.updated)}</span>` : ''}</div>${chips}
