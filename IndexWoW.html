@@ -128,9 +128,17 @@
   .mini .v { font-size: 17px; font-weight: 700; color: var(--text-strong); margin-top: 2px; font-variant-numeric: tabular-nums; }
   .mini .v.conq { color: #ff9d6e; } .mini .v.craft { color: #c9a5ff; } .mini .v.ok { color: var(--ok); }
   .links { display: inline-flex; gap: 4px; margin-left: 2px; }
-  .links a { display: inline-flex; align-items: center; justify-content: center; width: 20px; height: 20px; border-radius: 5px; font-size: 10.5px; font-weight: 800; text-decoration: none; color: #111; line-height: 1; }
-  .links a:hover { filter: brightness(1.2); outline: 1px solid #fff; }
-  .links a.rio { background: #ff8000; } .links a.wcl { background: #e6c24a; } .links a.arm { background: #4aa3ff; }
+  .links a { display: inline-flex; align-items: center; justify-content: center; width: 22px; height: 22px; border-radius: 5px; font-size: 10.5px; font-weight: 800; text-decoration: none; color: #ddd; line-height: 1; background: #2a2a2a; border: 1px solid #3a3a3a; }
+  .links a img { width: 16px; height: 16px; display: block; }
+  .links a:hover { border-color: #3987e5; background: #333; }
+  .ic { width: 18px; height: 18px; border-radius: 4px; vertical-align: middle; border: 1px solid #000; }
+  .cls-ic { width: 24px; height: 24px; border-radius: 6px; border: 1px solid #000; vertical-align: middle; margin-right: 7px; flex-shrink: 0; }
+  .cls-ic.sm { width: 18px; height: 18px; border-radius: 4px; margin-right: 5px; }
+  .char, .mini-card, .member, .mtile { position: relative; overflow: hidden; }
+  .char > *, .mini-card > *, .member > *, .mtile > * { position: relative; z-index: 1; }
+  .char::after, .mini-card::after, .member::after, .mtile::after { content: ''; position: absolute; right: -28px; bottom: -28px; width: 150px; height: 150px;
+    background: var(--clsicon, none) center / cover; opacity: .07; border-radius: 50%; pointer-events: none; z-index: 0; filter: grayscale(.2); }
+  .mini-card::after, .member::after, .mtile::after { width: 110px; height: 110px; right: -20px; bottom: -20px; }
   .chars.has-open { grid-template-columns: 250px 1fr; align-items: start; }
   .chars.has-open > .pvpc.open { grid-column: 2; grid-row: 1 / span 6; }
   .chars.has-open > .mini-card { grid-column: 1; }
@@ -187,7 +195,8 @@
   .toolkit { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; }
   .tk-h { font-size: 10.5px; text-transform: uppercase; letter-spacing: .5px; color: var(--muted-2); font-weight: 600; margin: 8px 0 4px; }
   .tk-col .tk-h:first-child { margin-top: 0; }
-  .tk-item { display: grid; grid-template-columns: 16px 150px 1fr; gap: 6px; font-size: 12.5px; padding: 3px 0; border-bottom: 1px solid #262626; align-items: baseline; }
+  .tk-item.miss .ic { filter: grayscale(1); opacity: .6; }
+  .tk-item { display: grid; grid-template-columns: 16px 190px 1fr; gap: 6px; font-size: 12.5px; padding: 3px 0; border-bottom: 1px solid #262626; align-items: baseline; }
   .tk-item.have .tk-mark { color: var(--ok); font-weight: 800; }
   .tk-item.miss .tk-mark { color: var(--bad); font-weight: 800; }
   .tk-item.miss .tk-l { color: var(--bad); }
@@ -449,13 +458,20 @@ function srcInfo(source) {
   if (/^Catalyst/i.test(src)) return { type: 'catalyst' };
   return { type: 'other' };
 }
+/* Icons are loaded from Blizzard's icon server and each site's own favicon (via Google's favicon service) */
+const ICON_BASE = 'https://render.worldofwarcraft.com/us/icons/56/';
+const icon = (name, cls) => `<img class="${cls || 'ic'}" src="${ICON_BASE}${name}.jpg" alt="" loading="lazy" onerror="this.style.display='none'">`;
+const classIconName = cls => 'classicon_' + String(cls || '').toLowerCase().replace(/[^a-z]/g, '');
+const classIcon = (cls, size) => cls ? `<img class="cls-ic${size ? ' ' + size : ''}" src="${ICON_BASE}${classIconName(cls)}.jpg" alt="" loading="lazy" onerror="this.style.display='none'">` : '';
+const classBg = cls => cls ? `--clsicon:url('${ICON_BASE}${classIconName(cls)}.jpg');` : '';
+const fav = (domain, letter) => `<img src="https://www.google.com/s2/favicons?domain=${domain}&sz=32" alt="${letter}" onerror="this.replaceWith(document.createTextNode('${letter}'))">`;
 function profileLinks(name, realmSlug, region) {
   const r = String(realmSlug || 'eldrethalas').toLowerCase(), g = String(region || 'us').toLowerCase();
   const n = encodeURIComponent(name), nl = encodeURIComponent(String(name).toLowerCase());
   return `<span class="links">
-    <a class="rio" href="https://raider.io/characters/${g}/${r}/${n}" target="_blank" rel="noopener" data-tip="Raider.io profile">R</a>
-    <a class="wcl" href="https://www.warcraftlogs.com/character/${g}/${r}/${nl}" target="_blank" rel="noopener" data-tip="Warcraft Logs">W</a>
-    <a class="arm" href="https://worldofwarcraft.blizzard.com/en-us/character/${g}/${r}/${nl}" target="_blank" rel="noopener" data-tip="Blizzard Armory">A</a></span>`;
+    <a class="rio" href="https://raider.io/characters/${g}/${r}/${n}" target="_blank" rel="noopener" data-tip="Raider.io profile">${fav('raider.io', 'R')}</a>
+    <a class="wcl" href="https://www.warcraftlogs.com/character/${g}/${r}/${nl}" target="_blank" rel="noopener" data-tip="Warcraft Logs">${fav('warcraftlogs.com', 'W')}</a>
+    <a class="arm" href="https://worldofwarcraft.blizzard.com/en-us/character/${g}/${r}/${nl}" target="_blank" rel="noopener" data-tip="Blizzard Armory">${fav('worldofwarcraft.blizzard.com', 'A')}</a></span>`;
 }
 const pctColor = p => p == null ? '#666' : p >= 100 ? '#e5cc80' : p >= 99 ? '#e268a8' : p >= 95 ? '#ff8000' : p >= 75 ? '#a335ee' : p >= 50 ? '#0070ff' : p >= 25 ? '#1eff00' : '#888';
 const pctHtml = p => p == null ? '<span class="pct" style="color:#666">-</span>' : `<span class="pct" style="color:${pctColor(p)}">${Math.floor(p)}</span>`;
@@ -709,9 +725,9 @@ function pvpCard(c) {
   const rating = canEdit()
     ? `<input type="number" class="rating-input" min="0" data-pvp="${esc(c.name)}|shuffle" value="${esc(val)}" placeholder="-" title="Current Solo Shuffle rating">`
     : `<div class="big">${esc(val || '-')}</div>`;
-  return `<div class="char pvpc${open ? ' open' : ''}" style="--accent:${accentFor(c.cls)}" data-pvpcard="${esc(c.name)}">
+  return `<div class="char pvpc${open ? ' open' : ''}" style="--accent:${accentFor(c.cls)};${classBg(c.cls)}" data-pvpcard="${esc(c.name)}">
     <div class="pvp-sum">
-      <div class="char-head"><div><div class="name-row"><span class="char-name">${esc(c.name)}</span>${profileLinks(c.name)}</div><div class="char-meta meta-row">${esc(c.cls)}<button type="button" class="toggle-btn" data-cardtoggle="${esc(c.name)}">${open ? 'Collapse' : 'Expand'} <span class="chev">&#9662;</span></button></div>
+      <div class="char-head"><div><div class="name-row">${classIcon(c.cls)}<span class="char-name">${esc(c.name)}</span>${profileLinks(c.name)}</div><div class="char-meta meta-row">${esc(c.cls)}<button type="button" class="toggle-btn" data-cardtoggle="${esc(c.name)}">${open ? 'Collapse' : 'Expand'} <span class="chev">&#9662;</span></button></div>
           <div class="spec-tags">${(c.main || []).map(m => `<span class="spec-tag">${esc(m)}</span>`).join('')}</div></div>
         <div class="headline-row"><div class="headline"><div class="lbl">Shuffle</div>${rating}</div>
           <div class="headline"><div class="lbl">ilvl</div><div class="big">${f2(c.ilvl)}</div></div></div></div>
@@ -743,9 +759,9 @@ function pveCard(c) {
   const wrows = col < 0 ? [] : wk.rows.filter(r => r.cells[col] !== null && r.cells[col] !== undefined);
   const wdone = wrows.filter(r => r.cells[col]).length;
   const issues = bad + warn;
-  return `<div class="char pvpc${open ? ' open' : ''}" style="--accent:${accentFor(c.cls)}" data-pvpcard="${esc(c.name)}">
+  return `<div class="char pvpc${open ? ' open' : ''}" style="--accent:${accentFor(c.cls)};${classBg(c.cls)}" data-pvpcard="${esc(c.name)}">
     <div class="pvp-sum">
-      <div class="char-head"><div><div class="name-row"><span class="char-name">${esc(c.name)}</span>${profileLinks(c.name)}</div><div class="char-meta meta-row">${esc(c.cls)}<button type="button" class="toggle-btn" data-cardtoggle="${esc(c.name)}">${open ? 'Collapse' : 'Expand'} <span class="chev">&#9662;</span></button></div></div>
+      <div class="char-head"><div><div class="name-row">${classIcon(c.cls)}<span class="char-name">${esc(c.name)}</span>${profileLinks(c.name)}</div><div class="char-meta meta-row">${esc(c.cls)}<button type="button" class="toggle-btn" data-cardtoggle="${esc(c.name)}">${open ? 'Collapse' : 'Expand'} <span class="chev">&#9662;</span></button></div></div>
         <div class="headline-row"><div class="headline"><div class="lbl">M+ rating</div><div class="big">${f1(mp)}</div></div>
           <div class="headline"><div class="lbl">ilvl</div><div class="big">${f2(c.ilvl)}</div></div></div></div>
       <div class="sec">${bisBlock(c)}</div>
@@ -769,8 +785,8 @@ function miniCard(c) {
     const sh = (c.brackets || []).find(b => /shuffle/i.test(b.bracket));
     stat = `<span>Shuffle <b>${esc(sh && sh.rating ? sh.rating : '-')}</b></span>`;
   } else stat = `<span>M+ <b>${f1(String(c.rating || '').replace(/^M\+\s*/, ''))}</b></span>`;
-  return `<div class="mini-card" style="--accent:${accentFor(c.cls)}">
-    <div class="name-row"><span class="char-name">${esc(c.name)}</span><button type="button" class="toggle-btn" data-cardtoggle="${esc(c.name)}">Expand <span class="chev">&#9662;</span></button></div>
+  return `<div class="mini-card" style="--accent:${accentFor(c.cls)};${classBg(c.cls)}">
+    <div class="name-row"><span style="display:flex;align-items:center">${classIcon(c.cls, 'sm')}<span class="char-name">${esc(c.name)}</span></span><button type="button" class="toggle-btn" data-cardtoggle="${esc(c.name)}">Expand <span class="chev">&#9662;</span></button></div>
     <div class="char-meta">${esc(c.cls)} ${profileLinks(c.name)}</div>
     <div class="mc-stats">${stat}<span>ilvl <b>${f2(c.ilvl)}</b></span></div></div>`;
 }
@@ -848,8 +864,8 @@ function guestCard(g) {
   const other = need.filter(x => !bossOf(x.source));
   const otherBlock = other.length ? `<div class="sec"><div class="sec-title"><span>Other BiS still needed</span></div><div class="need-grid" style="grid-template-columns:82px 1fr auto">${other.map(x =>
     `<span class="slot">${esc(slotName(x.slot))}</span><span>${esc(x.bis)}</span><span class="specs-tag">${esc(x.source)}</span>`).join('')}</div></div>` : '';
-  return `<div class="char" style="--accent:${accentFor(g.cls)}">
-    <div class="char-head"><div><div class="name-row"><span class="char-name">${esc(g.name)}</span>${profileLinks(g.name, g.realm)}</div><div class="char-meta">${esc([g.spec || g.activeSpec, g.cls].filter(Boolean).join(' '))}${g.realm ? ' &middot; ' + esc(g.realm) : ''}</div></div>
+  return `<div class="char" style="--accent:${accentFor(g.cls)};${classBg(g.cls)}">
+    <div class="char-head"><div><div class="name-row">${classIcon(g.cls)}<span class="char-name">${esc(g.name)}</span>${profileLinks(g.name, g.realm)}</div><div class="char-meta">${esc([g.spec || g.activeSpec, g.cls].filter(Boolean).join(' '))}${g.realm ? ' &middot; ' + esc(g.realm) : ''}</div></div>
       <div class="headline-row"><div class="headline"><div class="lbl">M+ rating</div><div class="big">${f1(g.score)}</div></div>
       <div class="headline"><div class="lbl">ilvl</div><div class="big">${f2(g.ilvl)}</div></div></div></div>
     <div class="sec">${bisBar}</div>
@@ -906,6 +922,12 @@ const KIT = {
   'Evoker':       { buff: ['Blessing of the Bronze'], lust: true, dispel: ['Poison'], util: ['Rescue', 'Time Spiral'],
                     spec: { Preservation: { dispel: ['Magic', 'Poison'] } } },
 };
+const TK_ICONS = { 'Bloodlust': 'spell_nature_bloodlust', 'Battle rez': 'spell_nature_reincarnation', 'Arcane Intellect': 'spell_holy_magicalsentry',
+  'Power Word: Fortitude': 'spell_holy_wordfortitude', 'Battle Shout': 'ability_warrior_battleshout', 'Mark of the Wild': 'spell_nature_regeneration',
+  'Skyfury': 'achievement_raidprimalist_windelemental', 'Blessing of the Bronze': 'ability_evoker_blessingofthebronze', 'Mystic Touch': 'ability_monk_sparring',
+  'Chaos Brand': 'ability_demonhunter_empowerwards', "Hunter's Mark": 'ability_hunter_markedfordeath', 'Magic dispel': 'spell_holy_dispelmagic',
+  'Curse dispel': 'spell_nature_removecurse', 'Poison dispel': 'spell_nature_nullifypoison', 'Disease dispel': 'spell_nature_nullifydisease',
+  'Purge (enemy magic)': 'spell_nature_purge', 'Soothe (enrage)': 'ability_hunter_beastsoothe' };
 const ALL_BUFFS = ['Arcane Intellect', 'Power Word: Fortitude', 'Battle Shout', 'Mark of the Wild', 'Skyfury', 'Blessing of the Bronze', 'Mystic Touch', 'Chaos Brand', "Hunter's Mark"];
 function kitOf(m) {
   const k = KIT[m.cls] || {}, sp = (k.spec || {})[m.spec] || {};
@@ -915,15 +937,15 @@ function kitOf(m) {
 function toolkitHtml(ms) {
   const kits = ms.filter(m => !m.error).map(m => ({ m, k: kitOf(m) }));
   const who = f => kits.filter(x => f(x.k)).map(x => x.m);
-  const names = list => list.map(m => `<span style="color:${classHex(m.cls)}">${esc(m.name)}</span>`).join(', ');
-  const item = (label, list, tipMissing) => `<div class="tk-item ${list.length ? 'have' : 'miss'}"><span class="tk-mark">${list.length ? '&#10003;' : '&#10005;'}</span><span class="tk-l">${label}</span><span class="tk-w">${list.length ? names(list) : `<span class="hint">${tipMissing || 'missing'}</span>`}</span></div>`;
+  const names = list => list.map(m => `<span style="color:${classHex(m.cls)};white-space:nowrap">${classIcon(m.cls, 'sm')}${esc(m.name)}</span>`).join(' ');
+  const item = (label, list, tipMissing) => `<div class="tk-item ${list.length ? 'have' : 'miss'}"><span class="tk-mark">${list.length ? '&#10003;' : '&#10005;'}</span><span class="tk-l">${TK_ICONS[label] ? icon(TK_ICONS[label]) + ' ' : ''}${label}</span><span class="tk-w">${list.length ? names(list) : `<span class="hint">${tipMissing || 'missing'}</span>`}</span></div>`;
   const lust = who(k => k.lust);
   const hunters = kits.filter(x => x.m.cls === 'Hunter').map(x => x.m);
   const core = item('Bloodlust', lust, hunters.length ? 'only via a Hunter exotic pet' : 'nobody brings it') + item('Battle rez', who(k => k.brez));
   const buffs = ALL_BUFFS.map(b => item(b, who(k => k.buff.includes(b)))).join('');
   const disp = ['Magic', 'Curse', 'Poison', 'Disease'].map(d => item(d + ' dispel', who(k => k.dispel.includes(d)))).join('');
   const off = item('Purge (enemy magic)', who(k => k.purge)) + item('Soothe (enrage)', who(k => k.soothe));
-  const utils = kits.map(x => `<div class="tk-util"><span style="color:${classHex(x.m.cls)}">${esc(x.m.name)}</span> <span class="hint">${esc(x.k.util.join(', '))}</span></div>`).join('');
+  const utils = kits.map(x => `<div class="tk-util">${classIcon(x.m.cls, 'sm')}<span style="color:${classHex(x.m.cls)}">${esc(x.m.name)}</span> <span class="hint">${esc(x.k.util.join(', '))}</span></div>`).join('');
   return `<div class="toolkit"><div class="tk-col"><div class="tk-h">Must-haves</div>${core}<div class="tk-h">Offensive dispels</div>${off}</div>
     <div class="tk-col"><div class="tk-h">Group buffs</div>${buffs}</div>
     <div class="tk-col"><div class="tk-h">Dispels &amp; cleanses</div>${disp}<div class="tk-h">Other utility</div>${utils}</div></div>`;
@@ -937,7 +959,7 @@ function teamTile(t) {
   return `<button type="button" class="team-tile${openTeam === t.name ? ' on' : ''}" data-team="${esc(t.name)}">
     <div class="tn">${esc(t.name)}</div><div class="td">${esc(t.day || '')}${t.day ? 's' : ''} &middot; ${t.members.length} players</div>
     <div class="tstats"><span>Avg rating<b>${avg || '-'}</b></span><span>Team resilient<b>${res ? '+' + res : '-'}</b></span><span>At 3,600<b>${done} / ${ms.length}</b></span></div>
-    <div class="tmembers">${ms.map(m => `<span style="color:${classHex(m.cls)}">${esc(m.name)}</span>`).join('')}</div>
+    <div class="tmembers">${ms.map(m => `<span style="color:${classHex(m.cls)};display:inline-flex;align-items:center">${classIcon(m.cls, 'sm')}${esc(m.name)}</span>`).join('')}</div>
   </button>`;
 }
 
@@ -953,7 +975,7 @@ function teamPanel(t) {
     return { d, short: (ok.map(m => runOf(m, d)).find(Boolean) || {}).short || '', min: Math.min(...lv), below: ok.filter(m => { const r = runOf(m, d); return !r || r.score < PER_DUNGEON; }).length };
   }).sort((a, b) => a.min - b.min || b.below - a.below);
   const resTeam = ok.length ? Math.min(...ok.map(resilientLevel)) : 0;
-  const head = `<tr><th>Dungeon</th>${ok.map(m => `<th style="color:${classHex(m.cls)}">${esc(m.name)}</th>`).join('')}<th>Whole team timed</th><th>Next team key</th></tr>`;
+  const head = `<tr><th>Dungeon</th>${ok.map(m => `<th style="color:${classHex(m.cls)}">${classIcon(m.cls, 'sm')}${esc(m.name)}</th>`).join('')}<th>Whole team timed</th><th>Next team key</th></tr>`;
   const focusSet = new Set(rows.slice(0, 3).map(r => r.d));   // the team's three weakest dungeons
   const body = rows.map(r => {
     const focus = focusSet.has(r.d);
@@ -977,8 +999,8 @@ function teamPanel(t) {
       ? `<span class="pill bad">Missing enchant: ${esc(m.missingEnchants.map(slotName).join(', '))}</span>` : `<span class="pill ok">Enchants OK</span>`;
     const dia = m.diamond ? `<span class="pill ok">Eversong Diamond</span>` : `<span class="pill bad">No Eversong Diamond</span>`;
     const weakest = (m.runs || []).slice().sort((a, b) => a.score - b.score).slice(0, 2).map(r => `${r.short} +${r.level}`).join(', ');
-    return `<div class="member" style="--accent:${accentFor(m.cls)}">${swap}
-      <div class="mh"><div><span class="mn" style="color:${classHex(m.cls)}">${esc(m.name)}</span> ${profileLinks(m.name, m.realm, m.region)}</div><span class="mr" style="color:${esc(m.color || '#fff')}">${f1(m.score)}</span></div>
+    return `<div class="member" style="--accent:${accentFor(m.cls)};${classBg(m.cls)}">${swap}
+      <div class="mh"><div>${classIcon(m.cls, 'sm')}<span class="mn" style="color:${classHex(m.cls)}">${esc(m.name)}</span> ${profileLinks(m.name, m.realm, m.region)}</div><span class="mr" style="color:${esc(m.color || '#fff')}">${f1(m.score)}</span></div>
       <div class="ms">${esc(m.spec)} ${esc(m.cls)} &middot; ${esc(m.realmName || m.realm)}</div>
       <div class="row2"><span>ilvl <b>${f2(m.ilvl)}</b></span><span class="res-badge${res && res === resTeam ? ' low' : ''}" data-tip="Highest level timed in every dungeon">Resil ${res ? '+' + res : '-'}</span><span>${gap ? `To 3,600 <b>${Math.ceil(gap)}</b>` : '<b style="color:var(--ok)">3,600 reached</b>'}</span></div>
       <div class="meter" style="margin-top:6px"><div style="width:${Math.min(100, m.score / GOAL * 100).toFixed(1)}%"></div></div>
@@ -1191,7 +1213,7 @@ function render(state, live, when) {
   $('mplus').innerHTML = pve.slice().sort(byOrder(MPLUS_ORDER)).map(c => {
     const runs = (c.mplusRuns || []).slice().sort((a, b) => b.score - a.score);
     const mp = String(c.rating || '').replace(/^M\+\s*/, '');
-    return `<div class="mtile" style="--accent:${accentFor(c.cls)}"><div class="mtile-head"><span><span class="n">${esc(c.name)}</span> ${profileLinks(c.name)}</span><span class="sc">${f1(mp)}</span></div>` +
+    return `<div class="mtile" style="--accent:${accentFor(c.cls)};${classBg(c.cls)}"><div class="mtile-head"><span>${classIcon(c.cls, 'sm')}<span class="n">${esc(c.name)}</span> ${profileLinks(c.name)}</span><span class="sc">${f1(mp)}</span></div>` +
       (runs.length ? runs.map(r => `<div class="run"><div>${esc(r.dungeon)} <span class="spec">${esc(r.spec)}</span></div><span class="lvl">+${r.level}</span><span class="score">${Number(r.score).toFixed(1)}</span></div>`).join('')
         : `<p class="empty">Loads with live data.</p>`) + `</div>`;
   }).join('');
