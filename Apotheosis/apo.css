@@ -261,3 +261,4 @@ p .tal-cell { font-weight: 700; }
 .att-table td.att { text-align: center; font-weight: 700; } .att-table td.att.y { color: #7ee787; } .att-table td.att.n { color: #555; }
 .att-table tr.bench td { opacity: .75; }
 .perf-table td { white-space: nowrap; }
+.sim-tabs.upload-kinds { grid-template-columns: 1fr 1fr; }

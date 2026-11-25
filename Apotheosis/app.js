@@ -488,30 +488,7 @@ function simsHtml() {
   if (simKind === 'manual') { manualHtml(); return; }
   $('sim-chart-title').textContent = 'Raidbots upgrade value by boss';
   $('drops-hint').textContent = "every raider's Heroic and Bonus sim upgrades plus manual entries (picked toons); click a card for the items; By Boss follows the tab above";
-  // Run panel: apply the setup once, then open every ready raider in their own Raidbots tab
-  const setup = setupOf(simKind);
-  const statusRow = c => { const sim = simOf(c, simKind), up = sim ? sim.rows.filter(r => r.pct > 0) : [];
-    return `<tr><td>${nameHtml(c)}</td><td class="hint">${esc(c.spec || '')}</td><td><a href="${rbUrl('droptimizer', c)}" target="_blank" rel="noopener">Droptimizer</a></td>
-      <td>${dateHtml(sim)}${sim ? ` <a class="hint" href="${esc(sim.url)}" target="_blank" rel="noopener">report</a>` : ''}</td>
-      <td>${up.length ? `${esc(up[0].item)} <b class="sp ${pctCls(up[0].pct)}">${pctTxt(up[0].pct)}</b>` : '<span class="hint">-</span>'}</td><td>${sim ? up.length : '-'}</td></tr>`; };
-  $('sim-run').innerHTML = `<div class="card-head"><h2>Run: ${SIM_KINDS[simKind]}</h2><span class="hint">Raidbots keeps the last setup you loaded for every character you open after it</span></div>
-    <div class="run-steps">
-      <div class="run-step"><span class="rb-step big">1</span>${setup ? `<a class="rb-btn big" href="${esc(setup)}" target="raidbots" rel="noopener">${fav('raidbots.com', 'RB')} Apply ${esc(SIM_KINDS[simKind])} setup</a>`
-        : `<span class="hint">No setup link yet: ${officerKey ? 'add one with <b>Change the setup link</b> below' : 'an officer adds one (or the sheet\'s Settings tab)'}.</span>`}<span class="hint">On Raidbots, <b>untick Character</b>, then Load Setup. Once per session.</span></div>
-      <div class="run-step"><span class="rb-step big">2</span><button type="button" class="rb-btn big" data-openall="${simKind}">Open all ${team.length} ready raiders</button>
-        <button type="button" class="rb-btn" data-openall="${simKind}" data-stale="1">Open only missing / older than 2 weeks</button><span class="hint" id="openall-msg"></span>
-        <span class="hint popup-note">First time: allow pop-ups for this site (icon at the right of the address bar), or only one tab opens.</span></div>
-      <div class="run-step"><span class="rb-step big">3</span><span class="hint">Click <b>Run Droptimizer</b> in each tab. When they finish, paste the report links below.</span></div>
-    </div>
-    ${officerKey ? `<details class="setup-edit"${setupMsg ? ' open' : ''}><summary>Change the ${esc(SIM_KINDS[simKind])} setup link</summary>
-      <p class="hint" style="margin:6px 0">On Raidbots, set the Droptimizer up the way the guild should run it (sources, difficulty, upgrade level, fight style), click <b>Share Setup</b>, and paste that link here.
-        It replaces the link on the sheet's Settings tab${setup ? ` (now <a href="${esc(setup)}" target="_blank" rel="noopener">${esc(setup.replace(/.*share\//, ''))}</a>)` : ''}.</p>
-      <form class="sim-form" id="setup-form" data-kind="${simKind}"><input id="setup-url" placeholder="https://www.raidbots.com/simbot/share/..." required><button type="submit" class="toggle-btn" id="setup-go">Save setup</button></form>
-      <div class="hint" id="setup-msg" style="margin-top:6px">${esc(setupMsg)}</div></details>` : ''}
-    <table class="logs-table sim-status"><thead><tr><th>Raider</th><th>Spec</th><th>Raidbots</th><th>Last imported</th><th>Best upgrade</th><th>Upgrades</th></tr></thead><tbody>${team.map(statusRow).join('') || '<tr><td colspan="6" class="none">Nobody ready to sim.</td></tr>'}</tbody></table>
-    ${notReady.length ? `<div class="sec-title" style="margin-top:14px"><span>Not in correct gear or spec</span><span class="hint">left out of Open all &middot; spec and gear update when they log in and the page refreshes</span></div>
-      <table class="logs-table sim-status"><tbody>${notReady.map(x => `<tr class="notready"><td>${nameHtml(x.c)}</td><td><span class="pill warn">${esc(x.why)}</span></td>
-        <td>${x.c.cls ? `<a class="hint" href="${rbUrl('droptimizer', x.c)}" target="_blank" rel="noopener">Droptimizer anyway</a>` : ''}</td><td>${dateHtml(simOf(x.c, simKind))}</td></tr>`).join('')}</tbody></table>` : ''}`;
+  $('sim-run').style.display = 'none';   // the run panel lives on the Upload Sims tab (officers)
   // Chart: for each boss, the sum of every raider's best upgrade % from that boss (who gains most if it dies)
   const byBoss = {};
   team.forEach(c => { const sim = simOf(c, simKind); if (!sim) return;
@@ -596,6 +573,7 @@ function manualHtml() {
   const rp = raidPlayers(), all = rp.map(picked);
   const healers = healerPlayers().map(picked), others = all.filter(c => !healers.includes(c));
   const wantedBy = c => wishOf(c).filter(w => !w.have);
+  $('sim-run').style.display = '';
   $('sim-run').innerHTML = `<div class="card-head"><h2>Manual entry</h2><span class="hint">items picked by hand: healers (no Raidbots sims), or anyone else</span></div>
     ${officerKey ? `<form class="sim-form wish-form" id="wish-form">
       <select id="wish-who" required><option value="">Raider…</option><optgroup label="Healers">${healers.map(c => `<option value="${esc(c.name + '|' + c.realm)}">${esc(c.name)} (${esc(c.spec || '')})</option>`).join('')}</optgroup>
@@ -796,17 +774,48 @@ async function loadOfficer() {
 }
 const offNeed = () => `<div class="card"><p class="empty">${offErr ? 'Could not load: ' + esc(offErr) : 'Loading officer data…'}</p></div>`;
 
+/* Run panel (Upload Sims tab, officers): apply the guild setup, open every ready raider in Raidbots, see who is due */
+let uploadKind = store('apoUploadKind', 'drops');
+const readyToons = () => simPlayers().map(simStatus).filter(x => x.ok).map(x => x.c);
+function runPanel(kind) {
+  const stat = simPlayers().map(simStatus), team = stat.filter(x => x.ok).map(x => x.c), notReady = stat.filter(x => !x.ok);
+  const setupOf = k => k === 'drops' ? rbSetup() : rbBonus();
+  // Run panel: apply the setup once, then open every ready raider in their own Raidbots tab
+  const setup = setupOf(kind);
+  const statusRow = c => { const sim = simOf(c, kind), up = sim ? sim.rows.filter(r => r.pct > 0) : [];
+    return `<tr><td>${nameHtml(c)}</td><td class="hint">${esc(c.spec || '')}</td><td><a href="${rbUrl('droptimizer', c)}" target="_blank" rel="noopener">Droptimizer</a></td>
+      <td>${dateHtml(sim)}${sim ? ` <a class="hint" href="${esc(sim.url)}" target="_blank" rel="noopener">report</a>` : ''}</td>
+      <td>${up.length ? `${esc(up[0].item)} <b class="sp ${pctCls(up[0].pct)}">${pctTxt(up[0].pct)}</b>` : '<span class="hint">-</span>'}</td><td>${sim ? up.length : '-'}</td></tr>`; };
+  $('upload-run').innerHTML = `<div class="card-head"><h2>Run: ${SIM_KINDS[kind]}</h2><span class="hint">Raidbots keeps the last setup you loaded for every character you open after it</span></div>
+    <div class="run-steps">
+      <div class="run-step"><span class="rb-step big">1</span>${setup ? `<a class="rb-btn big" href="${esc(setup)}" target="raidbots" rel="noopener">${fav('raidbots.com', 'RB')} Apply ${esc(SIM_KINDS[kind])} setup</a>`
+        : `<span class="hint">No setup link yet: ${officerKey ? 'add one with <b>Change the setup link</b> below' : 'an officer adds one (or the sheet\'s Settings tab)'}.</span>`}<span class="hint">On Raidbots, <b>untick Character</b>, then Load Setup. Once per session.</span></div>
+      <div class="run-step"><span class="rb-step big">2</span><button type="button" class="rb-btn big" data-openall="${kind}">Open all ${team.length} ready raiders</button>
+        <button type="button" class="rb-btn" data-openall="${kind}" data-stale="1">Open only missing / older than 2 weeks</button><span class="hint" id="openall-msg"></span>
+        <span class="hint popup-note">First time: allow pop-ups for this site (icon at the right of the address bar), or only one tab opens.</span></div>
+      <div class="run-step"><span class="rb-step big">3</span><span class="hint">Click <b>Run Droptimizer</b> in each tab. When they finish, paste the report links below.</span></div>
+    </div>
+    ${officerKey ? `<details class="setup-edit"${setupMsg ? ' open' : ''}><summary>Change the ${esc(SIM_KINDS[kind])} setup link</summary>
+      <p class="hint" style="margin:6px 0">On Raidbots, set the Droptimizer up the way the guild should run it (sources, difficulty, upgrade level, fight style), click <b>Share Setup</b>, and paste that link here.
+        It replaces the link on the sheet's Settings tab${setup ? ` (now <a href="${esc(setup)}" target="_blank" rel="noopener">${esc(setup.replace(/.*share\//, ''))}</a>)` : ''}.</p>
+      <form class="sim-form" id="setup-form" data-kind="${kind}"><input id="setup-url" placeholder="https://www.raidbots.com/simbot/share/..." required><button type="submit" class="toggle-btn" id="setup-go">Save setup</button></form>
+      <div class="hint" id="setup-msg" style="margin-top:6px">${esc(setupMsg)}</div></details>` : ''}
+    <table class="logs-table sim-status"><thead><tr><th>Raider</th><th>Spec</th><th>Raidbots</th><th>Last imported</th><th>Best upgrade</th><th>Upgrades</th></tr></thead><tbody>${team.map(statusRow).join('') || '<tr><td colspan="6" class="none">Nobody ready to sim.</td></tr>'}</tbody></table>
+    ${notReady.length ? `<div class="sec-title" style="margin-top:14px"><span>Not in correct gear or spec</span><span class="hint">left out of Open all &middot; spec and gear update when they log in and the page refreshes</span></div>
+      <table class="logs-table sim-status"><tbody>${notReady.map(x => `<tr class="notready"><td>${nameHtml(x.c)}</td><td><span class="pill warn">${esc(x.why)}</span></td>
+        <td>${x.c.cls ? `<a class="hint" href="${rbUrl('droptimizer', x.c)}" target="_blank" rel="noopener">Droptimizer anyway</a>` : ''}</td><td>${dateHtml(simOf(x.c, kind))}</td></tr>`).join('')}</tbody></table>` : ''}`;
+}
+
 function uploadHtml() {
+  $('upload-kinds').innerHTML = Object.keys(SIM_KINDS).map(k => `<button type="button" class="sim-tab${uploadKind === k ? ' on' : ''}" data-uploadkind="${k}"><span>${SIM_KINDS[k]} <span class="st-src">(Raidbots)</span></span>
+    <span class="hint">${readyToons().filter(c => simOf(c, k) && ageDays(simOf(c, k).date) <= STALE_DAYS).length}/${readyToons().length} current</span></button>`).join('');
+  runPanel(uploadKind);
   // Import (officers): the kind is worked out from the report's settings
   $('sim-import').innerHTML = `<div class="card-head"><h2>Import reports</h2><span class="hint">${officerKey ? 'officer mode' : 'officers: click the lock button to import'}</span></div>
     ${officerKey ? `<form class="sim-form" id="sim-form"><textarea id="sim-url" rows="3" placeholder="Paste one or more Raidbots report links (one per line)" required></textarea>
       <select id="sim-kindsel"><option value="auto" selected>Auto-detect (matches the guild setups)</option>${Object.keys(SIM_KINDS).map(k => `<option value="${k}">Import as ${SIM_KINDS[k]}</option>`).join('')}</select>
       <button type="submit" class="toggle-btn" id="sim-go">Import</button></form><div class="hint" id="sim-msg" style="margin-top:6px;white-space:pre-line">${esc(simMsg)}</div>`
       : '<p class="hint">Reports are imported by an officer: paste the finished report links and the page works out the raider and which setup was run.</p>'}`;
-  const rows = raidPlayers().map(p => ({ p, c: picked(p) })).filter(x => !isHealerP(x.p, x.c));
-  $('upload-status').innerHTML = `<table class="logs-table sim-status"><thead><tr><th>Raider</th><th>Spec</th><th>${esc(SIM_KINDS.drops)}</th><th>${esc(SIM_KINDS.bonus)}</th><th>Raidbots</th></tr></thead><tbody>${
-    rows.map(({ c }) => `<tr><td>${nameHtml(c)}</td><td class="hint">${esc(c.spec || '')}</td><td>${dateHtml(simOf(c, 'drops'))}</td><td>${dateHtml(simOf(c, 'bonus'))}</td>
-      <td><a href="${rbUrl('droptimizer', c)}" target="_blank" rel="noopener">Droptimizer</a></td></tr>`).join('')}</tbody></table>`;
 }
 
 /* ------------------------------------------------------------------ Great Vault (public) */
@@ -1083,6 +1092,8 @@ document.addEventListener('click', e => {
   if (dt && !e.target.closest('a')) { const k = dt.dataset.droptoggle; dropOpen.has(k) ? dropOpen.delete(k) : dropOpen.add(k); render(); return; }
   const sv = e.target.closest('[data-simview]');
   if (sv) { simView = sv.dataset.simview; save('apoSimView', simView); render(); return; }
+  const uk = e.target.closest('[data-uploadkind]');
+  if (uk) { setupMsg = ''; uploadKind = uk.dataset.uploadkind; save('apoUploadKind', uploadKind); render(); return; }
   const sk = e.target.closest('[data-simkind]');
   if (sk) { setupMsg = ''; simKind = sk.dataset.simkind; save('apoSimKind', simKind); render(); return; }
   const sd = e.target.closest('[data-simdel]');
