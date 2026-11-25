@@ -215,3 +215,4 @@ p .tal-cell { font-weight: 700; }
 .player-tile .bt-title { min-width: 0; } .player-tile .bt-title .lb-name, .player-tile .bt-title small { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .pt-gold { font-size: 12px; white-space: nowrap; align-self: center; }
 .player-tile .pt-crests.pt-none { visibility: hidden; }
+.tal-mt small { display: block; font-weight: 400; color: var(--muted-2, #999); font-size: 11px; }

@@ -709,6 +709,12 @@ function weekTogether(t) {
 let talBoss = store('apoTalBoss', '');
 const SEC_ORDER = { Tanks: 0, Healers: 1, Melee: 2, Ranged: 3 };
 const talKey = c => (c.name + '-' + c.realm).toLowerCase();
+// Match % = share of the top players' core talents (taken by 70%+ of them) the raider has; flexible picks never count
+const TAL_OK = 90, TAL_NEAR = 75;
+const talCls = s => !s ? '' : !s.hero ? 'hero' : s.pct == null ? '' : s.pct >= TAL_OK ? 'ok' : s.pct >= TAL_NEAR ? 'near' : 'off';
+const talTip = (s, sp, b) => { if (!s) return 'No data'; const x = sp.bosses[b] || {};
+  return [`Has ${s.pct}% of the core talents (taken by 70%+ of the top ${s.n} US players)`, `Same build as ${s.match} of them (3 or fewer talents different)`,
+    !s.hero ? `Hero tree: top players use ${x.heroName || 'another tree'}` : '', s.miss.length ? 'Missing: ' + s.miss.join(', ') : '', s.extra.length ? 'Rarely taken: ' + s.extra.join(', ') : ''].filter(Boolean).join('<br>'); };
 const nList = (a, n) => a.length <= n ? a.map(esc).join(', ') : a.slice(0, n).map(esc).join(', ') + ` <span class="hint">+${a.length - n} more</span>`;
 function talentsHtml() {
   const T = STATE.talents || { specs: [], checks: {} }, info = T.info;
@@ -740,9 +746,8 @@ function talentsHtml() {
     const rows = groups.flatMap(({ sp, who }) => who.map(({ c }) => ({ sp, c })));
     const cell = (s, sp, b) => {
       if (!s) return `<td class="tal-cell">-</td>`;
-      const tip = esc(`Same build as ${s.match} of the top ${s.n} US players (same hero tree, 2 talents or fewer different)` + (tipOf(s, sp, b) !== 'Matches' ? '<br>' + tipOf(s, sp, b) : ''));
-      const cls = !s.hero ? 'hero' : s.match >= 3 ? 'ok' : s.match >= 1 ? 'near' : 'off';
-      const txt = !s.hero ? 'H' : s.match >= 3 ? '&#10003; ' + s.match : s.match >= 1 ? s.match : '&#10007;';
+      const tip = esc(talTip(s, sp, b));
+      const cls = talCls(s), txt = !s.hero ? 'H' : s.pct == null ? '-' : (s.pct >= TAL_OK ? '&#10003; ' : '') + s.pct + '%';
       return `<td class="tal-cell ${cls}" data-tip="${tip}">${txt}</td>`;
     };
     body = `<div class="card"><div class="table-wrap"><table class="logs-table tal-table"><thead><tr><th>Raider</th><th>Spec</th><th>Hero tree</th>${bosses.map(b =>
@@ -750,17 +755,17 @@ function talentsHtml() {
         const heroes = [...new Set(bosses.map(b => sp.bosses[b] && sp.bosses[b].heroName).filter(Boolean))];
         const heroOk = !heroes.length || heroes.includes(c.tal.heroName);
         return `<tr><td>${nameHtml(c)}</td><td class="hint">${esc(sp.spec)}</td><td class="${heroOk ? 'hint' : 'tal-herobad'}"${heroOk ? '' : ` data-tip="Top players use ${esc(heroes.join(' / '))}"`}>${esc(c.tal.heroName || '?')}</td>${bosses.map(b => cell(statusOf(c, b), sp, b)).join('')}</tr>`; }).join('')}</tbody></table></div>
-      <p class="hint" style="margin:8px 0 0"><span class="tal-cell ok">&#10003; 5</span> same build as 5 of the top 15 US players (3 or more) &middot; <span class="tal-cell near">2</span> matches 1-2 &middot;
-        <span class="tal-cell off">&#10007;</span> matches none &middot; <span class="tal-cell hero">H</span> different hero tree &middot; hover a cell for missing / extra talents, click a boss for its top build to copy</p></div>`;
+      <p class="hint" style="margin:8px 0 0">% = share of the core talents (taken by 70%+ of the top 15 US players) the raider has; situational talents some top players take never count.
+        <span class="tal-cell ok">&#10003; 90%+</span> &middot; <span class="tal-cell near">75-89%</span> &middot; <span class="tal-cell off">under 75%</span> &middot; <span class="tal-cell hero">H</span> different hero tree &middot; hover a cell for details, click a boss for its top build to copy</p></div>`;
   } else {
     const b = talBoss;
     body = groups.filter(g => g.sp.bosses[b]).map(({ sp, who }) => {
       const x = sp.bosses[b], r = x.ref;
       const rows = who.map(({ c }) => { const s = statusOf(c, b), n = diffs(s);
-        const mt = s ? `<span class="tal-mt ${!s.hero ? 'hero' : s.match >= 3 ? 'ok' : s.match >= 1 ? 'near' : 'off'}">same as ${s.match}/${s.n}</span>` : '';
+        const mt = s ? `<span class="tal-mt ${talCls(s)}" data-tip="${esc(talTip(s, sp, b))}">${s.pct == null ? '-' : s.pct + '% core'}<small>same as ${s.match}/${s.n}</small></span>` : '';
         const what = !s ? '<span class="hint">no data</span>' : n === 0 ? '<span class="pill tal-ok">&#10003; Matches the usual build</span>' :
           [!s.hero ? `<span class="pill tal-hero">Hero tree: ${esc(c.tal.heroName || '?')}, top use ${esc(x.heroName || '?')}</span>` : '',
-           s.miss.length ? `<div><b class="tal-miss">Missing:</b> ${nList(s.miss, 8)}</div>` : '', s.extra.length ? `<div><b class="tal-extra">Extra:</b> ${nList(s.extra, 8)}</div>` : ''].join('');
+           s.miss.length ? `<div><b class="tal-miss">Missing:</b> ${nList(s.miss, 8)}</div>` : '', s.extra.length ? `<div><b class="tal-extra">Rarely taken:</b> ${nList(s.extra, 8)}</div>` : ''].join('');
         return `<div class="tal-row"><span class="tn">${nameHtml(c)}</span>${mt}<span class="tw">${what}</span></div>`; }).join('');
       return `<div class="card"><div class="card-head"><h2>${classIcon(sp.cls, 'sm')} <span style="color:${classHex(sp.cls)}">${esc(sp.spec)} ${esc(sp.cls)}</span></h2>
         <span class="hint">top ${x.n} US on ${esc(b)} &middot; hero tree ${esc(x.heroName || '?')} (${x.heroPct}%)</span></div>
