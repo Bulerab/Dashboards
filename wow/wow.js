@@ -220,13 +220,16 @@ let STATE = null, LIVE = false, WHEN = '';
 let todoFilter = 'Open';
 const isMainSpec = (c, spec) => (c.main || []).some(m => String(spec).startsWith(m));
 
+let BIS_ROWS = 0;   // most BiS bars on any tile in the section being drawn; shorter stacks get invisible padding
 function bisBlock(c) {
-  return (c.bis || []).map(parseBis).filter(Boolean).map(b => {
+  const bars = (c.bis || []).map(parseBis).filter(Boolean);
+  const pad = Math.max(0, BIS_ROWS - bars.length);
+  return bars.map(b => {
     const pct = b.total ? Math.round(b.have / b.total * 100) : 0;
     return `<div class="bis" data-tip="<b>${esc(b.spec)}</b><br>${b.have} of ${b.total} BiS items (${pct}%)">
       <div class="bis-label"><span>${esc(b.spec)} BiS${isMainSpec(c, b.spec) ? '<span class="star" title="Main spec">&#9733;</span>' : ''}</span><span>${b.have} / ${b.total}</span></div>
       <div class="meter"><div style="width:${pct}%"></div></div></div>`;
-  }).join('');
+  }).join('') + Array(pad).fill('<div class="bis" aria-hidden="true" style="visibility:hidden"><div class="bis-label"><span>-</span><span>-</span></div><div class="meter"><div></div></div></div>').join('');
 }
 
 /* Gear upgrade tracks and their colors (Veteran green, Champion blue, Hero purple, Myth orange) */
@@ -453,6 +456,7 @@ function miniCard(c) {
 }
 
 function sectionHtml(list, key) {
+  BIS_ROWS = Math.max(0, ...list.map(c => (c.bis || []).map(parseBis).filter(Boolean).length));
   const open = list.find(c => openCard[key] === c.name && !c.error);
   if (!open) return { cls: '', html: list.map(charCard).join('') };
   return { cls: 'has-open', html: charCard(open) + list.filter(c => c !== open).map(c => c.error ? charCard(c) : miniCard(c)).join('') };
