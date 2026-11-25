@@ -197,7 +197,7 @@ function srcKind(src) {
   if (/^trash/i.test(t)) return { kind: 'boss', key: TRASH, raid: (t.match(/\(([^)]+)\)/) || [])[1] || '' };
   let m = t.match(/^crafted\s*\(([^)]+)\)/i);
   if (m) return { kind: 'craft', key: m[1] };
-  m = t.match(/^(.*?)\s*\(([^,()]+),\s*mythic\+\)/i);
+  m = t.match(/^(.*?)\s*\(([^,()]+),\s*mythic\+\)/i);   // "Boss (Dungeon, Mythic+)" or "(Dungeon, Mythic+)"
   if (m) return { kind: 'mplus', key: m[2], sub: m[1] };
   if (/tier/i.test(t)) return { kind: 'other', key: 'Tier set' };
   return { kind: 'other', key: t || 'Unknown source' };
@@ -215,6 +215,15 @@ function raidMap() {
   raidMapFor = STATE; raidMapCache = m; return m;
 }
 const raidOf = b => raidMap()[b] || ((STATE.zones || []).find(z => (z.bosses || []).includes(b)) || {}).name || '';
+const isRaidBoss = n => !!(n && (bossList().includes(bossOfSrc(n) || n) || raidMap()[n]));
+const isTrashName = n => /^trash/i.test(String(n || ''));
+// The big raid (most bosses): where Raidbots' unnamed "Trash Drop" items come from
+const mainRaid = () => { const m = raidMap(), c = {}; Object.values(m).forEach(r => { c[r] = (c[r] || 0) + 1; });
+  return Object.keys(c).sort((a, b) => c[b] - c[a])[0] || ((STATE.zones || [])[0] || {}).name || ''; };
+// Raidbots / sheet name -> what it means: a raid boss, raid trash, or a dungeon (bonus roll sims include Mythic+)
+const simWhere = n => isTrashName(n) ? 'Trash drop (' + mainRaid() + ')' : isRaidBoss(n) ? (bossOfSrc(n) || n) : n ? '(' + n + ', Mythic+)' : 'Other';
+const artOf = n => (STATE.art || {})[n] || '';
+const artStyle = n => artOf(n) ? ` style="--art:url('${esc(artOf(n))}')"` : '';
 // Raids in order: smaller raids (single-boss) first, then by name
 const raidSize = r => { const m = raidMap(); return Object.keys(m).filter(b => m[b] === r).length || ((STATE.zones || []).find(z => z.name === r) || { bosses: [] }).bosses.length || 99; };
 const raidOrder = (a, b) => raidSize(a) - raidSize(b) || a.localeCompare(b);
@@ -246,6 +255,8 @@ function priorityHtml() {
 
 /* ------------------------------------------------------------------ Loot Targets tab: BiS + Raidbots + manual entries in one list */
 let lootView = store('apoLootView', 'boss');
+const GOLD_PCT = 1;
+const lootOpen = new Set(store('apoLootOpen', []));
 const SRC_TAG = { bis: 'BiS', sim: 'Sim', bonus: 'Bonus', wish: 'Wish' };
 function lootWants() {
   const out = [], skipped = [];
@@ -265,9 +276,11 @@ function lootWants() {
     };
     if (!isHealerP(p, c)) ((c.bis && c.bis.need) || []).forEach(n => add(n.item, slotName(n.slot), n.source, 'bis'));
     [['drops', 'sim'], ['bonus', 'bonus']].forEach(([kind, src]) => { const sim = simOf(c, kind);
-      if (sim) sim.rows.filter(r => r.pct > 0).forEach(r => add(r.item, slotLabel(r.slot), bossOfSrc(r.boss) || r.boss, src, r.pct)); });
-    wishOf(c).filter(w => !w.have).forEach(w => add(w.item, w.slot, w.boss || 'Other', 'wish', 0, w.note || true));
-    Object.values(by).forEach(w => { w.n = Object.keys(w.src).length; w.strong = w.n >= 2; w.best = Math.max(w.pct, w.bonusPct); out.push(w); });
+      if (sim) sim.rows.filter(r => r.pct > 0).forEach(r => add(r.item, slotLabel(r.slot), simWhere(r.boss), src, r.pct)); });
+    wishOf(c).filter(w => !w.have).forEach(w => add(w.item, w.slot, w.boss ? (/^trash/i.test(w.boss) ? 'Trash drop (' + mainRaid() + ')' : w.boss) : 'Other', 'wish', 0, w.note || true));
+    // Gold = worth chasing on our Heroic kills: a Heroic sim upgrade of 1%+, or an officer's manual entry.
+    // (BiS lists are Mythic gear and bonus rolls are personal loot, so neither makes an item gold.)
+    Object.values(by).forEach(w => { w.n = Object.keys(w.src).length; w.strong = !!w.src.wish || (!!w.src.sim && w.pct >= GOLD_PCT); w.best = Math.max(w.pct, w.bonusPct); out.push(w); });
   });
   return { wants: out, skipped };
 }
@@ -278,7 +291,7 @@ const wantChip = (w, showWho) => `<span class="want${w.strong ? ' strong' : ''}"
 function bonusTargets(list) {
   const by = {};
   list.filter(w => w.boss && w.boss !== TRASH).forEach(w => { const x = by[w.boss] = by[w.boss] || { boss: w.boss, best: 0, top: null, n: 0, items: 0 };
-    x.items++; x.n += w.n; if (w.best > x.best) { x.best = w.best; x.top = w; } });
+    x.items++; x.n += 1; if (w.best > x.best) { x.best = w.best; x.top = w; } });
   return Object.values(by).sort((a, b) => b.best - a.best || b.n - a.n || bossIdx(a.boss) - bossIdx(b.boss)).slice(0, 2)
     .map(x => ({ boss: x.boss, why: x.top ? `${x.top.item} +${x.best.toFixed(1)}%` : `${x.items} wanted item${x.items === 1 ? '' : 's'}` }));
 }
@@ -308,26 +321,37 @@ function lootTiles(wants) {
 function lootHtml() {
   const { wants, skipped } = lootWants();
   const players = [...new Set(wants.map(w => w.c))];
-  $('loot-hint').textContent = `${players.length} raiders · ${wants.length} wanted items · ${wants.filter(w => w.strong).length} gold`;
+  $('loot-hint').textContent = `${players.length} raiders · ${wants.length} wanted items (one per item per raider) · ${wants.filter(w => w.strong).length} gold`;
   $('loot-view').innerHTML = [['boss', 'By Boss'], ['player', 'By Player'], ['other', 'Crafting, Mythic+ & other']].map(([k, l]) => `<button type="button" class="chip${lootView === k ? ' on' : ''}" data-lootview="${k}">${l}</button>`).join('');
   const skippedHtml = skipped.length ? `<p class="hint" style="margin:10px 0 0">Not counted, in PvP gear: ${skipped.map(c => nameHtml(c)).join(' &middot; ')}</p>` : '';
   let body = '';
   const targets = new Map(players.map(c => [c, bonusTargets(wants.filter(w => w.c === c))]));
+  // One tile per boss (or dungeon): counts at a glance, click to list who needs what
+  const tileOf = (key, title, sub, ws, rank) => {
+    const who = [...new Set(ws.map(w => w.c))], strong = ws.filter(w => w.strong).length, pct = ws.reduce((a, w) => a + w.pct, 0);
+    const rollers = players.filter(c => targets.get(c).some(t => t.boss === title));
+    const open = lootOpen.has(key);
+    return `<div class="boss-tile${open ? ' open' : ''}${artOf(title) || artOf(sub) ? ' has-art' : ''}"${artStyle(artOf(title) ? title : sub)}>
+      <div class="bt-top" data-loottile="${esc(key)}">${rank ? `<span class="lb-rank">${rank}</span>` : ''}<div class="bt-title"><span class="lb-name">${esc(title)}</span>${sub ? `<small>${esc(sub)}</small>` : ''}</div><span class="dc-caret">${open ? '&#9652;' : '&#9662;'}</span></div>
+      <div class="bt-stats" data-loottile="${esc(key)}"><span><b>${who.length}</b> raider${who.length === 1 ? '' : 's'}</span><span><b>${ws.length}</b> item${ws.length === 1 ? '' : 's'}</span>${strong ? `<span class="strong-lbl">${strong} gold</span>` : ''}${pct ? `<span class="up">+${pct.toFixed(1)}% heroic sim</span>` : ''}${rollers.length ? `<span class="br-count" data-tip="Bonus roll suggestion for ${esc(rollers.map(c => c.name).join(', '))}">&#9733; ${rollers.length}</span>` : ''}</div>
+      ${open ? `${rollers.length ? `<div class="lb-roll">&#9733; Bonus roll: ${rollers.map(c => nameHtml(c)).join(' ')}</div>` : ''}<div class="lb-wants">${ws.sort((a, b) => b.strong - a.strong || b.best - a.best || a.c.name.localeCompare(b.c.name)).map(w => wantChip(w, true)).join('')}</div>` : ''}</div>`;
+  };
+  const rank = list => list.map(b => ({ b, ws: wants.filter(w => w.boss === b.k && (w.raid || 'Other') === b.raid) }))
+    .map(x => Object.assign(x, { who: new Set(x.ws.map(w => w.c)).size, strong: x.ws.filter(w => w.strong).length, pct: x.ws.reduce((a, w) => a + w.pct, 0) }))
+    .sort((x, y) => y.who - x.who || y.strong - x.strong || y.pct - x.pct || bossIdx(x.b.k) - bossIdx(y.b.k));
   if (lootView === 'boss') {
-    const raids = [...new Set(wants.filter(w => w.boss).map(w => w.raid || 'Other'))]
-      .sort(raidOrder);
-    body = raids.map(raid => {
-      const bosses = [...new Set(wants.filter(w => w.boss && (w.raid || 'Other') === raid).map(w => w.boss))].map(b => {
-        const ws = wants.filter(w => w.boss === b && (w.raid || 'Other') === raid), who = [...new Set(ws.map(w => w.c))];
-        return { b, ws, who, strong: ws.filter(w => w.strong).length, pct: ws.reduce((a, w) => a + w.pct, 0) };
-      }).sort((x, y) => y.who.length - x.who.length || y.strong - x.strong || y.pct - x.pct || bossIdx(x.b) - bossIdx(y.b));
-      const raiders = new Set(wants.filter(w => (w.raid || 'Other') === raid).map(w => w.c)).size;
-      return `<div class="card loot-raid"><div class="card-head"><h2>${esc(raid)}</h2><span class="hint">${raiders} raider${raiders === 1 ? '' : 's'} want${raiders === 1 ? 's' : ''} something &middot; bosses ranked by raiders, then gold items, then total sim gain</span></div>
-      ${bosses.map((r, i) => { const rollers = players.filter(c => targets.get(c).some(t => t.boss === r.b));
-        return `<div class="loot-boss"><div class="lb-head"><span class="lb-rank">${i + 1}</span><span class="lb-name">${esc(r.b)}</span>
-        <span class="lb-stats"><span><b>${r.who.length}</b> raider${r.who.length === 1 ? '' : 's'}</span><span><b>${r.ws.length}</b> item${r.ws.length === 1 ? '' : 's'}</span>${r.strong ? `<span class="strong-lbl">${r.strong} gold</span>` : ''}${r.pct ? `<span class="up">+${r.pct.toFixed(1)}% sim</span>` : ''}</span>
-        ${rollers.length ? `<span class="lb-roll" data-tip="Raiders whose bonus roll suggestion is this boss">&#9733; Bonus roll: ${rollers.map(c => nameHtml(c)).join(' ')}</span>` : ''}</div>
-        <div class="lb-wants">${r.ws.sort((a, b) => b.strong - a.strong || b.n - a.n || b.best - a.best).map(w => wantChip(w, true)).join('')}</div></div>`; }).join('')}</div>`;
+    const raids = [...new Set(wants.filter(w => w.boss).map(w => w.raid || 'Other'))].sort(raidOrder);
+    // Single-boss raids share one card (each tile names its raid); bigger raids get their own card
+    const bossesIn = r => [...new Set(wants.filter(w => w.boss && (w.raid || 'Other') === r).map(w => w.boss))];
+    const small = raids.filter(r => bossesIn(r).length === 1 && r !== 'Other');
+    const smallCard = small.length ? (() => { const list = rank(small.map(r => ({ k: bossesIn(r)[0], raid: r })));
+      return `<div class="card loot-raid"><div class="card-head"><h2>${small.map(esc).join(' &middot; ')}</h2><span class="hint">single-boss raids &middot; click a boss for who needs what</span></div>
+        <div class="boss-grid">${list.map((x, i) => tileOf('b|' + x.b.raid + '|' + x.b.k, x.b.k, x.b.raid, x.ws, i + 1)).join('')}</div></div>`; })() : '';
+    body = smallCard + raids.filter(r => !small.includes(r)).map(raid => {
+      const list = rank([...new Set(wants.filter(w => w.boss && (w.raid || 'Other') === raid).map(w => w.boss))].map(k => ({ k, raid })));
+      const raiders = new Set(wants.filter(w => w.boss && (w.raid || 'Other') === raid).map(w => w.c)).size;
+      return `<div class="card loot-raid"><div class="card-head"><h2>${esc(raid)}</h2><span class="hint">${raiders} raider${raiders === 1 ? '' : 's'} want${raiders === 1 ? 's' : ''} something &middot; ranked by raiders, then gold items, then Heroic sim gain &middot; click a boss for who needs what</span></div>
+        <div class="boss-grid">${list.map((x, i) => tileOf('b|' + raid + '|' + x.b.k, x.b.k === TRASH ? 'Trash drops' : x.b.k, x.b.k === TRASH ? raid : '', x.ws, i + 1)).join('')}</div></div>`;
     }).join('') || '<div class="card"><p class="empty">Nothing wanted from the raid yet.</p></div>';
     body += skippedHtml ? `<div class="card">${skippedHtml}</div>` : '';
   } else if (lootView === 'player') {
@@ -340,12 +364,16 @@ function lootHtml() {
         ${Object.keys(groups).sort((a, b) => gOrder(a) - gOrder(b) || a.localeCompare(b)).map(g => `<div class="lp-group"><div class="lp-boss">${esc(g)}${ts.findIndex(t => t.boss === g) >= 0 ? ' ' + starHtml(ts.findIndex(t => t.boss === g), ts.find(t => t.boss === g)) : ''}</div>${groups[g].map(w => wantChip(w, false)).join('')}</div>`).join('')}</div>`;
     }).join('') || '<p class="empty">Nothing wanted yet.</p>'}</div>${skippedHtml}`;
   } else {
-    const kinds = [['craft', 'Crafting'], ['mplus', 'Mythic+'], ['other', 'Tier & other']];
-    body = kinds.map(([k, l]) => { const ws = wants.filter(w => w.kind === k || (k === 'other' && !w.kind));
-      const groups = {}; ws.forEach(w => { const g = k === 'mplus' ? w.where.replace(/^.*\((.*)\)$/, '$1') : w.where || 'Other'; (groups[g] = groups[g] || []).push(w); });
-      return `<div class="card"><div class="card-head"><h2>${l}</h2><span class="hint">${ws.length} item${ws.length === 1 ? '' : 's'}</span></div>
-        ${Object.keys(groups).sort().map(g => `<div class="loot-boss"><div class="lb-head"><b>${esc(g)}</b><span class="hint">${(n => n + ' raider' + (n === 1 ? '' : 's'))([...new Set(groups[g].map(w => w.c))].length)}</span></div>
-          <div class="lb-wants">${groups[g].map(w => wantChip(w, true)).join('')}</div></div>`).join('') || '<p class="empty">Nothing here.</p>'}</div>`; }).join('');
+    const dung = {}; wants.filter(w => w.kind === 'mplus').forEach(w => { const d = w.where.replace(/^.*\((.*)\)$/, '$1'); (dung[d] = dung[d] || []).push(w); });
+    const dList = Object.keys(dung).sort((a, b) => new Set(dung[b].map(w => w.c)).size - new Set(dung[a].map(w => w.c)).size || dung[b].length - dung[a].length);
+    const listCard = (title, ws, groupOf) => { const groups = {}; ws.forEach(w => { const g = groupOf(w); (groups[g] = groups[g] || []).push(w); });
+      return `<div class="card"><div class="card-head"><h2>${title}</h2><span class="hint">${ws.length} item${ws.length === 1 ? '' : 's'}</span></div>
+        ${Object.keys(groups).sort().map(g => `<div class="loot-boss"><div class="lb-head"><span class="lb-name">${esc(g)}</span><span class="lb-stats"><span><b>${new Set(groups[g].map(w => w.c)).size}</b> raider${new Set(groups[g].map(w => w.c)).size === 1 ? '' : 's'}</span></span></div>
+          <div class="lb-wants">${groups[g].map(w => wantChip(w, true)).join('')}</div></div>`).join('') || '<p class="empty">Nothing here.</p>'}</div>`; };
+    body = `<div class="card"><div class="card-head"><h2>Mythic+ dungeons</h2><span class="hint">from BiS lists and the Bonus rolls &amp; vault sim &middot; click a dungeon for who needs what</span></div>
+        <div class="boss-grid">${dList.map(d => tileOf('d|' + d, d, 'Mythic+', dung[d], 0)).join('') || '<p class="empty">Nothing needed from Mythic+.</p>'}</div></div>` +
+      listCard('Crafting', wants.filter(w => w.kind === 'craft'), w => w.where || 'Other') +
+      listCard('Tier &amp; other', wants.filter(w => w.kind === 'other' || (!w.kind && !w.boss)), w => w.where || 'Other');
   }
   $('loot-tiles').innerHTML = lootTiles(wants);
   $('loot-body').innerHTML = body;
@@ -443,16 +471,19 @@ function simsHtml() {
   const byBoss = {};
   team.forEach(c => { const sim = simOf(c, simKind); if (!sim) return;
     const bestPer = {};
-    sim.rows.filter(r => r.pct > 0 && r.boss).forEach(r => { if (!bestPer[r.boss] || r.pct > bestPer[r.boss].pct) bestPer[r.boss] = r; });
+    sim.rows.filter(r => r.pct > 0 && r.boss).forEach(r => { const b = isTrashName(r.boss) ? TRASH : r.boss; if (!bestPer[b] || r.pct > bestPer[b].pct) bestPer[b] = r; });
     Object.keys(bestPer).forEach(b => { (byBoss[b] = byBoss[b] || []).push({ c, r: bestPer[b] }); });
   });
   const bars = Object.keys(byBoss).map(b => ({ b, who: byBoss[b].sort((x, y) => y.r.pct - x.r.pct), total: byBoss[b].reduce((a, x) => a + x.r.pct, 0) })).sort((a, b) => b.total - a.total);
-  const max = bars.length ? bars[0].total : 1;
   const simmed = team.filter(c => simOf(c, simKind)).length;
   $('sim-chart-hint').textContent = `${SIM_KINDS[simKind]} · ${simmed} of ${team.length} raiders · each bar = total % DPS the raid gains from that boss's best upgrades`;
-  $('sim-chart').innerHTML = bars.length ? `<div class="bars">${bars.map(x => `<div class="bar-row"><span class="bl">${esc(x.b)}</span>
+  const barList = list => { const max = list.length ? list[0].total : 1;
+    return `<div class="bars">${list.map(x => `<div class="bar-row"><span class="bl">${esc(x.b)}</span>
       <div class="bt"><div class="bf" style="width:${(x.total / max * 100).toFixed(1)}%"></div><span class="bv">+${x.total.toFixed(2)}%</span></div>
-      <span class="bw">${x.who.map(w => `<span data-tip="${esc(w.r.item)}: ${pctTxt(w.r.pct)}">${nameHtml(w.c)} <span class="hint">${pctTxt(w.r.pct)}</span></span>`).join(' ')}</span></div>`).join('')}</div>`
+      <span class="bw">${x.who.map(w => `<span data-tip="${esc(w.r.item)}: ${pctTxt(w.r.pct)}">${nameHtml(w.c)} <span class="hint">${pctTxt(w.r.pct)}</span></span>`).join(' ')}</span></div>`).join('')}</div>`; };
+  const raidBars = bars.filter(x => x.b === TRASH || isRaidBoss(x.b)), dungBars = bars.filter(x => !(x.b === TRASH || isRaidBoss(x.b)));
+  $('sim-chart').innerHTML = bars.length ? (raidBars.length ? `<div class="sec-title"><span>Raid bosses</span></div>${barList(raidBars)}` : '') +
+      (dungBars.length ? `<div class="sec-title" style="margin-top:14px"><span>Dungeons (Mythic+)</span><span class="hint">from the bonus roll &amp; vault sim</span></div>${barList(dungBars)}` : '')
     : `<p class="empty">${simmed ? 'No upgrades in the imported reports.' : 'Import Droptimizer reports to fill this chart.'}</p>`;
   // Import (officers): the kind is worked out from the report's settings
   $('sim-import').style.display = '';
@@ -762,6 +793,8 @@ document.addEventListener('click', e => {
   if (wd) { e.preventDefault(); const [name, realm, item, kind] = wd.dataset.wishdel.split('|');
     if (!confirm('Remove ' + item + ' from ' + name + "'s wishlist?")) return;
     officerPost({ action: 'wishDelete', name, realm, item, kind }).then(() => load()).catch(err => alert(err.message)); return; }
+  const lt = e.target.closest('[data-loottile]');
+  if (lt && !e.target.closest('a')) { const k = lt.dataset.loottile; lootOpen.has(k) ? lootOpen.delete(k) : lootOpen.add(k); save('apoLootOpen', [...lootOpen]); render(); return; }
   const lv = e.target.closest('[data-lootview]');
   if (lv) { lootView = lv.dataset.lootview; save('apoLootView', lootView); render(); return; }
   const tb2 = e.target.closest('[data-talboss]');
