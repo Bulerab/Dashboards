@@ -42,3 +42,8 @@ a { color: #58a6ff; }
 .pop { position: fixed; top: 6vh; left: 50%; transform: translateX(-50%); width: min(900px, 94vw); max-height: 86vh; overflow-y: auto; background: #1c1c1c; border: 1px solid #3a3a3a; border-radius: 10px; padding: 16px 20px; z-index: 51; box-shadow: 0 10px 40px rgba(0,0,0,.6); }
 .pop-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; }
 @media (max-width: 700px) { .pop-grid { grid-template-columns: 1fr; } }
+
+.rb-links { display: flex; gap: 8px; margin-top: 8px; }
+.rb-btn { display: inline-flex; align-items: center; gap: 6px; font-size: 12px; font-weight: 600; color: #ddd; background: #2a2a2a; border: 1px solid #444; border-radius: 6px; padding: 3px 10px; text-decoration: none; }
+.rb-btn:hover { border-color: #3987e5; color: #fff; }
+.rb-btn img { width: 14px; height: 14px; }

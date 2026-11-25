@@ -118,6 +118,11 @@ function bisNeedByBoss(c) {
   return by;
 }
 
+/* Raidbots opens with the character loaded from the Armory: /simbot/quick or /simbot/droptimizer ?region=&realm=&name= */
+const rbUrl = (mode, c) => `https://www.raidbots.com/simbot/${mode}?region=us&realm=${encodeURIComponent(c.realm || 'eldrethalas')}&name=${encodeURIComponent(c.name)}`;
+const rbLinks = c => `<div class="rb-links"><a class="rb-btn" href="${rbUrl('droptimizer', c)}" target="_blank" rel="noopener" data-tip="Raidbots Droptimizer for ${esc(c.name)}: pick the raid or dungeon, it sims every drop">${fav('raidbots.com', 'RB')} Droptimizer</a>
+  <a class="rb-btn" href="${rbUrl('quick', c)}" target="_blank" rel="noopener" data-tip="Raidbots Quick Sim of ${esc(c.name)}'s current gear">${fav('raidbots.com', 'RB')} Quick Sim</a></div>`;
+
 function offBadges(p) {
   const offs = offspecsOf(p);
   return offs.length ? `<div class="offspecs"><span class="ol">Offspecs</span>${offs.map(o => `<span class="ob" data-tip="${esc((o.alt ? o.toon.name + ': ' : '') + (o.spec ? o.spec + ' ' : '') + o.role)}">${roleIcon(o.role)}${o.alt ? esc(o.toon.name) + ' ' : ''}${esc(o.spec || o.role)}</span>`).join('')}</div>` : '';
@@ -152,7 +157,7 @@ function playerTile(p, key) {
         <div class="mini"><div class="k">Bosses logged</div><div class="v">${L ? L.bosses.length : '-'}</div></div>
         <div class="mini"><div class="k">BiS needed</div><div class="v">${inPvp(c) ? 'PvP' : c.bis ? c.bis.need.length : '-'}</div></div>
       </div>
-      <div class="ench-summary" style="margin-top:8px">${pills}</div>${offBadges(p)}${pick}
+      <div class="ench-summary" style="margin-top:8px">${pills}</div>${offBadges(p)}${rbLinks(c)}${pick}
     </div>
     <div class="pvp-more"><div class="pvp-more-grid" style="grid-template-columns:1fr 1fr">
       <div><div class="sec"><div class="sec-title"><span>Warcraft Logs &middot; ${esc((L && L.difficulty) || '')} raid</span><span class="hint">overall %</span></div>${logsTable}</div></div>
