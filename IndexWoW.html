@@ -1213,7 +1213,7 @@ function render(state, live, when) {
   $('mplus').innerHTML = pve.slice().sort(byOrder(MPLUS_ORDER)).map(c => {
     const runs = (c.mplusRuns || []).slice().sort((a, b) => b.score - a.score);
     const mp = String(c.rating || '').replace(/^M\+\s*/, '');
-    return `<div class="mtile" style="--accent:${accentFor(c.cls)};${classBg(c.cls)}"><div class="mtile-head"><span>${classIcon(c.cls, 'sm')}<span class="n">${esc(c.name)}</span> ${profileLinks(c.name)}</span><span class="sc">${f1(mp)}</span></div>` +
+    return `<div class="mtile" style="--accent:${accentFor(c.cls)};${classBg(c.cls)}"><div class="mtile-head"><span>${classIcon(c.cls, 'sm')}<span class="n">${esc(c.name)}</span></span><span class="sc">${f1(mp)}</span></div>` +
       (runs.length ? runs.map(r => `<div class="run"><div>${esc(r.dungeon)} <span class="spec">${esc(r.spec)}</span></div><span class="lvl">+${r.level}</span><span class="score">${Number(r.score).toFixed(1)}</span></div>`).join('')
         : `<p class="empty">Loads with live data.</p>`) + `</div>`;
   }).join('');
