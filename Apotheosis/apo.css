@@ -88,3 +88,15 @@ a { color: #58a6ff; }
 
 .boss-row { grid-template-columns: 120px minmax(0, 1fr) auto; }
 .popup-note { flex-basis: 100%; margin-left: 32px; font-size: 11.5px; }
+
+.imp-split { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; }
+.wish-form select, .wish-form input { background: #1a1a1a; border: 1px solid #444; color: #eee; border-radius: 6px; padding: 6px 8px; }
+.wish-form input { flex: 1 1 200px; }
+.pill.wish { color: #e3b341; border-color: rgba(227,179,65,.5); }
+.wish-row.got .si { text-decoration: line-through; color: var(--muted-2); }
+.sim-card.dim { opacity: .7; }
+tr.notready td { opacity: .85; }
+@media (max-width: 900px) { .imp-split { grid-template-columns: 1fr; } }
+
+.sim-tabs { grid-template-columns: 1fr 1fr 1fr; }
+.bf.wishbar { background: linear-gradient(90deg, #a07a1f, #e3b341); }
