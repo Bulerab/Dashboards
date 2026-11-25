@@ -7,7 +7,7 @@
 <link rel="preconnect" href="https://script.google.com">
 <link rel="preconnect" href="https://script.googleusercontent.com" crossorigin>
 <link rel="stylesheet" href="app.css?v=1">
-<link rel="stylesheet" href="apo.css?v=11">
+<link rel="stylesheet" href="apo.css?v=12">
 </head>
 <body>
 <div class="container">
@@ -20,7 +20,7 @@
     <button class="lock" id="lock" type="button" data-lock="1">&#128274; Officer</button>
   </div>
   <nav class="nav apo-tabs" id="tabs">
-    <a href="#roster" data-tab="roster">Roster</a><a href="#priority" data-tab="priority">BiS Priority</a><a href="#sims" data-tab="sims">Sims Priority</a><a href="#talents" data-tab="talents">Talents Check</a><a href="#guild" data-tab="guild">Guild</a><a href="#mplus" data-tab="mplus">Mythic+</a>
+    <a href="#roster" data-tab="roster">Roster</a><a href="#loot" data-tab="loot">Loot Targets</a><a href="#priority" data-tab="priority">BiS Priority</a><a href="#sims" data-tab="sims">Sims Priority</a><a href="#talents" data-tab="talents">Talents Check</a><a href="#guild" data-tab="guild">Guild</a><a href="#mplus" data-tab="mplus">Mythic+</a>
   </nav>
 
   <section class="tab" id="tab-roster">
@@ -34,9 +34,22 @@
     <div id="mia"></div>
   </section>
 
+  <section class="tab" id="tab-loot">
+    <div class="card"><div class="card-head"><h2>Loot Targets</h2><span class="hint" id="loot-hint"></span></div>
+      <p class="hint" style="margin:0 0 10px">Everything the raid team wants, in one place: <span class="tag bis">BiS</span> missing from their BiS list,
+        <span class="tag sim">Sim</span> Raidbots Heroic drops upgrade, <span class="tag bonus">Bonus</span> Raidbots bonus roll &amp; vault upgrade, <span class="tag wish">Wish</span> manual entry.
+        A <b class="strong-lbl">gold</b> item is wanted by two or more of these.</p>
+      <div class="filters" id="loot-view"></div></div>
+    <div id="loot-body"></div>
+  </section>
+
   <section class="tab" id="tab-priority">
-    <div class="card"><div class="card-head"><h2>Bosses to target</h2><span class="hint">raid-team players still missing BiS from each boss (picked toons); bonus roll candidates</span></div><div id="prio-bosses"></div></div>
-    <div class="card"><div class="card-head"><h2>Other BiS sources</h2><span class="hint">dungeons, crafting and tier</span></div><div id="prio-other"></div></div>
+    <div class="card"><div class="card-head"><h2>Bosses to target</h2><span class="hint">raid-team players (not healers) still missing BiS from each boss, including raid trash; picked toons</span></div><div id="prio-bosses"></div></div>
+    <div class="sum-grid">
+      <div class="card"><div class="card-head"><h2>Crafting</h2><span class="hint">crafted BiS still to make, by profession</span></div><div id="prio-craft"></div></div>
+      <div class="card"><div class="card-head"><h2>Mythic+</h2><span class="hint">BiS from dungeons</span></div><div id="prio-mplus"></div></div>
+    </div>
+    <div class="card"><div class="card-head"><h2>Tier &amp; other</h2><span class="hint">tier pieces (tokens or catalyst) and items without a known source</span></div><div id="prio-other"></div></div>
   </section>
 
   <section class="tab" id="tab-sims">
@@ -76,6 +89,6 @@
 </div>
 <div class="tip" id="tip"></div>
 <script src="shared.js?v=1"></script>
-<script src="app.js?v=16"></script>
+<script src="app.js?v=17"></script>
 </body>
 </html>

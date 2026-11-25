@@ -112,3 +112,26 @@ tr.notready td { opacity: .85; }
 .tal-swap { font-size: 13px; margin: 0 0 8px; }
 .tal-miss { color: var(--bad); } .tal-extra { color: #e3b341; }
 .pill.tal-ok { color: var(--ok); border-color: rgba(63,185,80,.5); } .pill.tal-hero { color: #c67bff; border-color: rgba(163,53,238,.5); }
+
+/* Loot Targets */
+.tag { display: inline-block; font-size: 10.5px; font-weight: 700; padding: 1px 6px; border-radius: 8px; margin-left: 4px; border: 1px solid; white-space: nowrap; vertical-align: 1px; }
+.tag.bis { color: #58a6ff; border-color: rgba(88,166,255,.45); } .tag.sim { color: #3fb950; border-color: rgba(63,185,80,.45); }
+.tag.bonus { color: #c67bff; border-color: rgba(198,123,255,.45); } .tag.wish { color: #e3b341; border-color: rgba(227,179,65,.45); }
+.strong-lbl { color: #e5cc80; font-weight: 700; }
+.loot-boss { padding: 9px 0; border-top: 1px solid var(--line, #333); }
+.loot-boss:first-of-type { border-top: 0; }
+.lb-head { display: flex; gap: 10px; align-items: baseline; margin-bottom: 6px; }
+.lb-head .rk { min-width: 22px; color: var(--muted-2, #888); font-weight: 700; }
+.lb-wants { display: flex; flex-wrap: wrap; gap: 6px; }
+.want { display: inline-flex; align-items: center; gap: 2px; background: #232323; border: 1px solid #3a3a3a; border-radius: 8px; padding: 3px 8px; font-size: 12.5px; }
+.want .wi { margin-left: 2px; }
+.want.strong { border-color: #e5cc80; background: rgba(229,204,128,.08); }
+.want.strong .wi { color: #e5cc80; font-weight: 600; }
+.bt-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(400px, 1fr)); gap: 4px 18px; }
+.bt-row { display: grid; grid-template-columns: 120px minmax(150px, auto) 1fr; gap: 8px; align-items: baseline; padding: 4px 0; font-size: 13px; }
+.bt-row .hint { font-size: 12px; }
+.bt-line { font-size: 13px; margin: 2px 0 8px; }
+.lp-group { margin-bottom: 8px; display: flex; flex-wrap: wrap; gap: 5px; align-items: center; }
+.lp-boss { width: 100%; font-size: 12px; color: var(--muted-2, #999); font-weight: 600; }
+.st-ic { display: inline-flex; gap: 2px; vertical-align: -3px; } .st-ic .role-ic { width: 16px; height: 16px; }
+.st-src { font-weight: 400; color: var(--muted-2, #999); font-size: 12px; }

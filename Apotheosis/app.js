@@ -182,26 +182,123 @@ function mainsPopout() {
 }
 
 /* ------------------------------------------------------------------ Priority tab */
+/* Where a BiS item comes from: a raid boss, raid trash, a profession, a Mythic+ dungeon, or tier / unknown */
+const TRASH = 'Trash drops';
+function srcKind(src) {
+  const t = String(src || '');
+  const boss = bossOfSrc(t);
+  if (boss) return { kind: 'boss', key: boss };
+  if (/^trash/i.test(t)) return { kind: 'boss', key: TRASH };
+  let m = t.match(/^crafted\s*\(([^)]+)\)/i);
+  if (m) return { kind: 'craft', key: m[1] };
+  m = t.match(/^(.*?)\s*\(([^,()]+),\s*mythic\+\)/i);
+  if (m) return { kind: 'mplus', key: m[2], sub: m[1] };
+  if (/tier/i.test(t)) return { kind: 'other', key: 'Tier set' };
+  return { kind: 'other', key: t || 'Unknown source' };
+}
+const bossIdx = b => { const i = bossList().indexOf(b); return i < 0 ? 999 : i; };
+
 function priorityHtml() {
-  const by = {}, other = {};
+  const buckets = { boss: {}, craft: {}, mplus: {}, other: {} };
   const pvpSkipped = [];
   raidPlayers().forEach(p => {
     const c = picked(p);
+    if (isHealerP(p, c)) return;            // healers use Manual entry on Sims Priority
     if (inPvp(c)) { pvpSkipped.push(c); return; }
     ((c.bis && c.bis.need) || []).forEach(n => {
-      const b = bossOfSrc(n.source);
-      const bucket = b ? by : other, k = b || n.source || 'Unknown source';
-      ((bucket[k] = bucket[k] || {})[c.name] = bucket[k][c.name] || { c, items: [] }).items.push(n);
+      const k = srcKind(n.source), bucket = buckets[k.kind];
+      ((bucket[k.key] = bucket[k.key] || {})[c.name] = bucket[k.key][c.name] || { c, items: [] }).items.push(Object.assign({ sub: k.sub }, n));
     });
   });
-  const block = (obj, sortByOrder) => Object.keys(obj).map(k => ({ k, who: Object.values(obj[k]) }))
-    .sort((a, b) => b.who.length - a.who.length || (sortByOrder ? bossList().indexOf(a.k) - bossList().indexOf(b.k) : a.k.localeCompare(b.k)))
+  const block = (obj, order) => Object.keys(obj).map(k => ({ k, who: Object.values(obj[k]) }))
+    .sort((a, b) => b.who.length - a.who.length || (order ? bossIdx(a.k) - bossIdx(b.k) : a.k.localeCompare(b.k)))
     .map((r, i) => `<div class="prio-row"><span class="rk">${i + 1}</span><span class="pb">${esc(r.k)}</span><span class="pc"><b>${r.who.length}</b> player${r.who.length === 1 ? '' : 's'}</span>
-      <span class="pw">${r.who.map(w => `<span data-tip="${esc(w.items.map(n => slotName(n.slot) + ': ' + n.item).join('<br>'))}">${nameHtml(w.c)}${w.items.length > 1 ? ' <span class="hint">x' + w.items.length + '</span>' : ''}</span>`).join(' ')}</span></div>`).join('');
+      <span class="pw">${r.who.map(w => `<span data-tip="${esc(w.items.map(n => slotName(n.slot) + ': ' + n.item + (n.sub ? ' (' + n.sub + ')' : '')).join('<br>'))}">${nameHtml(w.c)}${w.items.length > 1 ? ' <span class="hint">x' + w.items.length + '</span>' : ''}</span>`).join(' ')}</span></div>`).join('');
   const hasBis = raidPlayers().some(p => picked(p).bis);
-  $('prio-bosses').innerHTML = block(by, true) || `<p class="empty">${hasBis ? 'Nobody needs raid drops.' : 'Fills in once BiS lists are added to the sheet.'}</p>`;
-  $('prio-other').innerHTML = block(other, false) || '<p class="empty">Nothing else needed.</p>';
+  const none = what => `<p class="empty">${hasBis ? what : 'Fills in once BiS lists are added to the sheet.'}</p>`;
+  $('prio-bosses').innerHTML = block(buckets.boss, true) || none('Nobody needs raid drops.');
+  $('prio-craft').innerHTML = block(buckets.craft) || none('No crafted BiS left to make.');
+  $('prio-mplus').innerHTML = block(buckets.mplus) || none('Nothing needed from Mythic+.');
+  $('prio-other').innerHTML = block(buckets.other) || none('Nothing else needed.');
   if (pvpSkipped.length) $('prio-bosses').innerHTML += `<p class="hint" style="margin:10px 0 0">Not counted, in PvP gear: ${pvpSkipped.map(c => `${nameHtml(c)} <span class="hint">(${c.pvp.count}/${c.pvp.total})</span>`).join(' &middot; ')}</p>`;
+}
+
+/* ------------------------------------------------------------------ Loot Targets tab: BiS + Raidbots + manual entries in one list */
+let lootView = store('apoLootView', 'boss');
+const SRC_TAG = { bis: 'BiS', sim: 'Sim', bonus: 'Bonus', wish: 'Wish' };
+function lootWants() {
+  const out = [], skipped = [];
+  raidPlayers().forEach(p => {
+    const c = picked(p);
+    if (inPvp(c)) { skipped.push(c); return; }
+    const by = {};
+    const add = (item, slot, where, src, pct, extra) => {
+      const k = String(item || '').toLowerCase(); if (!k) return;
+      const w = by[k] = by[k] || { c, p, item, slot: '', boss: '', where: '', kind: '', src: {}, pct: 0, bonusPct: 0 };
+      if (!w.slot && slot) w.slot = slot;
+      if (!w.boss && where) { const sk = srcKind(where); w.kind = sk.kind; w.boss = sk.kind === 'boss' ? sk.key : ''; w.where = sk.sub ? sk.sub + ' (' + sk.key + ')' : sk.key; }
+      w.src[src] = extra || true;
+      if (src === 'sim') w.pct = Math.max(w.pct, pct || 0);
+      if (src === 'bonus') w.bonusPct = Math.max(w.bonusPct, pct || 0);
+    };
+    if (!isHealerP(p, c)) ((c.bis && c.bis.need) || []).forEach(n => add(n.item, slotName(n.slot), n.source, 'bis'));
+    [['drops', 'sim'], ['bonus', 'bonus']].forEach(([kind, src]) => { const sim = simOf(c, kind);
+      if (sim) sim.rows.filter(r => r.pct > 0).forEach(r => add(r.item, slotLabel(r.slot), bossOfSrc(r.boss) || r.boss, src, r.pct)); });
+    wishOf(c).filter(w => !w.have).forEach(w => add(w.item, w.slot, w.boss || 'Other', 'wish', 0, w.note || true));
+    Object.values(by).forEach(w => { w.n = Object.keys(w.src).length; w.strong = w.n >= 2; w.best = Math.max(w.pct, w.bonusPct); out.push(w); });
+  });
+  return { wants: out, skipped };
+}
+const tagsHtml = w => Object.keys(SRC_TAG).filter(k => w.src[k]).map(k => `<span class="tag ${k}"${k === 'wish' && typeof w.src.wish === 'string' ? ` data-tip="${esc(w.src.wish)}"` : ''}>${SRC_TAG[k]}${
+  k === 'sim' && w.pct ? ' +' + w.pct.toFixed(1) + '%' : k === 'bonus' && w.bonusPct ? ' +' + w.bonusPct.toFixed(1) + '%' : ''}</span>`).join('');
+const wantChip = (w, showWho) => `<span class="want${w.strong ? ' strong' : ''}">${showWho ? nameHtml(w.c) + ' ' : ''}<span class="wi" data-tip="${esc((w.slot ? w.slot + ': ' : '') + w.item + (w.where ? '<br>' + w.where : ''))}">${esc(w.item)}</span>${tagsHtml(w)}</span>`;
+// Bonus roll suggestion: the raid boss with the single biggest sim gain (bonus report first), else the boss with the most wanted items
+function bonusTarget(list) {
+  const raid = list.filter(w => w.boss && w.boss !== TRASH);
+  if (!raid.length) return null;
+  const sims = raid.filter(w => w.best > 0).sort((a, b) => b.best - a.best || b.n - a.n);
+  if (sims.length) return { boss: sims[0].boss, why: `${sims[0].item} +${sims[0].best.toFixed(1)}%` };
+  const cnt = {}; raid.forEach(w => { cnt[w.boss] = (cnt[w.boss] || 0) + w.n; });
+  const b = Object.keys(cnt).sort((x, y) => cnt[y] - cnt[x] || bossIdx(x) - bossIdx(y))[0];
+  return { boss: b, why: raid.filter(w => w.boss === b).length + ' wanted item' + (raid.filter(w => w.boss === b).length === 1 ? '' : 's') };
+}
+function lootHtml() {
+  const { wants, skipped } = lootWants();
+  const players = [...new Set(wants.map(w => w.c))];
+  $('loot-hint').textContent = `${players.length} raiders · ${wants.length} wanted items · ${wants.filter(w => w.strong).length} gold`;
+  $('loot-view').innerHTML = [['boss', 'By Boss'], ['player', 'By Player'], ['other', 'Crafting, Mythic+ & other']].map(([k, l]) => `<button type="button" class="chip${lootView === k ? ' on' : ''}" data-lootview="${k}">${l}</button>`).join('');
+  const skippedHtml = skipped.length ? `<p class="hint" style="margin:10px 0 0">Not counted, in PvP gear: ${skipped.map(c => nameHtml(c)).join(' &middot; ')}</p>` : '';
+  let body = '';
+  if (lootView === 'boss') {
+    const bosses = [...new Set(wants.filter(w => w.boss).map(w => w.boss))].map(b => {
+      const ws = wants.filter(w => w.boss === b), who = [...new Set(ws.map(w => w.c))];
+      return { b, ws, who, strong: ws.filter(w => w.strong).length, pct: ws.reduce((a, w) => a + w.pct, 0) };
+    }).sort((x, y) => y.who.length - x.who.length || y.strong - x.strong || y.pct - x.pct || bossIdx(x.b) - bossIdx(y.b));
+    const targets = players.map(c => ({ c, t: bonusTarget(wants.filter(w => w.c === c)) })).filter(x => x.t);
+    body = `<div class="card"><div class="card-head"><h2>Bosses to target</h2><span class="hint">ranked by how many raiders want something, then gold items, then total sim gain</span></div>
+      ${bosses.map((r, i) => `<div class="loot-boss"><div class="lb-head"><span class="rk">${i + 1}</span><b>${esc(r.b)}</b>
+        <span class="hint"><b>${r.who.length}</b> raider${r.who.length === 1 ? '' : 's'} &middot; ${r.ws.length} item${r.ws.length === 1 ? '' : 's'}${r.strong ? ` &middot; <span class="strong-lbl">${r.strong} gold</span>` : ''}${r.pct ? ` &middot; +${r.pct.toFixed(1)}% total sim` : ''}</span></div>
+        <div class="lb-wants">${r.ws.sort((a, b) => b.strong - a.strong || b.n - a.n || b.best - a.best).map(w => wantChip(w, true)).join('')}</div></div>`).join('') || '<p class="empty">Nothing wanted from the raid yet.</p>'}${skippedHtml}</div>
+      <div class="card"><div class="card-head"><h2>Bonus roll targets</h2><span class="hint">each raider's best boss to bonus roll: biggest sim gain, else most wanted items</span></div>
+      ${targets.length ? `<div class="bt-grid">${targets.sort((a, b) => bossIdx(a.t.boss) - bossIdx(b.t.boss)).map(x => `<div class="bt-row">${nameHtml(x.c)}<span>&rarr; <b>${esc(x.t.boss)}</b></span><span class="hint">${esc(x.t.why)}</span></div>`).join('')}</div>` : '<p class="empty">No raid items wanted yet.</p>'}</div>`;
+  } else if (lootView === 'player') {
+    body = `<div class="sim-grid">${players.sort((a, b) => a.name.localeCompare(b.name)).map(c => {
+      const ws = wants.filter(w => w.c === c), t = bonusTarget(ws);
+      const groups = {}; ws.forEach(w => { const g = w.boss || (w.kind === 'craft' ? 'Crafted: ' + w.where : w.where) || 'Other'; (groups[g] = groups[g] || []).push(w); });
+      const gOrder = g => g === TRASH ? 900 : bossList().includes(g) ? bossIdx(g) : /^Crafted/.test(g) ? 950 : /^Tier/.test(g) ? 990 : 960;
+      return `<div class="card sim-card"><div class="card-head"><h2>${nameHtml(c)}</h2><span class="hint">${ws.length} wanted${ws.some(w => w.strong) ? ` &middot; <span class="strong-lbl">${ws.filter(w => w.strong).length} gold</span>` : ''}</span></div>
+        ${t ? `<div class="bt-line">Bonus roll: <b>${esc(t.boss)}</b> <span class="hint">(${esc(t.why)})</span></div>` : ''}
+        ${Object.keys(groups).sort((a, b) => gOrder(a) - gOrder(b) || a.localeCompare(b)).map(g => `<div class="lp-group"><div class="lp-boss">${esc(g)}</div>${groups[g].map(w => wantChip(w, false)).join('')}</div>`).join('')}</div>`;
+    }).join('') || '<p class="empty">Nothing wanted yet.</p>'}</div>${skippedHtml}`;
+  } else {
+    const kinds = [['craft', 'Crafting'], ['mplus', 'Mythic+'], ['other', 'Tier & other']];
+    body = kinds.map(([k, l]) => { const ws = wants.filter(w => w.kind === k || (k === 'other' && !w.kind));
+      const groups = {}; ws.forEach(w => { const g = k === 'mplus' ? w.where.replace(/^.*\((.*)\)$/, '$1') : w.where || 'Other'; (groups[g] = groups[g] || []).push(w); });
+      return `<div class="card"><div class="card-head"><h2>${l}</h2><span class="hint">${ws.length} item${ws.length === 1 ? '' : 's'}</span></div>
+        ${Object.keys(groups).sort().map(g => `<div class="loot-boss"><div class="lb-head"><b>${esc(g)}</b><span class="hint">${(n => n + ' raider' + (n === 1 ? '' : 's'))([...new Set(groups[g].map(w => w.c))].length)}</span></div>
+          <div class="lb-wants">${groups[g].map(w => wantChip(w, true)).join('')}</div></div>`).join('') || '<p class="empty">Nothing here.</p>'}</div>`; }).join('');
+  }
+  $('loot-body').innerHTML = body;
 }
 
 /* ------------------------------------------------------------------ Sims Priority tab */
@@ -260,9 +357,10 @@ function simsHtml() {
   const team = ready.map(x => x.c);
   const kinds = Object.keys(SIM_KINDS), setupOf = k => k === 'drops' ? rbSetup() : rbBonus();
   const allWish = (STATE.wishlist || []);
-  $('sim-kind-chips').innerHTML = kinds.map(k => `<button type="button" class="sim-tab${simKind === k ? ' on' : ''}" data-simkind="${k}">${SIM_KINDS[k]}
+  const rbIcons = `<span class="st-ic">${roleIcon('Tank')}${roleIcon('DPS')}</span>`;
+  $('sim-kind-chips').innerHTML = kinds.map(k => `<button type="button" class="sim-tab${simKind === k ? ' on' : ''}" data-simkind="${k}"><span>${SIM_KINDS[k]} ${rbIcons} <span class="st-src">(Raidbots)</span></span>
     <span class="hint">${team.filter(c => simOf(c, k) && ageDays(simOf(c, k).date) <= STALE_DAYS).length}/${team.length} current</span></button>`).join('') +
-    `<button type="button" class="sim-tab${simKind === 'manual' ? ' on' : ''}" data-simkind="manual">Manual entry<span class="hint">${allWish.filter(w => !w.have).length} wanted &middot; ${allWish.filter(w => w.have).length} got</span></button>`;
+    `<button type="button" class="sim-tab${simKind === 'manual' ? ' on' : ''}" data-simkind="manual"><span>Manual entry <span class="st-ic">${roleIcon('Healer')}</span> <span class="st-src">(healers &amp; odd cases)</span></span><span class="hint">${allWish.filter(w => !w.have).length} wanted &middot; ${allWish.filter(w => w.have).length} got</span></button>`;
   if (simKind === 'manual') { manualHtml(); return; }
   $('sim-chart-title').textContent = 'Raidbots upgrade value by boss';
   $('drops-hint').textContent = "best upgrades from each raider's latest reports (picked toons); By Boss follows the tab above";
@@ -339,10 +437,10 @@ function manualHtml() {
   $('sim-run').innerHTML = `<div class="card-head"><h2>Manual entry</h2><span class="hint">items picked by hand: healers (no Raidbots sims), or anyone else</span></div>
     ${officerKey ? `<form class="sim-form wish-form" id="wish-form">
       <select id="wish-who" required><option value="">Raider…</option><optgroup label="Healers">${healers.map(c => `<option value="${esc(c.name + '|' + c.realm)}">${esc(c.name)} (${esc(c.spec || '')})</option>`).join('')}</optgroup>
-        <optgroup label="Everyone else">${others.map(c => `<option value="${esc(c.name + '|' + c.realm)}">${esc(c.name)} (${esc(c.spec || '')})</option>`).join('')}</optgroup></select>
+        <optgroup label="Everyone else (anything Raidbots can't sim)">${others.map(c => `<option value="${esc(c.name + '|' + c.realm)}">${esc(c.name)} (${esc(c.spec || '')})</option>`).join('')}</optgroup></select>
       <select id="wish-bis"><option value="">Pick from their missing BiS…</option></select>
       <input id="wish-item" placeholder="or type an item name">
-      <select id="wish-boss"><option value="">Boss / source…</option>${bossList().map(b => `<option>${esc(b)}</option>`).join('')}<option>Other</option></select>
+      <select id="wish-boss"><option value="">Boss / source…</option>${bossList().map(b => `<option>${esc(b)}</option>`).join('')}<option>Trash drops</option><option>Other</option></select>
       <input id="wish-note" placeholder="note (optional)" style="flex:0 1 160px">
       <button type="submit" class="toggle-btn" id="wish-go">Add</button></form><div class="hint" id="wish-msg" style="margin-top:6px">${esc(wishMsg)}</div>`
       : '<p class="hint">Officers add items here (click the lock button). Each item is crossed off automatically once the raider is wearing it.</p>'}`;
@@ -533,6 +631,7 @@ function render() {
   $('mia').innerHTML = miaHtml();
   const bench = benchPlayers();
   $('bench-wrap').innerHTML = bench.length ? `<div class="section-title"><h2>Others on the roster</h2><span class="hint">${bench.length} players</span></div><div class="chars lite-grid">${bench.map(p => playerTile(p, 'bench')).join('')}</div>` : '';
+  lootHtml();
   priorityHtml();
   simsHtml();
   paintLock();
@@ -567,6 +666,8 @@ document.addEventListener('click', e => {
   if (wd) { e.preventDefault(); const [name, realm, item, kind] = wd.dataset.wishdel.split('|');
     if (!confirm('Remove ' + item + ' from ' + name + "'s wishlist?")) return;
     officerPost({ action: 'wishDelete', name, realm, item, kind }).then(() => load()).catch(err => alert(err.message)); return; }
+  const lv = e.target.closest('[data-lootview]');
+  if (lv) { lootView = lv.dataset.lootview; save('apoLootView', lootView); render(); return; }
   const tb2 = e.target.closest('[data-talboss]');
   if (tb2) { talBoss = tb2.dataset.talboss; save('apoTalBoss', talBoss); render(); return; }
   const cp = e.target.closest('[data-copy]');
@@ -612,7 +713,7 @@ document.addEventListener('change', e => {
   }
   if (e.target.id === 'wish-bis' && e.target.value !== '') {
     const x = JSON.parse(e.target.dataset.need || '[]')[+e.target.value];
-    if (x) { $('wish-item').value = x.item; const b = bossOfSrc(x.source); $('wish-boss').value = b || 'Other'; $('wish-item').dataset.slot = slotName(x.slot); }
+    if (x) { $('wish-item').value = x.item; const k = srcKind(x.source); $('wish-boss').value = k.kind === 'boss' ? k.key : 'Other'; $('wish-item').dataset.slot = slotName(x.slot); }
   }
 });
 
