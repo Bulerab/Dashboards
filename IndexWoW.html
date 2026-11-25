@@ -314,6 +314,10 @@
   .irow { display: flex; align-items: center; gap: 8px; font-size: 12.5px; min-width: 0; }
   .irow .slot { flex: 0 0 64px; }
   .irow .iname { flex: 1 1 auto; min-width: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .vmark { flex: 0 0 14px; font-weight: 800; font-size: 12px; text-align: center; }
+  .vmark.ok { color: var(--ok); } .vmark.no { color: var(--bad); }
+  .vneed { font-size: 11.5px; color: var(--muted-2); margin: 2px 0 4px; }
+  .vneed b { color: #ffab91; font-weight: 600; }
   .ichip { flex: 0 0 auto; font-size: 10px; padding: 0 6px; border-radius: 8px; border: 1px solid #555; color: var(--muted-2); white-space: nowrap; }
   .spl { flex: 0 0 auto; display: inline-flex; gap: 2px; }
   .spec-ic { width: 16px; height: 16px; border-radius: 4px; border: 1px solid #000; }
@@ -524,6 +528,9 @@ function logsBlock(c) {
 const f1 = v => { const n = parseFloat(String(v ?? '').replace(/[^\d.]/g, '')); return isFinite(n) && n > 0 ? n.toFixed(1) : '-'; };
 const f2 = v => { const n = parseFloat(String(v ?? '').replace(/[^\d.]/g, '')); return isFinite(n) && n > 0 ? n.toFixed(2) : '-'; };
 /* Spec initials as small tags (hover a row for full names) */
+/* Secondary stat priority per spec (Murlok.io Mythic+, Patch 12.1; Death Knight from the hub's Stat Priorities tab) */
+const SPEC_STATS = { Vengeance: ['Haste', 'Crit', 'Mastery', 'Vers'], Havoc: ['Crit', 'Mastery', 'Haste', 'Vers'], Guardian: ['Haste', 'Crit', 'Mastery', 'Vers'],
+  Feral: ['Mastery', 'Haste', 'Crit', 'Vers'], Blood: ['Haste', 'Crit', 'Mastery', 'Vers'], Frost: ['Crit', 'Mastery', 'Haste', 'Vers'], Unholy: ['Crit', 'Mastery', 'Haste', 'Vers'] };
 const SPEC_ICON = { Blood: 'spell_deathknight_bloodpresence', Frost: 'spell_deathknight_frostpresence', Unholy: 'spell_deathknight_unholypresence',
   Havoc: 'ability_demonhunter_specdps', Vengeance: 'ability_demonhunter_spectank', Feral: 'ability_druid_catform', Guardian: 'ability_racial_bearform',
   Balance: 'spell_nature_starfall', Restoration: 'spell_nature_healingtouch' };
@@ -1197,7 +1204,7 @@ function render(state, live, when) {
     const main = [...i.specs].some(sp => isMainSpec(c, sp));
     const x = extra ? extra(i) : {};
     const tip = `${i.item}${i.source ? ' &middot; ' + i.source : ''}&lt;br&gt;${[...i.specs].join(', ')}`;
-    return `<div class="irow" data-tip="${esc(tip)}"><span class="slot">${esc(slotName(i.slot))}</span><span class="iname ${main ? 'main-item' : ''}">${main ? '&#9733; ' : ''}${esc(i.item)}</span>${x.chip ? `<span class="ichip">${esc(x.chip)}</span>` : ''}<span class="spl">${specLetters([...i.specs])}</span></div>`;
+    return `<div class="irow" data-tip="${esc(x.tip ? tip + '&lt;br&gt;' + x.tip : tip)}">${x.pre || ''}<span class="slot">${esc(slotName(i.slot))}</span><span class="iname ${main ? 'main-item' : ''}">${main ? '&#9733; ' : ''}${esc(i.item)}</span>${x.chip ? `<span class="ichip">${esc(x.chip)}</span>` : ''}<span class="spl">${specLetters([...i.specs])}</span></div>`;
   }).join('')}</div>`;
   const byMain = c => (x, y) => [...y.specs].some(sp => isMainSpec(c, sp)) - [...x.specs].some(sp => isMainSpec(c, sp));
   const charOf = name => chars.find(x => x.name === name) || { name, cls: '' };
@@ -1244,9 +1251,21 @@ function render(state, live, when) {
       }).join('')}</div>` : '';
       const open = v ? v.thresholds.filter(t => v.done >= t).length : 0;
       const direct = all.filter(i => i.si.type === type).sort(byMain(c));
-      let list = direct.length ? itemGrid(c, direct) : '';
-      if (kind === 'raid' && tier.length) list += itemGrid(c, tier, () => ({ chip: 'Tier token' }));
-      if (cat.length) list += itemGrid(c, cat, () => ({ chip: 'Catalyst' }));
+      // Raid vault only offers loot from bosses killed this week
+      const raidMark = i => { const k = killOf(name, i.si.boss);
+        return { pre: `<span class="vmark ${k ? 'ok' : 'no'}">${k ? '&#10003;' : '&#10005;'}</span>`,
+          tip: k ? 'In your vault pool: ' + i.si.boss + ' killed this week' : 'Not in your vault yet: kill ' + i.si.boss + ' this week' }; };
+      // Catalyst: any item in that slot, ideally with the spec's top two secondary stats
+      const catMark = i => { const sp = [...i.specs][0], st = SPEC_STATS[String(sp).replace(/ PvP$/, '')] || [];
+        return { chip: 'Catalyst' + (st.length ? ' · ' + st[0] + ' / ' + st[1] : ''), tip: `Any ${slotName(i.slot).toLowerCase()} with ${st.slice(0, 2).join(' and ') || 'your best stats'}, then convert it at the Catalyst` }; };
+      let list = direct.length ? itemGrid(c, direct, kind === 'raid' ? raidMark : null) : '';
+      if (kind === 'raid') {
+        const toKill = [...new Set(direct.map(i => i.si.boss))].filter(b => !killOf(name, b));
+        if (direct.length) list = `<div class="vneed">${toKill.length ? 'Still to kill this week: ' + toKill.map(b => `<b>${esc(b)}</b>`).join(', ') : '<span style="color:var(--ok)">Every boss on this list is killed: all can show up in your vault</span>'}</div>` + list;
+      }
+      const pad = kind === 'raid' && direct.length ? '<span class="vmark"></span>' : '';
+      if (kind === 'raid' && tier.length) list += itemGrid(c, tier, () => ({ chip: 'Tier token', pre: pad }));
+      if (cat.length && kind !== 'world') list += itemGrid(c, cat, i => Object.assign(catMark(i), { pre: pad }));
       if (!list) list = `<p class="empty">${kind === 'world' ? 'No BiS here; item level upgrades only.' : 'No BiS items from here.'}</p>`;
       return `<div class="bc-cat"><span>${label}</span></div>${list}`;
     }).join('');
