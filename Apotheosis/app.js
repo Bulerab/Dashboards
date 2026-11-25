@@ -295,7 +295,10 @@ function lootWants() {
       const o = own[String(w.item).toLowerCase()];
       if (o && (w.src.sim || w.src.bonus)) {
         const want = w.src.bonus ? 'Myth' : 'Hero';
-        if (trackRank(o.t) >= trackRank(want)) { w.owned = o; crest.push(w); return; }
+        if (trackRank(o.t) >= trackRank(want)) {
+          if (o.c <= 0) return;                 // already maxed on that track (or better): nothing to get or upgrade
+          w.owned = o; crest.push(w); return;  // same track, not maxed: upgrade it with crests
+        }
         w.ownedLower = o;
       }
       out.push(w); });
@@ -336,7 +339,7 @@ function lootTiles(wants, players, crestUps) {
   const tot = crestTotals(players), crestTile = `<div class="lt-tile" data-lootview="player"><div class="lt-head"><b>Crests to max gear</b><span class="hint">raid team, equipped items to 6/6</span></div>
       ${Object.keys(tot).sort(crestOrder).map(k => `<div class="lt-row"><span class="lt-l">${esc(crestShort(k))}</span><span class="lt-bar"><span style="width:${Math.max(4, tot[k] / Math.max(...Object.values(tot)) * 100)}%;background:${CREST_COLOR[crestShort(k)] || '#3987e5'}"></span></span><b>${tot[k].toLocaleString()}</b></div>`).join('') || '<p class="hint" style="margin:0">Fills in after the next refresh</p>'}
       ${crestUps ? `<p class="hint" style="margin:8px 0 0">${crestUps} sim upgrade${crestUps === 1 ? ' is an item' : 's are items'} already owned: upgrade with crests</p>` : ''}</div>`;
-  return crestTile + tile('Raids', raidRows, 'boss') +
+  return tile('Raids', raidRows, 'boss') +
     tile('Crafting', rowsOf(wants.filter(w => w.kind === 'craft'), w => w.where), 'other') +
     tile('Other', rowsOf(wants.filter(w => w.kind === 'mplus' || w.kind === 'other' || (!w.kind && !w.boss)), w => w.kind === 'mplus' ? 'M+: ' + w.where.replace(/^.*\((.*)\)$/, '$1') : (w.where || 'Other')), 'other');
 }
@@ -387,8 +390,12 @@ function lootHtml() {
         Other: ws.filter(w => !w.boss && w.kind !== 'craft' && w.kind !== 'mplus').length };
       const gold = ws.filter(w => w.strong).length;
       const ct = crestTotals([c]), cups = crest.filter(w => w.c === c), notMax = (c.tracks || []).filter(t => t.c > 0).sort((a, b) => trackRank(b.t) - trackRank(a.t) || b.c - a.c);
-      const crestLine = Object.keys(ct).length ? `<div class="pt-crests" data-loottile="${esc(key)}">Crests to max: ${Object.keys(ct).sort(crestOrder).map(k => `<b style="color:${CREST_COLOR[crestShort(k)] || '#ddd'}">${ct[k]} ${esc(crestShort(k))}</b>`).join(' &middot; ')}</div>` : '';
-      const crestHtml = (cups.length ? `<div class="lp-group"><div class="lp-boss">Sim upgrades you already own: upgrade with crests</div>${cups.map(w => `<span class="want crest-up"><span class="wi">${esc(w.item)}</span>${tagsHtml(w)}<span class="tag own">${esc(trackTxt(w.owned))} &rarr; ${w.owned.m}/${w.owned.m}: ${w.owned.c} ${esc(crestShort(w.owned.cn))}</span></span>`).join('')}</div>` : '') +
+      // Front of the tile: owned items the sims say are worth upgrading (biggest gain first), then crests for all gear
+      const cupsTop = cups.slice().sort((a, b) => b.best - a.best);
+      const crestLine = (cupsTop.length ? `<div class="pt-crests" data-loottile="${esc(key)}"><div class="pt-ch">Upgrade with crests</div>${cupsTop.slice(0, 3).map(w =>
+          `<div><b>${esc(w.item)}</b> <span style="color:${CREST_COLOR[w.owned.t] || '#ddd'}">${esc(trackTxt(w.owned))}</span> <span class="hint">&rarr; ${w.owned.c} ${esc(crestShort(w.owned.cn))}${w.best ? ', +' + w.best.toFixed(1) + '%' : ''}</span></div>`).join('')}${cupsTop.length > 3 ? `<span class="hint">+${cupsTop.length - 3} more</span>` : ''}</div>` : '') +
+        (Object.keys(ct).length ? `<div class="pt-crests" data-loottile="${esc(key)}">All gear to 6/6: ${Object.keys(ct).sort(crestOrder).map(k => `<b style="color:${CREST_COLOR[crestShort(k)] || '#ddd'}">${ct[k]} ${esc(crestShort(k))}</b>`).join(' &middot; ')}</div>` : '');
+      const crestHtml = (cups.length ? `<div class="lp-group"><div class="lp-boss">Upgrade with crests: items you own that the sims say are worth it</div>${cups.map(w => `<span class="want crest-up"><span class="wi">${esc(w.item)}</span>${tagsHtml(w)}<span class="tag own">${esc(trackTxt(w.owned))} &rarr; ${w.owned.m}/${w.owned.m}: ${w.owned.c} ${esc(crestShort(w.owned.cn))}</span></span>`).join('')}</div>` : '') +
         (notMax.length ? `<div class="lp-group"><div class="lp-boss">Gear not at max upgrade</div><table class="logs-table crest-table"><tbody>${notMax.map(t => `<tr><td class="hint">${esc(t.s)}</td><td>${esc(t.n)}</td><td style="color:${CREST_COLOR[t.t] || '#ddd'}">${esc(trackTxt(t))}</td><td class="hint">${t.il} &rarr; ${t.mx}</td><td><b>${t.c}</b> ${esc(crestShort(t.cn))}</td></tr>`).join('')}</tbody></table></div>` : '');
       const groups = {}; ws.forEach(w => { const g = w.boss || (w.kind === 'craft' ? 'Crafted: ' + w.where : w.kind === 'mplus' ? 'M+: ' + w.where.replace(/^.*\((.*)\)$/, '$1') : w.where) || 'Other'; (groups[g] = groups[g] || []).push(w); });
       const gOrder = g => g === TRASH ? 900 : bossList().includes(g) ? raidOrderIdx(raidOf(g)) * 100 + bossIdx(g) : /^Crafted/.test(g) ? 950 : /^M\+/.test(g) ? 960 : 990;
