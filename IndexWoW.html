@@ -120,6 +120,19 @@
   .mini .k { font-size: 10.5px; color: var(--muted-2); text-transform: uppercase; letter-spacing: .4px; }
   .mini .v { font-size: 17px; font-weight: 700; color: var(--text-strong); margin-top: 2px; font-variant-numeric: tabular-nums; }
   .mini .v.conq { color: #ff9d6e; } .mini .v.craft { color: #c9a5ff; } .mini .v.ok { color: var(--ok); }
+  .links { display: inline-flex; gap: 4px; margin-left: 2px; }
+  .links a { display: inline-flex; align-items: center; justify-content: center; width: 20px; height: 20px; border-radius: 5px; font-size: 10.5px; font-weight: 800; text-decoration: none; color: #111; line-height: 1; }
+  .links a:hover { filter: brightness(1.2); outline: 1px solid #fff; }
+  .links a.rio { background: #ff8000; } .links a.wcl { background: #e6c24a; } .links a.arm { background: #4aa3ff; }
+  .chars.has-open { grid-template-columns: 250px 1fr; align-items: start; }
+  .chars.has-open > .pvpc.open { grid-column: 2; grid-row: 1 / span 6; }
+  .chars.has-open > .mini-card { grid-column: 1; }
+  .mini-card { background: var(--card); border-radius: 8px; padding: 10px 12px; border-left: 4px solid var(--accent, #555); box-shadow: 0 4px 6px rgba(0,0,0,0.3); }
+  .mini-card .name-row { justify-content: space-between; }
+  .mini-card .char-name { font-size: 16px; }
+  .mini-card .mc-stats { display: flex; gap: 14px; margin-top: 6px; font-size: 12px; color: var(--muted-2); }
+  .mini-card .mc-stats b { color: var(--text-strong); font-size: 14px; }
+  @media (max-width: 860px) { .chars.has-open { grid-template-columns: 1fr; } .chars.has-open > .pvpc.open { grid-column: 1; grid-row: auto; } }
   .name-row { display: flex; align-items: center; gap: 10px; }
   .toggle-btn { display: inline-flex; align-items: center; gap: 6px; background: #2a2a2a; color: #ddd; border: 1px solid #444; border-radius: 6px; padding: 3px 11px; font-size: 12px; font-weight: 600; cursor: pointer; }
   .toggle-btn:hover { background: #333; border-color: #3987e5; color: #fff; }
@@ -353,6 +366,14 @@ function srcInfo(source) {
   if (/^Catalyst/i.test(src)) return { type: 'catalyst' };
   return { type: 'other' };
 }
+function profileLinks(name, realmSlug, region) {
+  const r = String(realmSlug || 'eldrethalas').toLowerCase(), g = String(region || 'us').toLowerCase();
+  const n = encodeURIComponent(name), nl = encodeURIComponent(String(name).toLowerCase());
+  return `<span class="links">
+    <a class="rio" href="https://raider.io/characters/${g}/${r}/${n}" target="_blank" rel="noopener" data-tip="Raider.io profile">R</a>
+    <a class="wcl" href="https://www.warcraftlogs.com/character/${g}/${r}/${nl}" target="_blank" rel="noopener" data-tip="Warcraft Logs">W</a>
+    <a class="arm" href="https://worldofwarcraft.blizzard.com/en-us/character/${g}/${r}/${nl}" target="_blank" rel="noopener" data-tip="Blizzard Armory">A</a></span>`;
+}
 const slotName = s => String(s).replace(/^(Finger|Trinket) \d$/, '$1');
 const bossOf = source => BOSS_ORDER.find(b => String(source).startsWith(b)) || null;
 
@@ -534,7 +555,8 @@ function gearBlock(c) {
   return `<div class="sec">${head}<table class="gear"><thead><tr><th>Slot</th><th>Equipped</th><th style="text-align:right">ilvl</th><th>BiS</th><th style="text-align:right">Cost</th></tr></thead><tbody>${rows}</tbody>${foot}</table></div>`;
 }
 
-const pvpOpen = new Set((() => { try { return JSON.parse(localStorage.getItem('wowPvpOpen') || '[]'); } catch (e) { return []; } })());
+const openCard = (() => { try { return JSON.parse(localStorage.getItem('wowOpenCard') || '{}'); } catch (e) { return {}; } })();
+const isOpen = c => openCard[c.pvp ? 'pvp' : 'pve'] === c.name;
 
 function pvpTotals(c) {
   const gear = (c.gear || []).filter(g => g.bis);
@@ -551,7 +573,7 @@ function pvpTotals(c) {
 }
 
 function pvpCard(c) {
-  const open = pvpOpen.has(c.name);
+  const open = isOpen(c);
   const sh = (c.brackets || []).find(b => /shuffle/i.test(b.bracket));
   const val = sh && sh.rating ? sh.rating : '';
   const t = pvpTotals(c);
@@ -564,7 +586,7 @@ function pvpCard(c) {
     : `<div class="big">${esc(val || '-')}</div>`;
   return `<div class="char pvpc${open ? ' open' : ''}" style="--accent:${accentFor(c.cls)}" data-pvpcard="${esc(c.name)}">
     <div class="pvp-sum">
-      <div class="char-head"><div><div class="name-row"><span class="char-name">${esc(c.name)}</span><button type="button" class="toggle-btn" data-cardtoggle="${esc(c.name)}">${open ? 'Collapse' : 'Expand'} <span class="chev">&#9662;</span></button></div><div class="char-meta">${esc(c.cls)}</div>
+      <div class="char-head"><div><div class="name-row"><span class="char-name">${esc(c.name)}</span>${profileLinks(c.name)}<button type="button" class="toggle-btn" data-cardtoggle="${esc(c.name)}">${open ? 'Collapse' : 'Expand'} <span class="chev">&#9662;</span></button></div><div class="char-meta">${esc(c.cls)}</div>
           <div class="spec-tags">${(c.main || []).map(m => `<span class="spec-tag">${esc(m)}</span>`).join('')}</div></div>
         <div class="headline-row"><div class="headline"><div class="lbl">Shuffle</div>${rating}</div>
           <div class="headline"><div class="lbl">ilvl</div><div class="big">${esc(c.ilvl || '-')}</div></div></div></div>
@@ -582,7 +604,7 @@ function pvpCard(c) {
 }
 
 function pveCard(c) {
-  const open = pvpOpen.has(c.name);
+  const open = isOpen(c);
   const mp = String(c.rating || '').replace(/^M\+\s*/, '');
   const raid = (STATE.needs || []).filter(n => n.character === c.name && n.kind === 'Gear' && bossOf(n.source));
   const items = new Set(raid.map(n => n.needed)).size;
@@ -598,7 +620,7 @@ function pveCard(c) {
   const issues = bad + warn;
   return `<div class="char pvpc${open ? ' open' : ''}" style="--accent:${accentFor(c.cls)}" data-pvpcard="${esc(c.name)}">
     <div class="pvp-sum">
-      <div class="char-head"><div><div class="name-row"><span class="char-name">${esc(c.name)}</span><button type="button" class="toggle-btn" data-cardtoggle="${esc(c.name)}">${open ? 'Collapse' : 'Expand'} <span class="chev">&#9662;</span></button></div><div class="char-meta">${esc(c.cls)}</div></div>
+      <div class="char-head"><div><div class="name-row"><span class="char-name">${esc(c.name)}</span>${profileLinks(c.name)}<button type="button" class="toggle-btn" data-cardtoggle="${esc(c.name)}">${open ? 'Collapse' : 'Expand'} <span class="chev">&#9662;</span></button></div><div class="char-meta">${esc(c.cls)}</div></div>
         <div class="headline-row"><div class="headline"><div class="lbl">M+ rating</div><div class="big">${esc(mp || '-')}</div></div>
           <div class="headline"><div class="lbl">ilvl</div><div class="big">${esc(c.ilvl || '-')}</div></div></div></div>
       <div class="sec">${bisBlock(c)}</div>
@@ -613,6 +635,24 @@ function pveCard(c) {
     <div class="pvp-more"><div class="pvp-more-grid" style="grid-template-columns:1fr 1fr"><div>${targetsBlock(c)}</div><div>${enchantBlock(c)}${weeklyChecks(c)}</div></div>
       <div class="foot">Gear pulled ${esc(c.pulled || '-')}</div></div>
   </div>`;
+}
+
+function miniCard(c) {
+  let stat;
+  if (c.pvp) {
+    const sh = (c.brackets || []).find(b => /shuffle/i.test(b.bracket));
+    stat = `<span>Shuffle <b>${esc(sh && sh.rating ? sh.rating : '-')}</b></span>`;
+  } else stat = `<span>M+ <b>${esc(String(c.rating || '-').replace(/^M\+\s*/, ''))}</b></span>`;
+  return `<div class="mini-card" style="--accent:${accentFor(c.cls)}">
+    <div class="name-row"><span class="char-name">${esc(c.name)}</span><button type="button" class="toggle-btn" data-cardtoggle="${esc(c.name)}">Expand <span class="chev">&#9662;</span></button></div>
+    <div class="char-meta">${esc(c.cls)} ${profileLinks(c.name)}</div>
+    <div class="mc-stats">${stat}<span>ilvl <b>${esc(c.ilvl || '-')}</b></span></div></div>`;
+}
+
+function sectionHtml(list, key) {
+  const open = list.find(c => openCard[key] === c.name && !c.error);
+  if (!open) return { cls: '', html: list.map(charCard).join('') };
+  return { cls: 'has-open', html: charCard(open) + list.filter(c => c !== open).map(c => c.error ? charCard(c) : miniCard(c)).join('') };
 }
 
 function charCard(c) {
@@ -683,7 +723,7 @@ function guestCard(g) {
   const otherBlock = other.length ? `<div class="sec"><div class="sec-title"><span>Other BiS still needed</span></div><div class="need-grid" style="grid-template-columns:82px 1fr auto">${other.map(x =>
     `<span class="slot">${esc(slotName(x.slot))}</span><span>${esc(x.bis)}</span><span class="specs-tag">${esc(x.source)}</span>`).join('')}</div></div>` : '';
   return `<div class="char" style="--accent:${accentFor(g.cls)}">
-    <div class="char-head"><div><div class="char-name">${esc(g.name)}</div><div class="char-meta">${esc([g.spec || g.activeSpec, g.cls].filter(Boolean).join(' '))}${g.realm ? ' &middot; ' + esc(g.realm) : ''}</div></div>
+    <div class="char-head"><div><div class="name-row"><span class="char-name">${esc(g.name)}</span>${profileLinks(g.name, g.realm)}</div><div class="char-meta">${esc([g.spec || g.activeSpec, g.cls].filter(Boolean).join(' '))}${g.realm ? ' &middot; ' + esc(g.realm) : ''}</div></div>
       <div class="headline-row"><div class="headline"><div class="lbl">M+ rating</div><div class="big">${g.score ? Number(g.score).toFixed(0) : '-'}</div></div>
       <div class="headline"><div class="lbl">ilvl</div><div class="big">${esc(g.ilvl || '-')}</div></div></div></div>
     <div class="sec">${bisBar}</div>
@@ -721,8 +761,11 @@ function render(state, live, when) {
   const accts = list => [...new Set(list.map(c => c.account || accountOf(c.name)))].filter(Boolean).join(', ');
   $('pve-acct').textContent = accts(pve);
   $('pvp-acct').textContent = accts(pvp);
-  $('pve').innerHTML = pve.map(charCard).join('');
-  $('pvp').innerHTML = pvp.map(charCard).join('');
+  for (const [id, list] of [['pve', pve], ['pvp', pvp]]) {
+    const sec = sectionHtml(list, id);
+    $(id).className = 'chars' + (id === 'pvp' ? ' pvp-grid' : '') + (sec.cls ? ' ' + sec.cls : '');
+    $(id).innerHTML = sec.html;
+  }
 
   const todos = state.todo || [];
 
@@ -861,7 +904,7 @@ function render(state, live, when) {
       if (kind === 'raid' && tier.length) list += itemGrid(c, tier, () => 'tier token');
       if (cat.length) list += itemGrid(c, cat, () => 'any item in this slot, then Catalyst');
       if (!list) list = `<p class="empty">${kind === 'world' ? 'No BiS items come from Delves or World; use it for item level upgrades.' : 'Nothing on the BiS list comes from here.'}</p>`;
-      return `<div class="bc-cat"><span>${label}</span><span class="hint">${v ? open + ' of 3 slots unlocked' : ''}</span></div>${tiles}${list}`;
+      return `<div class="bc-cat"><span>${label}</span></div>${list}`;
     }).join('');
     return `<div class="bc" style="--accent:${accentFor(c.cls)}"><div class="bc-head"><span class="n" style="color:${CHAR_COLOR[name] || '#fff'}">${esc(name)}</span><span class="hint">Great Vault</span></div>${sections}</div>`;
   }).join('');
@@ -875,7 +918,7 @@ function render(state, live, when) {
   $('mplus').innerHTML = pve.slice().sort(byOrder(MPLUS_ORDER)).map(c => {
     const runs = (c.mplusRuns || []).slice().sort((a, b) => b.score - a.score);
     const mp = String(c.rating || '').replace(/^M\+\s*/, '');
-    return `<div class="mtile" style="--accent:${accentFor(c.cls)}"><div class="mtile-head"><span class="n">${esc(c.name)}</span><span class="sc">${esc(mp || '-')}</span></div>` +
+    return `<div class="mtile" style="--accent:${accentFor(c.cls)}"><div class="mtile-head"><span><span class="n">${esc(c.name)}</span> ${profileLinks(c.name)}</span><span class="sc">${esc(mp || '-')}</span></div>` +
       (runs.length ? runs.map(r => `<div class="run"><div>${esc(r.dungeon)} <span class="spec">${esc(r.spec)}</span></div><span class="lvl">+${r.level}</span><span class="score">${Number(r.score).toFixed(1)}</span></div>`).join('')
         : `<p class="empty">Loads with live data.</p>`) + `</div>`;
   }).join('');
@@ -897,8 +940,10 @@ document.addEventListener('click', e => {
   const pc = e.target.closest('[data-cardtoggle]');
   if (pc) {
     const n = pc.dataset.cardtoggle;
-    pvpOpen.has(n) ? pvpOpen.delete(n) : pvpOpen.add(n);
-    try { localStorage.setItem('wowPvpOpen', JSON.stringify([...pvpOpen])); } catch (er) { /* storage blocked */ }
+    const ch = (STATE.characters || []).find(x => x.name === n);
+    const key = ch && ch.pvp ? 'pvp' : 'pve';
+    openCard[key] = openCard[key] === n ? null : n;
+    try { localStorage.setItem('wowOpenCard', JSON.stringify(openCard)); } catch (er) { /* storage blocked */ }
     renderAll();
     return;
   }
