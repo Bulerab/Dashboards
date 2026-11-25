@@ -520,7 +520,11 @@ function weeklyRunsBlock(c) {
 function bestRunsBlock(c) {
   const runs = (c.mplusRuns || []).slice().sort((a, b) => b.score - a.score);
   if (!runs.length) return '';
-  return `<div class="sec"><div class="sec-title"><span>Best run per dungeon</span><span class="hint">season</span></div>` +
+  // Resilient: the highest key level timed in every dungeon of the season (same rule as the Mythic+ Teams page)
+  const res = resilientLevel({ runs: c.mplusRuns || [] });
+  const resTag = res ? `<span class="pill ok" data-tip="Every dungeon timed at +${res} or higher">Resilient +${res}</span>`
+    : `<span class="pill" data-tip="Not every dungeon timed yet">Resilient: -</span>`;
+  return `<div class="sec"><div class="sec-title"><span>Best run per dungeon</span><span class="hint">season</span></div><div style="margin:-2px 0 6px">${resTag}</div>` +
     runs.map(r => `<div class="run"><div>${esc(r.dungeon)} <span class="spec">${esc(r.spec || '')}</span></div><span class="lvl">+${r.level}</span><span class="score">${Number(r.score).toFixed(1)}</span></div>`).join('') + `</div>`;
 }
 
