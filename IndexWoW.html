@@ -296,12 +296,18 @@
   .bc-boss { background: #1e1e1e; border-radius: 6px; padding: 6px 9px; margin-bottom: 5px; }
   .bc-boss .top { display: flex; justify-content: space-between; gap: 8px; align-items: baseline; }
   .bc-boss .b { font-weight: 600; color: var(--text-strong); font-size: 12.5px; }
+  .kills { display: grid; grid-template-columns: 1fr 1fr; gap: 4px; }
+  .kill { display: flex; align-items: center; gap: 4px; background: #222; border: 1px solid #2e2e2e; border-radius: 5px; padding: 3px 7px; font-size: 12px; color: #777; min-width: 0; }
+  .kill.on { background: #1d2b1f; border-color: #2e5e33; color: #e0e0e0; }
+  .kill .kn { flex: 1; min-width: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .dbadge { font-size: 9.5px; font-weight: 800; border: 1px solid; border-radius: 4px; padding: 0 4px; line-height: 14px; }
   .irows { display: flex; flex-direction: column; gap: 2px; margin-top: 3px; }
   .irow { display: flex; align-items: center; gap: 8px; font-size: 12.5px; min-width: 0; }
   .irow .slot { flex: 0 0 64px; }
   .irow .iname { flex: 1 1 auto; min-width: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
   .ichip { flex: 0 0 auto; font-size: 10px; padding: 0 6px; border-radius: 8px; border: 1px solid #555; color: var(--muted-2); white-space: nowrap; }
   .spl { flex: 0 0 auto; display: inline-flex; gap: 2px; }
+  .spec-ic { width: 16px; height: 16px; border-radius: 4px; border: 1px solid #000; }
   .spl-t { font-size: 9.5px; font-weight: 700; width: 15px; height: 15px; border-radius: 4px; background: #2e2e2e; color: #bbb; display: inline-flex; align-items: center; justify-content: center; }
   .need-grid.one-line > span { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; min-width: 0; }
   .bc-cat { font-size: 12px; font-weight: 700; color: var(--text-strong); margin: 12px 0 2px; padding-bottom: 3px; border-bottom: 1px solid #333; display: flex; justify-content: space-between; align-items: baseline; }
@@ -509,7 +515,12 @@ function logsBlock(c) {
 const f1 = v => { const n = parseFloat(String(v ?? '').replace(/[^\d.]/g, '')); return isFinite(n) && n > 0 ? n.toFixed(1) : '-'; };
 const f2 = v => { const n = parseFloat(String(v ?? '').replace(/[^\d.]/g, '')); return isFinite(n) && n > 0 ? n.toFixed(2) : '-'; };
 /* Spec initials as small tags (hover a row for full names) */
-const specLetters = specs => specs.map(sp => `<span class="spl-t" title="${esc(sp)}">${esc(String(sp).replace(/ PvP$/, '').slice(0, 1))}</span>`).join('');
+const SPEC_ICON = { Blood: 'spell_deathknight_bloodpresence', Frost: 'spell_deathknight_frostpresence', Unholy: 'spell_deathknight_unholypresence',
+  Havoc: 'ability_demonhunter_specdps', Vengeance: 'ability_demonhunter_spectank', Feral: 'ability_druid_catform', Guardian: 'ability_racial_bearform',
+  Balance: 'spell_nature_starfall', Restoration: 'spell_nature_healingtouch' };
+const specLetters = specs => specs.map(sp => { const n = String(sp).replace(/ PvP$/, ''); return SPEC_ICON[n]
+  ? `<img class="spec-ic" src="${ICON_BASE}${SPEC_ICON[n]}.jpg" alt="${esc(n.slice(0, 1))}" title="${esc(sp)}" loading="lazy">`
+  : `<span class="spl-t" title="${esc(sp)}">${esc(n.slice(0, 1))}</span>`; }).join('');
 const slotName = s => String(s).replace(/^(Finger|Trinket) \d$/, '$1');
 const bossOf = source => BOSS_ORDER.find(b => String(source).startsWith(b)) || null;
 
@@ -638,6 +649,21 @@ function weeklyChecks(c) {
   return `<div class="sec"><div class="sec-title"><span>This week</span></div><div class="checks">` + rows.map(r =>
     `<label class="check${r.cells[col] ? ' done' : ''}"><input type="checkbox" data-wk="${r.row},${col + 2}"${r.cells[col] ? ' checked' : ''}${DIS()}><span>${esc(r.task)}</span></label>`
   ).join('') + `</div></div>`;
+}
+
+const DIFF = { LFR: ['LFR', '#9d9d9d'], NORMAL: ['N', '#1eff00'], HEROIC: ['H', '#a335ee'], MYTHIC: ['M', '#ff8000'] };
+function killsBlock(c) {
+  if (!c.vault) return '';
+  const kills = c.raidKills || [];
+  const byBoss = {};
+  kills.forEach(k => { byBoss[k.boss] = k; });
+  const bosses = BOSS_ORDER.concat(kills.map(k => k.boss).filter(b => !BOSS_ORDER.includes(b)));
+  const done = bosses.filter(b => byBoss[b]).length;
+  return `<div class="sec"><div class="sec-title"><span>Raid this week</span><span class="hint">${done} of ${bosses.length} bosses &middot; resets Tuesday</span></div><div class="kills">` +
+    bosses.map(b => { const k = byBoss[b];
+      const badges = k ? ['LFR', 'NORMAL', 'HEROIC', 'MYTHIC'].filter(d => k.diffs.includes(d)).map(d => `<span class="dbadge" style="color:${DIFF[d][1]};border-color:${DIFF[d][1]}">${DIFF[d][0]}</span>`).join('') : '';
+      return `<div class="kill${k ? ' on' : ''}" data-tip="${esc(b)}${k ? ': killed on ' + esc(k.diffs.map(d => d.charAt(0) + d.slice(1).toLowerCase()).join(', ')) : ': not killed this week'}"><span class="kn">${esc(b)}</span>${badges}</div>`;
+    }).join('') + `</div></div>`;
 }
 
 function targetsBlock(c) {
@@ -784,7 +810,7 @@ function pveCard(c) {
       </div>
       ${c.logs && !c.logs.error ? `<div class="logs-line"><span>Logs</span><span data-tip="Raid by item level">Raid ilvl${pctHtml(c.logs.raidAvg)}</span><span data-tip="Mythic+ by key level">M+ key${pctHtml(c.logs.dungeonAvg)}</span>${c.logs.raidAvgAll != null || c.logs.dungeonAvgAll != null ? `<span data-tip="Compared with every player of the spec">Overall R${pctHtml(c.logs.raidAvgAll)} M+${pctHtml(c.logs.dungeonAvgAll)}</span>` : ''}</div>` : ''}
     </div>
-    <div class="pvp-more">${logsBlock(c)}<div class="pvp-more-grid" style="grid-template-columns:1fr 1fr"><div>${targetsBlock(c)}</div><div>${enchantBlock(c)}${weeklyChecks(c)}</div></div>
+    <div class="pvp-more">${logsBlock(c)}<div class="pvp-more-grid" style="grid-template-columns:1fr 1fr"><div>${killsBlock(c)}${targetsBlock(c)}</div><div>${enchantBlock(c)}${weeklyChecks(c)}</div></div>
       <div class="foot">Gear pulled ${esc(c.pulled || '-')}</div></div>
   </div>`;
 }
