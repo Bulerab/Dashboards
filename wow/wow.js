@@ -519,6 +519,22 @@ function guestBis(g) {
   return { bar, more: rollBlock + otherBlock };
 }
 
+/* BiS for a character on a friend's page: a BiS tab (bisList) or one of your own toons (bisSets, one per spec) */
+const friendBisSpec = (() => { try { return JSON.parse(localStorage.getItem('wowFriendBis') || '{}'); } catch (e) { return {}; } })();
+function friendBis(c) {
+  if (c.bisList) return guestBis({ gear: c.bisList, spec: c.spec, raidKills: c.raidKills });
+  const sets = c.bisSets || [];
+  if (!sets.length) return null;
+  const set = sets.find(x => x.spec === friendBisSpec[c.name]) || sets.find(x => x.spec === c.mainSpec) || sets[0];
+  const chips = sets.length > 1 ? `<div class="filters" style="margin:6px 0 0">${sets.map(x =>
+    `<button type="button" class="chip${x === set ? ' on' : ''}" data-friendbis="${esc(c.name + '|' + x.spec)}">${specLetters([x.spec])} ${esc(x.spec)}</button>`).join('')}</div>` : '';
+  // Same blocks as guests: need list -> bonus roll targets and other BiS; the bar uses the sheet's own count
+  const g = guestBis({ gear: set.need.map(n => ({ slot: n.slot, bis: n.bis, source: n.source, have: false })), spec: set.spec, raidKills: c.raidKills });
+  const pct = set.total ? Math.round(set.have / set.total * 100) : 0;
+  const bar = `<div class="bis"><div class="bis-label"><span>${esc(set.spec)} BiS</span><span>${set.have} / ${set.total}</span></div><div class="meter"><div style="width:${pct}%"></div></div></div>${chips}`;
+  return { bar, more: set.need.length ? g.more : `<p class="empty">Full BiS for ${esc(set.spec)}.</p>` };
+}
+
 /* One collapsible tile with everything known about a character that has no tracker sheet */
 function liteCard(c, key, opts) {
   if (c.error && !c.cls) return `<div class="char"><div class="char-name">${esc(c.name)}</div><p class="empty">${esc(c.error)}</p></div>`;
@@ -526,7 +542,7 @@ function liteCard(c, key, opts) {
   const kills = (c.raidKills || []).length;
   const runs = (c.weeklyRuns || []).length;
   const L = c.logs && !c.logs.error ? c.logs : null;
-  const bis = opts && opts.guest ? guestBis(c) : null;
+  const bis = opts && opts.guest ? guestBis(c) : opts && opts.friend ? friendBis(c) : null;
   return `<div class="char pvpc lite${open ? ' open' : ''}" style="--accent:${accentFor(c.cls)};${classBg(c.cls)}">
     <div class="pvp-sum">
       <div class="char-head"><div><div class="name-row">${classIcon(c.cls)}<span class="char-name">${esc(c.name)}</span>${profileLinks(c.name, c.realm)}</div>
@@ -953,8 +969,17 @@ function render(state, live, when) {
   const fr = document.getElementById('friends');
   if (fr) {
     const roster = (state.friends || []).find(f => f.name === fr.dataset.roster);
-    fr.innerHTML = roster ? roster.members.map(m => liteCard(m, 'friend-' + roster.name)).join('')
-      : `<p class="empty">No "${esc(fr.dataset.roster)}" tab in the Friends Rosters sheet yet, or the script has not run.</p>`;
+    if (!roster) fr.innerHTML = `<p class="empty">No "${esc(fr.dataset.roster)}" tab in the Friends Rosters sheet yet, or the script has not run.</p>`;
+    else {
+      const order = (fr.dataset.sections || '').split('|').filter(Boolean);
+      roster.members.forEach(m => { const sec = m.section || 'Other toons'; if (!order.includes(sec)) order.push(sec); });
+      fr.innerHTML = order.map(sec => {
+        const ms = roster.members.filter(m => (m.section || 'Other toons') === sec);
+        return `<div class="section-title"><h2>${esc(sec)}</h2><span class="hint">${ms.length} character${ms.length === 1 ? '' : 's'}</span></div>` +
+          (ms.length ? `<div class="chars lite-grid">${ms.map(m => liteCard(m, 'friend-' + roster.name, { friend: true })).join('')}</div>`
+            : `<p class="empty" style="margin-bottom:18px">None yet: add them on the ${esc(roster.name)} tab of the Friends Rosters sheet with Section "${esc(sec)}".</p>`);
+      }).join('');
+    }
   }
 
   // Mythic+ by dungeon
@@ -1001,6 +1026,8 @@ document.addEventListener('click', e => {
   const ls = e.target.closest('[data-logspec]');
   if (ls) { const [n, sp] = ls.dataset.logspec.split('|'); logSpec[n] = sp; try { localStorage.setItem('wowLogSpec', JSON.stringify(logSpec)); } catch (er) { /* storage blocked */ } renderAll(); return; }
   const bv = e.target.closest('[data-bview]');
+  const fb = e.target.closest('[data-friendbis]');
+  if (fb) { const [n, sp] = fb.dataset.friendbis.split('|'); friendBisSpec[n] = sp; try { localStorage.setItem('wowFriendBis', JSON.stringify(friendBisSpec)); } catch (er) { /* storage blocked */ } renderAll(); return; }
   if (bv) { bonusView = bv.dataset.bview; try { localStorage.setItem('wowBonusView', bonusView); } catch (er) { /* storage blocked */ } paintBonusView(); return; }
   const v = e.target.closest('[data-vault]');
   if (v && !v.disabled) {
@@ -1069,11 +1096,13 @@ $('addform').addEventListener('submit', async e => {
 
 /* ------------------------------------------------------------------ load */
 // The last live data is kept in this browser so the page draws instantly, then updates in the background.
-const SAVED_KEY = 'wowSavedState';
+const PAGE = document.body.dataset.page || 'all';
+const SAVED_KEY = 'wowSaved_' + PAGE;
+try { localStorage.removeItem('wowSavedState'); } catch (e) { /* old single-copy key */ }
 function showSaved() {
   try {
     const saved = JSON.parse(localStorage.getItem(SAVED_KEY) || 'null');
-    if (!saved || !saved.state || !saved.state.characters) return false;
+    if (!saved || !saved.state || !saved.state.generated) return false;
     render(saved.state, true, saved.when + ' (updating…)');
     return true;
   } catch (e) { return false; }
@@ -1082,11 +1111,10 @@ async function load(fresh) {
   if (!WEBAPP_URL) { render(SNAPSHOT, false, SNAPSHOT.generated); return; }
   if (!fresh && document.activeElement && /INPUT|SELECT/.test(document.activeElement.tagName)) return;
   try {
-    const res = await fetch(WEBAPP_URL + (fresh ? '?fresh=1' : ''), { cache: 'no-store' });
+    const res = await fetch(WEBAPP_URL + '?page=' + PAGE + (fresh ? '&fresh=1' : ''), { cache: 'no-store' });
     if (!res.ok) throw new Error('HTTP ' + res.status);
-    const text = await res.text();
-    const state = JSON.parse(text);
-    if (!state.characters) throw new Error('the web app is still on the old script version');
+    const state = JSON.parse(await res.text());
+    if (!state.generated) throw new Error('the web app is still on the old script version');
     const when = new Date().toLocaleString([], { dateStyle: 'medium', timeStyle: 'short' });
     if (document.activeElement && /INPUT|SELECT/.test(document.activeElement.tagName) && !fresh) return;
     render(state, true, when);
