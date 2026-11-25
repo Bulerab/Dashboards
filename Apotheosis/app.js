@@ -295,10 +295,12 @@ function lootTiles(wants) {
   };
   const rowsOf = (ws, keyFn, order) => { const g = {}; ws.forEach(w => { const k = keyFn(w); (g[k] = g[k] || []).push(w); });
     return Object.keys(g).map(k => ({ k, n: g[k].length, who: new Set(g[k].map(w => w.c)).size })).sort(order || ((a, b) => b.n - a.n)); };
-  return raids.map(r => tile(r, rowsOf(wants.filter(w => w.boss && (w.raid || 'Other') === r), w => w.boss, (a, b) => (a.k === TRASH) - (b.k === TRASH) || bossIdx(a.k) - bossIdx(b.k)), 'boss')).join('') +
+  const rOrder = (r, b) => raids.indexOf(r) * 1000 + (b === TRASH ? 999 : bossIdx(b));
+  const raidRows = rowsOf(wants.filter(w => w.boss), w => w.boss + '|' + (w.raid || 'Other'), (a, b) => rOrder(a.k.split('|')[1], a.k.split('|')[0]) - rOrder(b.k.split('|')[1], b.k.split('|')[0]))
+    .map(r => { const [boss, raid] = r.k.split('|'); return Object.assign(r, { k: boss === TRASH ? 'Trash (' + raid.replace(/^The /, '') + ')' : boss }); });
+  return tile('Raids', raidRows, 'boss') +
     tile('Crafting', rowsOf(wants.filter(w => w.kind === 'craft'), w => w.where), 'other') +
-    tile('Mythic+', rowsOf(wants.filter(w => w.kind === 'mplus'), w => w.where.replace(/^.*\((.*)\)$/, '$1')), 'other') +
-    tile('Tier & other', rowsOf(wants.filter(w => w.kind === 'other' || (!w.kind && !w.boss)), w => w.where || 'Other'), 'other');
+    tile('Other', rowsOf(wants.filter(w => w.kind === 'mplus' || w.kind === 'other' || (!w.kind && !w.boss)), w => w.kind === 'mplus' ? 'M+: ' + w.where.replace(/^.*\((.*)\)$/, '$1') : (w.where || 'Other')), 'other');
 }
 
 function lootHtml() {
