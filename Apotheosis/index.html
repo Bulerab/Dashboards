@@ -7,7 +7,7 @@
 <link rel="preconnect" href="https://script.google.com">
 <link rel="preconnect" href="https://script.googleusercontent.com" crossorigin>
 <link rel="stylesheet" href="app.css?v=1">
-<link rel="stylesheet" href="apo.css?v=5">
+<link rel="stylesheet" href="apo.css?v=6">
 </head>
 <body>
 <div class="container">
@@ -17,9 +17,10 @@
       <p class="sub" id="prog-line">Raid &amp; guild tracker</p>
       <p class="generated"><span id="src" class="src snap">Loading</span><span id="when"></span></p>
     </div>
+    <button class="lock" id="lock" type="button" data-lock="1">&#128274; Officer</button>
   </div>
   <nav class="nav apo-tabs" id="tabs">
-    <a href="#roster" data-tab="roster">Roster</a><a href="#priority" data-tab="priority">Priority</a><a href="#guild" data-tab="guild">Guild</a><a href="#mplus" data-tab="mplus">Mythic+</a>
+    <a href="#roster" data-tab="roster">Roster</a><a href="#priority" data-tab="priority">BiS Priority</a><a href="#sims" data-tab="sims">Sims Priority</a><a href="#guild" data-tab="guild">Guild</a><a href="#mplus" data-tab="mplus">Mythic+</a>
   </nav>
 
   <section class="tab" id="tab-roster">
@@ -38,6 +39,14 @@
     <div class="card"><div class="card-head"><h2>Other BiS sources</h2><span class="hint">dungeons, crafting and tier</span></div><div id="prio-other"></div></div>
   </section>
 
+  <section class="tab" id="tab-sims">
+    <div class="card"><div class="card-head"><h2>Raidbots upgrade value by boss</h2><span class="hint" id="sim-chart-hint"></span></div>
+      <div class="filters" id="sim-kind-chips"></div><div id="sim-chart"></div></div>
+    <div class="card" id="sim-import"></div>
+    <div class="section-title"><h2>Raiders</h2><span class="hint">best upgrades from each raider's latest Droptimizer report (picked toons)</span></div>
+    <div id="sim-cards"></div>
+  </section>
+
   <section class="tab" id="tab-guild">
     <div class="card"><div class="card-head"><h2>Raid progression</h2><span class="hint">Raider.io</span></div><div id="guild-rio"></div></div>
     <div class="card"><div class="card-head"><h2>Warcraft Logs rankings</h2><span class="hint">progress and speed</span></div><div id="guild-wcl"></div></div>
@@ -53,10 +62,10 @@
     <div class="team-tiles" id="team-tiles"></div>
     <div id="team-panel"></div>
   </section>
-  <p class="foot hint">Data from Raider.io, Warcraft Logs and Blizzard, refreshed every 6 hours. View only: changes are made in the guild's Google Sheet.</p>
+  <p class="foot hint">Data from Raider.io, Warcraft Logs and Blizzard, refreshed every 6 hours. Changes are made in the guild's Google Sheet; officers can import sims with the officer key.</p>
 </div>
 <div class="tip" id="tip"></div>
 <script src="shared.js?v=1"></script>
-<script src="app.js?v=10"></script>
+<script src="app.js?v=11"></script>
 </body>
 </html>

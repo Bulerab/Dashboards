@@ -124,6 +124,7 @@ const rbUrl = (mode, c) => `https://www.raidbots.com/simbot/${mode}?region=us&re
 // already in Raidbots when "Character" is unticked on Raidbots' confirm screen.
 const RB_SETUP_DEFAULT = 'https://www.raidbots.com/simbot/share/9i2ZaaSji3BsvnnmDjKo1o';
 const rbSetup = () => (STATE && STATE.guild && STATE.guild.raidbotsSetup) || RB_SETUP_DEFAULT;
+const rbBonus = () => (STATE && STATE.guild && STATE.guild.raidbotsBonus) || '';
 const rbLinks = c => `<div class="rb-links"><span class="rb-step">1</span><a class="rb-btn" href="${rbUrl('droptimizer', c)}" target="raidbots" rel="noopener" data-tip="Opens Raidbots Droptimizer with ${esc(c.name)} loaded">${fav('raidbots.com', 'RB')} Droptimizer: ${esc(c.name)}</a>
   <span class="rb-step">2</span><a class="rb-btn" href="${esc(rbSetup())}" target="raidbots" rel="noopener" data-tip="Applies the guild setup: Season 2 Raids, Heroic, Hero 6/6, Patchwerk, 1 boss.&lt;br&gt;On Raidbots' screen, &lt;b&gt;untick Character&lt;/b&gt;, then Load Setup.">Raid setup</a>
   <a class="rb-btn" href="${rbUrl('quick', c)}" target="raidbots" rel="noopener" data-tip="Raidbots Quick Sim of ${esc(c.name)}'s current gear">Quick Sim</a></div>`;
@@ -202,6 +203,73 @@ function priorityHtml() {
   $('prio-other').innerHTML = block(other, false) || '<p class="empty">Nothing else needed.</p>';
   if (pvpSkipped.length) $('prio-bosses').innerHTML += `<p class="hint" style="margin:10px 0 0">Not counted, in PvP gear: ${pvpSkipped.map(c => `${nameHtml(c)} <span class="hint">(${c.pvp.count}/${c.pvp.total})</span>`).join(' &middot; ')}</p>`;
 }
+
+/* ------------------------------------------------------------------ Sims Priority tab */
+const SIM_KINDS = { drops: 'Heroic drops (6/6)', bonus: 'Bonus rolls & vault' };
+let simKind = store('apoSimKind', 'drops');
+let simMsg = '';
+let officerKey = (() => { try { return localStorage.getItem('apoOfficerKey') || ''; } catch (e) { return ''; } })();
+const simsOf = c => (STATE.sims || []).filter(x => x.name.toLowerCase() === String(c.name).toLowerCase() && (!x.realm || x.realm === String(c.realm).toLowerCase()));
+const simOf = (c, kind) => simsOf(c).find(x => x.kind === kind);
+const pctTxt = v => (v > 0 ? '+' : '') + v.toFixed(2) + '%';
+const pctCls = v => v >= 1 ? 'up2' : v > 0 ? 'up' : 'down';
+
+function simList(sim, n) {
+  if (!sim) return '<p class="empty">No report imported yet.</p>';
+  const up = sim.rows.filter(r => r.pct > 0);
+  const rows = (up.length ? up : sim.rows).slice(0, n || 6);
+  const SLOT_NAME = { head: 'Head', neck: 'Neck', shoulder: 'Shoulder', shoulders: 'Shoulder', back: 'Back', chest: 'Chest', wrist: 'Wrist', wrists: 'Wrist', hands: 'Hands',
+    waist: 'Waist', legs: 'Legs', feet: 'Feet', finger1: 'Ring', finger2: 'Ring', trinket1: 'Trinket', trinket2: 'Trinket', main_hand: 'Main hand', off_hand: 'Off hand' };
+  return `${up.length ? '' : '<p class="hint" style="margin:0 0 4px">No upgrades: closest items below</p>'}<div class="sim-rows">${rows.map(r =>
+    `<div class="sim-row"><span class="slot">${esc(SLOT_NAME[r.slot] || r.slot)}</span><span class="sn"><span class="si" data-tip="${esc(r.item)}${r.ilvl ? ' (' + r.ilvl + ')' : ''}">${esc(r.item)}</span><span class="hint sb">${esc(r.boss)}${r.ilvl ? ' &middot; ' + r.ilvl : ''}</span></span>
+     <b class="sp ${pctCls(r.pct)}" data-tip="${r.dps > 0 ? '+' : ''}${Math.round(r.dps).toLocaleString()} DPS">${pctTxt(r.pct)}</b></div>`).join('')}</div>
+    <div class="hint" style="margin-top:4px">Imported ${esc(sim.date)} &middot; <a href="${esc(sim.url)}" target="_blank" rel="noopener">report</a>${officerKey ? ` &middot; <a href="#sims" data-simdel="${esc(sim.name + '|' + sim.realm + '|' + sim.kind)}">remove</a>` : ''}</div>`;
+}
+
+function simsHtml() {
+  const team = raidPlayers().map(picked);
+  // Chart: for each boss, the sum of every raider's best upgrade % from that boss (who gains most if it dies)
+  $('sim-kind-chips').innerHTML = Object.keys(SIM_KINDS).map(k => `<button type="button" class="chip${simKind === k ? ' on' : ''}" data-simkind="${k}">${SIM_KINDS[k]}</button>`).join('');
+  const byBoss = {};
+  team.forEach(c => { const sim = simOf(c, simKind); if (!sim) return;
+    const bestPer = {};
+    sim.rows.filter(r => r.pct > 0 && r.boss).forEach(r => { if (!bestPer[r.boss] || r.pct > bestPer[r.boss].pct) bestPer[r.boss] = r; });
+    Object.keys(bestPer).forEach(b => { (byBoss[b] = byBoss[b] || []).push({ c, r: bestPer[b] }); });
+  });
+  const bars = Object.keys(byBoss).map(b => ({ b, who: byBoss[b].sort((x, y) => y.r.pct - x.r.pct), total: byBoss[b].reduce((a, x) => a + x.r.pct, 0) })).sort((a, b) => b.total - a.total);
+  const max = bars.length ? bars[0].total : 1;
+  const simmed = team.filter(c => simOf(c, simKind)).length;
+  $('sim-chart-hint').textContent = `${simmed} of ${team.length} raiders simmed · each bar = total % DPS the raid gains from that boss's best upgrades`;
+  $('sim-chart').innerHTML = bars.length ? `<div class="bars">${bars.map(x => `<div class="bar-row"><span class="bl">${esc(x.b)}</span>
+      <div class="bt"><div class="bf" style="width:${(x.total / max * 100).toFixed(1)}%"></div><span class="bv">+${x.total.toFixed(2)}%</span></div>
+      <span class="bw">${x.who.map(w => `<span data-tip="${esc(w.r.item)}: ${pctTxt(w.r.pct)}">${nameHtml(w.c)} <span class="hint">${pctTxt(w.r.pct)}</span></span>`).join(' ')}</span></div>`).join('')}</div>`
+    : `<p class="empty">${simmed ? 'No upgrades in the imported reports.' : 'Import Droptimizer reports below to fill this chart.'}</p>`;
+  // Import form (officers)
+  $('sim-import').innerHTML = `<div class="card-head"><h2>Run &amp; import</h2><span class="hint">${officerKey ? 'officer mode' : 'officers: click the lock button to import'}</span></div>
+    <ol class="steps"><li>On a raider's card, click <b>1 Droptimizer</b> (loads them in Raidbots), then <b>2 Heroic drops</b> or <b>2 Bonus/vault</b> to apply the guild setup &mdash; untick <i>Character</i> on Raidbots' screen and Load Setup.</li>
+      <li>Run the Droptimizer, copy the report address when it finishes.</li>
+      <li>${officerKey ? 'Paste it here:' : 'An officer pastes it here (needs the officer key).'}</li></ol>
+    ${officerKey ? `<form class="sim-form" id="sim-form"><input type="url" id="sim-url" placeholder="https://www.raidbots.com/simbot/report/..." required>
+      <select id="sim-kindsel">${Object.keys(SIM_KINDS).map(k => `<option value="${k}"${k === simKind ? ' selected' : ''}>${SIM_KINDS[k]}</option>`).join('')}</select>
+      <button type="submit" class="toggle-btn" id="sim-go">Import report</button><span class="hint" id="sim-msg">${esc(simMsg)}</span></form>` : ''}`;
+  // Raider cards
+  $('sim-cards').innerHTML = `<div class="sim-grid">${raidPlayers().map(p => { const c = picked(p);
+    return `<div class="char sim-card" style="--accent:${accentFor(c.cls)}"><div class="name-row">${classIcon(c.cls)}<span class="char-name">${esc(c.name)}</span>${profileLinks(c.name, c.realm)}<span class="hint" style="margin-left:auto">${esc(c.spec || '')}</span></div>
+      <div class="rb-links"><span class="rb-step">1</span><a class="rb-btn" href="${rbUrl('droptimizer', c)}" target="raidbots" rel="noopener">${fav('raidbots.com', 'RB')} Droptimizer</a>
+        <span class="rb-step">2</span><a class="rb-btn" href="${esc(rbSetup())}" target="raidbots" rel="noopener" data-tip="Season 2 Raids, Heroic, Hero 6/6, Patchwerk, 1 boss. Untick Character, then Load Setup.">Heroic drops</a>
+        ${rbBonus() ? `<a class="rb-btn" href="${esc(rbBonus())}" target="raidbots" rel="noopener" data-tip="Bonus rolls &amp; vault setup. Untick Character, then Load Setup.">Bonus/vault</a>` : '<span class="hint" data-tip="Add the Bonus rolls &amp; vault Share Setup link in the sheet\'s Settings tab">Bonus/vault: add link</span>'}</div>
+      ${inPvp(c) ? `<p class="hint">${esc(pvpText(c))}</p>` : ''}
+      <div class="sim-cols"><div><div class="sec-title"><span>${SIM_KINDS.drops}</span></div>${simList(simOf(c, 'drops'))}</div>
+        <div><div class="sec-title"><span>${SIM_KINDS.bonus}</span></div>${simList(simOf(c, 'bonus'))}</div></div></div>`; }).join('')}</div>`;
+}
+
+async function officerPost(payload) {
+  const res = await fetch(WEBAPP_URL, { method: 'POST', body: JSON.stringify(Object.assign({ key: officerKey }, payload)) });
+  const out = await res.json();
+  if (!out.ok) { if (/officer key/i.test(out.error)) { officerKey = ''; try { localStorage.removeItem('apoOfficerKey'); } catch (e) { /* */ } } throw new Error(out.error); }
+  return out.message;
+}
+function paintLock() { $('lock').innerHTML = officerKey ? '&#128275; Officer mode' : '&#128274; Officer'; $('lock').classList.toggle('on', !!officerKey); }
 
 /* ------------------------------------------------------------------ Guild tab */
 const rk = n => n ? '#' + Number(n).toLocaleString() : '-';
@@ -288,11 +356,29 @@ function render() {
   const bench = benchPlayers();
   $('bench-wrap').innerHTML = bench.length ? `<div class="section-title"><h2>Others on the roster</h2><span class="hint">${bench.length} players</span></div><div class="chars lite-grid">${bench.map(p => playerTile(p, 'bench')).join('')}</div>` : '';
   priorityHtml();
+  simsHtml();
+  paintLock();
   guildHtml();
   mplusHtml();
 }
 
 document.addEventListener('click', e => {
+  if (e.target.closest('[data-lock]')) {
+    e.preventDefault();
+    if (officerKey) { officerKey = ''; try { localStorage.removeItem('apoOfficerKey'); } catch (er) { /* */ } render(); return; }
+    const k = prompt('Officer key (set in the sheet: Apotheosis > Set officer key):');
+    if (!k || !k.trim()) return;
+    officerKey = k.trim();
+    officerPost({ action: 'check' }).then(() => { try { localStorage.setItem('apoOfficerKey', officerKey); } catch (er) { /* */ } render(); })
+      .catch(err => { officerKey = ''; alert(err.message); render(); });
+    return;
+  }
+  const sk = e.target.closest('[data-simkind]');
+  if (sk) { simKind = sk.dataset.simkind; save('apoSimKind', simKind); render(); return; }
+  const sd = e.target.closest('[data-simdel]');
+  if (sd) { e.preventDefault(); const [name, realm, kind] = sd.dataset.simdel.split('|');
+    if (!confirm('Remove ' + name + "'s " + SIM_KINDS[kind] + ' report?')) return;
+    officerPost({ action: 'simDelete', name, realm, kind }).then(() => load()).catch(err => alert(err.message)); return; }
   const bm = e.target.closest('[data-bbmode]');
   if (bm) { bbMode = bm.dataset.bbmode; save('apoBossMode', bbMode); render(); return; }
   if (e.target.closest('[data-ilvlall]')) { ilvlAll = !ilvlAll; save('apoIlvlAll', ilvlAll); render(); return; }
@@ -310,6 +396,16 @@ document.addEventListener('click', e => {
   if (tp) { const [tm, base, pick] = tp.dataset.teampick.split('|'); teamPick[tm + '|' + base] = pick; try { localStorage.setItem('apoTeamPick', JSON.stringify(teamPick)); } catch (er) { /* blocked */ } render(); return; }
   const db = e.target.closest('[data-dungeon]');
   if (db) { const k = db.dataset.dungeon; openDungeon.has(k) ? openDungeon.delete(k) : openDungeon.add(k); try { localStorage.setItem('apoOpenDungeon', JSON.stringify([...openDungeon])); } catch (er) { /* blocked */ } render(); return; }
+});
+
+document.addEventListener('submit', e => {
+  if (e.target.id !== 'sim-form') return;
+  e.preventDefault();
+  const url = $('sim-url').value.trim(), kind = $('sim-kindsel').value;
+  $('sim-go').disabled = true; $('sim-msg').textContent = 'Reading the report…';
+  officerPost({ action: 'simImport', url, kind }).then(msg => { simMsg = 'Imported ' + msg; $('sim-msg').textContent = simMsg; return load(); })
+    .catch(err => { simMsg = 'Not imported: ' + err.message; $('sim-msg').textContent = simMsg; })
+    .finally(() => { const b = document.getElementById('sim-go'); if (b) b.disabled = false; });
 });
 
 /* ------------------------------------------------------------------ load (last copy first, then live) */
