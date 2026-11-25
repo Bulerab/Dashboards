@@ -432,9 +432,12 @@ function logsBlock(c) {
   const head = `<div class="sec-title"><span>Warcraft Logs &middot; best DPS % by item level</span>${L && L.updated ? `<span class="hint">updated ${esc(L.updated)}</span>` : ''}</div>`;
   if (!L) return `<div class="sec">${head}<p class="empty">Shows once Warcraft Logs keys are added to the script.</p></div>`;
   if (L.error) return `<div class="sec">${head}<p class="empty">${esc(L.error)}</p></div>`;
-  const table = (rows, label, extra) => `<table class="logs-table"><thead><tr><th>${label}</th>${extra ? '<th>Diff</th>' : ''}<th>Best %</th><th>Highest DPS</th><th>${extra ? 'Kills' : 'Runs'}</th></tr></thead><tbody>` +
-    (rows.length ? rows.map(r => `<tr><td${r.kills ? '' : ' class="none"'}>${esc(r.name)}</td>${extra ? `<td class="hint">${esc(r.diff || '')}</td>` : ''}<td>${r.kills ? pctHtml(r.pct) : '<span class="none">-</span>'}</td><td>${r.kills ? abbr(r.amount) : '-'}</td><td>${r.kills || 0}</td></tr>`).join('')
-      : `<tr><td colspan="${extra ? 5 : 4}" class="none">No logs yet</td></tr>`) + `</tbody></table>`;
+  // Mythic+ amounts arrive as (key level x 2) x 10,000,000 + DPS; split them back apart
+  const mp = r => r.amount >= 1e7 ? { dps: r.amount % 1e7, key: Math.floor(r.amount / 1e7) / 2 } : { dps: r.amount, key: null };
+  const table = (rows, label, extra) => `<table class="logs-table"><thead><tr><th>${label}</th><th>${extra ? 'Diff' : 'Key'}</th><th>Best %</th><th>Highest DPS</th><th>${extra ? 'Kills' : 'Runs'}</th></tr></thead><tbody>` +
+    (rows.length ? rows.map(r => { const m = extra ? { dps: r.amount, key: null } : mp(r);
+      return `<tr><td${r.kills ? '' : ' class="none"'}>${esc(r.name)}</td><td class="hint">${extra ? esc(r.diff || '') : (r.kills && m.key ? '+' + m.key : '')}</td><td>${r.kills ? pctHtml(r.pct) : '<span class="none">-</span>'}</td><td>${r.kills ? abbr(m.dps) : '-'}</td><td>${r.kills || 0}</td></tr>`; }).join('')
+      : `<tr><td colspan="5" class="none">No logs yet</td></tr>`) + `</tbody></table>`;
   const raid = (L.raid || []).slice().sort((a, b) => (BOSS_ORDER.indexOf(bossOf(a.name) || a.name) + 1 || 99) - (BOSS_ORDER.indexOf(bossOf(b.name) || b.name) + 1 || 99));
   return `<div class="sec">${head}<div class="logs-grid"><div>${table(raid, 'Raid boss', true)}</div><div>${table(L.dungeons || [], 'Dungeon', false)}</div></div></div>`;
 }
