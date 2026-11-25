@@ -31,7 +31,7 @@ a { color: #58a6ff; }
 
 .role-sec { margin-bottom: 10px; }
 .role-sec .section-title h2 { display: inline-flex; align-items: center; gap: 8px; }
-.role-ic { width: 18px; height: 18px; border-radius: 4px; vertical-align: middle; }
+.role-ic { width: 20px; height: 20px; vertical-align: middle; flex: none; }
 .avail { font-size: 12.5px; color: var(--muted); margin: -4px 0 12px; display: flex; flex-wrap: wrap; gap: 4px 8px; align-items: center; }
 .avail b { color: var(--text); }
 .offspecs { display: flex; align-items: center; gap: 6px; flex-wrap: wrap; margin-top: 8px; font-size: 12px; }
@@ -136,7 +136,7 @@ p .tal-cell { font-weight: 700; }
 .bt-line { font-size: 13px; margin: 2px 0 8px; }
 .lp-group { margin-bottom: 8px; display: flex; flex-wrap: wrap; gap: 5px; align-items: center; }
 .lp-boss { width: 100%; font-size: 12px; color: var(--muted-2, #999); font-weight: 600; }
-.st-ic { display: inline-flex; gap: 2px; vertical-align: -3px; } .st-ic .role-ic { width: 16px; height: 16px; }
+.st-ic { display: inline-flex; gap: 2px; vertical-align: -3px; } .st-ic .role-ic { width: 20px; height: 20px; }
 .st-src { font-weight: 400; color: var(--muted-2, #999); font-size: 12px; }
 
 /* Loot Targets: summary tiles, raid sections, boss headers */

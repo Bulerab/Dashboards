@@ -69,8 +69,14 @@ function offspecsOf(p) {
   });
   return out;
 }
-const ROLE_ICON = { Tank: 'inv_shield_04', Healer: 'spell_holy_flashheal', DPS: 'inv_sword_04' };
-const roleIcon = r => icon(ROLE_ICON[r] || ROLE_ICON.DPS, 'role-ic');
+// Role badges drawn as SVG (in-game style: blue shield, green cross, red sword)
+const ROLE_SVG = {
+  Tank: { bg: '#2f7fd8', title: 'Tank', d: '<path d="M12 4.3l6.2 2.3v4.8c0 4-2.6 7-6.2 8.6-3.6-1.6-6.2-4.6-6.2-8.6V6.6z" fill="#fff"/><path d="M12 6.7v11c2.4-1.3 4-3.5 4-6.2V8.1z" fill="#2f7fd8" opacity=".45"/>' },
+  Healer: { bg: '#2fa84f', title: 'Healer', d: '<path d="M9.7 5h4.6v4.7H19v4.6h-4.7V19H9.7v-4.7H5V9.7h4.7z" fill="#fff"/>' },
+  DPS: { bg: '#d8392f', title: 'DPS', d: '<path d="M18.6 4.6l.8.8-.6 2.9-6.7 6.7-2.1-2.1 6.7-6.7z" fill="#fff"/><path d="M7.3 12.6l1.1-1.1 4.1 4.1-1.1 1.1z" fill="#fff"/><path d="M9.6 15l1.1 1.1-3.3 3.3a.8.8 0 0 1-1.1-1.1z" fill="#fff"/>' }
+};
+const roleIcon = r => { const x = ROLE_SVG[r] || ROLE_SVG.DPS;
+  return `<svg class="role-ic" viewBox="0 0 24 24" role="img" aria-label="${x.title}"><title>${x.title}</title><circle cx="12" cy="12" r="11" fill="${x.bg}" stroke="#e5cc80" stroke-width="1.4"/>${x.d}</svg>`; };
 
 /* ------------------------------------------------------------------ Roster tab */
 function summaryHtml(toons) {
