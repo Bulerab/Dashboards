@@ -193,7 +193,7 @@ const TRASH = 'Trash drops';
 function srcKind(src) {
   const t = String(src || '');
   const boss = bossOfSrc(t);
-  if (boss) return { kind: 'boss', key: boss };
+  if (boss) return { kind: 'boss', key: boss, raid: (t.match(/\(([^)]+)\)\s*$/) || [])[1] || '' };
   if (/^trash/i.test(t)) return { kind: 'boss', key: TRASH, raid: (t.match(/\(([^)]+)\)/) || [])[1] || '' };
   let m = t.match(/^crafted\s*\(([^)]+)\)/i);
   if (m) return { kind: 'craft', key: m[1] };
@@ -203,7 +203,21 @@ function srcKind(src) {
   return { kind: 'other', key: t || 'Unknown source' };
 }
 const bossIdx = b => { const i = bossList().indexOf(b); return i < 0 ? 999 : i; };
-const raidOf = b => ((STATE.zones || []).find(z => (z.bosses || []).includes(b)) || {}).name || '';
+// Which raid a boss is in: from the BiS sheet's sources ("Kith'ix (The Unbinding of Kith'ix)"), else Warcraft Logs' zone
+let raidMapCache = null, raidMapFor = null;
+function raidMap() {
+  if (raidMapFor === STATE) return raidMapCache;
+  const m = Object.assign({}, STATE.bossRaids || {});
+  (STATE.roster || []).forEach(p => toonsOfP(p).forEach(c => ((c.bis && c.bis.need) || []).forEach(n => {
+    const b = bossOfSrc(n.source), r = (String(n.source || '').match(/\(([^)]+)\)\s*$/) || [])[1];
+    if (b && r && !/mythic\+/i.test(r) && !m[b]) m[b] = r; })));
+  Object.keys(m).forEach(k => { const b = bossOfSrc(k); if (b && b !== k && !m[b]) m[b] = m[k]; });   // sheet names -> Warcraft Logs boss names
+  raidMapFor = STATE; raidMapCache = m; return m;
+}
+const raidOf = b => raidMap()[b] || ((STATE.zones || []).find(z => (z.bosses || []).includes(b)) || {}).name || '';
+// Raids in order: smaller raids (single-boss) first, then by name
+const raidSize = r => { const m = raidMap(); return Object.keys(m).filter(b => m[b] === r).length || ((STATE.zones || []).find(z => z.name === r) || { bosses: [] }).bosses.length || 99; };
+const raidOrder = (a, b) => raidSize(a) - raidSize(b) || a.localeCompare(b);
 
 function priorityHtml() {
   const buckets = { boss: {}, craft: {}, mplus: {}, other: {} };
@@ -244,7 +258,7 @@ function lootWants() {
       const w = by[k] = by[k] || { c, p, item, slot: '', boss: '', where: '', kind: '', src: {}, pct: 0, bonusPct: 0 };
       if (!w.slot && slot) w.slot = slot;
       if (!w.boss && where) { const sk = srcKind(where); w.kind = sk.kind; w.boss = sk.kind === 'boss' ? sk.key : ''; w.where = sk.sub ? sk.sub + ' (' + sk.key + ')' : sk.key;
-        if (w.boss) w.raid = w.boss === TRASH ? (sk.raid || '') : raidOf(w.boss); }
+        if (w.boss) w.raid = w.boss === TRASH ? (sk.raid || '') : (raidMap()[w.boss] || sk.raid || raidOf(w.boss)); }
       w.src[src] = extra || true;
       if (src === 'sim') w.pct = Math.max(w.pct, pct || 0);
       if (src === 'bonus') w.bonusPct = Math.max(w.bonusPct, pct || 0);
@@ -272,7 +286,7 @@ const starHtml = (i, t) => `<span class="br-star" data-tip="Bonus roll ${i + 1}:
 // Summary tiles: one per raid (its bosses), then crafting, Mythic+, tier & other
 function lootTiles(wants) {
   const raids = [...new Set(wants.filter(w => w.boss).map(w => w.raid || 'Other'))]
-    .sort((a, b) => (STATE.zones || []).findIndex(z => z.name === a) - (STATE.zones || []).findIndex(z => z.name === b));
+    .sort(raidOrder);
   const bar = (label, n, max, who) => `<div class="lt-row"><span class="lt-l">${esc(label)}</span><span class="lt-bar"><span style="width:${Math.max(4, n / max * 100)}%"></span></span><b data-tip="${n} item${n === 1 ? '' : 's'} wanted by ${who} raider${who === 1 ? '' : 's'}">${n}</b></div>`;
   const tile = (title, rows, view) => {
     const max = Math.max(1, ...rows.map(r => r.n));
@@ -297,7 +311,7 @@ function lootHtml() {
   const targets = new Map(players.map(c => [c, bonusTargets(wants.filter(w => w.c === c))]));
   if (lootView === 'boss') {
     const raids = [...new Set(wants.filter(w => w.boss).map(w => w.raid || 'Other'))]
-      .sort((a, b) => (STATE.zones || []).findIndex(z => z.name === a) - (STATE.zones || []).findIndex(z => z.name === b));
+      .sort(raidOrder);
     body = raids.map(raid => {
       const bosses = [...new Set(wants.filter(w => w.boss && (w.raid || 'Other') === raid).map(w => w.boss))].map(b => {
         const ws = wants.filter(w => w.boss === b && (w.raid || 'Other') === raid), who = [...new Set(ws.map(w => w.c))];
