@@ -243,6 +243,11 @@
     <div class="card-head"><h2>Mythic+ by dungeon</h2><span class="hint">Best run per dungeon this season, highest score first</span></div>
     <div class="mplus" id="mplus"></div>
   </div>
+
+  <div id="guest-wrap" style="display:none">
+    <div class="section-title"><h2>Guest characters</h2></div>
+    <div class="chars" id="guests"></div>
+  </div>
 </div>
 <div id="tip"></div>
 <div id="toast"></div>
@@ -287,7 +292,9 @@ const SNAPSHOT = {
 };
 
 /* ------------------------------------------------------------------ helpers */
-const CLASS_ACCENT = { 'demon hunter': 'var(--dh)', 'death knight': 'var(--dk)', 'druid': 'var(--druid)' };
+const CLASS_ACCENT = { 'demon hunter': 'var(--dh)', 'death knight': 'var(--dk)', 'druid': 'var(--druid)', 'mage': '#3fc7eb',
+  'warrior': '#c69b6d', 'paladin': '#f48cba', 'hunter': '#aad372', 'rogue': '#fff468', 'priest': '#ffffff', 'shaman': '#0070dd',
+  'warlock': '#8788ee', 'monk': '#00ff98', 'evoker': '#33937f' };
 const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
 const accentFor = cls => CLASS_ACCENT[String(cls).toLowerCase()] || '#555';
 const $ = id => document.getElementById(id);
@@ -521,6 +528,34 @@ function todoRow(t) {
   </div>`;
 }
 
+function guestCard(g) {
+  if (g.error) return `<div class="char"><div class="char-name">${esc(g.name)}</div><p class="empty">Could not load: ${esc(g.error)}</p></div>`;
+  const gear = g.gear || [];
+  const withBis = gear.filter(x => x.bis), have = withBis.filter(x => x.have).length;
+  const pct = withBis.length ? Math.round(have / withBis.length * 100) : 0;
+  const bisBar = withBis.length
+    ? `<div class="bis"><div class="bis-label"><span>${esc(g.spec || g.activeSpec)} BiS</span><span>${have} / ${withBis.length}</span></div><div class="meter"><div style="width:${pct}%"></div></div></div>`
+    : `<p class="empty">No BiS list yet: add it on the hub's Guests tab.</p>`;
+  const need = withBis.filter(x => !x.have);
+  const byBoss = {};
+  need.forEach(x => { const b = bossOf(x.source); if (b) (byBoss[b] = byBoss[b] || []).push(x); });
+  const rolls = BOSS_ORDER.filter(b => byBoss[b]);
+  const rollBlock = withBis.length ? `<div class="sec"><div class="sec-title"><span>Bonus roll targets</span><span class="hint">raid order</span></div>` +
+    (rolls.length ? `<div class="targets">${rolls.map(b => `<div class="target"><span class="boss">${esc(b)}</span><div class="need-grid" style="grid-template-columns:82px 1fr;margin-top:3px">${byBoss[b].map(x =>
+      `<span class="slot">${esc(slotName(x.slot))}</span><span>${esc(x.bis)}</span>`).join('')}</div></div>`).join('')}</div>` : `<p class="empty">No raid drops needed.</p>`) + `</div>` : '';
+  const other = need.filter(x => !bossOf(x.source));
+  const otherBlock = other.length ? `<div class="sec"><div class="sec-title"><span>Other BiS still needed</span></div><div class="need-grid" style="grid-template-columns:82px 1fr auto">${other.map(x =>
+    `<span class="slot">${esc(slotName(x.slot))}</span><span>${esc(x.bis)}</span><span class="specs-tag">${esc(x.source)}</span>`).join('')}</div></div>` : '';
+  return `<div class="char" style="--accent:${accentFor(g.cls)}">
+    <div class="char-head"><div><div class="char-name">${esc(g.name)}</div><div class="char-meta">${esc([g.spec || g.activeSpec, g.cls].filter(Boolean).join(' '))}${g.realm ? ' &middot; ' + esc(g.realm) : ''}</div></div>
+      <div class="headline-row"><div class="headline"><div class="lbl">M+ rating</div><div class="big">${g.score ? Number(g.score).toFixed(0) : '-'}</div></div>
+      <div class="headline"><div class="lbl">ilvl</div><div class="big">${esc(g.ilvl || '-')}</div></div></div></div>
+    <div class="sec">${bisBar}</div>
+    ${rollBlock}${otherBlock}
+    <div class="foot">Raider.io last updated ${esc(g.pulled || '-')}</div>
+  </div>`;
+}
+
 /* ------------------------------------------------------------------ render */
 function renderAll() { if (STATE) render(STATE, LIVE, WHEN); }
 
@@ -610,6 +645,10 @@ function render(state, live, when) {
   $('bonus').innerHTML = `<thead><tr><th>Boss</th><th class="num">Items</th><th>Who needs what</th><th>Plan (who rolls)</th><th class="cb">Rolls this week</th></tr></thead><tbody>` +
     (body || `<tr><td colspan="5" class="empty">Loads with live data.</td></tr>`) +
     `<tr><td colspan="4"><b>Total rolls planned</b></td><td class="cb"><b>${totalRolls}</b></td></tr></tbody>`;
+
+  const guests = state.guests || [];
+  $('guest-wrap').style.display = guests.length ? '' : 'none';
+  $('guests').innerHTML = guests.map(guestCard).join('');
 
   // Mythic+ by dungeon
   $('mplus').innerHTML = pve.slice().sort(byOrder(MPLUS_ORDER)).map(c => {
