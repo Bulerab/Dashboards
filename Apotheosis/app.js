@@ -50,14 +50,19 @@ const sectionOf = (role, cls, spec) => /tank/i.test(role) ? 'Tanks' : /heal/i.te
 const ROLE_SECTION = { Tank: 'Tanks', Healer: 'Healers', Melee: 'Melee', Ranged: 'Ranged' };
 /** The section a player sits in: the Raid role column, or their main's spec when it's blank */
 const playerSection = p => ROLE_SECTION[p.role] || sectionOf(p.main.role, p.main.cls, p.main.spec);
-/** "Offspec: Shadow DPS; Offspec: Blood tank" in Notes -> [{ spec, role, section }] */
+/** Offspecs written in Notes, only those listed: "Offspec: Shadow DPS; Offspec: Blood tank".
+ *  Starting with a secondary main's name puts that toon in: "Offspec: Jacii Retribution DPS". */
 function offspecsOf(p) {
   const out = [];
   String(p.notes || '').replace(/offspec:\s*([^;\n]+)/gi, (m, txt) => {
-    txt.split(/\s*(?:,|&| and )\s*/).forEach(t => {
-      const role = /tank/i.test(t) ? 'Tank' : /heal/i.test(t) ? 'Healer' : 'DPS';
-      const spec = t.replace(/\b(dps|tank|heals?|healer|healing)\b/ig, '').trim();
-      out.push({ spec, role, section: sectionOf(role, p.main.cls, spec) });
+    txt.split(/\s*(?:,|&| and )\s*/).filter(Boolean).forEach(t => {
+      const first = t.split(/\s+/)[0];
+      const alt = (p.alts || []).find(a => a.name.toLowerCase() === first.toLowerCase());
+      const rest = alt ? t.slice(first.length).trim() : t;
+      const toon = alt || p.main;
+      const role = /tank/i.test(rest) ? 'Tank' : /heal/i.test(rest) ? 'Healer' : 'DPS';
+      const spec = rest.replace(/\b(dps|tank|heals?|healer|healing)\b/ig, '').trim();
+      out.push({ spec, role, toon, alt: !!alt, section: sectionOf(role, toon.cls, spec) });
     });
   });
   return out;
@@ -113,7 +118,7 @@ function bisNeedByBoss(c) {
 
 function offBadges(p) {
   const offs = offspecsOf(p);
-  return offs.length ? `<div class="offspecs"><span class="ol">Offspecs</span>${offs.map(o => `<span class="ob" data-tip="${esc((o.spec ? o.spec + ' ' : '') + o.role)}">${roleIcon(o.role)}${esc(o.spec || o.role)}</span>`).join('')}</div>` : '';
+  return offs.length ? `<div class="offspecs"><span class="ol">Offspecs</span>${offs.map(o => `<span class="ob" data-tip="${esc((o.alt ? o.toon.name + ': ' : '') + (o.spec ? o.spec + ' ' : '') + o.role)}">${roleIcon(o.role)}${o.alt ? esc(o.toon.name) + ' ' : ''}${esc(o.spec || o.role)}</span>`).join('')}</div>` : '';
 }
 
 function playerTile(p, key) {
@@ -248,9 +253,8 @@ function render() {
   $('raid-tiles').innerHTML = rp.length ? SECTIONS.map(sec => {
     const ps = rp.filter(p => playerSection(p) === sec);
     // Offspecs and secondary mains from other players that can fill this section
-    const offs = rp.flatMap(p => offspecsOf(p).filter(o => o.section === sec && playerSection(p) !== sec).map(o => `${nameHtml(p.main)} <span class="hint">(${esc(o.spec || o.role)})</span>`));
-    const secs = rp.flatMap(p => (p.alts || []).filter(a => !a.error && sectionOf(a.role, a.cls, a.spec) === sec).map(a => `${nameHtml(a)} <span class="hint">(${esc(a.spec)}, ${esc(p.main.name)}'s)</span>`));
-    const avail = offs.concat(secs);
+    const avail = rp.flatMap(p => offspecsOf(p).filter(o => o.section === sec && (o.alt || playerSection(p) !== sec))
+      .map(o => `${nameHtml(o.toon)} <span class="hint">(${esc(o.spec || o.role)}${o.alt ? ', ' + esc(p.main.name) + "'s" : ''})</span>`));
     return `<div class="role-sec"><div class="section-title"><h2>${roleIcon(sec === 'Tanks' ? 'Tank' : sec === 'Healers' ? 'Healer' : 'DPS')} ${sec}</h2><span class="hint">${ps.length}</span></div>
       <div class="avail"><b>Raid offspecs available:</b> ${avail.length ? avail.join(' &middot; ') : '<span class="hint">none listed</span>'}</div>
       ${ps.length ? `<div class="chars lite-grid">${ps.map(p => playerTile(p, 'raid')).join('')}</div>` : '<p class="empty">Nobody in this role.</p>'}</div>`;
