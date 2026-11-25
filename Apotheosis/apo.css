@@ -1,0 +1,30 @@
+/* Apotheosis page additions on top of the shared dashboard styles */
+.apo-tabs { margin-bottom: 18px; }
+.apo-tabs a { cursor: pointer; }
+.sum-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(380px, 1fr)); gap: 16px; margin-bottom: 16px; }
+.sum-grid > .card { margin-bottom: 0; }
+.sum-row { display: flex; align-items: center; gap: 8px; padding: 5px 0; border-bottom: 1px solid var(--line-2); font-size: 13px; }
+.sum-row:last-child { border-bottom: 0; }
+.sum-row .r { margin-left: auto; text-align: right; }
+.sum-row .issue { color: var(--bad); font-size: 12px; }
+.sum-row .rk, td.rk, .prio-row .rk { color: var(--muted-2); font-weight: 700; width: 18px; text-align: right; }
+.sum-roles { display: flex; gap: 16px; margin-top: 10px; font-size: 12.5px; color: var(--muted); }
+.sum-roles b { color: var(--text-strong); margin-left: 4px; }
+.issue-list { max-height: 260px; overflow-y: auto; }
+.boss-bd td { vertical-align: top; }
+.boss-bd .bb { display: inline-flex; align-items: center; gap: 4px; margin: 0 12px 3px 0; white-space: nowrap; }
+.prio-row { display: grid; grid-template-columns: 22px minmax(160px, 240px) 90px 1fr; gap: 10px; align-items: center; padding: 7px 0; border-bottom: 1px solid var(--line-2); font-size: 13px; }
+.prio-row:last-child { border-bottom: 0; }
+.prio-row .pb { font-weight: 700; color: var(--text-strong); }
+.prio-row .pw { display: flex; flex-wrap: wrap; gap: 4px 12px; }
+.foot { margin: 24px 0 8px; text-align: center; }
+@media (max-width: 700px) { .prio-row { grid-template-columns: 22px 1fr; } .prio-row .pc, .prio-row .pw { grid-column: 2; } }
+a { color: #58a6ff; }
+.tab .logs-table th, .tab .logs-table td { text-align: left; }
+.tab .logs-table td.rk { text-align: right; width: 24px; }
+
+.wk-row { display: grid; grid-template-columns: 44px minmax(140px, 200px) 110px 60px 1fr auto auto; gap: 10px; align-items: center; padding: 6px 0; border-bottom: 1px solid var(--line-2); font-size: 13px; }
+.wk-row.team { background: rgba(88,166,255,.06); }
+.wk-row .lvl { background: #1f3a5f; color: #cfe3ff; border-radius: 4px; padding: 1px 6px; font-weight: 700; text-align: center; }
+.wk-row .ok { color: var(--ok); } .wk-row .no { color: var(--bad); }
+.wk-row .ww { display: flex; flex-wrap: wrap; gap: 4px 10px; }

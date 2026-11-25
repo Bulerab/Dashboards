@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Apotheosis – Raid &amp; Guild</title>
+<link rel="preconnect" href="https://script.google.com">
+<link rel="preconnect" href="https://script.googleusercontent.com" crossorigin>
+<link rel="stylesheet" href="app.css?v=1">
+<link rel="stylesheet" href="apo.css?v=2">
+</head>
+<body>
+<div class="container">
+  <div class="topbar">
+    <div>
+      <h1>Apotheosis <span class="hint" style="font-size:15px;font-weight:500">Eldre'thalas (US)</span></h1>
+      <p class="sub" id="prog-line">Raid &amp; guild tracker</p>
+      <p class="generated"><span id="src" class="src snap">Loading</span><span id="when"></span></p>
+    </div>
+  </div>
+  <nav class="nav apo-tabs" id="tabs">
+    <a href="#roster" data-tab="roster">Roster</a><a href="#priority" data-tab="priority">Priority</a><a href="#guild" data-tab="guild">Guild</a><a href="#mplus" data-tab="mplus">Mythic+</a>
+  </nav>
+
+  <section class="tab" id="tab-roster">
+    <div class="sum-grid" id="roster-summary"></div>
+    <div class="card"><div class="card-head"><h2>Boss breakdown</h2><span class="hint" id="boss-hint"></span></div><div class="table-wrap" id="boss-breakdown"></div></div>
+    <div class="card"><div class="card-head"><h2>Raid toolkit</h2><span class="hint">buffs, utility and dispels of the toons picked below</span></div><div id="raid-toolkit"></div></div>
+    <div class="section-title"><h2>Raid team</h2><span class="hint" id="raid-count"></span></div>
+    <div class="chars lite-grid" id="raid-tiles"></div>
+    <div id="bench-wrap"></div>
+  </section>
+
+  <section class="tab" id="tab-priority">
+    <div class="card"><div class="card-head"><h2>Bosses to target</h2><span class="hint">raid-team players still missing BiS from each boss (picked toons); bonus roll candidates</span></div><div id="prio-bosses"></div></div>
+    <div class="card"><div class="card-head"><h2>Other BiS sources</h2><span class="hint">dungeons, crafting and tier</span></div><div id="prio-other"></div></div>
+  </section>
+
+  <section class="tab" id="tab-guild">
+    <div class="card"><div class="card-head"><h2>Raid progression</h2><span class="hint">Raider.io</span></div><div id="guild-rio"></div></div>
+    <div class="card"><div class="card-head"><h2>Warcraft Logs rankings</h2><span class="hint">progress and speed</span></div><div id="guild-wcl"></div></div>
+    <div class="card"><div class="card-head"><h2>Recent guild logs</h2><span class="hint">Warcraft Logs</span></div><div id="guild-reports"></div></div>
+  </section>
+
+  <section class="tab" id="tab-mplus">
+    <div class="sum-grid">
+      <div class="card"><div class="card-head"><h2>Top 10 Mythic+ in the guild</h2><span class="hint">Raider.io, this season</span></div><div id="top10"></div></div>
+      <div class="card"><div class="card-head"><h2>Team ranking</h2><span class="hint">average Mythic+ score of each team's mains</span></div><div id="team-rank"></div></div>
+    </div>
+    <div class="section-title"><h2>Mythic+ teams</h2><span class="hint">Goal: 3,600 rating (about 450 in every dungeon)</span></div>
+    <div class="team-tiles" id="team-tiles"></div>
+    <div id="team-panel"></div>
+  </section>
+  <p class="foot hint">Data from Raider.io, Warcraft Logs and Blizzard, refreshed every 6 hours. View only: changes are made in the guild's Google Sheet.</p>
+</div>
+<div class="tip" id="tip"></div>
+<script src="shared.js?v=1"></script>
+<script src="app.js?v=3"></script>
+</body>
+</html>

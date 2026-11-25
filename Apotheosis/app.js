@@ -1,0 +1,229 @@
+/* Apotheosis raid & guild page. View only: everything comes from the guild sheet's Apps Script web app.
+ * WEBAPP_URL: the "Apotheosis" Apps Script web app address (ends in /exec). */
+const WEBAPP_URL = 'https://script.google.com/macros/s/AKfycbwvpLJVlNJLPjKKSBMFvEiWu9RJX9dlb5rTJntWmlxD0WeytyeZIw2J4M7FE4UfHBpJ/exec';
+const REFRESH_MINUTES = 10;
+
+const store = (k, d) => { try { return JSON.parse(localStorage.getItem(k) || 'null') ?? d; } catch (e) { return d; } };
+const save = (k, v) => { try { localStorage.setItem(k, JSON.stringify(v)); } catch (e) { /* storage blocked */ } };
+
+let STATE = null, WHEN = '';
+let tab = (location.hash || '#roster').slice(1);
+const rosterPick = store('apoRosterPick', {});           // player -> picked toon name
+const tileOpen = new Set(store('apoTileOpen', []));
+
+const ROLE = c => c.role === 'TANK' ? 'Tank' : c.role === 'HEALING' ? 'Healer' : 'DPS';
+const nameHtml = c => `<span style="color:${classHex(c.cls)};white-space:nowrap">${classIcon(c.cls, 'sm')}${esc(c.name)}</span>`;
+const toonsOfP = p => [p.main].concat(p.alts || []);
+const picked = p => toonsOfP(p).find(t => t.name === rosterPick[p.player]) || p.main;
+const bossList = () => (STATE && STATE.bossOrder && STATE.bossOrder.length ? STATE.bossOrder : BOSS_ORDER);
+const bossOfSrc = src => bossList().find(b => String(src || '').startsWith(b)) || null;
+const raidPlayers = () => { const r = (STATE.roster || []); const team = r.filter(p => p.raid); return team.length ? team : r; };
+const benchPlayers = () => { const r = (STATE.roster || []); return r.some(p => p.raid) ? r.filter(p => !p.raid) : []; };
+
+/* ------------------------------------------------------------------ Roster tab */
+function summaryHtml(toons) {
+  const ok = toons.filter(t => !t.error);
+  const top = ok.slice().sort((a, b) => (b.ilvl || 0) - (a.ilvl || 0)).slice(0, 3);
+  const issues = ok.map(t => {
+    const bits = [];
+    if ((t.missingEnchants || []).length) bits.push('Enchant: ' + t.missingEnchants.map(slotName).join(', '));
+    if (t.gems && t.gems.empty) bits.push(t.gems.empty + ' empty socket' + (t.gems.empty > 1 ? 's' : ''));
+    if (t.gems && !t.gems.diamond) bits.push('No Eversong Diamond');
+    return bits.length ? { t, bits } : null;
+  }).filter(Boolean);
+  const roles = { Tank: 0, Healer: 0, DPS: 0 };
+  ok.forEach(t => roles[ROLE(t)]++);
+  const avg = ok.length ? ok.reduce((a, t) => a + (t.ilvl || 0), 0) / ok.length : 0;
+  return `<div class="card"><div class="card-head"><h2>Top item level</h2><span class="hint">raid team avg ${f2(avg)}</span></div>
+      ${top.map((t, i) => `<div class="sum-row"><span class="rk">${i + 1}</span>${nameHtml(t)}<span class="hint">${esc(t.spec)}</span><b class="r">${f2(t.ilvl)}</b></div>`).join('') || '<p class="empty">No data yet.</p>'}
+      <div class="sum-roles"><span>Tanks <b>${roles.Tank}</b></span><span>Healers <b>${roles.Healer}</b></span><span>DPS <b>${roles.DPS}</b></span><span>Total <b>${ok.length}</b></span></div></div>
+    <div class="card"><div class="card-head"><h2>Missing enchants &amp; gems</h2><span class="hint">${issues.length} of ${ok.length} players</span></div>
+      ${issues.length ? `<div class="issue-list">${issues.map(x => `<div class="sum-row">${nameHtml(x.t)}<span class="r issue">${esc(x.bits.join(' · '))}</span></div>`).join('')}</div>` : '<p class="empty" style="color:var(--ok)">Everyone is enchanted and gemmed.</p>'}</div>`;
+}
+
+function bossBreakdown(toons) {
+  const ok = toons.filter(t => t.logs && !t.logs.error);
+  const diff = (ok[0] && ok[0].logs.difficulty) || 'Heroic';
+  $('boss-hint').innerHTML = `best ${esc(diff)} parse per player (overall %, all their kills); damage for DPS and tanks, healing for healers`;
+  const bosses = bossList().filter(b => ok.some(t => t.logs.bosses.some(x => x.boss === b)));
+  if (!bosses.length) return `<p class="empty">${toons.some(t => t.logs) ? 'No kills logged at this difficulty yet.' : 'Warcraft Logs parses appear after the first refresh with the Warcraft Logs keys.'}</p>`;
+  const top3 = (b, metric) => ok.filter(t => t.logs.metric === metric).map(t => ({ t, x: t.logs.bosses.find(x => x.boss === b) }))
+    .filter(r => r.x && r.x.pct != null).sort((a, c) => c.x.pct - a.x.pct || c.x.amount - a.x.amount).slice(0, 3);
+  const cell = list => list.length ? list.map(r => `<span class="bb">${nameHtml(r.t)} ${pctHtml(r.x.pct)} <span class="hint">${abbr(r.x.amount)}</span></span>`).join('') : '<span class="hint">-</span>';
+  return `<table class="logs-table boss-bd"><thead><tr><th>Boss</th><th>Top 3 damage parses</th><th>Top 3 healing parses</th></tr></thead><tbody>${bosses.map(b =>
+    `<tr><td><b>${esc(b)}</b></td><td>${cell(top3(b, 'dps'))}</td><td>${cell(top3(b, 'hps'))}</td></tr>`).join('')}</tbody></table>`;
+}
+
+function bisNeedByBoss(c) {
+  const by = {};
+  ((c.bis && c.bis.need) || []).forEach(n => { const b = bossOfSrc(n.source) || n.source || 'Other'; (by[b] = by[b] || []).push(n); });
+  return by;
+}
+
+function playerTile(p, key) {
+  const c = picked(p), id = key + '|' + p.player, open = tileOpen.has(id);
+  const toons = toonsOfP(p);
+  const pick = toons.length > 1 ? `<div class="picker" style="margin-top:8px"><span class="pl">${esc(p.player)}'s toons</span><div class="row">${toons.map(o =>
+    `<button type="button" class="pick${o === c ? ' on' : ''}" data-rpick="${esc(p.player + '|' + o.name)}" style="${o === c ? '' : 'color:' + classHex(o.cls)}">${esc(o.name)}</button>`).join('')}</div></div>` : '';
+  if (c.error && !c.cls) return `<div class="char"><div class="char-name">${esc(c.name)}</div><p class="empty">${esc(c.error)}</p>${pick}</div>`;
+  const L = c.logs && !c.logs.error ? c.logs : null;
+  const bis = c.bis ? `<div class="bis"><div class="bis-label"><span>${esc(c.spec)} BiS</span><span>${c.bis.have} / ${c.bis.total}</span></div><div class="meter"><div style="width:${Math.round(c.bis.have / c.bis.total * 100)}%"></div></div></div>`
+    : `<p class="empty" style="margin:6px 0">No BiS list for ${esc(c.spec || 'this spec')} yet.</p>`;
+  const pills = [(c.missingEnchants || []).length ? `<span class="pill bad">Missing enchant: ${esc(c.missingEnchants.map(slotName).join(', '))}</span>` : '<span class="pill ok">Enchants OK</span>',
+    c.gems ? (c.gems.empty ? `<span class="pill bad">${c.gems.empty} empty socket${c.gems.empty > 1 ? 's' : ''}</span>` : '<span class="pill ok">Gems OK</span>') : '',
+    c.gems ? (c.gems.diamond ? '<span class="pill ok">Eversong Diamond</span>' : '<span class="pill bad">No Eversong Diamond</span>') : ''].join('');
+  const logsTable = L ? `<table class="logs-table"><thead><tr><th>Boss</th><th>${L.metric === 'hps' ? 'Healing' : 'Damage'} %</th><th>Best ${L.metric === 'hps' ? 'HPS' : 'DPS'}</th><th>Kills</th></tr></thead><tbody>${
+      bossList().map(b => L.bosses.find(x => x.boss === b)).filter(Boolean).map(x => `<tr><td>${esc(x.boss)}</td><td>${pctHtml(x.pct)}</td><td>${abbr(x.amount)}</td><td>${x.kills}</td></tr>`).join('') || '<tr><td colspan="4" class="none">No kills logged</td></tr>'}</tbody></table>`
+    : `<p class="empty">${c.logs && c.logs.error ? esc(c.logs.error) : 'No Warcraft Logs data yet.'}</p>`;
+  const by = bisNeedByBoss(c);
+  const need = Object.keys(by).sort((a, b) => (bossList().indexOf(a) + 1 || 99) - (bossList().indexOf(b) + 1 || 99)).map(b =>
+    `<div class="target"><span class="boss">${esc(b)}</span><div class="need-grid one-line" style="grid-template-columns:72px minmax(0,1fr)">${by[b].map(n => `<span class="slot">${esc(slotName(n.slot))}</span><span>${esc(n.item)}</span>`).join('')}</div></div>`).join('');
+  return `<div class="char pvpc lite${open ? ' open' : ''}" style="--accent:${accentFor(c.cls)};${classBg(c.cls)}">
+    <div class="pvp-sum">
+      <div class="char-head"><div><div class="name-row">${classIcon(c.cls)}<span class="char-name">${esc(c.name)}</span>${profileLinks(c.name, c.realm)}</div>
+        <div class="char-meta meta-row">${esc([c.spec, c.cls].filter(Boolean).join(' '))}${p.player !== c.name ? ' &middot; ' + esc(p.player) : ''}<button type="button" class="toggle-btn" data-apotoggle="${esc(id)}">${open ? 'Collapse' : 'Expand'} <span class="chev">&#9662;</span></button></div></div>
+        <div class="headline-row"><div class="headline"><div class="lbl">ilvl</div><div class="big">${f2(c.ilvl)}</div></div><div class="headline"><div class="lbl">M+</div><div class="big">${f1(c.score)}</div></div></div></div>
+      ${bis}
+      <div class="minis" style="grid-template-columns:repeat(3,1fr)">
+        <div class="mini"><div class="k">${L && L.metric === 'hps' ? 'Heal parse' : 'Raid parse'}</div><div class="v">${L ? pctHtml(L.avg) : '-'}</div></div>
+        <div class="mini"><div class="k">Bosses logged</div><div class="v">${L ? L.bosses.length : '-'}</div></div>
+        <div class="mini"><div class="k">BiS needed</div><div class="v">${c.bis ? c.bis.need.length : '-'}</div></div>
+      </div>
+      <div class="ench-summary" style="margin-top:8px">${pills}</div>${pick}
+    </div>
+    <div class="pvp-more"><div class="pvp-more-grid" style="grid-template-columns:1fr 1fr">
+      <div><div class="sec"><div class="sec-title"><span>Warcraft Logs &middot; ${esc((L && L.difficulty) || '')} raid</span><span class="hint">overall %</span></div>${logsTable}</div></div>
+      <div><div class="sec"><div class="sec-title"><span>BiS still needed</span><span class="hint">by source</span></div>${need || (c.bis ? '<p class="empty" style="color:var(--ok)">Full BiS.</p>' : '<p class="empty">No BiS list yet.</p>')}</div></div>
+    </div></div>
+  </div>`;
+}
+
+/* ------------------------------------------------------------------ Priority tab */
+function priorityHtml() {
+  const by = {}, other = {};
+  raidPlayers().forEach(p => {
+    const c = picked(p);
+    ((c.bis && c.bis.need) || []).forEach(n => {
+      const b = bossOfSrc(n.source);
+      const bucket = b ? by : other, k = b || n.source || 'Unknown source';
+      ((bucket[k] = bucket[k] || {})[c.name] = bucket[k][c.name] || { c, items: [] }).items.push(n);
+    });
+  });
+  const block = (obj, sortByOrder) => Object.keys(obj).map(k => ({ k, who: Object.values(obj[k]) }))
+    .sort((a, b) => b.who.length - a.who.length || (sortByOrder ? bossList().indexOf(a.k) - bossList().indexOf(b.k) : a.k.localeCompare(b.k)))
+    .map((r, i) => `<div class="prio-row"><span class="rk">${i + 1}</span><span class="pb">${esc(r.k)}</span><span class="pc"><b>${r.who.length}</b> player${r.who.length === 1 ? '' : 's'}</span>
+      <span class="pw">${r.who.map(w => `<span data-tip="${esc(w.items.map(n => slotName(n.slot) + ': ' + n.item).join('<br>'))}">${nameHtml(w.c)}${w.items.length > 1 ? ' <span class="hint">x' + w.items.length + '</span>' : ''}</span>`).join(' ')}</span></div>`).join('');
+  const hasBis = raidPlayers().some(p => picked(p).bis);
+  $('prio-bosses').innerHTML = block(by, true) || `<p class="empty">${hasBis ? 'Nobody needs raid drops.' : 'Fills in once BiS lists are added to the sheet.'}</p>`;
+  $('prio-other').innerHTML = block(other, false) || '<p class="empty">Nothing else needed.</p>';
+}
+
+/* ------------------------------------------------------------------ Guild tab */
+const rk = n => n ? '#' + Number(n).toLocaleString() : '-';
+function guildHtml() {
+  const g = STATE.guild || {}, rio = g.rio, wcl = g.wcl;
+  $('guild-rio').innerHTML = !rio ? '<p class="empty">Loads after the first refresh.</p>' : rio.error ? `<p class="empty">${esc(rio.error)}</p>` :
+    `<table class="logs-table"><thead><tr><th>Raid</th><th>Progress</th><th>Normal (realm / region / world)</th><th>Heroic</th><th>Mythic</th></tr></thead><tbody>${rio.raids.map(r => {
+      const d = k => { const x = r.ranks && r.ranks[k]; return x && x.world ? `${rk(x.realm)} / ${rk(x.region)} / ${rk(x.world)}` : '<span class="hint">-</span>'; };
+      return `<tr><td><b>${esc(r.name)}</b></td><td><b>${esc(r.progress.summary)}</b></td><td>${d('normal')}</td><td>${d('heroic')}</td><td>${d('mythic')}</td></tr>`; }).join('')}</tbody></table>
+     <p class="hint" style="margin:8px 0 0">Ranks are realm / region (NA) / world. <a href="${esc(rio.url || 'https://raider.io/guilds/us/eldrethalas/Apotheosis')}" target="_blank" rel="noopener">Raider.io guild page</a></p>`;
+  const ranks = r => r ? `${rk(r.server)} / ${rk(r.region)} / ${rk(r.world)}` : '<span class="hint">-</span>';
+  $('guild-wcl').innerHTML = !wcl ? '<p class="empty">Loads after the first refresh.</p>' : (wcl.zones && wcl.zones.length ?
+    `<table class="logs-table"><thead><tr><th>Raid</th><th>Progress (realm / region / world)</th><th>Speed</th></tr></thead><tbody>${wcl.zones.map(z => `<tr><td><b>${esc(z.name)}</b></td><td>${ranks(z.progress)}</td><td>${ranks(z.speed)}</td></tr>`).join('')}</tbody></table>` : '') +
+    (wcl.error ? `<p class="empty">${esc(wcl.error)}</p>` : '') +
+    `<p class="hint" style="margin:8px 0 0">Warcraft Logs' API gives progress and speed ranks; its Execution rank is only on the website. ${wcl.id ? `<a href="https://www.warcraftlogs.com/guild/id/${wcl.id}" target="_blank" rel="noopener">Warcraft Logs guild page</a>` : ''}</p>`;
+  const reps = (wcl && wcl.reports) || [];
+  const dur = r => { const m = Math.round((r.end - r.start) / 60000); return Math.floor(m / 60) + 'h ' + String(m % 60).padStart(2, '0') + 'm'; };
+  $('guild-reports').innerHTML = reps.length ? `<table class="logs-table"><thead><tr><th>Date</th><th>Log</th><th>Zone</th><th>Length</th><th>Uploaded by</th></tr></thead><tbody>${reps.map(r =>
+    `<tr><td>${new Date(r.start).toLocaleDateString([], { weekday: 'short', month: 'short', day: 'numeric' })}</td><td><a href="https://www.warcraftlogs.com/reports/${esc(r.code)}" target="_blank" rel="noopener">${esc(r.title || r.code)}</a></td><td>${esc(r.zone)}</td><td>${dur(r)}</td><td>${esc(r.owner)}</td></tr>`).join('')}</tbody></table>`
+    : `<p class="empty">${wcl && wcl.reportsError ? esc(wcl.reportsError) : 'No recent logs found.'}</p>`;
+}
+
+/* ------------------------------------------------------------------ Mythic+ tab */
+function mplusHtml() {
+  const t = STATE.top10;
+  $('top10').innerHTML = t && t.list && t.list.length ? `<table class="logs-table"><tbody>${t.list.map((x, i) =>
+    `<tr><td class="rk">${i + 1}</td><td>${nameHtml(x)} ${profileLinks(x.name, x.realm)}</td><td class="hint">${esc(x.spec || '')} ${esc(x.cls || '')}</td><td><b style="color:${esc(x.color || '#fff')}">${f1(x.score)}</b></td></tr>`).join('')}</tbody></table>`
+    : `<p class="empty">${t && t.error ? esc(t.error) : 'Loads after the first refresh (once a day).'}</p>`;
+  const teams = STATE.teams || [];
+  const ranked = teams.map(tm => { const ms = tm.members.filter(m => !m.error); return { tm, avg: ms.length ? ms.reduce((a, m) => a + (m.score || 0), 0) / ms.length : 0, n: tm.members.length }; })
+    .sort((a, b) => b.avg - a.avg);
+  $('team-rank').innerHTML = ranked.length ? `<table class="logs-table"><thead><tr><th>#</th><th>Team</th><th>Avg main score</th><th>Players</th></tr></thead><tbody>${ranked.map((r, i) =>
+    `<tr><td class="rk">${i + 1}</td><td><a href="#mplus" data-team="${esc(r.tm.name)}"><b>${esc(r.tm.name)}</b></a></td><td><b>${r.avg ? r.avg.toFixed(1) : '-'}</b></td><td>${r.n}</td></tr>`).join('')}</tbody></table>`
+    : '<p class="empty">Add teams on the sheet\'s M+ Teams tab.</p>';
+  $('team-tiles').innerHTML = teams.map(teamTile).join('');
+  const ot = teams.find(x => x.name === openTeam);
+  $('team-panel').innerHTML = ot ? teamPanel(ot).replace(/<\/div>\s*$/, weekTogether(ot) + '</div>') : '';
+}
+
+/* Keys this week where 2 or more of the team were in the same run (3+ highlighted) */
+function weekTogether(t) {
+  const runs = t.week || [], size = t.members.length;
+  const rows = runs.map(r => `<div class="wk-row${r.who.length >= 3 ? ' team' : ''}"><span class="lvl">+${r.level}</span><span class="wd">${esc(r.dungeon)}</span>
+      <span class="${r.timed ? 'ok' : 'no'}">${r.timed ? '&#10003; timed' + (r.upgrades > 1 ? ' +' + r.upgrades : '') : 'over time'}</span>
+      <span class="wc"><b>${r.who.length} of ${size}</b></span><span class="ww">${r.who.map(w => nameHtml(w)).join(' ')}</span>
+      <span class="hint">${new Date(r.at).toLocaleDateString([], { weekday: 'short', month: 'short', day: 'numeric' })}</span>${r.url ? `<a class="hint" href="${esc(r.url)}" target="_blank" rel="noopener">run</a>` : ''}</div>`).join('');
+  return `<div class="sec"><div class="sec-title"><span>Keys together this week</span><span class="hint">${runs.filter(r => r.who.length >= 3).length} with 3+ of the team &middot; since the Tuesday reset</span></div>${rows || '<p class="empty">No keys with 2 or more of the team since the Tuesday reset.</p>'}</div>`;
+}
+
+/* ------------------------------------------------------------------ render */
+function render() {
+  if (!STATE) return;
+  document.querySelectorAll('.tab').forEach(s => { s.style.display = s.id === 'tab-' + tab ? '' : 'none'; });
+  document.querySelectorAll('#tabs a').forEach(a => a.classList.toggle('on', a.dataset.tab === tab));
+  const rio = STATE.guild && STATE.guild.rio;
+  const cur = rio && rio.raids ? rio.raids.find(r => /^tier-/.test(r.slug)) || rio.raids[0] : null;
+  $('prog-line').innerHTML = cur ? `Progress <b>${esc(cur.progress.summary)}</b> &middot; Raid team ${raidPlayers().length} players` : 'Raid &amp; guild tracker';
+  const team = raidPlayers().map(picked);
+  $('roster-summary').innerHTML = summaryHtml(team);
+  $('boss-breakdown').innerHTML = bossBreakdown(team);
+  $('raid-toolkit').innerHTML = toolkitHtml(team);
+  $('raid-count').textContent = raidPlayers().length + ' players';
+  $('raid-tiles').innerHTML = raidPlayers().map(p => playerTile(p, 'raid')).join('') || '<p class="empty">Add players on the sheet\'s Roster tab.</p>';
+  const bench = benchPlayers();
+  $('bench-wrap').innerHTML = bench.length ? `<div class="section-title"><h2>Others on the roster</h2><span class="hint">${bench.length} players</span></div><div class="chars lite-grid">${bench.map(p => playerTile(p, 'bench')).join('')}</div>` : '';
+  priorityHtml();
+  guildHtml();
+  mplusHtml();
+}
+
+document.addEventListener('click', e => {
+  const tb = e.target.closest('[data-tab]');
+  if (tb) { e.preventDefault(); tab = tb.dataset.tab; history.replaceState(null, '', '#' + tab); render(); return; }
+  const rp = e.target.closest('[data-rpick]');
+  if (rp) { const [pl, name] = rp.dataset.rpick.split('|'); rosterPick[pl] = name; save('apoRosterPick', rosterPick); render(); return; }
+  const tg = e.target.closest('[data-apotoggle]');
+  if (tg) { const k = tg.dataset.apotoggle; tileOpen.has(k) ? tileOpen.delete(k) : tileOpen.add(k); save('apoTileOpen', [...tileOpen]); render(); return; }
+  const tt = e.target.closest('[data-team]');
+  if (tt) { e.preventDefault(); openTeam = openTeam === tt.dataset.team ? '' : tt.dataset.team; try { localStorage.setItem('apoOpenTeam', openTeam); } catch (er) { /* blocked */ } render(); return; }
+  const tp = e.target.closest('[data-teampick]');
+  if (tp) { const [tm, base, pick] = tp.dataset.teampick.split('|'); teamPick[tm + '|' + base] = pick; try { localStorage.setItem('apoTeamPick', JSON.stringify(teamPick)); } catch (er) { /* blocked */ } render(); return; }
+  const db = e.target.closest('[data-dungeon]');
+  if (db) { const k = db.dataset.dungeon; openDungeon.has(k) ? openDungeon.delete(k) : openDungeon.add(k); try { localStorage.setItem('apoOpenDungeon', JSON.stringify([...openDungeon])); } catch (er) { /* blocked */ } render(); return; }
+});
+
+/* ------------------------------------------------------------------ load (last copy first, then live) */
+function show(state, when, live) {
+  STATE = state; WHEN = when;
+  $('src').className = 'src ' + (live ? 'live' : 'snap');
+  $('src').textContent = live ? 'Live' : 'Saved copy';
+  $('when').textContent = (live ? 'Updated ' : 'From ') + when + (state.generated ? ' · data ' + state.generated : '');
+  render();
+}
+async function load() {
+  if (!WEBAPP_URL) { $('src').textContent = 'Not connected yet'; $('when').textContent = 'The web app address goes in app.js once the script is deployed.'; return; }
+  try {
+    const res = await fetch(WEBAPP_URL, { cache: 'no-store' });
+    if (!res.ok) throw new Error('HTTP ' + res.status);
+    const state = await res.json();
+    const when = new Date().toLocaleString([], { dateStyle: 'medium', timeStyle: 'short' });
+    show(state, when, true);
+    save('apoSaved', { when, state });
+  } catch (e) {
+    if (!STATE) $('when').textContent = 'Could not load: ' + e.message;
+  }
+}
+const saved = store('apoSaved', null);
+if (saved && saved.state) show(saved.state, saved.when + ' (updating…)', false);
+load();
+setInterval(load, REFRESH_MINUTES * 60 * 1000);
