@@ -65,11 +65,12 @@
 
   .vault-row { display: grid; grid-template-columns: 58px 1fr 86px; align-items: center; gap: 8px; margin: 6px 0; font-size: 13px; }
   .tiles { display: grid; grid-template-columns: repeat(3, 1fr); gap: 5px; }
+  .tile { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
   .tile { border: 1px solid #3a3a3a; background: #222; border-radius: 5px; padding: 4px 5px; font-size: 10.5px; color: #777; text-align: center; min-height: 34px; display: flex; flex-direction: column; justify-content: center; line-height: 1.25; }
   .tile b { font-size: 11px; color: #999; }
   .tile.on { background: rgba(57,135,229,0.18); border-color: #3987e5; color: #cfe3ff; }
   .tile.on b { color: #fff; }
-  .count { display: flex; align-items: center; justify-content: flex-end; gap: 4px; font-variant-numeric: tabular-nums; }
+  .count { display: flex; align-items: center; justify-content: center; gap: 4px; font-variant-numeric: tabular-nums; }
   .count .n { min-width: 28px; text-align: center; color: var(--text-strong); font-weight: 600; }
   .step { width: 24px; height: 24px; border-radius: 5px; border: 1px solid #444; background: #2a2a2a; color: #ddd; cursor: pointer; font-size: 14px; line-height: 1; padding: 0; }
   .step:disabled { opacity: .35; cursor: not-allowed; }
@@ -552,13 +553,16 @@ function vaultBlock(c) {
       const raw = String(v.slots[i] || '');
       let reward;
       if (!on) reward = `${t} ${v.kind === 'mplus' ? (t > 1 ? 'runs' : 'run') : v.kind === 'raid' ? 'bosses' : 'activities'}`;
-      else if (v.kind === 'mplus') { const m = raw.match(/^\+(\d+):\s*(\d+)?\s*(.*)$/); reward = m ? `+${m[1]} &middot; ${esc((m[3] || '').replace(/\s*\d+\/\d+$/, '') || m[2] || '')}` : esc(raw); }
-      else { const m = raw.match(/Unlocked:\s*(\w[\w ]*?)\s*\((\w+)\)/); reward = m ? `${esc(m[1].replace('Raid Finder', 'LFR'))} &middot; ${esc(m[2])}` : 'Unlocked'; }
-      const tr = on ? trackOf(raw) : null;
+      // Raid vault rewards one track above the kill: LFR > Champion, Normal > Hero, Heroic and Mythic > Myth
+      const raidTrack = { 'Raid Finder': 'Champion', LFR: 'Champion', Normal: 'Hero', Heroic: 'Myth', Mythic: 'Myth' };
+      let tr = null;
+      if (on && v.kind === 'raid') { const m = raw.match(/Unlocked:\s*(Raid Finder|LFR|Normal|Heroic|Mythic)/); tr = m ? trackOf(raidTrack[m[1]]) : null; }
+      else if (on) tr = trackOf(raw);
+      if (on) reward = tr ? tr[0] : (v.kind === 'mplus' ? (raw.match(/^\+\d+/) || ['Unlocked'])[0] : 'Unlocked');
       const style = tr ? ` style="border-color:${tr[1]};background:${tr[1]}26;color:#fff"` : '';
       return `<div class="tile${on ? ' on' : ''}"${style} data-tip="${esc(names[v.kind])} slot ${i + 1}: ${on ? 'unlocked' + (raw ? ' (' + esc(raw) + ')' : '') : 'needs ' + t}"><b${tr ? ` style="color:${tr[1]}"` : ''}>${on ? '&#10003; ' : ''}Slot ${i + 1}</b>${reward}</div>`;
     }).join('');
-    const counter = v.kind === 'mplus'
+    const counter = v.kind !== 'world'
       ? `<div class="count"><span class="n">${v.done}</span></div>`
       : `<div class="count"><button class="step" data-vault="${esc(c.name)}|${v.kind}|-1"${DIS()} aria-label="One less">&minus;</button><span class="n">${v.done}</span><button class="step" data-vault="${esc(c.name)}|${v.kind}|1"${DIS()} aria-label="One more">+</button></div>`;
     return `<div class="vault-row"><span>${names[v.kind]}${v.kind !== 'world' ? '<span class="auto" style="display:block">auto</span>' : ''}</span><div class="tiles">${tiles}</div>${counter}</div>`;
