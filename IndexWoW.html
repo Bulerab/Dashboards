@@ -166,6 +166,16 @@
   .swap { font-size: 11px; padding: 1px 8px; border-radius: 5px; background: #2a2a2a; border: 1px solid #444; color: #ccc; cursor: pointer; }
   .swap:hover { border-color: #3987e5; color: #fff; }
   .name-row { display: flex; align-items: center; gap: 10px; }
+  .pct { font-weight: 800; font-variant-numeric: tabular-nums; }
+  .logs-line { display: flex; gap: 14px; align-items: baseline; flex-wrap: wrap; margin-top: 10px; font-size: 12px; color: var(--muted-2); }
+  .logs-line .pct { font-size: 15px; margin-left: 4px; }
+  .logs-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; }
+  .logs-table { width: 100%; border-collapse: collapse; }
+  .logs-table th, .logs-table td { padding: 4px 6px; font-size: 12.5px; border-bottom: 1px solid var(--line); text-align: right; }
+  .logs-table th { background: transparent; color: var(--muted-2); font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: .4px; }
+  .logs-table th:first-child, .logs-table td:first-child { text-align: left; }
+  .logs-table td.none { color: #555; }
+  @media (max-width: 760px) { .logs-grid { grid-template-columns: 1fr; } }
   .meta-row { display: flex; align-items: center; gap: 10px; margin-top: 4px; }
   .char-head > div:first-child { min-width: 0; }
   .toggle-btn { display: inline-flex; align-items: center; gap: 6px; background: #2a2a2a; color: #ddd; border: 1px solid #444; border-radius: 6px; padding: 3px 11px; font-size: 12px; font-weight: 600; cursor: pointer; }
@@ -413,6 +423,20 @@ function profileLinks(name, realmSlug, region) {
     <a class="rio" href="https://raider.io/characters/${g}/${r}/${n}" target="_blank" rel="noopener" data-tip="Raider.io profile">R</a>
     <a class="wcl" href="https://www.warcraftlogs.com/character/${g}/${r}/${nl}" target="_blank" rel="noopener" data-tip="Warcraft Logs">W</a>
     <a class="arm" href="https://worldofwarcraft.blizzard.com/en-us/character/${g}/${r}/${nl}" target="_blank" rel="noopener" data-tip="Blizzard Armory">A</a></span>`;
+}
+const pctColor = p => p == null ? '#666' : p >= 100 ? '#e5cc80' : p >= 99 ? '#e268a8' : p >= 95 ? '#ff8000' : p >= 75 ? '#a335ee' : p >= 50 ? '#0070ff' : p >= 25 ? '#1eff00' : '#888';
+const pctHtml = p => p == null ? '<span class="pct" style="color:#666">-</span>' : `<span class="pct" style="color:${pctColor(p)}">${Math.floor(p)}</span>`;
+const abbr = n => !n ? '-' : n >= 1e6 ? (n / 1e6).toFixed(2) + 'M' : n >= 1e3 ? (n / 1e3).toFixed(1) + 'k' : Math.round(n) + '';
+function logsBlock(c) {
+  const L = c.logs;
+  const head = `<div class="sec-title"><span>Warcraft Logs &middot; best DPS % by item level</span>${L && L.updated ? `<span class="hint">updated ${esc(L.updated)}</span>` : ''}</div>`;
+  if (!L) return `<div class="sec">${head}<p class="empty">Shows once Warcraft Logs keys are added to the script.</p></div>`;
+  if (L.error) return `<div class="sec">${head}<p class="empty">${esc(L.error)}</p></div>`;
+  const table = (rows, label, extra) => `<table class="logs-table"><thead><tr><th>${label}</th>${extra ? '<th>Diff</th>' : ''}<th>Best %</th><th>Highest DPS</th><th>${extra ? 'Kills' : 'Runs'}</th></tr></thead><tbody>` +
+    (rows.length ? rows.map(r => `<tr><td${r.kills ? '' : ' class="none"'}>${esc(r.name)}</td>${extra ? `<td class="hint">${esc(r.diff || '')}</td>` : ''}<td>${r.kills ? pctHtml(r.pct) : '<span class="none">-</span>'}</td><td>${r.kills ? abbr(r.amount) : '-'}</td><td>${r.kills || 0}</td></tr>`).join('')
+      : `<tr><td colspan="${extra ? 5 : 4}" class="none">No logs yet</td></tr>`) + `</tbody></table>`;
+  const raid = (L.raid || []).slice().sort((a, b) => (BOSS_ORDER.indexOf(bossOf(a.name) || a.name) + 1 || 99) - (BOSS_ORDER.indexOf(bossOf(b.name) || b.name) + 1 || 99));
+  return `<div class="sec">${head}<div class="logs-grid"><div>${table(raid, 'Raid boss', true)}</div><div>${table(L.dungeons || [], 'Dungeon', false)}</div></div></div>`;
 }
 const f1 = v => { const n = parseFloat(String(v ?? '').replace(/[^\d.]/g, '')); return isFinite(n) && n > 0 ? n.toFixed(1) : '-'; };
 const f2 = v => { const n = parseFloat(String(v ?? '').replace(/[^\d.]/g, '')); return isFinite(n) && n > 0 ? n.toFixed(2) : '-'; };
@@ -673,8 +697,9 @@ function pveCard(c) {
         <div class="mini"><div class="k">Enchants &amp; gems</div><div class="v${ench.length && !issues ? ' ok' : ''}" style="${bad ? 'color:var(--bad)' : warn ? 'color:var(--warn)' : ''}">${ench.length ? (issues ? `${bad ? bad + ' missing' : ''}${bad && warn ? ', ' : ''}${warn ? warn + ' diff' : ''}` : 'All set') : '-'}</div></div>
         <div class="mini"><div class="k">This week</div><div class="v${wrows.length && wdone === wrows.length ? ' ok' : ''}">${wrows.length ? wdone + ' / ' + wrows.length : '-'}</div></div>
       </div>
+      ${c.logs && !c.logs.error ? `<div class="logs-line"><span>Logs (ilvl %)</span><span>Raid${pctHtml(c.logs.raidAvg)}</span><span>Mythic+${pctHtml(c.logs.dungeonAvg)}</span></div>` : ''}
     </div>
-    <div class="pvp-more"><div class="pvp-more-grid" style="grid-template-columns:1fr 1fr"><div>${targetsBlock(c)}</div><div>${enchantBlock(c)}${weeklyChecks(c)}</div></div>
+    <div class="pvp-more">${logsBlock(c)}<div class="pvp-more-grid" style="grid-template-columns:1fr 1fr"><div>${targetsBlock(c)}</div><div>${enchantBlock(c)}${weeklyChecks(c)}</div></div>
       <div class="foot">Gear pulled ${esc(c.pulled || '-')}</div></div>
   </div>`;
 }
