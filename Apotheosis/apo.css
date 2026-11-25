@@ -160,3 +160,13 @@ p .tal-cell { font-weight: 700; }
 
 .setup-edit { margin: 4px 0 12px; font-size: 13px; } .setup-edit summary { cursor: pointer; color: var(--muted-2, #aaa); } .setup-edit summary:hover { color: #ddd; }
 .setup-edit input { flex: 1; }
+
+/* Drops cards */
+.drop-card .name-row { cursor: pointer; }
+.dc-caret { color: var(--muted-2, #999); margin-left: 8px; font-size: 12px; }
+.dc-dates { font-size: 12px; margin-top: 4px; }
+.dc-bosses { margin-top: 8px; }
+.dc-boss { border-top: 1px solid #2c2c2c; padding: 5px 0; }
+.dc-bh { display: flex; gap: 10px; align-items: center; cursor: pointer; font-size: 13.5px; }
+.dc-bh .dc-tags { margin-left: auto; }
+.drop-card.open .dc-boss .sim-rows { margin: 4px 0 4px 10px; }

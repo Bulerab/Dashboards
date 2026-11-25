@@ -410,7 +410,7 @@ function simsHtml() {
     `<button type="button" class="sim-tab${simKind === 'manual' ? ' on' : ''}" data-simkind="manual"><span>Manual entry <span class="st-ic">${roleIcon('Healer')}</span> <span class="st-src">(healers &amp; odd cases)</span></span><span class="hint">${allWish.filter(w => !w.have).length} wanted &middot; ${allWish.filter(w => w.have).length} got</span></button>`;
   if (simKind === 'manual') { manualHtml(); return; }
   $('sim-chart-title').textContent = 'Raidbots upgrade value by boss';
-  $('drops-hint').textContent = "best upgrades from each raider's latest reports (picked toons); By Boss follows the tab above";
+  $('drops-hint').textContent = "every raider's Heroic and Bonus sim upgrades plus manual entries (picked toons); click a card for the items; By Boss follows the tab above";
   // Run panel: apply the setup once, then open every ready raider in their own Raidbots tab
   const setup = setupOf(simKind);
   const statusRow = c => { const sim = simOf(c, simKind), up = sim ? sim.rows.filter(r => r.pct > 0) : [];
@@ -458,7 +458,7 @@ function simsHtml() {
       <button type="submit" class="toggle-btn" id="sim-go">Import</button></form><div class="hint" id="sim-msg" style="margin-top:6px;white-space:pre-line">${esc(simMsg)}</div>`
       : '<p class="hint">Reports are imported by an officer: paste the finished report links and the page works out the raider and which setup was run.</p>'}`;
   // Drops: by player or by boss (for the selected kind); healers' open wishlist items count under their boss
-  $('sim-view-chips').innerHTML = [['player', 'By Player'], ['boss', 'By Boss']].map(([k, l]) => `<button type="button" class="chip${simView === k ? ' on' : ''}" data-simview="${k}">${l}</button>`).join('');
+  $('sim-view-chips').innerHTML = DROP_VIEWS.map(([k, l]) => `<button type="button" class="chip${simView === k ? ' on' : ''}" data-simview="${k}">${l}</button>`).join('');
   if (simView === 'boss') {
     const order = b => bossList().indexOf(b) + 1 || 99;
     const names = bars.map(x => x.b);
@@ -473,13 +473,50 @@ function simsHtml() {
       : `<p class="empty">No upgrades imported for ${esc(SIM_KINDS[simKind])} yet.</p>`;
     return;
   }
-  $('sim-cards').innerHTML = `<div class="sim-grid">${ready.concat(notReady).map(({ c, ok, why }) =>
-    `<div class="char sim-card${ok ? '' : ' dim'}" style="--accent:${accentFor(c.cls)}"><div class="name-row">${classIcon(c.cls)}<span class="char-name">${esc(c.name)}</span>${profileLinks(c.name, c.realm)}<span class="hint" style="margin-left:auto">${esc(c.spec || '')}</span></div>
-      ${ok ? '' : `<p style="margin:6px 0 0"><span class="pill warn">${esc(why)}</span></p>`}
-      <div class="sim-cols"><div><div class="sec-title"><span>${SIM_KINDS.drops}</span></div>${simList(simOf(c, 'drops'))}</div>
-        <div><div class="sec-title"><span>${SIM_KINDS.bonus}</span></div>${simList(simOf(c, 'bonus'))}</div></div></div>`).join('')}</div>
-`;
+  $('sim-cards').innerHTML = dropCardsHtml();
 }
+
+/* Drops cards (all three Sims Priority tabs): every raider, their Heroic and Bonus sim upgrades plus manual entries,
+   collapsed to one line per boss; click to show the items. By Player or By Role (Tanks / Healers / DPS). */
+const dropOpen = new Set(store('apoDropOpen', []));
+const ROLE_BUCKETS = [['Tanks', 'Tank'], ['Healers', 'Healer'], ['DPS', 'DPS']];
+const bucketOf = p => { const s2 = playerSection(p); return s2 === 'Tanks' || s2 === 'Healers' ? s2 : 'DPS'; };
+function dropItems(c) {
+  const out = [];
+  [['drops', 'sim'], ['bonus', 'bonus']].forEach(([kind, src]) => { const sim = simOf(c, kind);
+    if (sim) sim.rows.filter(r => r.pct > 0).forEach(r => out.push({ src, item: r.item, slot: slotLabel(r.slot), boss: bossOfSrc(r.boss) || r.boss || 'Other', pct: r.pct, dps: r.dps, ilvl: r.ilvl })); });
+  wishOf(c).forEach(w => out.push({ src: 'wish', item: w.item, slot: w.slot || '', boss: w.boss || 'Other', have: w.have, note: w.note, added: w.added, w }));
+  return out;
+}
+function dropCard(p, st) {
+  const c = st.c, items = dropItems(c), key = c.name + '-' + c.realm, open = dropOpen.has(key);
+  const by = {}; items.forEach(x => { (by[x.boss] = by[x.boss] || []).push(x); });
+  const best = list => Math.max(0, ...list.map(x => x.pct || 0));
+  const bosses = Object.keys(by).sort((a, b) => best(by[b]) - best(by[a]) || by[b].filter(x => x.src === 'wish' && !x.have).length - by[a].filter(x => x.src === 'wish' && !x.have).length || bossIdx(a) - bossIdx(b));
+  const tag = (src, list) => { const xs = list.filter(x => x.src === src && !x.have); if (!xs.length) return '';
+    return `<span class="tag ${src === 'wish' ? 'wish' : src}">${src === 'sim' ? 'Heroic' : src === 'bonus' ? 'Bonus' : 'Wish'}${src === 'wish' ? (xs.length > 1 ? ' ×' + xs.length : '') : ' +' + best(xs).toFixed(1) + '%'}</span>`; };
+  const itemRow = x => `<div class="sim-row${x.have ? ' wish-row got' : ''}"><span class="slot">${esc(x.slot || '')}</span><span class="sn"><span class="si" data-tip="${esc(x.item)}${x.ilvl ? ' (' + x.ilvl + ')' : ''}">${esc(x.item)}</span>
+      <span class="hint sb">${x.src === 'wish' ? 'manual entry' + (x.note ? ' &middot; ' + esc(x.note) : '') + (x.added ? ' &middot; added ' + esc(x.added) : '') : (x.src === 'sim' ? 'Heroic drops sim' : 'Bonus / vault sim') + (x.ilvl ? ' &middot; ' + x.ilvl : '')}</span></span>
+    <span>${x.src === 'wish' ? (x.have ? '<span class="pill ok">&#10003; got it</span>' : '<span class="pill wish">wanted</span>') + (officerKey ? ` <a class="hint" href="#sims" data-wishdel="${esc(c.name + '|' + c.realm + '|' + x.item + '|' + x.w.kind)}">remove</a>` : '')
+      : `<b class="sp ${pctCls(x.pct)}" data-tip="${x.dps > 0 ? '+' : ''}${Math.round(x.dps || 0).toLocaleString()} DPS">${pctTxt(x.pct)}</b>`}</span></div>`;
+  const healer = isHealerP(p, c);
+  const dates = healer ? '' : `<div class="dc-dates hint">Heroic ${dateHtml(simOf(c, 'drops'))} &middot; Bonus ${dateHtml(simOf(c, 'bonus'))}</div>`;
+  return `<div class="char sim-card drop-card${st.ok || healer ? '' : ' dim'}${open ? ' open' : ''}" style="--accent:${accentFor(c.cls)}">
+    <div class="name-row" data-droptoggle="${esc(key)}">${classIcon(c.cls)}<span class="char-name">${esc(c.name)}</span>${profileLinks(c.name, c.realm)}
+      <span class="hint" style="margin-left:auto">${roleIcon(bucketOf(p) === 'Tanks' ? 'Tank' : bucketOf(p) === 'Healers' ? 'Healer' : 'DPS')} ${esc(c.spec || '')}</span><span class="dc-caret">${open ? '&#9652;' : '&#9662;'}</span></div>
+    ${!st.ok && !healer ? `<p style="margin:6px 0 0"><span class="pill warn">${esc(st.why)}</span></p>` : ''}${dates}
+    ${bosses.length ? `<div class="dc-bosses">${bosses.map(b => `<div class="dc-boss"><div class="dc-bh" data-droptoggle="${esc(key)}"><b>${esc(b)}</b><span class="hint">${by[b].length} item${by[b].length === 1 ? '' : 's'}</span><span class="dc-tags">${tag('sim', by[b])}${tag('bonus', by[b])}${tag('wish', by[b])}</span></div>
+      ${open ? `<div class="sim-rows">${by[b].sort((x, y) => (y.pct || 0) - (x.pct || 0)).map(itemRow).join('')}</div>` : ''}</div>`).join('')}</div>`
+      : `<p class="empty" style="margin:8px 0 0">${healer ? 'No manual entries yet.' : 'No reports imported or manual entries yet.'}</p>`}</div>`;
+}
+function dropCardsHtml() {
+  const all = raidPlayers().map(p => ({ p, st: simStatus(p) }));
+  const byName = (a, b) => a.st.c.name.localeCompare(b.st.c.name);
+  if (simView === 'role') return ROLE_BUCKETS.map(([sec, r]) => { const ps = all.filter(x => bucketOf(x.p) === sec).sort(byName);
+    return ps.length ? `<div class="role-sec"><div class="section-title"><h2>${roleIcon(r)} ${sec}</h2><span class="hint">${ps.length}</span></div><div class="sim-grid">${ps.map(x => dropCard(x.p, x.st)).join('')}</div></div>` : ''; }).join('');
+  return `<div class="sim-grid">${all.sort(byName).map(x => dropCard(x.p, x.st)).join('')}</div>`;
+}
+const DROP_VIEWS = [['player', 'By Player'], ['role', 'By Role'], ['boss', 'By Boss']];
 
 /* Manual entry tab: hand-picked items (healers, or anyone), crossed off once they equip the item */
 function manualHtml() {
@@ -498,7 +535,7 @@ function manualHtml() {
       : '<p class="hint">Officers add items here (click the lock button). Each item is crossed off automatically once the raider is wearing it.</p>'}`;
   $('sim-import').style.display = 'none';
   $('sim-chart-title').textContent = 'Wanted items by boss';
-  $('drops-hint').textContent = 'hand-picked items; crossed off once the raider equips them';
+  $('drops-hint').textContent = "every raider's sims and manual entries (picked toons); click a card for the items; By Boss shows manual entries";
   // Chart: wanted items per boss
   const wanted = all.flatMap(c => wantedBy(c).map(w => ({ c, w })));
   const byBoss = {};
@@ -510,7 +547,7 @@ function manualHtml() {
       <div class="bt"><div class="bf wishbar" style="width:${(x.who.length / max * 100).toFixed(1)}%"></div><span class="bv">${x.who.length} item${x.who.length === 1 ? '' : 's'}</span></div>
       <span class="bw">${x.who.map(y => `<span data-tip="${esc(y.w.item)}">${nameHtml(y.c)}</span>`).join(' ')}</span></div>`).join('')}</div>`
     : '<p class="empty">No manual entries still wanted.</p>';
-  $('sim-view-chips').innerHTML = [['player', 'By Player'], ['boss', 'By Boss']].map(([k, l]) => `<button type="button" class="chip${simView === k ? ' on' : ''}" data-simview="${k}">${l}</button>`).join('');
+  $('sim-view-chips').innerHTML = DROP_VIEWS.map(([k, l]) => `<button type="button" class="chip${simView === k ? ' on' : ''}" data-simview="${k}">${l}</button>`).join('');
   const row = (c, w, showName) => `<div class="sim-row wish-row${w.have ? ' got' : ''}">${showName ? `<span>${nameHtml(c)}</span>` : `<span class="slot">${esc(w.slot || '')}</span>`}
     <span class="sn"><span class="si">${esc(w.item)}</span><span class="hint sb">${showName ? esc(w.slot || '') : esc(w.boss || 'source not set')}${w.note ? ' &middot; ' + esc(w.note) : ''} &middot; added ${esc(w.added || '')}</span></span>
     <span>${w.have ? '<span class="pill ok">&#10003; got it</span>' : '<span class="pill wish">wanted</span>'}${officerKey ? ` <a class="hint" href="#sims" data-wishdel="${esc(c.name + '|' + c.realm + '|' + w.item + '|' + w.kind)}">remove</a>` : ''}</span></div>`;
@@ -521,10 +558,7 @@ function manualHtml() {
         <div class="sim-rows">${x.who.map(y => row(y.c, y.w, true)).join('')}</div></div>`).join('')}</div>` : '<p class="empty">No manual entries still wanted.</p>';
     return;
   }
-  const listed = all.filter(c => wishOf(c).length || healers.includes(c));
-  $('sim-cards').innerHTML = listed.length ? `<div class="sim-grid">${listed.map(c => `<div class="char sim-card" style="--accent:${accentFor(c.cls)}"><div class="name-row">${classIcon(c.cls)}<span class="char-name">${esc(c.name)}</span>${profileLinks(c.name, c.realm)}<span class="hint" style="margin-left:auto">${esc(c.spec || '')}${healers.includes(c) ? ' &middot; healer' : ''}</span></div>
-      <div class="sim-rows" style="margin-top:8px">${wishOf(c).sort((a, b) => a.have - b.have).map(w => row(c, w, false)).join('') || '<p class="empty">No items yet.</p>'}</div></div>`).join('')}</div>`
-    : '<p class="empty">No manual entries yet.</p>';
+  $('sim-cards').innerHTML = dropCardsHtml();
 }
 
 async function officerPost(payload) {
@@ -731,6 +765,8 @@ document.addEventListener('click', e => {
   const cp = e.target.closest('[data-copy]');
   if (cp) { const code = cp.dataset.copy, done = () => { const t = cp.textContent; cp.textContent = 'Copied ✓'; setTimeout(() => { cp.textContent = t; }, 1500); };
     (navigator.clipboard ? navigator.clipboard.writeText(code).then(done) : Promise.reject()).catch(() => prompt('Copy this talent string (Ctrl+C):', code)); return; }
+  const dt = e.target.closest('[data-droptoggle]');
+  if (dt && !e.target.closest('a')) { const k = dt.dataset.droptoggle; dropOpen.has(k) ? dropOpen.delete(k) : dropOpen.add(k); save('apoDropOpen', [...dropOpen]); render(); return; }
   const sv = e.target.closest('[data-simview]');
   if (sv) { simView = sv.dataset.simview; save('apoSimView', simView); render(); return; }
   const sk = e.target.closest('[data-simkind]');
