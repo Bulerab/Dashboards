@@ -166,6 +166,8 @@
   .swap { font-size: 11px; padding: 1px 8px; border-radius: 5px; background: #2a2a2a; border: 1px solid #444; color: #ccc; cursor: pointer; }
   .swap:hover { border-color: #3987e5; color: #fff; }
   .name-row { display: flex; align-items: center; gap: 10px; }
+  .meta-row { display: flex; align-items: center; gap: 10px; margin-top: 4px; }
+  .char-head > div:first-child { min-width: 0; }
   .toggle-btn { display: inline-flex; align-items: center; gap: 6px; background: #2a2a2a; color: #ddd; border: 1px solid #444; border-radius: 6px; padding: 3px 11px; font-size: 12px; font-weight: 600; cursor: pointer; }
   .toggle-btn:hover { background: #333; border-color: #3987e5; color: #fff; }
   .toggle-btn .chev { display: inline-block; transition: transform .15s; }
@@ -626,7 +628,7 @@ function pvpCard(c) {
     : `<div class="big">${esc(val || '-')}</div>`;
   return `<div class="char pvpc${open ? ' open' : ''}" style="--accent:${accentFor(c.cls)}" data-pvpcard="${esc(c.name)}">
     <div class="pvp-sum">
-      <div class="char-head"><div><div class="name-row"><span class="char-name">${esc(c.name)}</span>${profileLinks(c.name)}<button type="button" class="toggle-btn" data-cardtoggle="${esc(c.name)}">${open ? 'Collapse' : 'Expand'} <span class="chev">&#9662;</span></button></div><div class="char-meta">${esc(c.cls)}</div>
+      <div class="char-head"><div><div class="name-row"><span class="char-name">${esc(c.name)}</span>${profileLinks(c.name)}</div><div class="char-meta meta-row">${esc(c.cls)}<button type="button" class="toggle-btn" data-cardtoggle="${esc(c.name)}">${open ? 'Collapse' : 'Expand'} <span class="chev">&#9662;</span></button></div>
           <div class="spec-tags">${(c.main || []).map(m => `<span class="spec-tag">${esc(m)}</span>`).join('')}</div></div>
         <div class="headline-row"><div class="headline"><div class="lbl">Shuffle</div>${rating}</div>
           <div class="headline"><div class="lbl">ilvl</div><div class="big">${f2(c.ilvl)}</div></div></div></div>
@@ -660,7 +662,7 @@ function pveCard(c) {
   const issues = bad + warn;
   return `<div class="char pvpc${open ? ' open' : ''}" style="--accent:${accentFor(c.cls)}" data-pvpcard="${esc(c.name)}">
     <div class="pvp-sum">
-      <div class="char-head"><div><div class="name-row"><span class="char-name">${esc(c.name)}</span>${profileLinks(c.name)}<button type="button" class="toggle-btn" data-cardtoggle="${esc(c.name)}">${open ? 'Collapse' : 'Expand'} <span class="chev">&#9662;</span></button></div><div class="char-meta">${esc(c.cls)}</div></div>
+      <div class="char-head"><div><div class="name-row"><span class="char-name">${esc(c.name)}</span>${profileLinks(c.name)}</div><div class="char-meta meta-row">${esc(c.cls)}<button type="button" class="toggle-btn" data-cardtoggle="${esc(c.name)}">${open ? 'Collapse' : 'Expand'} <span class="chev">&#9662;</span></button></div></div>
         <div class="headline-row"><div class="headline"><div class="lbl">M+ rating</div><div class="big">${f1(mp)}</div></div>
           <div class="headline"><div class="lbl">ilvl</div><div class="big">${f2(c.ilvl)}</div></div></div></div>
       <div class="sec">${bisBlock(c)}</div>
