@@ -707,6 +707,7 @@ function weekTogether(t) {
 
 /* ------------------------------------------------------------------ Talents Check tab */
 let talBoss = store('apoTalBoss', '');
+const talOpen = new Set(store('apoTalOpen', []));
 const SEC_ORDER = { Tanks: 0, Healers: 1, Melee: 2, Ranged: 3 };
 const talKey = c => (c.name + '-' + c.realm).toLowerCase();
 // Match % = share of the top players' core talents (taken by 70%+ of them) the raider has; flexible picks never count
@@ -759,21 +760,27 @@ function talentsHtml() {
         <span class="tal-cell ok">&#10003; 90%+</span> &middot; <span class="tal-cell near">75-89%</span> &middot; <span class="tal-cell off">under 75%</span> &middot; <span class="tal-cell hero">H</span> different hero tree &middot; hover a cell for details.<br><b>To copy a build:</b> click a boss column (or a boss button above), find your spec, and click <b>Copy build</b>.</p></div>`;
   } else {
     const b = talBoss;
-    body = groups.filter(g => g.sp.bosses[b]).map(({ sp, who }) => {
-      const x = sp.bosses[b], r = x.ref;
+    // One tile per spec: Copy build + who it's from + each raider's core %; click to open everything
+    body = `<div class="card"><div class="card-head"><h2>${esc(b)}</h2><span class="hint">top 15 US players per spec &middot; click a spec for missing / rarely taken talents</span></div><div class="boss-grid">${groups.filter(g => g.sp.bosses[b]).map(({ sp, who }) => {
+      const x = sp.bosses[b], r = x.ref, key = 't|' + b + '|' + sp.spec + '|' + sp.cls, open = talOpen.has(key);
+      const fromHtml = r ? `from <a href="${esc(r.rio)}" target="_blank" rel="noopener">${esc(r.name)}</a> <span class="hint">(${Number(r.amount).toLocaleString()} ${sp.metric.toUpperCase()}${r.log ? `, <a href="${esc(r.log)}" target="_blank" rel="noopener">log</a>` : ''})</span>` : '<span class="hint">no copyable build for this boss</span>';
+      const sumRow = who.map(({ c }) => { const s = statusOf(c, b); return `<span class="tal-sum ${talCls(s)}" data-tip="${esc(talTip(s, sp, b))}">${esc(c.name)} <b>${!s ? '-' : !s.hero ? 'H' : s.pct == null ? '-' : s.pct + '%'}</b></span>`; }).join('');
       const rows = who.map(({ c }) => { const s = statusOf(c, b), n = diffs(s);
         const mt = s ? `<span class="tal-mt ${talCls(s)}" data-tip="${esc(talTip(s, sp, b))}">${s.pct == null ? '-' : s.pct + '% core'}<small>same as ${s.match}/${s.n}</small></span>` : '';
         const what = !s ? '<span class="hint">no data</span>' : n === 0 ? '<span class="pill tal-ok">&#10003; Matches the usual build</span>' :
           [!s.hero ? `<span class="pill tal-hero">Hero tree: ${esc(c.tal.heroName || '?')}, top use ${esc(x.heroName || '?')}</span>` : '',
-           s.miss.length ? `<div><b class="tal-miss">Missing:</b> ${nList(s.miss, 8)}</div>` : '', s.extra.length ? `<div><b class="tal-extra">Rarely taken:</b> ${nList(s.extra, 8)}</div>` : ''].join('');
+           s.miss.length ? `<div><b class="tal-miss">Missing:</b> ${s.miss.map(esc).join(', ')}</div>` : '', s.extra.length ? `<div><b class="tal-extra">Rarely taken:</b> ${s.extra.map(esc).join(', ')}</div>` : ''].join('');
         return `<div class="tal-row"><span class="tn">${nameHtml(c)}</span>${mt}<span class="tw">${what}</span></div>`; }).join('');
-      return `<div class="card"><div class="card-head"><h2>${classIcon(sp.cls, 'sm')} <span style="color:${classHex(sp.cls)}">${esc(sp.spec)} ${esc(sp.cls)}</span></h2>
-        <span class="hint">top ${x.n} US on ${esc(b)} &middot; hero tree ${esc(x.heroName || '?')} (${x.heroPct}%)</span></div>
-        <div class="tal-ref">${r ? `${copyBtn(r.code, 'Copy build')} <span>from <a href="${esc(r.rio)}" target="_blank" rel="noopener">${esc(r.name)}</a> <span class="hint">(${esc(r.region.toUpperCase())}, ${Number(r.amount).toLocaleString()} ${sp.metric.toUpperCase()}${r.log ? `, <a href="${esc(r.log)}" target="_blank" rel="noopener">log</a>` : ''})</span></span>` +
-          (r.same != null && r.same < 90 ? ` <span class="hint" data-tip="The copy is this player's current build; it is ${r.same}% the same as what they took on this kill">current build, ${r.same}% same as the kill</span>` : '') : '<span class="hint">No top player with a copyable build for this boss.</span>'}</div>
-        ${x.add.length || x.drop.length ? `<p class="tal-swap">On this boss the top players ${x.add.length ? `<b class="tal-extra">add</b> ${nList(x.add, 6)}` : ''}${x.add.length && x.drop.length ? ' and ' : ''}${x.drop.length ? `<b class="tal-miss">drop</b> ${nList(x.drop, 6)}` : ''}</p>` : ''}
-        ${rows}</div>`;
-    }).join('');
+      return `<div class="boss-tile tal-tile${open ? ' open' : ''}" style="--accent:${accentFor(sp.cls)}">
+        <div class="bt-top" data-taltile="${esc(key)}">${classIcon(sp.cls, 'sm')}<div class="bt-title"><span class="lb-name" style="color:${classHex(sp.cls)}">${esc(sp.spec)} ${esc(sp.cls)}</span><small>hero tree ${esc(x.heroName || '?')} (${x.heroPct}% of top ${x.n})</small></div><span class="dc-caret">${open ? '&#9652;' : '&#9662;'}</span></div>
+        <div class="pt-row tal-copyrow">${r ? copyBtn(r.code, 'Copy build') : '<span class="hint">Copy build: not available</span>'}</div>
+        <div class="pt-row tal-from" data-taltile="${esc(key)}">${fromHtml}</div>
+        <div class="pt-row tal-sums" data-taltile="${esc(key)}">${sumRow}</div>
+        ${open ? `<div class="pt-groups">
+          ${r && r.same != null && r.same < 90 ? `<p class="hint" style="margin:0 0 6px">The copy is ${esc(r.name)}'s current build: ${r.same}% the same as what they took on this kill.</p>` : ''}
+          ${x.add.length || x.drop.length ? `<p class="tal-swap">On this boss the top players ${x.add.length ? `<b class="tal-extra">add</b> ${x.add.map(esc).join(', ')}` : ''}${x.add.length && x.drop.length ? ' and ' : ''}${x.drop.length ? `<b class="tal-miss">drop</b> ${x.drop.map(esc).join(', ')}` : ''}</p>` : ''}
+          ${rows}</div>` : ''}</div>`;
+    }).join('')}</div></div>`;
   }
   const leftHtml = left.length ? `<div class="card"><div class="card-head"><h2>Not compared</h2></div>${left.map(({ c }) =>
     `<div class="tal-row"><span class="tn">${nameHtml(c)}</span><span class="tw hint">${!c.tal ? 'no talents on Raider.io' : `no top builds for ${esc(c.tal.spec)} ${esc(c.cls)} yet (next talent refresh)`}</span></div>`).join('')}</div>` : '';
@@ -846,6 +853,8 @@ document.addEventListener('click', e => {
   if (lt && !e.target.closest('a')) { const k = lt.dataset.loottile; lootOpen.has(k) ? lootOpen.delete(k) : lootOpen.add(k); save('apoLootOpen', [...lootOpen]); render(); return; }
   const lv = e.target.closest('[data-lootview]');
   if (lv) { lootView = lv.dataset.lootview; save('apoLootView', lootView); render(); return; }
+  const tt2 = e.target.closest('[data-taltile]');
+  if (tt2 && !e.target.closest('a,button')) { const k = tt2.dataset.taltile; talOpen.has(k) ? talOpen.delete(k) : talOpen.add(k); save('apoTalOpen', [...talOpen]); render(); return; }
   const tb2 = e.target.closest('[data-talboss]');
   if (tb2) { talBoss = tb2.dataset.talboss; save('apoTalBoss', talBoss); render(); return; }
   const cp = e.target.closest('[data-copy]');
