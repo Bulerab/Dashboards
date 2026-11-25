@@ -294,7 +294,16 @@
   .bc-head .n { font-size: 16px; font-weight: 700; }
   .bc-inst { font-size: 10.5px; text-transform: uppercase; letter-spacing: .5px; color: var(--muted); margin: 10px 0 4px; }
   .bc-boss { background: #1e1e1e; border-radius: 6px; padding: 6px 9px; margin-bottom: 5px; }
-  .bc-boss .top { display: flex; justify-content: space-between; gap: 8px; align-items: baseline; }
+  .bc-boss.killed { background: #1a2a1d; box-shadow: inset 3px 0 0 #2e7d32; }
+  .bc-boss.notkilled { box-shadow: inset 3px 0 0 #8e3b3b; }
+  .kdone { font-size: 10.5px; color: var(--ok); font-weight: 700; display: inline-flex; gap: 3px; align-items: center; }
+  .ktodo { font-size: 10.5px; color: var(--bad); }
+  .kbox { width: 14px; height: 14px; border: 1px solid #555; border-radius: 3px; display: inline-flex; align-items: center; justify-content: center; font-size: 10px; font-weight: 800; flex-shrink: 0; }
+  .kbox.on { background: #2e7d32; border-color: #2e7d32; color: #fff; }
+  .bc-boss .top { display: flex; justify-content: space-between; gap: 8px; align-items: center; }
+  .bc-boss .top .b { flex: 1 1 auto; min-width: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .bc-boss .top > span:last-child { flex: 0 0 auto; white-space: nowrap; }
+  .roll-tag, .kdone, .ktodo { white-space: nowrap; }
   .bc-boss .b { font-weight: 600; color: var(--text-strong); font-size: 12.5px; }
   .kills { display: grid; grid-template-columns: 1fr 1fr; gap: 4px; }
   .kill { display: flex; align-items: center; gap: 4px; background: #222; border: 1px solid #2e2e2e; border-radius: 5px; padding: 3px 7px; font-size: 12px; color: #777; min-width: 0; }
@@ -651,6 +660,11 @@ function weeklyChecks(c) {
   ).join('') + `</div></div>`;
 }
 
+/* Has this character killed this boss since the weekly reset? Returns the kill record (with difficulties) or null */
+const killOf = (name, boss) => { const c = ((STATE && STATE.characters) || []).find(x => x.name === name); return c && (c.raidKills || []).find(k => k.boss === boss) || null; };
+const diffBadges = k => k ? ['LFR', 'NORMAL', 'HEROIC', 'MYTHIC'].filter(d => k.diffs.includes(d)).map(d => `<span class="dbadge" style="color:${DIFF[d][1]};border-color:${DIFF[d][1]}">${DIFF[d][0]}</span>`).join('') : '';
+const killBox = (name, boss) => { const k = killOf(name, boss);
+  return `<span class="kbox${k ? ' on' : ''}" data-tip="${esc(name)} ${k ? 'killed ' + esc(boss) + ' this week (' + esc(k.diffs.map(d => d.charAt(0) + d.slice(1).toLowerCase()).join(', ')) + ')' : 'has not killed ' + esc(boss) + ' this week'}">${k ? '&#10003;' : ''}</span>`; };
 const DIFF = { LFR: ['LFR', '#9d9d9d'], NORMAL: ['N', '#1eff00'], HEROIC: ['H', '#a335ee'], MYTHIC: ['M', '#ff8000'] };
 function killsBlock(c) {
   if (!c.vault) return '';
@@ -1138,7 +1152,7 @@ function render(state, live, when) {
     return `<tr class="group"><td colspan="5">${esc(inst)}</td></tr>` + rows.map(b => {
       totalRolls += parseInt(b.rolls, 10) || 0;
       const list = needsFor(b.boss);
-      const who = list.length ? `<div class="need-grid">${list.map(n => `${colored(n.c)}<span class="slot">${esc(slotName(n.slot))}</span><span>${esc(n.item)}</span><span class="specs-tag">${esc([...n.specs].join(', '))}</span>`).join('')}</div>` : '<span class="empty">-</span>';
+      const who = list.length ? `<div class="need-grid">${list.map(n => `<span style="display:inline-flex;align-items:center;gap:6px">${killBox(n.c, b.boss)}${colored(n.c)}</span><span class="slot">${esc(slotName(n.slot))}</span><span>${esc(n.item)}</span><span class="specs-tag">${esc([...n.specs].join(', '))}</span>`).join('')}</div>` : '<span class="empty">-</span>';
       const chosen = !!b.plan, sug = b.suggested || '';
       const opts = `<option value="">${!chosen && sug ? 'Suggested: ' + esc(sug) : ''}</option>` + PLAN_CHARS.map(c => `<option${c === b.plan ? ' selected' : ''}>${esc(c)}</option>`).join('');
       return `<tr><td>${esc(b.boss)}</td><td class="num">${list.length}</td><td>${who}</td>
@@ -1202,7 +1216,9 @@ function render(state, live, when) {
       const inst = row.instance || '';
       const head = inst && inst !== lastInst ? `<div class="bc-inst">${esc(inst)}</div>` : '';
       lastInst = inst || lastInst;
-      return head + `<div class="bc-boss"><div class="top"><span class="b">${esc(b)}</span>${tag}</div>${itemGrid(c, raid.filter(i => i.si.boss === b).sort(byMain(c)))}</div>`;
+      const k = killOf(name, b);
+      const status = k ? `<span class="kdone">&#10003; Killed ${diffBadges(k)}</span>` : `<span class="ktodo">Not killed</span>`;
+      return head + `<div class="bc-boss ${k ? 'killed' : 'notkilled'}"><div class="top"><span class="b">${esc(b)}</span><span style="display:inline-flex;gap:6px;align-items:center">${status}${tag}</span></div>${itemGrid(c, raid.filter(i => i.si.boss === b).sort(byMain(c)))}</div>`;
     }).join('');
     // Dungeons: dungeon > boss
     const places = [...new Set(dng.map(i => i.si.place))].sort();
