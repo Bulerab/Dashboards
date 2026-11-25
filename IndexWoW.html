@@ -110,10 +110,7 @@
   .cur .calc { color: var(--muted-2); font-size: 12px; margin-top: 3px; }
   .rating-input { width: 84px; text-align: right; font-size: 18px !important; font-weight: 700; }
   .chars.pvp-grid { grid-template-columns: repeat(auto-fill, minmax(560px, 1fr)); }
-  .pvpc { cursor: pointer; transition: border-color .15s, box-shadow .15s; }
-  .pvpc:hover { box-shadow: 0 0 0 1px #3a3a3a, 0 4px 6px rgba(0,0,0,0.3); }
-  .pvpc.open { grid-column: 1 / -1; cursor: default; }
-  .pvpc.open .pvp-sum { cursor: pointer; }
+  .pvpc.open { grid-column: 1 / -1; }
   .pvp-more { display: none; margin-top: 6px; border-top: 1px solid var(--line-2); padding-top: 4px; }
   .pvpc.open .pvp-more { display: block; }
   .pvp-more-grid { display: grid; grid-template-columns: 260px 1fr; gap: 24px; }
@@ -123,7 +120,9 @@
   .mini .k { font-size: 10.5px; color: var(--muted-2); text-transform: uppercase; letter-spacing: .4px; }
   .mini .v { font-size: 17px; font-weight: 700; color: var(--text-strong); margin-top: 2px; font-variant-numeric: tabular-nums; }
   .mini .v.conq { color: #ff9d6e; } .mini .v.craft { color: #c9a5ff; } .mini .v.ok { color: var(--ok); }
-  .expand { display: flex; justify-content: center; align-items: center; gap: 6px; margin-top: 10px; font-size: 12px; color: var(--muted-2); }
+  .expand { display: flex; justify-content: center; margin-top: 12px; }
+  .expand button { display: inline-flex; align-items: center; gap: 7px; background: #2a2a2a; color: #ddd; border: 1px solid #444; border-radius: 6px; padding: 6px 18px; font-size: 13px; font-weight: 600; cursor: pointer; }
+  .expand button:hover { background: #333; border-color: #3987e5; color: #fff; }
   .expand .chev { display: inline-block; transition: transform .15s; }
   .pvpc.open .expand .chev { transform: rotate(180deg); }
   .spec-tags { display: flex; gap: 5px; margin-top: 4px; flex-wrap: wrap; }
@@ -556,7 +555,7 @@ function pvpCard(c) {
         <div class="mini"><div class="k">Crafted pieces</div><div class="v craft">${t.total ? t.crafted : '-'}</div></div>
         <div class="mini"><div class="k">This week</div><div class="v${wrows.length && wdone === wrows.length ? ' ok' : ''}">${wrows.length ? wdone + ' / ' + wrows.length : '-'}</div></div>
       </div>
-      <div class="expand"><span>${open ? 'Hide details' : 'Gear, BiS costs &amp; weekly checks'}</span><span class="chev">&#9662;</span></div>
+      <div class="expand"><button type="button" data-cardtoggle="${esc(c.name)}">${open ? 'Collapse' : 'Expand'} <span class="chev">&#9662;</span></button></div>
     </div>
     <div class="pvp-more"><div class="pvp-more-grid"><div>${weeklyChecks(c) || '<div class="sec"><p class="empty">No weekly checks.</p></div>'}</div><div>${gearBlock(c)}</div></div>
       <div class="foot">Gear pulled ${esc(c.pulled || '-')}</div></div>
@@ -591,7 +590,7 @@ function pveCard(c) {
         <div class="mini"><div class="k">Enchants &amp; gems</div><div class="v${ench.length && !issues ? ' ok' : ''}" style="${bad ? 'color:var(--bad)' : warn ? 'color:var(--warn)' : ''}">${ench.length ? (issues ? `${bad ? bad + ' missing' : ''}${bad && warn ? ', ' : ''}${warn ? warn + ' diff' : ''}` : 'All set') : '-'}</div></div>
         <div class="mini"><div class="k">This week</div><div class="v${wrows.length && wdone === wrows.length ? ' ok' : ''}">${wrows.length ? wdone + ' / ' + wrows.length : '-'}</div></div>
       </div>
-      <div class="expand"><span>${open ? 'Hide details' : 'Raid targets, enchants &amp; weekly checks'}</span><span class="chev">&#9662;</span></div>
+      <div class="expand"><button type="button" data-cardtoggle="${esc(c.name)}">${open ? 'Collapse' : 'Expand'} <span class="chev">&#9662;</span></button></div>
     </div>
     <div class="pvp-more"><div class="pvp-more-grid" style="grid-template-columns:1fr 1fr"><div>${targetsBlock(c)}</div><div>${enchantBlock(c)}${weeklyChecks(c)}</div></div>
       <div class="foot">Gear pulled ${esc(c.pulled || '-')}</div></div>
@@ -828,9 +827,9 @@ function paintBonusView() {
 document.addEventListener('click', e => {
   const f = e.target.closest('[data-filter]');
   if (f) { todoFilter = f.dataset.filter; renderAll(); return; }
-  const pc = e.target.closest('[data-pvpcard]');
-  if (pc && !e.target.closest('input, select, button, label, a, .pvp-more')) {
-    const n = pc.dataset.pvpcard;
+  const pc = e.target.closest('[data-cardtoggle]');
+  if (pc) {
+    const n = pc.dataset.cardtoggle;
     pvpOpen.has(n) ? pvpOpen.delete(n) : pvpOpen.add(n);
     try { localStorage.setItem('wowPvpOpen', JSON.stringify([...pvpOpen])); } catch (er) { /* storage blocked */ }
     renderAll();
