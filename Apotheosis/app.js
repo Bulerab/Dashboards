@@ -753,11 +753,13 @@ function talentsHtml() {
 function altsHtml() {
   const show = !!(STATE.guild && STATE.guild.showAlts);
   if (!show && !officerKey) return '';
-  const ps = (STATE.roster || []).filter(p => (p.extras || []).length).sort((a, b) => a.player.localeCompare(b.player));
-  if (!ps.length) return '';
-  return `<div class="section-title"><h2>Alts</h2><span class="hint">${ps.reduce((n, p) => n + p.extras.length, 0)} alts${show ? '' : ' &middot; hidden from raiders (officers only)'}</span></div>
-    <div class="card alts-card">${ps.map(p => `<div class="alt-row"><span class="alt-p">${nameHtml(p.main)}</span><span class="alt-list">${p.extras.map(c =>
-      `<span class="alt-chip">${nameHtml(c)} <span class="hint">${esc(c.spec || '')}${c.ilvl ? ' &middot; ' + f1(c.ilvl) : ''}${c.score ? ' &middot; M+ ' + Math.round(c.score) : ''}</span></span>`).join('')}</span></div>`).join('')}</div>`;
+  const alts = (STATE.roster || []).flatMap(p => (p.extras || []).map(c => ({ c, p }))).sort((a, b) => a.c.name.localeCompare(b.c.name));
+  if (!alts.length) return '';
+  return `<div class="section-title"><h2>Alts</h2><span class="hint">${alts.length} alt${alts.length === 1 ? '' : 's'}${show ? '' : ' &middot; hidden from raiders (officers only)'}</span></div>
+    <div class="alt-grid">${alts.map(({ c, p }) => `<div class="alt-card" style="--accent:${accentFor(c.cls)}">
+      <div class="alt-top">${classIcon(c.cls)}<span class="alt-name" style="color:${classHex(c.cls)}">${esc(c.name)}</span>${profileLinks(c.name, c.realm)}</div>
+      <div class="alt-info">${[c.spec && esc(c.spec + ' ' + (c.cls || '')), c.ilvl ? 'ilvl <b>' + f1(c.ilvl) + '</b>' : '', c.score ? 'M+ <b>' + Math.round(c.score) + '</b>' : ''].filter(Boolean).join(' &middot; ') || '<span class="hint">not refreshed yet</span>'}</div>
+      <div class="alt-of">Alt of ${nameHtml(p.main)}</div></div>`).join('')}</div>`;
 }
 
 /* ------------------------------------------------------------------ Tier set (roster tiles) */

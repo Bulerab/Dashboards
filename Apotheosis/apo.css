@@ -307,3 +307,10 @@ p .tal-cell { font-weight: 700; }
 .m-chip { display: inline-flex; align-items: center; gap: 2px; background: #232323; border: 1px solid #3a3a3a; border-radius: 8px; padding: 2px 4px 2px 8px; margin: 2px 4px 2px 0; font-size: 12.5px; }
 .m-x { background: none; border: 0; color: #ff7b72; font-size: 15px; line-height: 1; cursor: pointer; padding: 0 4px; }
 @media (max-width: 800px) { .rank-set { grid-template-columns: 1fr; } }
+
+.alt-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); gap: 10px; margin-bottom: 18px; }
+.alt-card { background: #1e1e1e; border: 1px solid #333; border-left: 3px solid var(--accent, #555); border-radius: 10px; padding: 10px 12px; }
+.alt-top { display: flex; align-items: center; gap: 8px; } .alt-top .cls-ic { width: 26px; height: 26px; border-radius: 6px; }
+.alt-name { font-size: 16px; font-weight: 700; }
+.alt-info { font-size: 12.5px; color: var(--muted-2, #aaa); margin-top: 6px; } .alt-info b { color: #e6e6e6; }
+.alt-of { font-size: 12.5px; color: var(--muted-2, #999); margin-top: 4px; }
