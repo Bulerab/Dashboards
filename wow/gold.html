@@ -55,6 +55,24 @@
   </div>
 
   <div class="card">
+    <div class="card-head">
+      <div class="head-left"><h2>Other professions</h2>
+        <div class="filters" id="craft-cats">
+          <button type="button" class="chip on" data-ccat="money">Making gold</button>
+          <button type="button" class="chip" data-ccat="regular" title="Profitable and selling at least once every two days across the region (TSM)">Sells regularly</button>
+          <button type="button" class="chip" data-ccat="shuffle" title="Craft it and disenchant it for a profit">Disenchant shuffles</button>
+          <button type="button" class="chip" data-ccat="Mount">Mounts</button>
+          <button type="button" class="chip" data-ccat="Transmog">Transmog</button>
+          <button type="button" class="chip" data-ccat="Pet">Pets</button>
+          <button type="button" class="chip" data-ccat="all">Everything</button>
+        </div></div>
+      <span class="hint" id="crafts-note">Loading Blacksmithing, Engineering, Leatherworking and Tailoring…</span>
+    </div>
+    <div class="filters" id="craft-profs" style="margin-bottom:10px"></div>
+    <div class="table-wrap" id="crafts"><p class="empty">Loading…</p></div>
+  </div>
+
+  <div class="card">
     <div class="card-head"><h2>Worth learning</h2><span class="hint">Recipes the scribe doesn't know yet that would make gold at today's prices</span></div>
     <div class="table-wrap" id="learn"></div>
   </div>
@@ -73,6 +91,6 @@
   <div class="gcrafters" id="gcrafters"></div>
 </div>
 <div id="toast"></div>
-<script src="gold.js?v=14"></script>
+<script src="gold.js?v=15"></script>
 </body>
 </html>

@@ -8,6 +8,7 @@ const HOME_CITY = 'Orgrimmar';   // first waypoint stop
 const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
 const $ = id => document.getElementById(id);
 let DATA = null;
+let CRAFTS = null;   // other professions (?page=crafts), loaded after the gold data
 let makerFilter = 'profit';
 
 /** 12.5 -> "12.50g", 1234.5 -> "1,235g". Blank for missing values. */
@@ -76,9 +77,10 @@ const FILTER_FIELDS = [
   { k: 'profit', label: 'Profit at least', step: '10', unit: 'g' },
   { k: 'margin', label: 'Margin at least', step: '5', unit: '%', scale: 0.01 },
   { k: 'price', label: 'AH price at least', step: '10', unit: 'g' },
+  { k: 'deProfit', label: 'Disenchant profit at least', step: '10', unit: 'g' },
 ];
-let filters = { hot: {}, makers: {} };
-try { const f = JSON.parse(localStorage.getItem(FILTER_KEY) || '{}'); if (f.hot) filters.hot = f.hot; if (f.makers) filters.makers = f.makers; } catch (e) { /* storage blocked */ }
+let filters = { hot: {}, makers: {}, crafts: {} };
+try { const f = JSON.parse(localStorage.getItem(FILTER_KEY) || '{}'); ['hot', 'makers', 'crafts'].forEach(k => { if (f[k]) filters[k] = f[k]; }); } catch (e) { /* storage blocked */ }
 const filterOn = t => FILTER_FIELDS.some(f => filters[t][f.k] != null && filters[t][f.k] !== '');
 function passes(table, row) {
   return FILTER_FIELDS.every(f => {
@@ -189,6 +191,15 @@ function buildIndex(d) {
   const umbral = d.materials.find(m => m.name === 'Umbral Ink');
   const herbPrice = {}; d.milling.forEach(m => { if (m.herbPrice != null) herbPrice[m.herbId] = m.herbPrice; });
   const pigPrice = {}; (d.depth ? Object.keys(d.depth) : []).forEach(id => { if (d.depth[id].length) pigPrice[id] = d.depth[id][0][0]; });
+  // Other professions (Blacksmithing, Engineering, ...): their reagents, AH and vendor prices
+  if (CRAFTS) {
+    CRAFTS.reagents.forEach(([rid, id, name, q]) => { (reag[rid] = reag[rid] || []).push({ id, name, q }); });
+    CRAFTS.prices.forEach(p => {
+      names[p.id] = names[p.id] || p.name;
+      if (!mat[p.id]) mat[p.id] = { id: p.id, name: p.name, ah: p.ah, listed: p.listed, way: 'Buy on AH' };
+      if (p.vendor != null && !vendor[p.id]) vendor[p.id] = { id: p.id, name: p.name, price: p.vendor, pay: p.vendor, npc: '', zone: '' };
+    });
+  }
   return { mat, reag, craftOf, trade, vendor, names, herbPrice, pigPrice, umbralId: umbral ? umbral.id : null };
 }
 
@@ -329,7 +340,16 @@ try { cart = JSON.parse(localStorage.getItem(CART_KEY) || '[]').filter(c => c &&
 const saveCart = () => { try { localStorage.setItem(CART_KEY, JSON.stringify(cart)); } catch (e) { /* storage blocked */ } };
 const clampQty = v => Math.max(1, Math.min(10000, parseInt(v, 10) || 1));
 
+/** What one crafted item is worth to you: selling it (after the AH cut) or disenchanting it, whichever pays more. */
+function exitOf(r, cut) {
+  const sell = r && r.price != null ? r.price * (1 - cut) : null, de = r && r.de != null ? r.de : null;
+  if (sell == null && de == null) return null;
+  return de != null && (sell == null || de > sell) ? { each: de, how: 'Disenchant' } : { each: sell, how: 'Sell' };
+}
+const bestProfit = r => (r.deProfit != null && (r.profit == null || r.deProfit > r.profit) ? r.deProfit : r.profit);
+
 function cartTarget(d, key) {
+  if (key.startsWith('c:')) { const r = CRAFTS && CRAFTS.crafts.find(x => String(x.rid) === key.slice(2)); return r ? { kind: 'recipe', rid: r.rid, name: r.name, recipe: r } : null; }
   if (key.startsWith('r:')) { const r = d.recipes.find(x => String(x.rid) === key.slice(2)); return r ? { kind: 'recipe', rid: r.rid, name: r.name, recipe: r } : null; }
   const id = Number(key.slice(2)); const name = calcIndex && calcIndex.names[id];
   return name ? { kind: 'item', id, name } : null;
@@ -346,7 +366,7 @@ function addToCart(key, qty) {
 function renderCart(d, items) {
   if (!items.length) { $('cart').innerHTML = ''; return; }
   const rows = items.map(({ c, t }) => { const r = t.recipe;
-    const each = r && r.profit != null ? r.profit : null;
+    const each = r ? bestProfit(r) ?? null : null;
     return `<tr><td>${t.kind === 'recipe' ? itemLink(r.id, t.name) : itemLink(t.id, t.name)}</td>
       <td class="num"><input type="number" class="cart-qty" data-key="${esc(c.key)}" min="1" max="10000" value="${c.qty}" aria-label="How many"></td>
       <td class="num ${profitCls(each)}">${g(each)}</td><td class="num ${profitCls(each)}">${each == null ? '' : g(each * c.qty)}</td>
@@ -369,13 +389,14 @@ function renderCalc() {
   const ix = calcIndex;
 
   const recipes = items.filter(x => x.t.kind === 'recipe');
-  const unlisted = recipes.filter(x => x.t.recipe.price == null).map(x => x.t.name);
-  const revenue = recipes.length ? recipes.reduce((s, x) => s + (x.t.recipe.price == null ? 0 : x.t.recipe.price * (1 - d.ahCut) * x.c.qty), 0) : null;
+  const unlisted = recipes.filter(x => !exitOf(x.t.recipe, d.ahCut)).map(x => x.t.name);
+  const deCount = recipes.filter(x => { const e = exitOf(x.t.recipe, d.ahCut); return e && e.how === 'Disenchant'; }).map(x => x.t.name);
+  const revenue = recipes.length ? recipes.reduce((s, x) => { const e = exitOf(x.t.recipe, d.ahCut); return s + (e ? e.each * x.c.qty : 0); }, 0) : null;
   const profit = revenue != null ? revenue - plan.cost + plan.spareValue : null;
   const crafts = recipes.reduce((s, x) => s + x.c.qty, 0);
   const sum = `<div class="calc-sum">
     <div class="mini"><div class="k">Materials cost</div><div class="v">${g(plan.cost)}</div></div>
-    ${recipes.length ? `<div class="mini"><div class="k">Sells for (after ${Math.round(d.ahCut * 100)}% cut)</div><div class="v">${g(revenue)}</div></div>
+    ${recipes.length ? `<div class="mini"><div class="k">${deCount.length ? 'Sells or disenchants for' : 'Sells for'} (after ${Math.round(d.ahCut * 100)}% cut)</div><div class="v">${g(revenue)}</div></div>
     ${plan.spareValue >= 1 ? `<div class="mini"><div class="k">Spare pigments to sell</div><div class="v">${g(plan.spareValue)}</div></div>` : ''}
     <div class="mini"><div class="k">Profit for the list${plan.spareValue >= 1 ? ' (incl. spares)' : ''}</div><div class="v ${profit >= 0 ? 'pos' : 'neg'}">${g(profit)}</div></div>
     <div class="mini"><div class="k">Crafts</div><div class="v">${int(crafts)} <span class="dim" style="font-size:12px">(${recipes.length} kind${recipes.length > 1 ? 's' : ''})</span></div></div>` : ''}
@@ -427,6 +448,7 @@ function renderCalc() {
     <p class="calc-note">In game: paste <b>/ttpaste</b> into chat, then paste the stops into the window and press Ctrl+Enter. It clears old TomTom and Zygor waypoints first, then adds ${wayLines.length} stop${wayLines.length > 1 ? 's' : ''}; Zygor's arrow takes you there. Type <b>/cway</b> to switch the arrow to the closest stop.${noStop.length ? ' No saved vendor location for: ' + esc(noStop.join(', ')) + ' (add one on the gold sheet\'s Vendor tab).' : ''}</p></div>` : '';
 
   const notes = [];
+  if (deCount.length) notes.push(`Disenchanting pays more than selling for ${esc(deCount.join(', '))}, so those are counted at their disenchant value (a best guess from the gold sheet's Disenchant tab).`);
   if (unlisted.length) notes.push(`Not on the Auction House right now, so not counted in "Sells for": ${esc(unlisted.join(', '))}.`);
   if (plan.ahRows.some(x => x.top != null && x.top > x.lowest * 1.05)) notes.push('AH prices are averaged over the cheapest listings for the amount you need, so big buys cost more than the lowest price.');
   if (plan.ahRows.some(x => x.short)) notes.push('Some items run past the cheap listings we track; the rest is priced at the last price seen.');
@@ -474,6 +496,65 @@ function crafterCards(d) {
   }).join('');
 }
 
+/* ------------------------------------------------------------------ other professions
+ * Blacksmithing, Engineering, Leatherworking, Tailoring... from Crafts.gs (?page=crafts). Profit is selling on the AH;
+ * "Disenchant profit" is crafting it and disenchanting it (a shuffle), using the gold sheet's Disenchant tab. */
+let craftProf = 'all', craftCat = 'money';
+const redrawTable = (t, bodyOnly) => (t === 'hot' ? hotTable(DATA, bodyOnly) : t === 'makers' ? makersTable(DATA, bodyOnly) : craftsTable(bodyOnly));
+const CRAFT_SHOW = 200;
+
+function craftsTable(bodyOnly) {
+  if (!CRAFTS) return;
+  const c = CRAFTS;
+  if (!bodyOnly) {
+    const profs = [...new Set(c.crafts.map(x => x.prof))].sort();
+    $('craft-profs').innerHTML = ['all'].concat(profs).map(p => `<button type="button" class="chip ${p === craftProf ? 'on' : ''}" data-cprof="${esc(p)}">${p === 'all' ? 'All professions' : esc(p)}</button>`).join('');
+  }
+  let list = c.crafts.filter(x => craftProf === 'all' || x.prof === craftProf);
+  if (craftCat === 'money') list = list.filter(x => (x.profit != null && x.profit > 0) || (x.deProfit != null && x.deProfit > 0));
+  else if (craftCat === 'shuffle') list = list.filter(x => x.deProfit != null && x.deProfit > 0);
+  else if (craftCat === 'regular') list = list.filter(x => x.profit != null && x.profit > 0 && (x.soldPerDay || 0) >= 0.5);
+  else if (craftCat !== 'all') list = list.filter(x => x.cat === craftCat);
+  const before = list.length;
+  list = list.filter(x => passes('crafts', x));
+  // Items nobody has bought lately (no TSM sales) go below ones that sell, whatever their listing price says
+  const sells = x => (x.soldPerDay || 0) > 0 || (x.deProfit != null && x.deProfit > 0);
+  list.sort((a, b) => (sells(b) - sells(a)) || ((bestProfit(b) ?? -1e12) - (bestProfit(a) ?? -1e12)));
+  const shown = list.slice(0, CRAFT_SHOW);
+  const rows = shown.map(x => `<tr class="${bestProfit(x) != null && bestProfit(x) >= DATA.threshold ? 'hit' : ''}">
+    <td>${itemLink(x.id, x.name)}${x.unpriced ? `<span class="warn-ic" title="${x.unpriced} reagent(s) have no price">&#9888;</span>` : ''}${x.vendorUsed ? `<span class="dim" title="${x.vendorUsed} reagent(s) priced at the vendor"> (v)</span>` : ''}
+      <div class="sub">${esc(x.prof)} · ${esc(x.who)}</div></td>
+    <td>${esc(x.cat)}${x.binds === 'Soulbound' ? '<div class="sub">Soulbound</div>' : ''}</td><td class="dim">${esc(x.exp)}</td>
+    <td class="num">${g(x.cost)}</td><td class="num">${x.price == null ? '<span class="dim">not listed</span>' : g(x.price)}${x.priceSrc === 'TSM avg sale' ? `<div class="sub" title="Priced at TSM's average sale price because the cheapest listing${x.lowest != null ? ' (' + g(x.lowest) + ')' : ''} is higher">avg sale${x.lowest != null ? ' · listed ' + g(x.lowest) : ''}</div>` : ''}</td><td class="num">${int(x.listed)}</td>
+    <td class="num">${x.soldPerDay == null || x.soldPerDay === 0 ? '<span class="dim" title="No sales in TSM\'s region data, so the price is just a listing">none</span>' : num1(x.soldPerDay)}</td><td class="num">${x.saleRate == null ? '' : pct1(x.saleRate)}</td>
+    <td class="num ${profitCls(x.profit)}">${g(x.profit)}</td><td class="num ${profitCls(x.margin)}">${pct(x.margin)}</td>
+    <td class="num">${g(x.de)}</td><td class="num ${profitCls(x.deProfit)}">${g(x.deProfit)}</td>${addCell('c:' + x.rid)}</tr>`).join('');
+  const head = `<tr><th>Item</th><th>Kind</th><th>Expansion</th><th class="num">Cost to craft</th><th class="num" title="The cheapest listing, or TSM's average sale price when that is lower">Sell price</th><th class="num">Listed</th>`
+    + `<th class="num" title="TSM: average sold per day across the US region">Sold/day</th><th class="num" title="TSM: share of auctions that sell">Sale rate</th>`
+    + `<th class="num">Profit each</th><th class="num">Margin</th><th class="num" title="Expected materials from disenchanting one, after the AH cut (best guess)">Disenchant value</th>`
+    + `<th class="num" title="Disenchant value minus the cost to craft">Disenchant profit</th><th>Add to list</th></tr>`
+    + filterRow('crafts', [null, null, null, null, 'price', null, 'soldPerDay', 'saleRate', 'profit', 'margin', null, 'deProfit', null]);
+  putTable('crafts', head, rows || emptyRow(13), bodyOnly);
+  $('crafts-count').textContent = filterOn('crafts') ? `${list.length} of ${before} match` : '';
+  $('crafts-note').textContent = `${list.length} recipes${list.length > CRAFT_SHOW ? ` (showing the best ${CRAFT_SHOW})` : ''} · ${c.status}`;
+}
+
+async function loadCrafts() {
+  try {
+    const res = await fetch(WEBAPP_URL + '?page=crafts', { cache: 'no-store' });
+    if (!res.ok) throw new Error('HTTP ' + res.status);
+    const c = JSON.parse(await res.text());
+    if (!c.crafts) throw new Error('no data yet');
+    CRAFTS = c;
+    try { localStorage.setItem('wowSaved_crafts', JSON.stringify(c)); } catch (er) { /* too big or blocked */ }
+  } catch (e) {
+    console.warn('Crafts data failed to load:', e);
+    if (!CRAFTS) { try { CRAFTS = JSON.parse(localStorage.getItem('wowSaved_crafts') || 'null'); } catch (er) { /* none */ } }
+    if (!CRAFTS) { $('crafts').innerHTML = '<p class="empty">Other professions could not be loaded: ' + esc(e.message) + '</p>'; return; }
+  }
+  if (DATA) { calcIndex = buildIndex(DATA); craftsTable(false); renderCalc(); }
+}
+
 /* ------------------------------------------------------------------ render & load */
 function render(d, live, when) {
   DATA = d;
@@ -482,6 +563,7 @@ function render(d, live, when) {
   $('when').textContent = `Prices from ${d.generated} · page loaded ${when}`;
   if (d.character) $('sub').textContent = `${d.character}'s Inscription glyphs and marks, priced from the Auction House every 2 hours`;
   glance(d); setupCalc(d); hotTable(d); makersTable(d); learnTable(d); inksTable(d); pigmentsTable(d); crafterCards(d);
+  if (CRAFTS) craftsTable(false);
 }
 
 $('calc-goblin').addEventListener('input', renderCalc);
@@ -503,14 +585,14 @@ document.addEventListener('input', e => {
   const v = e.target.value.trim();
   if (v === '' || isNaN(Number(v))) delete filters[t][e.target.dataset.fk]; else filters[t][e.target.dataset.fk] = Number(v);
   try { localStorage.setItem(FILTER_KEY, JSON.stringify(filters)); } catch (er) { /* storage blocked */ }
-  t === 'hot' ? hotTable(DATA, true) : makersTable(DATA, true);
+  redrawTable(t, true);
 });
 document.addEventListener('click', e => {
   const b = e.target.closest('[data-fclear]');
   if (!b || !DATA) return;
   const t = b.dataset.fclear; filters[t] = {};
   try { localStorage.setItem(FILTER_KEY, JSON.stringify(filters)); } catch (er) { /* storage blocked */ }
-  t === 'hot' ? hotTable(DATA) : makersTable(DATA);
+  redrawTable(t, false);
 });
 // Cart edits
 $('calc-card').addEventListener('change', e => {
@@ -575,6 +657,12 @@ async function load() {
   }
 }
 
+try { CRAFTS = JSON.parse(localStorage.getItem('wowSaved_crafts') || 'null'); } catch (e) { CRAFTS = null; }
 showSaved();
-load();
-setInterval(load, REFRESH_MINUTES * 60 * 1000);
+load().then(loadCrafts);
+setInterval(() => load().then(loadCrafts), REFRESH_MINUTES * 60 * 1000);
+document.addEventListener('click', e => {
+  const p = e.target.closest('[data-cprof]'), k = e.target.closest('[data-ccat]');
+  if (p) { craftProf = p.dataset.cprof; craftsTable(false); }
+  if (k) { craftCat = k.dataset.ccat; document.querySelectorAll('#craft-cats .chip').forEach(x => x.classList.toggle('on', x === k)); craftsTable(false); }
+});
