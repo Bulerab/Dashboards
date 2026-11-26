@@ -42,7 +42,7 @@ function glance(d) {
     <div class="stat-box"><h3>Worth learning</h3><p>${learn.length}</p><div class="small">unlearned recipes at ${g(d.threshold)}+</div></div>`;
 }
 
-function hotTable(d) {
+function hotTable(d, bodyOnly) {
   $('hot-note').textContent = d.hotNote || '';
   if (!d.hot.length) {
     $('hot').innerHTML = '<p class="empty">No sales estimates yet. Each refresh saves a snapshot of the Auction House; sellers show up here once listings start disappearing between snapshots.</p>';
@@ -53,17 +53,18 @@ function hotTable(d) {
     return { h, r, f: { soldPerDay: r.soldPerDay, saleRate: r.saleRate, profit: r.profit, margin: r.margin, price: h.avg ?? r.price } }; });
   const list = all.filter(x => passes('hot', x.f));
   const shown = list.slice(0, filterOn('hot') ? 50 : 15);
-  $('hot-count').textContent = filterOn('hot') ? `${list.length} of ${all.length} match` : '';
-  if (!shown.length) { $('hot').innerHTML = '<p class="empty">Nothing matches these filters.</p>'; return; }
   const rows = shown.map(({ h, r }) => `<tr>
     <td>${itemLink(h.id, h.name)}</td><td>${typeTag(h.type)}</td>
     <td>${h.known ? '<span class="tag yes">Known</span>' : '<span class="tag">Not learned</span>'}</td>
     <td class="num">${int(h.sold)}</td><td class="num">${r.soldPerDay == null ? '' : num1(r.soldPerDay)}</td><td class="num">${r.saleRate == null ? '' : pct1(r.saleRate)}</td>
     <td class="num">${g(h.avg)}</td><td class="num">${g(r.cost)}</td><td class="num ${profitCls(r.profit)}">${g(r.profit)}</td>
     <td class="num ${profitCls(r.margin)}">${pct(r.margin)}</td><td class="num">${int(h.listed)}</td>${addCell(h.known && r.rid ? 'r:' + r.rid : '')}</tr>`).join('');
-  $('hot').innerHTML = `<table><thead><tr><th>Item</th><th>Type</th><th>Scribe</th><th class="num" title="Listings that disappeared between snapshots; includes expired and cancelled auctions">Est. sold (24h)</th>`
+  const head = `<tr><th>Item</th><th>Type</th><th>Scribe</th><th class="num" title="Listings that disappeared between snapshots; includes expired and cancelled auctions">Est. sold (24h)</th>`
     + `<th class="num" title="TSM: average sold per day across the US region">TSM sold/day</th><th class="num" title="TSM: share of auctions that sell">Sale rate</th><th class="num">Avg price</th><th class="num">Cost to craft</th>`
-    + `<th class="num">Profit each</th><th class="num">Margin</th><th class="num">Listed now</th><th>Add to list</th></tr></thead><tbody>${rows}</tbody></table>`;
+    + `<th class="num">Profit each</th><th class="num">Margin</th><th class="num">Listed now</th><th>Add to list</th></tr>`
+    + filterRow('hot', [null, null, null, null, 'soldPerDay', 'saleRate', 'price', null, 'profit', 'margin', null, null]);
+  putTable('hot', head, rows || emptyRow(12), bodyOnly);
+  $('hot-count').textContent = filterOn('hot') ? `${list.length} of ${all.length} match` : '';
 }
 
 /* ------------------------------------------------------------------ column filters
@@ -86,9 +87,21 @@ function passes(table, row) {
     return row[f.k] != null && row[f.k] >= v * (f.scale || 1) - 1e-9;
   });
 }
-function fillFilterBar(table) {
-  $(table + '-fbar').innerHTML = FILTER_FIELDS.map(f => `<label>${f.label} <input type="number" data-ftable="${table}" data-fk="${f.k}" step="${f.step}" value="${filters[table][f.k] ?? ''}" placeholder="any">${f.unit ? `<span>${f.unit}</span>` : ''}</label>`).join('')
-    + `<button type="button" class="copy" data-fclear="${table}">Clear filters</button><span class="fcount" id="${table}-count"></span>`;
+/** A header row of "at least" boxes, one under each column it filters. cols: filter key or null per column. */
+function filterRow(table, cols) {
+  return '<tr class="frow">' + cols.map((k, i) => {
+    const f = k && FILTER_FIELDS.find(x => x.k === k);
+    if (f) return `<th class="num"><span class="fin" title="${f.label}${f.unit ? ' (' + f.unit + ')' : ''}"><span class="ge">&ge;</span><input type="number" data-ftable="${table}" data-fk="${f.k}" step="${f.step}" value="${filters[table][f.k] ?? ''}" placeholder="any" aria-label="${f.label}">${f.unit ? `<span class="u">${f.unit}</span>` : ''}</span></th>`;
+    if (i === 0) return `<th class="fhead">Filter: at least <button type="button" class="copy" data-fclear="${table}">Clear</button> <span class="fcount" id="${table}-count"></span></th>`;
+    return '<th></th>';
+  }).join('') + '</tr>';
+}
+const emptyRow = n => `<tr><td colspan="${n}" class="empty">Nothing matches these filters.</td></tr>`;
+/** Typing in a filter box only redraws the rows, so the box keeps focus. */
+function putTable(id, head, body, bodyOnly) {
+  const tb = bodyOnly && $(id).querySelector('tbody');
+  if (tb) tb.innerHTML = body;
+  else $(id).innerHTML = `<table><thead>${head}</thead><tbody>${body}</tbody></table>`;
 }
 const addCell = key => (key ? `<td class="addc"><input type="number" class="add-qty" min="1" max="10000" value="10" aria-label="How many"><button type="button" class="copy add-btn" data-add="${key}">Add</button></td>` : '<td></td>');
 
@@ -100,34 +113,33 @@ function recipeRows(list, threshold, withAdd) {
     <td class="num">${int(r.listed)}</td><td class="num">${r.soldPerDay == null ? '' : num1(r.soldPerDay)}</td><td class="num">${r.saleRate == null ? '' : pct1(r.saleRate)}</td>
     <td class="num ${profitCls(r.profit)}">${g(r.profit)}</td><td class="num ${profitCls(r.margin)}">${pct(r.margin)}</td>${withAdd ? addCell('r:' + r.rid) : ''}</tr>`).join('');
 }
-const RECIPE_HEAD = '<thead><tr><th>Recipe</th><th>Type</th><th>Expansion</th><th class="num">Cost to craft</th><th class="num">AH price</th><th class="num">Listed</th>'
+const RECIPE_HEAD = '<tr><th>Recipe</th><th>Type</th><th>Expansion</th><th class="num">Cost to craft</th><th class="num">AH price</th><th class="num">Listed</th>'
   + '<th class="num" title="TSM: average number sold per day across the US region">Sold/day</th><th class="num" title="TSM: share of auctions that sell">Sale rate</th>'
   + '<th class="num">Profit each</th><th class="num">Margin</th>';
-const recipeHead = withAdd => RECIPE_HEAD + (withAdd ? '<th>Add to list</th>' : '') + '</tr></thead>';
+const recipeHead = withAdd => RECIPE_HEAD + (withAdd ? '<th>Add to list</th>' : '') + '</tr>';
 const SELLS_WELL = 3;   // sold per day across the region, for the "Sells well" filter
 const num1 = n => Number(n).toLocaleString('en-US', { maximumFractionDigits: n < 10 ? 1 : 0 });
 const pct1 = n => (Math.round(n * 1000) / 10).toLocaleString('en-US') + '%';
 
-function makersTable(d) {
+function makersTable(d, bodyOnly) {
   let list = d.recipes.filter(r => r.known && r.type !== 'Reagent');
   if (makerFilter === 'profit') list = list.filter(r => r.profit != null && r.profit > 0);
   else if (makerFilter === 'sells') list = list.filter(r => r.profit != null && r.profit > 0 && (r.soldPerDay || 0) >= SELLS_WELL);
   else if (makerFilter !== 'all') list = list.filter(r => r.type === makerFilter);
   const before = list.length;
   list = list.filter(r => passes('makers', r));
-  $('makers-count').textContent = filterOn('makers') ? `${list.length} of ${before} match` : '';
   list.sort((a, b) => (b.profit ?? -1e12) - (a.profit ?? -1e12));
   $('maker-note').textContent = `${list.length} recipes · profit is after the ${Math.round(d.ahCut * 100)}% AH cut · sold/day and sale rate are TSM region data`;
-  $('makers').innerHTML = list.length
-    ? `<table>${recipeHead(true)}<tbody>${recipeRows(list, d.threshold, true)}</tbody></table>`
-    : '<p class="empty">Nothing matches these filters right now.</p>';
+  const head = recipeHead(true) + filterRow('makers', [null, null, null, null, 'price', null, 'soldPerDay', 'saleRate', 'profit', 'margin', null]);
+  putTable('makers', head, list.length ? recipeRows(list, d.threshold, true) : emptyRow(11), bodyOnly);
+  $('makers-count').textContent = filterOn('makers') ? `${list.length} of ${before} match` : '';
 }
 
 function learnTable(d) {
   const list = d.recipes.filter(r => !r.known && r.type !== 'Reagent' && r.profit != null && r.profit > 0)
     .sort((a, b) => b.profit - a.profit);
   $('learn').innerHTML = list.length
-    ? `<table>${recipeHead(false)}<tbody>${recipeRows(list, d.threshold, false)}</tbody></table>`
+    ? `<table><thead>${recipeHead(false)}</thead><tbody>${recipeRows(list, d.threshold, false)}</tbody></table>`
     : '<p class="empty">No unlearned recipe would make gold at today\'s prices.</p>';
 }
 
@@ -362,7 +374,7 @@ function setupCalc(d) {
   sel.innerHTML = `<optgroup label="Glyphs and marks you know (best profit first)">${known.map(r => `<option value="r:${r.rid}">${esc(r.name)}${r.profit != null ? ' (' + g(r.profit) + ' each)' : ''}</option>`).join('')}</optgroup>
     <optgroup label="Inks and pigments">${items.map(m => `<option value="i:${m.id}">${esc(m.name)}</option>`).join('')}</optgroup>`;
   if (prev && sel.querySelector(`option[value="${prev}"]`)) sel.value = prev;
-  if (!setupCalc.done) { $('calc-goblin').checked = !!d.goblin; fillFilterBar('hot'); fillFilterBar('makers'); setupCalc.done = true; }
+  if (!setupCalc.done) { $('calc-goblin').checked = !!d.goblin; setupCalc.done = true; }
   renderCalc();
 }
 
@@ -419,14 +431,14 @@ document.addEventListener('input', e => {
   const v = e.target.value.trim();
   if (v === '' || isNaN(Number(v))) delete filters[t][e.target.dataset.fk]; else filters[t][e.target.dataset.fk] = Number(v);
   try { localStorage.setItem(FILTER_KEY, JSON.stringify(filters)); } catch (er) { /* storage blocked */ }
-  t === 'hot' ? hotTable(DATA) : makersTable(DATA);
+  t === 'hot' ? hotTable(DATA, true) : makersTable(DATA, true);
 });
 document.addEventListener('click', e => {
   const b = e.target.closest('[data-fclear]');
   if (!b || !DATA) return;
   const t = b.dataset.fclear; filters[t] = {};
   try { localStorage.setItem(FILTER_KEY, JSON.stringify(filters)); } catch (er) { /* storage blocked */ }
-  fillFilterBar(t); t === 'hot' ? hotTable(DATA) : makersTable(DATA);
+  t === 'hot' ? hotTable(DATA) : makersTable(DATA);
 });
 // Cart edits
 $('calc-card').addEventListener('change', e => {
