@@ -16,9 +16,9 @@ a.item:hover { text-decoration: underline; }
 .warn-ic { color: var(--warn); margin-left: 5px; cursor: help; }
 .more { margin-top: 10px; }
 
-.crafters { display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 20px; margin-bottom: 25px; align-items: start; }
-.crafter { background: var(--card); border-radius: 8px; padding: 14px 16px; border-top: 4px solid #e0b84a; box-shadow: 0 4px 6px rgba(0,0,0,0.3); }
-.crafter .char-name { font-size: 18px; }
+.gcrafters { display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 20px; margin-bottom: 25px; align-items: start; }
+.gcrafter { background: var(--card); border-radius: 8px; padding: 14px 16px; border-top: 4px solid #e0b84a; box-shadow: 0 4px 6px rgba(0,0,0,0.3); }
+.gcrafter .char-name { font-size: 18px; }
 .prof { margin-top: 12px; }
 .prof-head { display: grid; grid-template-columns: 1fr auto; gap: 8px; align-items: baseline; font-size: 13px; }
 .prof-head .pn { color: var(--text-strong); font-weight: 600; }

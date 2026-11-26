@@ -96,8 +96,8 @@ function inksTable(d) {
 const shortTier = (tier, prof) => String(tier).replace(new RegExp('\\s*' + prof + '$'), '') || tier;
 
 function crafterCards(d) {
-  if (!d.crafters.length) { $('crafters').innerHTML = '<p class="empty">No crafting characters listed yet.</p>'; return; }
-  $('crafters').innerHTML = d.crafters.map(c => {
+  if (!d.crafters.length) { $('gcrafters').innerHTML = '<p class="empty">No crafting characters listed yet.</p>'; return; }
+  $('gcrafters').innerHTML = d.crafters.map(c => {
     const profs = c.professions.length ? c.professions.map(p => {
       const cur = p.tiers[0];
       const w = cur.max ? Math.min(100, Math.round(cur.skill / cur.max * 100)) : 0;
@@ -109,7 +109,7 @@ function crafterCards(d) {
         <div class="prof-sub"><span>${cur.recipes} recipes known</span>${p.tiers.length > 1 ? `<button type="button" class="tier-toggle">All ${p.tiers.length} expansions</button>` : '<span></span>'}</div>
         <div class="tiers">${tiers}</div></div>`;
     }).join('') : `<p class="empty">${esc(c.note || 'No professions')}</p>`;
-    return `<div class="crafter"><div class="char-name">${esc(c.name)}</div>${profs}</div>`;
+    return `<div class="gcrafter"><div class="char-name">${esc(c.name)}</div>${profs}</div>`;
   }).join('');
 }
 
@@ -130,7 +130,7 @@ $('maker-filters').addEventListener('click', e => {
   document.querySelectorAll('#maker-filters .chip').forEach(x => x.classList.toggle('on', x === b));
   makersTable(DATA);
 });
-$('crafters').addEventListener('click', e => {
+$('gcrafters').addEventListener('click', e => {
   const b = e.target.closest('.tier-toggle');
   if (b) b.closest('.prof').classList.toggle('open');
 });
