@@ -60,16 +60,23 @@ function recipeRows(list, threshold) {
     <td>${itemLink(r.id, r.name)}${r.unpriced ? `<span class="warn-ic" title="${r.unpriced} reagent(s) have no AH price and are counted as free">&#9888;</span>` : ''}</td>
     <td>${typeTag(r.type)}</td><td class="dim">${esc(r.exp)}</td>
     <td class="num">${g(r.cost)}</td><td class="num">${r.price == null ? '<span class="dim">none listed</span>' : g(r.price)}</td>
-    <td class="num">${int(r.listed)}</td><td class="num ${profitCls(r.profit)}">${g(r.profit)}</td><td class="num ${profitCls(r.margin)}">${pct(r.margin)}</td></tr>`).join('');
+    <td class="num">${int(r.listed)}</td><td class="num">${r.soldPerDay == null ? '' : num1(r.soldPerDay)}</td><td class="num">${r.saleRate == null ? '' : pct1(r.saleRate)}</td>
+    <td class="num ${profitCls(r.profit)}">${g(r.profit)}</td><td class="num ${profitCls(r.margin)}">${pct(r.margin)}</td></tr>`).join('');
 }
-const RECIPE_HEAD = '<thead><tr><th>Recipe</th><th>Type</th><th>Expansion</th><th class="num">Cost to craft</th><th class="num">AH price</th><th class="num">Listed</th><th class="num">Profit each</th><th class="num">Margin</th></tr></thead>';
+const RECIPE_HEAD = '<thead><tr><th>Recipe</th><th>Type</th><th>Expansion</th><th class="num">Cost to craft</th><th class="num">AH price</th><th class="num">Listed</th>'
+  + '<th class="num" title="TSM: average number sold per day across the US region">Sold/day</th><th class="num" title="TSM: share of auctions that sell">Sale rate</th>'
+  + '<th class="num">Profit each</th><th class="num">Margin</th></tr></thead>';
+const SELLS_WELL = 3;   // sold per day across the region, for the "Sells well" filter
+const num1 = n => Number(n).toLocaleString('en-US', { maximumFractionDigits: n < 10 ? 1 : 0 });
+const pct1 = n => (Math.round(n * 1000) / 10).toLocaleString('en-US') + '%';
 
 function makersTable(d) {
   let list = d.recipes.filter(r => r.known && r.type !== 'Reagent');
   if (makerFilter === 'profit') list = list.filter(r => r.profit != null && r.profit > 0);
+  else if (makerFilter === 'sells') list = list.filter(r => r.profit != null && r.profit > 0 && (r.soldPerDay || 0) >= SELLS_WELL);
   else if (makerFilter !== 'all') list = list.filter(r => r.type === makerFilter);
   list.sort((a, b) => (b.profit ?? -1e12) - (a.profit ?? -1e12));
-  $('maker-note').textContent = `${list.length} recipes · profit is after the ${Math.round(d.ahCut * 100)}% AH cut`;
+  $('maker-note').textContent = `${list.length} recipes · profit is after the ${Math.round(d.ahCut * 100)}% AH cut · sold/day and sale rate are TSM region data`;
   $('makers').innerHTML = list.length
     ? `<table>${RECIPE_HEAD}<tbody>${recipeRows(list, d.threshold)}</tbody></table>`
     : '<p class="empty">Nothing in this filter right now.</p>';
@@ -214,7 +221,7 @@ function renderCalc() {
     <div class="mini"><div class="k">Materials cost</div><div class="v">${g(plan.cost)}</div></div>
     ${r ? `<div class="mini"><div class="k">Sells for (after ${Math.round(d.ahCut * 100)}% cut)</div><div class="v">${revenue == null ? 'Not listed' : g(revenue)}</div></div>
     <div class="mini"><div class="k">Profit for ${qty}</div><div class="v ${profit == null ? '' : profit >= 0 ? 'pos' : 'neg'}">${profit == null ? '' : g(profit)}</div></div>
-    <div class="mini"><div class="k">Per item</div><div class="v">${g(plan.cost / qty)}</div></div>` : `<div class="mini"><div class="k">Per item</div><div class="v">${g(plan.cost / qty)}</div></div>`}
+    <div class="mini"><div class="k">Region sells per day</div><div class="v">${r.soldPerDay == null ? 'No data' : num1(r.soldPerDay)}${r.saleRate == null ? '' : ` <span class="dim" style="font-size:12px">(${pct1(r.saleRate)} sale rate)</span>`}</div></div>` : `<div class="mini"><div class="k">Per item</div><div class="v">${g(plan.cost / qty)}</div></div>`}
   </div>`;
 
   const ahTable = plan.ahRows.length ? `<div class="calc-block"><h3>Buy on the Auction House ${copyBtn(plan.ahRows.map(x => x.name).join('\n'), 'Copy all names')}</h3>
