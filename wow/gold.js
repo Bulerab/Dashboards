@@ -3,6 +3,7 @@
 const WEBAPP_URL = 'https://script.google.com/macros/s/AKfycbwqXMIlBNvm2qwm2Z4OZ8MWIKvVvo3W4iAeCnAdRGR8VCrZ-nQfUS1Pb1sId9cUxZYR/exec';
 const REFRESH_MINUTES = 5;
 const SAVED_KEY = 'wowSaved_gold';
+const HOME_CITY = 'Orgrimmar';   // first waypoint stop
 
 const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
 const $ = id => document.getElementById(id);
@@ -236,11 +237,28 @@ function renderCalc() {
   Object.keys(plan.farm).forEach(id => steps.push(`Use <b>${int(plan.farm[id])} ${esc(ix.names[id])}</b> you farmed`));
   const stepsHtml = steps.length ? `<div class="calc-block"><h3>Then</h3><ol class="steps">${steps.map(s => `<li>${s}</li>`).join('')}</ol></div>` : '';
 
+  // Waypoints for TomTom's /ttpaste (ZygorRoute hands them to Zygor's travel system). Home city first.
+  const stops = {};
+  const addStop = (st, what) => {
+    if (!st || !st.npc || st.x == null || st.y == null) return false;
+    const k = st.npc + '|' + st.zone;
+    (stops[k] = stops[k] || { npc: st.npc, zone: st.zone, x: st.x, y: st.y, items: [] }).items.push(what);
+    return true;
+  };
+  const noStop = [];
+  plan.vendorRows.forEach(x => { if (!addStop(ix.vendor[x.id], x.name)) noStop.push(x.name); });
+  if (Object.keys(plan.trades).length) addStop(d.inkStop, 'ink trades');
+  const stopList = Object.values(stops).sort((a, b) => (a.zone === HOME_CITY ? -1 : b.zone === HOME_CITY ? 1 : a.zone.localeCompare(b.zone)));
+  const wayLines = stopList.map(st => `/way ${st.zone} ${st.x} ${st.y} ${st.npc}: ${st.items.join(', ')}`);
+  const wayHtml = wayLines.length ? `<div class="calc-block"><h3>Waypoints ${copyBtn(wayLines.join('\n'), 'Copy waypoints')}</h3>
+    <pre class="way">${esc(wayLines.join('\n'))}</pre>
+    <p class="calc-note">In game: type <b>/ttpaste</b>, paste, press Ctrl+Enter. TomTom adds the stops and ZygorRoute sends Zygor's arrow to them. Type <b>/cway</b> to switch the arrow to the closest stop.${noStop.length ? ' No saved vendor location for: ' + esc(noStop.join(', ')) + ' (add one on the gold sheet\'s Vendor tab).' : ''}</p></div>` : '';
+
   const notes = [];
   if (Object.keys(plan.mills).length) notes.push('Milling uses average yields, so you may get a few more or less pigment than shown.');
   if (plan.missing) notes.push(`${plan.missing} item(s) have no price right now, so the cost is missing them.`);
   if (goblin && plan.vendorRows.length) notes.push('Goblin prices apply at vendors with a reputation (city and profession suppliers).');
-  $('calc-out').innerHTML = sum + ahTable + vendorTable + stepsHtml + (notes.length ? `<p class="calc-note">${notes.join(' ')}</p>` : '');
+  $('calc-out').innerHTML = sum + ahTable + vendorTable + wayHtml + stepsHtml + (notes.length ? `<p class="calc-note">${notes.join(' ')}</p>` : '');
 }
 
 function setupCalc(d) {
