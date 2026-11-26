@@ -988,16 +988,17 @@ function ranksHtml() {
   const R = OFF.ranks; if (!R) return '';
   const leg = R.legend || [], m = R.map || {};
   const sel = (k, label) => `<label class="rank-pick">${label}<select data-rankset="${k}"><option value="">not set</option>${leg.map(l => `<option value="${l.rank}"${m[k] === l.rank ? ' selected' : ''}>Rank ${l.rank} (${l.n}: ${esc(l.sample.join(', '))})</option>`).join('')}</select></label>`;
-  const set = m.raider != null && m.secondary != null && m.initiate != null;
+  const set = m.raider != null;
   const bad = (R.rows || []).filter(r => r.ok === false), shown = ranksAll ? R.rows : bad;
   const action = r => r.current == null ? 'Invite to the guild' : r.kind === 'Raider' ? `Promote to rank ${r.want} or higher` : `Set to rank ${r.want}`;
   return `<div class="card"><div class="card-head"><h2>Guild ranks</h2><span class="hint">raid characters only &middot; in-game ranks from Blizzard${R.fetched ? ', ' + new Date(R.fetched).toLocaleString([], { month: 'short', day: 'numeric', hour: 'numeric', minute: '2-digit' }) : ''}</span></div>
-    <div class="rank-set">${sel('raider', 'Raider rank')}${sel('secondary', 'Secondary main rank')}${sel('initiate', 'Initiate rank')}${sel('officer', 'Officer ranks (never flagged): this and higher')}</div>
-    ${!leg.length ? '<p class="empty">No guild ranks yet: they load with the next refresh.</p>' : !set ? '<p class="empty">Pick which rank number is Raider, Secondary main and Initiate above (Blizzard only gives numbers; the examples show who holds each).</p>' :
+    <div class="rank-set">${sel('raider', 'Raider rank (this rank or higher)')}${sel('secondary', 'Secondary main rank (optional)')}${sel('initiate', 'Initiate rank (optional)')}</div>
+    <div class="rank-off"><span class="hint">Officer ranks (never flagged):</span>${leg.map(l => `<label class="reset-pick"><input type="checkbox" data-rankoff="${l.rank}"${(m.officer || []).indexOf(l.rank) >= 0 ? ' checked' : ''}>Rank ${l.rank} <span class="hint">(${esc(l.sample.slice(0, 2).join(', '))})</span></label>`).join('')}</div>
+    ${!leg.length ? '<p class="empty">No guild ranks yet: they load with the next refresh.</p>' : !set ? '<p class="empty">Pick the Raider rank above (Blizzard only gives numbers; the examples show who holds each). Secondary main and Initiate ranks are optional: without them those characters only need to be in the guild.</p>' :
       `<p class="hint" style="margin:6px 0">${bad.length ? `<b style="color:#ff7b72">${bad.length}</b> to fix in game` : '<b style="color:#7ee787">All raid characters have the right rank</b>'} &middot; <a href="#approvals" data-ranksall="1">${ranksAll ? 'show only the ones to fix' : 'show everyone'}</a></p>
       ${shown.length ? `<table class="logs-table"><thead><tr><th>Character</th><th>On the sheet</th><th>In-game rank</th><th>Should be</th><th>Do this</th></tr></thead><tbody>${shown.map(r => `<tr>
         <td>${nameHtml(r)}${r.name !== r.player ? ` <span class="hint">(${esc(r.player)})</span>` : ''}</td><td>${esc(r.kind)}</td><td>${r.current == null ? '<span class="pill bad">not in guild</span>' : 'Rank ' + r.current}</td>
-        <td class="hint">${r.want == null ? '-' : r.kind === 'Raider' ? 'Rank ' + r.want + ' or higher' : 'Rank ' + r.want}</td><td>${r.ok ? '<span class="pill ok">OK</span>' : `<b style="color:#e3b341">${action(r)}</b>`}</td></tr>`).join('')}</tbody></table>` : ''}`}</div>`;
+        <td class="hint">${r.want == null ? 'in the guild' : r.kind === 'Raider' ? 'Rank ' + r.want + ' or higher' : 'Rank ' + r.want}</td><td>${r.ok ? '<span class="pill ok">OK</span>' : `<b style="color:#e3b341">${action(r)}</b>`}</td></tr>`).join('')}</tbody></table>` : ''}`}</div>`;
 }
 
 /* Season tools: show / hide alts, clear all alts, clear all secondary mains (pick each player's main first) */
@@ -1231,6 +1232,12 @@ document.addEventListener('click', e => {
 
 // Healer wishlist form: picking a healer fills the "missing BiS" list; picking a BiS item fills in its boss
 document.addEventListener('change', e => {
+  if (e.target.dataset && e.target.dataset.rankoff != null) {
+    const list = [...document.querySelectorAll('[data-rankoff]:checked')].map(x => Number(x.dataset.rankoff));
+    if (OFF && OFF.ranks) OFF.ranks.map.officer = list;
+    officerPost({ action: 'setOption', name: 'rank:officer', value: list }).then(() => loadOfficer()).catch(err => { apprMsg = 'Not saved: ' + err.message; render(); });
+    return;
+  }
   if (e.target.dataset && e.target.dataset.rankset) {
     const k = e.target.dataset.rankset, v = e.target.value;
     if (OFF && OFF.ranks) OFF.ranks.map[k] = v === '' ? null : Number(v);
