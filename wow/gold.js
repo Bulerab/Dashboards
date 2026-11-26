@@ -250,9 +250,11 @@ function renderCalc() {
   if (Object.keys(plan.trades).length) addStop(d.inkStop, 'ink trades');
   const stopList = Object.values(stops).sort((a, b) => (a.zone === HOME_CITY ? -1 : b.zone === HOME_CITY ? 1 : a.zone.localeCompare(b.zone)));
   const wayLines = stopList.map(st => `/way ${st.zone} ${st.x} ${st.y} ${st.npc}: ${st.items.join(', ')}`);
-  const wayHtml = wayLines.length ? `<div class="calc-block"><h3>Waypoints ${copyBtn(wayLines.join('\n'), 'Copy waypoints')}</h3>
-    <pre class="way">${esc(wayLines.join('\n'))}</pre>
-    <p class="calc-note">In game: type <b>/ttpaste</b>, paste, press Ctrl+Enter. TomTom adds the stops and ZygorRoute sends Zygor's arrow to them. Type <b>/cway</b> to switch the arrow to the closest stop.${noStop.length ? ' No saved vendor location for: ' + esc(noStop.join(', ')) + ' (add one on the gold sheet\'s Vendor tab).' : ''}</p></div>` : '';
+  // One paste block: clear TomTom and Zygor's arrow, then add every stop (home city first)
+  const pasteBlock = ['/way reset all', '/run ZGV.Pointer:ClearWaypoints("manual")'].concat(wayLines).join('\n');
+  const wayHtml = wayLines.length ? `<div class="calc-block"><h3>Vendor stops <span>${copyBtn('/ttpaste', '1. Copy /ttpaste')} ${copyBtn(pasteBlock, '2. Copy stops')}</span></h3>
+    <pre class="way">${esc(pasteBlock)}</pre>
+    <p class="calc-note">In game: paste <b>/ttpaste</b> into chat, then paste the stops into the window and press Ctrl+Enter. It clears old TomTom and Zygor waypoints first, then adds ${wayLines.length} stop${wayLines.length > 1 ? 's' : ''}; Zygor's arrow takes you there. Type <b>/cway</b> to switch the arrow to the closest stop.${noStop.length ? ' No saved vendor location for: ' + esc(noStop.join(', ')) + ' (add one on the gold sheet\'s Vendor tab).' : ''}</p></div>` : '';
 
   const notes = [];
   if (Object.keys(plan.mills).length) notes.push('Milling uses average yields, so you may get a few more or less pigment than shown.');
