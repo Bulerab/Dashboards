@@ -281,7 +281,7 @@ p .tal-cell { font-weight: 700; }
 
 .pill.init { margin-left: 8px; color: #79c0ff; border-color: rgba(121,192,255,.5); font-size: 11px; }
 .perf-table tr.role-row td { border-top: 0; padding-top: 0; }
-.rank-set { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 8px 14px; margin-bottom: 6px; }
+.rank-set { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px 16px; margin-bottom: 12px; align-items: end; }
 .rank-pick { display: flex; flex-direction: column; gap: 4px; font-size: 12.5px; color: var(--muted-2, #aaa); }
 .rank-pick select { background: #1a1a1a; color: #eee; border: 1px solid #3a3a3a; border-radius: 6px; padding: 5px 8px; font: inherit; font-size: 12.5px; width: 100%; }
 .rank-off { display: flex; flex-wrap: wrap; gap: 6px 16px; align-items: center; margin: 4px 0 8px; font-size: 13px; }
@@ -294,3 +294,16 @@ p .tal-cell { font-weight: 700; }
 .off-nav { display: flex; justify-content: flex-end; }
 .off-nav { margin: 0; padding: 0; border: 0; } .off-nav .off-tabs { display: grid; grid-template-columns: auto auto; gap: 6px; justify-content: end; }
 .off-nav a.off-tab { font-size: 13px; padding: 5px 12px; }
+
+.rank-pick span { white-space: nowrap; }
+.rank-off { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; margin: 0 0 12px; }
+.rank-lbl { font-size: 12.5px; color: var(--muted-2, #aaa); margin-right: 6px; }
+.rank-chip { background: #1e1e1e; color: #bbb; border: 1px solid #3a3a3a; border-radius: 14px; padding: 4px 12px; font: inherit; font-size: 12.5px; cursor: pointer; }
+.rank-chip:hover { border-color: #666; color: #eee; }
+.rank-chip.on { background: rgba(227,179,65,.15); border-color: #e3b341; color: #f0c75e; font-weight: 600; }
+.rank-sec { display: flex; align-items: baseline; gap: 12px; margin: 14px 0 4px; } .rank-sec h3 { margin: 0; font-size: 14px; }
+.rank-table td:first-child { width: 26%; } .rank-table td:nth-child(2) { width: 17%; } .rank-table td:nth-child(3) { width: 15%; } .rank-table td:nth-child(4) { width: 17%; }
+.manage-table { margin-top: 8px; } .manage-table tr.bench td { opacity: .7; }
+.m-chip { display: inline-flex; align-items: center; gap: 2px; background: #232323; border: 1px solid #3a3a3a; border-radius: 8px; padding: 2px 4px 2px 8px; margin: 2px 4px 2px 0; font-size: 12.5px; }
+.m-x { background: none; border: 0; color: #ff7b72; font-size: 15px; line-height: 1; cursor: pointer; padding: 0 4px; }
+@media (max-width: 800px) { .rank-set { grid-template-columns: 1fr; } }
