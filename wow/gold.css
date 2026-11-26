@@ -66,3 +66,5 @@ td.addc .copy { margin-left: 5px; }
 .add-btn:hover { border-color: #e0b84a; }
 #calc-add { padding: 4px 12px; font-size: 13px; }
 .cart-qty { width: 70px; text-align: right; }
+td .sub { font-size: 11px; color: var(--muted); }
+td .sub.warn { color: var(--warn); }
