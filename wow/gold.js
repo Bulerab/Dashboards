@@ -120,7 +120,7 @@ const RECIPE_HEAD = '<tr><th>Recipe</th><th>Type</th><th>Expansion</th><th class
   + '<th class="num">Profit each</th><th class="num">Margin</th>';
 const recipeHead = withAdd => RECIPE_HEAD + (withAdd ? '<th>Add to list</th>' : '') + '</tr>';
 const SELLS_WELL = 3;   // sold per day across the region, for the "Sells well" filter
-const num1 = n => Number(n).toLocaleString('en-US', { maximumFractionDigits: n < 10 ? 1 : 0 });
+const num1 = n => Number(n).toLocaleString('en-US', { maximumFractionDigits: n < 0.1 ? 3 : n < 10 ? 1 : 0 });
 const pct1 = n => (Math.round(n * 1000) / 10).toLocaleString('en-US') + '%';
 
 function makersTable(d, bodyOnly) {
