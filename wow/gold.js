@@ -94,11 +94,15 @@ function inksTable(d) {
 }
 
 const shortTier = (tier, prof) => String(tier).replace(new RegExp('\\s*' + prof + '$'), '') || tier;
+// Newest expansion first. Blizzard's tier IDs don't follow release order, so rank by name.
+const EXP_ORDER = ['Midnight', 'Khaz Algar', 'Dragon Isles', 'Shadowlands', 'Kul Tiran', 'Zandalari', 'Legion', 'Draenor', 'Pandaria', 'Cataclysm', 'Northrend', 'Outland', 'Classic'];
+const expRank = name => { const i = EXP_ORDER.findIndex(e => String(name).indexOf(e) === 0); return i < 0 ? EXP_ORDER.length : i; };
 
 function crafterCards(d) {
   if (!d.crafters.length) { $('gcrafters').innerHTML = '<p class="empty">No crafting characters listed yet.</p>'; return; }
   $('gcrafters').innerHTML = d.crafters.map(c => {
     const profs = c.professions.length ? c.professions.map(p => {
+      p.tiers.sort((a, b) => expRank(a.name) - expRank(b.name));
       const cur = p.tiers[0];
       const w = cur.max ? Math.min(100, Math.round(cur.skill / cur.max * 100)) : 0;
       const tiers = p.tiers.map(t => `<div class="tier"><span>${esc(shortTier(t.name, p.name))}</span><span>${t.skill} / ${t.max}</span><span>${t.recipes} recipes</span></div>`).join('');
