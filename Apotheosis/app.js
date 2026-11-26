@@ -996,15 +996,16 @@ function ranksHtml() {
   const sel = (k, label) => `<label class="rank-pick">${label}<select data-rankset="${k}"><option value="">not set</option>${leg.map(l => `<option value="${l.rank}"${m[k] === l.rank ? ' selected' : ''}>${esc(rankName(l))} (${l.n}: ${esc(l.sample.join(', '))})</option>`).join('')}</select></label>`;
   const set = m.raider != null;
   const bad = (R.rows || []).filter(r => r.ok === false), shown = ranksAll ? R.rows : bad;
-  const action = r => r.current == null ? 'Invite to the guild' : r.kind === 'Raider' ? `Promote to ${nameOf(r.want)} or higher` : `Set to ${nameOf(r.want)}`;
+  const orHigher = r => r.kind === 'Raider' || (r.kind === 'Secondary main' && m.secondary == null);
+  const action = r => r.current == null ? 'Invite to the guild' : orHigher(r) ? `Promote to ${nameOf(r.want)} or higher` : `Set to ${nameOf(r.want)}`;
   return `<div class="card"><div class="card-head"><h2>Guild ranks</h2><span class="hint">raid characters only &middot; in-game ranks from Blizzard${R.fetched ? ', ' + new Date(R.fetched).toLocaleString([], { month: 'short', day: 'numeric', hour: 'numeric', minute: '2-digit' }) : ''}</span></div>
-    <div class="rank-set">${sel('raider', 'Raider rank (this rank or higher)')}${sel('secondary', 'Secondary main rank (optional)')}${sel('initiate', 'Initiate rank (optional)')}</div>
+    <div class="rank-set">${sel('raider', 'Raider rank (this rank or higher)')}${sel('secondary', 'Secondary main rank (optional; not set = same as Raider)')}${sel('initiate', 'Initiate rank (optional)')}</div>
     <div class="rank-off"><span class="hint">Officer ranks (never flagged):</span>${leg.map(l => `<label class="reset-pick"><input type="checkbox" data-rankoff="${l.rank}"${(m.officer || []).indexOf(l.rank) >= 0 ? ' checked' : ''}>${esc(rankName(l))} <span class="hint">(${esc(l.sample.slice(0, 2).join(', '))})</span></label>`).join('')}</div>
     ${!leg.length ? '<p class="empty">No guild ranks yet: they load with the next refresh.</p>' : !set ? '<p class="empty">Pick the Raider rank above (Blizzard only gives numbers; the examples show who holds each). Secondary main and Initiate ranks are optional: without them those characters only need to be in the guild.</p>' :
       `<p class="hint" style="margin:6px 0">${bad.length ? `<b style="color:#ff7b72">${bad.length}</b> to fix in game` : '<b style="color:#7ee787">All raid characters have the right rank</b>'} &middot; <a href="#approvals" data-ranksall="1">${ranksAll ? 'show only the ones to fix' : 'show everyone'}</a></p>
       ${shown.length ? `<table class="logs-table"><thead><tr><th>Character</th><th>On the sheet</th><th>In-game rank</th><th>Should be</th><th>Do this</th></tr></thead><tbody>${shown.map(r => `<tr>
         <td>${nameHtml(r)}${r.name !== r.player ? ` <span class="hint">(${esc(r.player)})</span>` : ''}</td><td>${esc(r.kind)}</td><td>${r.current == null ? '<span class="pill bad">not in guild</span>' : esc(nameOf(r.current))}</td>
-        <td class="hint">${r.want == null ? 'in the guild' : r.kind === 'Raider' ? esc(nameOf(r.want)) + ' or higher' : esc(nameOf(r.want))}</td><td>${r.ok ? '<span class="pill ok">OK</span>' : `<b style="color:#e3b341">${action(r)}</b>`}</td></tr>`).join('')}</tbody></table>` : ''}`}</div>`;
+        <td class="hint">${r.want == null ? 'in the guild' : orHigher(r) ? esc(nameOf(r.want)) + ' or higher' : esc(nameOf(r.want))}</td><td>${r.ok ? '<span class="pill ok">OK</span>' : `<b style="color:#e3b341">${action(r)}</b>`}</td></tr>`).join('')}</tbody></table>` : ''}`}</div>`;
 }
 
 /* Season tools: show / hide alts, clear all alts, clear all secondary mains (pick each player's main first) */
