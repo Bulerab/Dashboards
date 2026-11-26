@@ -1003,7 +1003,7 @@ function ranksHtml() {
   const fix = (R.rows || []).filter(r => r.ok === false && !r.demote), dem = (R.rows || []).filter(r => r.demote), shown = ranksAll ? (R.rows || []).filter(r => !r.demote) : fix;
   const orHigher = r => r.kind === 'Raider' || (r.kind === 'Secondary main' && m.secondary == null);
   const action = r => r.demote ? `Demote below ${nameOf(r.want)}` : r.current == null ? 'Invite to the guild' : orHigher(r) ? `Promote to ${nameOf(r.want)} or higher` : `Set to ${nameOf(r.want)}`;
-  const row = r => `<tr><td>${r.demote ? `<b>${esc(r.name)}</b>` : nameHtml(r)}${r.player && r.name !== r.player ? ` <span class="hint">(${esc(r.player)})</span>` : ''}</td><td>${esc(r.kind)}</td>
+  const row = r => `<tr><td>${r.demote ? `<b>${esc(r.name)}</b>` : nameHtml(r)}</td><td>${esc(r.kind)}</td>
     <td>${r.current == null ? '<span class="pill bad">not in guild</span>' : esc(nameOf(r.current))}</td>
     <td class="hint">${r.demote ? 'below ' + esc(nameOf(r.want)) : r.want == null ? 'in the guild' : orHigher(r) ? esc(nameOf(r.want)) + ' or higher' : esc(nameOf(r.want))}</td>
     <td>${r.ok ? '<span class="pill ok">OK</span>' : `<b style="color:${r.demote ? '#ff7b72' : '#e3b341'}">${action(r)}</b>`}</td></tr>`;
