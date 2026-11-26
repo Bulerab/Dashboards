@@ -48,11 +48,14 @@ function hotTable(d) {
     $('hot').innerHTML = '<p class="empty">No sales estimates yet. Each refresh saves a snapshot of the Auction House; sellers show up here once listings start disappearing between snapshots.</p>';
     return;
   }
-  const rows = d.hot.slice(0, 15).map(h => `<tr>
+  const byItem = {}; d.recipes.forEach(r => { if (r.id) byItem[r.id] = r; });
+  const rows = d.hot.slice(0, 15).map(h => { const r = byItem[h.id] || {}; return `<tr>
     <td>${itemLink(h.id, h.name)}</td><td>${typeTag(h.type)}</td>
     <td>${h.known ? '<span class="tag yes">Known</span>' : '<span class="tag">Not learned</span>'}</td>
-    <td class="num">${int(h.sold)}</td><td class="num">${g(h.avg)}</td><td class="num">${g(h.traded)}</td><td class="num">${int(h.listed)}</td></tr>`).join('');
-  $('hot').innerHTML = `<table><thead><tr><th>Item</th><th>Type</th><th>Scribe</th><th class="num">Est. sold (24h)</th><th class="num">Avg price</th><th class="num">Gold traded</th><th class="num">Listed now</th></tr></thead><tbody>${rows}</tbody></table>`;
+    <td class="num">${int(h.sold)}</td><td class="num">${r.soldPerDay == null ? '' : num1(r.soldPerDay)}</td><td class="num">${g(h.avg)}</td>
+    <td class="num">${g(r.cost)}</td><td class="num ${profitCls(r.profit)}">${g(r.profit)}</td><td class="num">${int(h.listed)}</td></tr>`; }).join('');
+  $('hot').innerHTML = `<table><thead><tr><th>Item</th><th>Type</th><th>Scribe</th><th class="num" title="Listings that disappeared between snapshots; includes expired and cancelled auctions">Est. sold (24h)</th>`
+    + `<th class="num" title="TSM: average sold per day across the US region">TSM sold/day</th><th class="num">Avg price</th><th class="num">Cost to craft</th><th class="num">Profit each</th><th class="num">Listed now</th></tr></thead><tbody>${rows}</tbody></table>`;
 }
 
 function recipeRows(list, threshold) {
