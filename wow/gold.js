@@ -275,11 +275,10 @@ function calcPlan(d, targets, goblin) {
         addTo(plan.crafts, id, crafts);
         (ix.reag[r.rid] || []).forEach(x => addTo(next, x.id, x.q * crafts * fx.reagX));
       } else if (way === 'Mill herbs') {
-        const x = best.mill, mills = Math.ceil(need / x.perMill);
-        const k = x.herbId + ':' + id;
-        const cur = plan.mills[k] || (plan.mills[k] = { herbId: x.herbId, herb: x.herb, pigmentId: id, pigment: x.pigment, perMill: x.perMill, mills: 0 });
-        cur.mills += mills;
-        addTo(plan.ah, x.herbId, mills * 5);
+        // One pile of herbs per herb: Umbral and Luminous from Nightshade come out of the same mills
+        const x = best.mill;
+        const cur = plan.mills[x.herbId] || (plan.mills[x.herbId] = { herbId: x.herbId, herb: x.herb, needs: {}, mills: 0 });
+        addTo(cur.needs, id, need);
       } else if (way === 'Ink trader') {
         const t = ix.trade[id];
         addTo(plan.trades, id, need);
@@ -291,18 +290,21 @@ function calcPlan(d, targets, goblin) {
     });
     level = next;
   }
-  // Mills give other pigments too (Nightshade: Umbral, Luminous and Tranquil). Use them first, sell the rest.
+  // Mill enough for the pigment that needs the most mills; the rest of each mill covers other needs or gets sold.
   plan.spareValue = 0;
   Object.values(plan.mills).forEach(m => {
-    m.extras = [];
-    d.milling.filter(x => x.herbId === m.herbId && x.pigmentId !== m.pigmentId).forEach(x => {
-      const got = Math.floor(m.mills * x.perMill);
-      if (!got) return;
-      const need = plan.ah[x.pigmentId] || 0, use = Math.min(need, got);
-      if (use) { plan.ah[x.pigmentId] -= use; if (plan.ah[x.pigmentId] <= 0) delete plan.ah[x.pigmentId]; }
-      const sell = got - use, value = sell * sellEach(x.pigmentId);
+    const rows = d.milling.filter(x => x.herbId === m.herbId);
+    m.mills = Math.max(0, ...Object.keys(m.needs).map(pid => { const x = rows.find(y => y.pigmentId === Number(pid)); return x ? Math.ceil(m.needs[pid] / x.perMill) : 0; }));
+    addTo(plan.ah, m.herbId, m.mills * 5);
+    m.out = [];
+    rows.forEach(x => {
+      const got = Math.floor(m.mills * x.perMill), forList = Math.min(got, m.needs[x.pigmentId] || 0);
+      let left = got - forList, use = 0;
+      const ahNeed = plan.ah[x.pigmentId] || 0;
+      if (left && ahNeed) { use = Math.min(left, ahNeed); left -= use; plan.ah[x.pigmentId] -= use; if (plan.ah[x.pigmentId] <= 0) delete plan.ah[x.pigmentId]; }
+      const value = left * sellEach(x.pigmentId);
       plan.spareValue += value;
-      m.extras.push({ id: x.pigmentId, name: x.pigment, got, use, sell, value });
+      if (got) m.out.push({ id: x.pigmentId, name: x.pigment, got, used: forList + use, sell: left, value });
     });
   });
   // prices: AH through the real listings, vendors at the (Goblin) price
@@ -392,8 +394,12 @@ function renderCalc() {
       <td class="num">${x.each == null ? '' : (x.each * x.qty < 0.01 ? '&lt;0.01g' : g(x.each * x.qty))}</td></tr>`).join('')}</tbody></table></div>` : '';
 
   const steps = [];
-  Object.values(plan.mills).forEach(m => steps.push(`Mill <b>${int(m.mills * 5)} ${esc(m.herb)}</b> (${int(m.mills)} mills) for about <b>${int(Math.round(m.mills * m.perMill))} ${esc(m.pigment)}</b>`
-    + (m.extras && m.extras.length ? ', plus about ' + m.extras.map(x => `${int(x.got)} ${esc(x.name)}${x.use ? ` (covers ${int(x.use)} you need)` : ''}${x.sell ? ` (sell ${int(x.sell)} for about ${g(x.value)})` : ''}`).join(' and ') : '')));
+  Object.values(plan.mills).forEach(m => {
+    const used = m.out.filter(x => x.used), sold = m.out.filter(x => x.sell);
+    steps.push(`Mill <b>${int(m.mills * 5)} ${esc(m.herb)}</b> (${int(m.mills)} mills) for about ${m.out.map(x => `<b>${int(x.got)} ${esc(x.name)}</b>`).join(', ')}`
+      + (used.length ? `. You use ${used.map(x => `${int(x.used)} ${esc(x.name)}`).join(', ')}` : '')
+      + (sold.length ? `; sell ${sold.map(x => `${int(x.sell)} ${esc(x.name)} (about ${g(x.value)})`).join(', ')}` : ''));
+  });
   Object.keys(plan.trades).forEach(id => { const t = ix.trade[id]; steps.push(`Trade <b>${int(plan.trades[id] * t.umbral)} Umbral Ink</b> to the ink trader for <b>${int(plan.trades[id])} ${esc(t.name)}</b>`); });
   // crafts: inks first, then the final item
   Object.keys(plan.crafts).forEach(id => { const rr = ix.craftOf[id]; steps.push(`Craft <b>${int(plan.crafts[id])} × ${esc(rr ? rr.name : ix.names[id])}</b>${rr && rr.yield > 1 ? ` (makes ${int(plan.crafts[id] * rr.yield)})` : ''}`); });
