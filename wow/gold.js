@@ -82,15 +82,166 @@ function learnTable(d) {
     : '<p class="empty">No unlearned recipe would make gold at today\'s prices.</p>';
 }
 
+const WAY_LABEL = { 'Buy on AH': 'Buy on AH', 'Craft it': 'Craft it', 'Mill herbs': 'Mill herbs', 'Vendor': 'Vendor', 'Ink trader': 'Ink trader', 'Farm (my cost)': 'Farm (my cost)', 'No price': 'No price' };
+const cheapestCls = (val, used) => (val != null && used != null && Math.abs(val - used) < 0.005 ? 'pos' : '');
+
 function inksTable(d) {
-  const list = d.inks.slice().sort((a, b) => a.name.localeCompare(b.name));
+  const list = d.materials.filter(m => m.craft != null || m.trade != null).filter(m => /Ink$/.test(m.name) || m.craft != null)
+    .sort((a, b) => a.name.localeCompare(b.name));
   if (!list.length) { $('inks').innerHTML = '<p class="empty">No ink recipes found.</p>'; return; }
-  const rows = list.map(i => {
-    const save = i.ah != null && i.craft != null ? i.ah - i.craft : null;
-    return `<tr><td>${itemLink(i.id, i.name)}</td><td class="num">${g(i.ah)}</td><td class="num">${g(i.craft)}</td>
-      <td class="num ${profitCls(save)}">${save == null ? '' : g(save)}</td><td>${esc(i.way)}</td></tr>`;
+  if (d.umbralCost != null) $('inks-note').textContent = `Cheapest of the Auction House, crafting from the cheapest pigment, and the ink trader (1 Umbral Ink ≈ ${g(d.umbralCost)}, 10 for rare inks). Recipe costs above use the cheapest.`;
+  const rows = list.map(i => `<tr><td>${itemLink(i.id, i.name)}</td>
+      <td class="num ${cheapestCls(i.ah, i.used)}">${g(i.ah)}</td><td class="num ${cheapestCls(i.craft, i.used)}">${g(i.craft)}</td>
+      <td class="num ${cheapestCls(i.trade, i.used)}">${g(i.trade)}</td><td>${esc(WAY_LABEL[i.way] || i.way)}</td></tr>`).join('');
+  $('inks').innerHTML = `<table><thead><tr><th>Ink</th><th class="num">AH price</th><th class="num">Craft (cheapest pigment)</th><th class="num">Ink trader</th><th>Cheapest way</th></tr></thead><tbody>${rows}</tbody></table>`;
+}
+
+function bestMill(d, pigmentId) {
+  return d.milling.filter(m => m.pigmentId === pigmentId && m.costEach != null).sort((a, b) => a.costEach - b.costEach)[0] || null;
+}
+
+function pigmentsTable(d) {
+  const list = d.materials.filter(m => m.mill != null || d.milling.some(x => x.pigmentId === m.id)).sort((a, b) => a.name.localeCompare(b.name));
+  if (!list.length) { $('pigments').innerHTML = '<p class="empty">No milling data yet.</p>'; return; }
+  const rows = list.map(p => {
+    const best = bestMill(d, p.id);
+    return `<tr><td>${itemLink(p.id, p.name)}</td><td class="num ${cheapestCls(p.ah, p.used)}">${g(p.ah)}</td>
+      <td class="num ${cheapestCls(p.mill, p.used)}">${g(p.mill)}</td>
+      <td>${best ? `${itemLink(best.herbId, best.herb)} <span class="dim">(${g(best.herbPrice)} each, ~${best.perMill} per mill)</span>` : '<span class="dim">no priced herb</span>'}</td>
+      <td>${esc(WAY_LABEL[p.way] || p.way)}</td></tr>`;
   }).join('');
-  $('inks').innerHTML = `<table><thead><tr><th>Ink</th><th class="num">AH price</th><th class="num">Craft cost</th><th class="num">Saved by crafting</th><th>Cheapest way</th></tr></thead><tbody>${rows}</tbody></table>`;
+  $('pigments').innerHTML = `<table><thead><tr><th>Pigment</th><th class="num">AH price</th><th class="num">Mill cost</th><th>Cheapest herb to mill</th><th>Cheapest way</th></tr></thead><tbody>${rows}</tbody></table>`;
+}
+
+/* ------------------------------------------------------------------ shopping list calculator
+ * Expands a glyph/mark (or an ink) into what to buy, mill, trade and craft, following each material's
+ * cheapest way from the gold sheet. Works level by level so shared materials are added up before rounding. */
+let calcIndex = null;
+function buildIndex(d) {
+  const mat = {}; d.materials.forEach(m => { mat[m.id] = m; });
+  const reag = {}; d.reagents.forEach(([rid, id, name, q]) => { (reag[rid] = reag[rid] || []).push({ id, name, q }); });
+  const craftOf = {}; d.recipes.filter(r => r.type === 'Reagent' && r.known && r.id).forEach(r => { craftOf[r.id] = r; });
+  const trade = {}; d.trades.forEach(t => { trade[t.id] = t; });
+  const vendor = {}; d.vendor.forEach(v => { vendor[v.id] = v; });
+  const names = {}; d.materials.forEach(m => { names[m.id] = m.name; }); d.milling.forEach(m => { names[m.herbId] = m.herb; names[m.pigmentId] = m.pigment; });
+  d.trades.forEach(t => { names[t.id] = t.name; });
+  const umbral = d.materials.find(m => m.name === 'Umbral Ink');
+  return { mat, reag, craftOf, trade, vendor, names, umbralId: umbral ? umbral.id : null };
+}
+
+function calcPlan(d, target, qty, goblin) {
+  const ix = calcIndex;
+  const plan = { ah: {}, vendor: {}, farm: {}, mills: {}, trades: {}, crafts: {}, unknown: {} };
+  let level = {};
+  const addTo = (map, id, n) => { map[id] = (map[id] || 0) + n; };
+  if (target.kind === 'recipe') {
+    (ix.reag[target.rid] || []).forEach(r => addTo(level, r.id, r.q * qty));
+    plan.final = { name: target.name, qty };
+  } else addTo(level, target.id, qty);
+
+  for (let depth = 0; depth < 8 && Object.keys(level).length; depth++) {
+    const next = {};
+    Object.keys(level).forEach(key => {
+      const id = Number(key), need = level[key], m = ix.mat[id];
+      let way = m ? m.way : 'Buy on AH';
+      if (way === 'Vendor' && !ix.vendor[id]) way = 'Buy on AH';
+      if (way === 'Craft it' && !ix.craftOf[id]) way = 'Buy on AH';
+      if (way === 'Ink trader' && (!ix.trade[id] || !ix.umbralId)) way = 'Buy on AH';
+      if (way === 'Mill herbs' && !bestMill(d, id)) way = 'Buy on AH';
+      if (way === 'Craft it') {
+        const r = ix.craftOf[id], crafts = Math.ceil(need / (r.yield || 1));
+        addTo(plan.crafts, id, crafts);
+        (ix.reag[r.rid] || []).forEach(x => addTo(next, x.id, x.q * crafts));
+      } else if (way === 'Mill herbs') {
+        const best = bestMill(d, id), mills = Math.ceil(need / best.perMill);
+        const k = best.herbId + ':' + id;
+        const cur = plan.mills[k] || (plan.mills[k] = { herbId: best.herbId, herb: best.herb, pigmentId: id, pigment: best.pigment, perMill: best.perMill, mills: 0 });
+        cur.mills += mills;
+        addTo(plan.ah, best.herbId, mills * 5);
+      } else if (way === 'Ink trader') {
+        const t = ix.trade[id];
+        addTo(plan.trades, id, need);
+        addTo(next, ix.umbralId, need * t.umbral);
+      } else if (way === 'Vendor') addTo(plan.vendor, id, need);
+      else if (way === 'Farm (my cost)') addTo(plan.farm, id, need);
+      else if (way === 'No price') addTo(plan.unknown, id, need);
+      else addTo(plan.ah, id, need);
+    });
+    level = next;
+  }
+  // prices
+  const herbPrice = {}; d.milling.forEach(m => { if (m.herbPrice != null) herbPrice[m.herbId] = m.herbPrice; });
+  const ahEach = id => (ix.mat[id] && ix.mat[id].ah != null ? ix.mat[id].ah : herbPrice[id] ?? null);
+  const vendorEach = id => { const v = ix.vendor[id]; return v ? (goblin ? v.pay : v.price) : null; };
+  plan.ahRows = Object.keys(plan.ah).map(id => ({ id: Number(id), name: ix.names[id] || ('Item ' + id), qty: plan.ah[id], each: ahEach(id) }))
+    .sort((a, b) => (b.each ?? 0) * b.qty - (a.each ?? 0) * a.qty);
+  plan.vendorRows = Object.keys(plan.vendor).map(id => ({ id: Number(id), name: ix.names[id] || ix.vendor[id].name, qty: plan.vendor[id], each: vendorEach(id) }));
+  plan.cost = plan.ahRows.reduce((s, r) => s + (r.each || 0) * r.qty, 0) + plan.vendorRows.reduce((s, r) => s + (r.each || 0) * r.qty, 0)
+    + Object.keys(plan.farm).reduce((s, id) => s + ((ix.mat[id] && ix.mat[id].mine) || 0) * plan.farm[id], 0);
+  plan.missing = plan.ahRows.filter(r => r.each == null).length + Object.keys(plan.unknown).length;
+  return plan;
+}
+
+function copyBtn(text, label) { return `<button type="button" class="copy" data-copy="${esc(text)}">${label || 'Copy'}</button>`; }
+
+function renderCalc() {
+  const d = DATA; if (!d || !calcIndex) return;
+  const sel = $('calc-item').value;
+  const qty = Math.max(1, Math.min(10000, parseInt($('calc-qty').value, 10) || 1));
+  const goblin = $('calc-goblin').checked;
+  let target;
+  if (sel.startsWith('r:')) { const r = d.recipes.find(x => String(x.rid) === sel.slice(2)); if (!r) return; target = { kind: 'recipe', rid: r.rid, name: r.name, recipe: r }; }
+  else { const id = Number(sel.slice(2)); target = { kind: 'item', id, name: calcIndex.names[id] || '' }; }
+  const plan = calcPlan(d, target, qty, goblin);
+  const ix = calcIndex;
+
+  const r = target.recipe;
+  const revenue = r && r.price != null ? r.price * (1 - d.ahCut) * qty : null;
+  const profit = revenue != null ? revenue - plan.cost : null;
+  const sum = `<div class="calc-sum">
+    <div class="mini"><div class="k">Materials cost</div><div class="v">${g(plan.cost)}</div></div>
+    ${r ? `<div class="mini"><div class="k">Sells for (after ${Math.round(d.ahCut * 100)}% cut)</div><div class="v">${revenue == null ? 'Not listed' : g(revenue)}</div></div>
+    <div class="mini"><div class="k">Profit for ${qty}</div><div class="v ${profit == null ? '' : profit >= 0 ? 'pos' : 'neg'}">${profit == null ? '' : g(profit)}</div></div>
+    <div class="mini"><div class="k">Per item</div><div class="v">${g(plan.cost / qty)}</div></div>` : `<div class="mini"><div class="k">Per item</div><div class="v">${g(plan.cost / qty)}</div></div>`}
+  </div>`;
+
+  const ahTable = plan.ahRows.length ? `<div class="calc-block"><h3>Buy on the Auction House ${copyBtn(plan.ahRows.map(x => x.name).join('\n'), 'Copy all names')}</h3>
+    <table><thead><tr><th>Item</th><th class="num">Quantity</th><th class="num">Price each</th><th class="num">Total</th></tr></thead><tbody>${plan.ahRows.map(x => `<tr>
+      <td>${itemLink(x.id, x.name)}${copyBtn(x.name)}</td><td class="num">${int(x.qty)}</td><td class="num">${x.each == null ? '<span class="dim">not listed</span>' : (x.each < 0.01 ? '&lt;0.01g' : g(x.each))}</td>
+      <td class="num">${x.each == null ? '' : g(x.each * x.qty)}</td></tr>`).join('')}</tbody></table></div>` : '';
+
+  const vendorTable = plan.vendorRows.length ? `<div class="calc-block"><h3>Buy from a vendor${goblin ? ' (Goblin price)' : ''} ${copyBtn(plan.vendorRows.map(x => x.name).join('\n'), 'Copy all names')}</h3>
+    <table><thead><tr><th>Item</th><th class="num">Quantity</th><th class="num">Price each</th><th class="num">Total</th></tr></thead><tbody>${plan.vendorRows.map(x => `<tr>
+      <td>${itemLink(x.id, x.name)}${copyBtn(x.name)}</td><td class="num">${int(x.qty)}</td><td class="num">${x.each == null ? '' : (x.each < 0.01 ? '&lt;0.01g' : g(x.each))}</td>
+      <td class="num">${x.each == null ? '' : (x.each * x.qty < 0.01 ? '&lt;0.01g' : g(x.each * x.qty))}</td></tr>`).join('')}</tbody></table></div>` : '';
+
+  const steps = [];
+  Object.values(plan.mills).forEach(m => steps.push(`Mill <b>${int(m.mills * 5)} ${esc(m.herb)}</b> (${int(m.mills)} mills) for about <b>${int(Math.round(m.mills * m.perMill))} ${esc(m.pigment)}</b>`));
+  Object.keys(plan.trades).forEach(id => { const t = ix.trade[id]; steps.push(`Trade <b>${int(plan.trades[id] * t.umbral)} Umbral Ink</b> to the ink trader for <b>${int(plan.trades[id])} ${esc(t.name)}</b>`); });
+  // crafts: inks first, then the final item
+  Object.keys(plan.crafts).forEach(id => { const rr = ix.craftOf[id]; steps.push(`Craft <b>${int(plan.crafts[id])} × ${esc(rr ? rr.name : ix.names[id])}</b>${rr && rr.yield > 1 ? ` (makes ${int(plan.crafts[id] * rr.yield)})` : ''}`); });
+  if (plan.final) steps.push(`Craft <b>${int(plan.final.qty)} × ${esc(plan.final.name)}</b>`);
+  Object.keys(plan.farm).forEach(id => steps.push(`Use <b>${int(plan.farm[id])} ${esc(ix.names[id])}</b> you farmed`));
+  const stepsHtml = steps.length ? `<div class="calc-block"><h3>Then</h3><ol class="steps">${steps.map(s => `<li>${s}</li>`).join('')}</ol></div>` : '';
+
+  const notes = [];
+  if (Object.keys(plan.mills).length) notes.push('Milling uses average yields, so you may get a few more or less pigment than shown.');
+  if (plan.missing) notes.push(`${plan.missing} item(s) have no price right now, so the cost is missing them.`);
+  if (goblin) notes.push('Goblin prices apply at vendors with a reputation (city and profession suppliers).');
+  $('calc-out').innerHTML = sum + ahTable + vendorTable + stepsHtml + (notes.length ? `<p class="calc-note">${notes.join(' ')}</p>` : '');
+}
+
+function setupCalc(d) {
+  calcIndex = buildIndex(d);
+  const sel = $('calc-item');
+  const prev = sel.value;
+  const known = d.recipes.filter(r => r.known && r.type !== 'Reagent').sort((a, b) => (b.profit ?? -1e9) - (a.profit ?? -1e9));
+  const items = d.materials.filter(m => m.craft != null || m.mill != null || m.trade != null).sort((a, b) => a.name.localeCompare(b.name));
+  sel.innerHTML = `<optgroup label="Glyphs and marks you know (best profit first)">${known.map(r => `<option value="r:${r.rid}">${esc(r.name)}${r.profit != null ? ' (' + g(r.profit) + ' each)' : ''}</option>`).join('')}</optgroup>
+    <optgroup label="Inks and pigments">${items.map(m => `<option value="i:${m.id}">${esc(m.name)}</option>`).join('')}</optgroup>`;
+  if (prev && sel.querySelector(`option[value="${prev}"]`)) sel.value = prev;
+  if (!setupCalc.done) { $('calc-goblin').checked = !!d.goblin; setupCalc.done = true; }
+  renderCalc();
 }
 
 const shortTier = (tier, prof) => String(tier).replace(new RegExp('\\s*' + prof + '$'), '') || tier;
@@ -124,9 +275,24 @@ function render(d, live, when) {
   $('src').textContent = live ? 'Live' : 'Saved copy';
   $('when').textContent = `Prices from ${d.generated} · page loaded ${when}`;
   if (d.character) $('sub').textContent = `${d.character}'s Inscription glyphs and marks, priced from the Auction House every 2 hours`;
-  glance(d); hotTable(d); makersTable(d); learnTable(d); inksTable(d); crafterCards(d);
+  glance(d); setupCalc(d); hotTable(d); makersTable(d); learnTable(d); inksTable(d); pigmentsTable(d); crafterCards(d);
 }
 
+['calc-item', 'calc-qty', 'calc-goblin'].forEach(id => $(id).addEventListener('input', renderCalc));
+$('calc-card').addEventListener('click', e => {
+  const b = e.target.closest('[data-copy]');
+  if (!b) return;
+  const text = b.getAttribute('data-copy');
+  const done = () => { b.classList.add('done'); const t = b.textContent; b.textContent = 'Copied'; setTimeout(() => { b.classList.remove('done'); b.textContent = t; }, 1200); };
+  if (navigator.clipboard && navigator.clipboard.writeText) navigator.clipboard.writeText(text).then(done, () => fallbackCopy(text, done));
+  else fallbackCopy(text, done);
+});
+function fallbackCopy(text, done) {
+  const t = document.createElement('textarea'); t.value = text; t.style.position = 'fixed'; t.style.opacity = '0';
+  document.body.appendChild(t); t.select();
+  try { document.execCommand('copy'); done(); } catch (e) { toast('Copy failed; select the name and copy it by hand', true); }
+  t.remove();
+}
 $('maker-filters').addEventListener('click', e => {
   const b = e.target.closest('[data-f]');
   if (!b || !DATA) return;

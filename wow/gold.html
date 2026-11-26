@@ -7,7 +7,7 @@
 <link rel="preconnect" href="https://script.google.com">
 <link rel="preconnect" href="https://script.googleusercontent.com" crossorigin>
 <link rel="stylesheet" href="wow.css?v=9">
-<link rel="stylesheet" href="gold.css?v=2">
+<link rel="stylesheet" href="gold.css?v=3">
 </head>
 <body data-page="gold">
 <div class="container">
@@ -21,6 +21,16 @@
   <nav class="nav"><a href="index.html">Personal</a><a href="guests.html">Guests</a><a href="teams.html">Mythic+ Teams</a><a href="blake.html">Blake</a><a href="gold.html" class="on">Gold</a></nav>
 
   <div class="stats-grid" id="glance"></div>
+
+  <div class="card" id="calc-card">
+    <div class="card-head"><h2>Shopping list</h2><span class="hint">Pick a glyph, mark or ink and how many to make. Uses the cheapest way for every material.</span></div>
+    <div class="calc-form">
+      <label>Make <select id="calc-item"></select></label>
+      <label>How many <input type="number" id="calc-qty" min="1" max="10000" value="10"></label>
+      <label class="calc-check"><input type="checkbox" id="calc-goblin"> Goblin vendor prices</label>
+    </div>
+    <div id="calc-out"></div>
+  </div>
 
   <div class="card">
     <div class="card-head"><h2>Hottest sellers</h2><span class="hint" id="hot-note"></span></div>
@@ -47,14 +57,19 @@
   </div>
 
   <div class="card">
-    <div class="card-head"><h2>Inks: craft or buy</h2><span class="hint">Cost per ink from pigment vs the Auction House. Recipe costs above already use the cheaper one.</span></div>
+    <div class="card-head"><h2>Inks: craft, buy or trade</h2><span class="hint" id="inks-note">Cheapest of the Auction House, crafting from the cheapest pigment, and the ink trader (Umbral Ink). Recipe costs above use the cheapest.</span></div>
     <div class="table-wrap" id="inks"></div>
+  </div>
+
+  <div class="card">
+    <div class="card-head"><h2>Pigments: mill or buy</h2><span class="hint">Milling cost charges the whole mill (5 herbs) to the pigment, using the average yields on the gold sheet's Milling tab</span></div>
+    <div class="table-wrap" id="pigments"></div>
   </div>
 
   <div class="section-title"><h2>Crafters</h2><span class="hint">Professions by character, newest expansion first. Edit the list on the gold sheet's Settings tab.</span></div>
   <div class="gcrafters" id="gcrafters"></div>
 </div>
 <div id="toast"></div>
-<script src="gold.js?v=3"></script>
+<script src="gold.js?v=4"></script>
 </body>
 </html>

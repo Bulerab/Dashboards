@@ -32,3 +32,19 @@ a.item:hover { text-decoration: underline; }
 .prof.open .tiers { display: block; }
 .tier { display: grid; grid-template-columns: 1fr 70px 70px; gap: 6px; font-size: 12px; padding: 2px 0; color: #bdbdbd; font-variant-numeric: tabular-nums; }
 .tier span:nth-child(n+2) { text-align: right; color: var(--muted-2); }
+
+/* Shopping list calculator */
+.calc-form { display: flex; gap: 18px; align-items: center; flex-wrap: wrap; margin-bottom: 14px; font-size: 13px; color: var(--muted-2); }
+.calc-form label { display: flex; gap: 8px; align-items: center; }
+.calc-form select { min-width: 320px; max-width: 100%; }
+.calc-form input[type=number] { width: 90px; }
+.calc-sum { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 10px; margin-bottom: 14px; }
+.calc-sum .mini .v.pos { color: var(--ok); } .calc-sum .mini .v.neg { color: var(--bad); }
+.calc-block { margin-top: 14px; }
+.calc-block h3 { font-size: 13px; text-transform: uppercase; letter-spacing: .5px; color: var(--muted-2); margin: 0 0 6px; display: flex; justify-content: space-between; align-items: center; gap: 10px; }
+.copy { background: #2a2a2a; color: #ccc; border: 1px solid #444; border-radius: 5px; padding: 2px 8px; font-size: 11.5px; cursor: pointer; white-space: nowrap; }
+.copy:hover { border-color: #3987e5; color: #fff; }
+.copy.done { border-color: var(--ok-line); color: var(--ok); }
+td .copy { margin-left: 8px; }
+.steps { margin: 0; padding-left: 20px; font-size: 13px; line-height: 1.7; }
+.calc-note { font-size: 12px; color: var(--muted); margin-top: 10px; }
