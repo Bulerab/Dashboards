@@ -1096,7 +1096,7 @@ function render() {
   const pendN = OFF ? (OFF.requests || []).filter(r => r.status === 'Pending').length : (STATE.pendingRequests || 0);
   $('appr-count').textContent = pendN ? ' ' + pendN : '';
   document.querySelectorAll('.tab').forEach(s => { s.style.display = s.id === 'tab-' + tab ? '' : 'none'; });
-  document.querySelectorAll('#tabs a').forEach(a => a.classList.toggle('on', a.dataset.tab === tab));
+  document.querySelectorAll('#tabs a, .off-nav a').forEach(a => a.classList.toggle('on', a.dataset.tab === tab));
   const rio = STATE.guild && STATE.guild.rio;
   const cur = rio && rio.raids ? rio.raids.find(r => /^tier-/.test(r.slug)) || rio.raids[0] : null;
   $('prog-line').innerHTML = cur ? `Progress ${progHtml(cur.progress.summary)} &middot; Raid team ${raidPlayers().length} players` : 'Raid &amp; guild tracker';
