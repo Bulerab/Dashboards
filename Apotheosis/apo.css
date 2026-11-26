@@ -314,3 +314,10 @@ p .tal-cell { font-weight: 700; }
 .alt-name { font-size: 16px; font-weight: 700; }
 .alt-info { font-size: 12.5px; color: var(--muted-2, #aaa); margin-top: 6px; } .alt-info b { color: #e6e6e6; }
 .alt-of { font-size: 12.5px; color: var(--muted-2, #999); margin-top: 4px; }
+
+.req-help { margin: 0 0 10px; min-height: 4.35em; line-height: 1.45; }
+.req-form input, .req-form select { height: 34px; padding: 0 10px; }
+.req-form label { line-height: 18px; }
+.req-form label > input, .req-form label > select { margin-top: 5px; }
+
+.rank-msg { margin-left: 6px; }

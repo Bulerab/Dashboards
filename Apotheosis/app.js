@@ -926,7 +926,7 @@ function requestsHtml() {
   const players = (STATE.roster || []).map(p => p.player).sort((a, b) => a.localeCompare(b));
   const pend = STATE.pendingRequests || 0;
   $('req-hint').textContent = pend ? pend + ' waiting for an officer' : '';
-  const form = (type, title, help) => `<div class="card"><div class="card-head"><h2>${title}</h2></div><p class="hint" style="margin:0 0 10px">${help}</p>
+  const form = (type, title, help) => `<div class="card"><div class="card-head"><h2>${title}</h2></div><p class="hint req-help">${help}</p>
     <form class="req-form" data-reqform="${type}">
       ${type === 'initiate' ? '' : `<label>${type === 'main' ? 'Your current main' : 'Your main'}<select name="player" required><option value="">Pick your main…</option>${players.map(n => `<option>${esc(n)}</option>`).join('')}</select></label>`}
       <label>${type === 'alt' ? 'Alt' : type === 'main' ? 'New main' : type === 'initiate' ? 'Character' : 'Secondary main'} name<input name="name" required maxlength="12" placeholder="Character name"></label>
@@ -990,14 +990,15 @@ function initiatesHtml() {
         <button type="button" class="toggle-btn${ready ? ' ok' : ''}" data-promote="${esc(x.player)}">Approve trial &rarr; Raider</button></div>`; }).join('')}</div>`;
 }
 /* Guild ranks: in-game rank vs the sheet, raid characters only. Rank numbers come from Blizzard (0 = Guild Master); officers say which number is which. */
-let ranksAll = false, rankOffTimer = null, rankOffLocal = null;
+let ranksAll = false, rankOffTimer = null, rankOffLocal = null, rankMsg = '';
+const offList = v => Array.isArray(v) ? v.map(Number) : v == null || v === '' ? [] : String(v).split(/[\s,]+/).filter(Boolean).map(Number);
 const rankName = l => l.name ? l.name : 'Rank ' + l.rank;
 function ranksHtml() {
   const R = OFF.ranks; if (!R) return '';
   const leg = R.legend || [], m = R.map || {};
   const nameOf = n => { const l = leg.find(x => x.rank === n); return l && l.name ? l.name : 'Rank ' + n; };
   const sel = (k, label) => `<label class="rank-pick"><span>${label}</span><select data-rankset="${k}"><option value="">${k === 'raider' ? 'Pick…' : 'Not set'}</option>${leg.map(l => `<option value="${l.rank}"${m[k] === l.rank ? ' selected' : ''}>${esc(rankName(l))}</option>`).join('')}</select></label>`;
-  const offSet = rankOffLocal || m.officer || [];
+  const offSet = rankOffLocal || offList(m.officer);
   const set = m.raider != null;
   const fix = (R.rows || []).filter(r => r.ok === false && !r.demote), dem = (R.rows || []).filter(r => r.demote), shown = ranksAll ? (R.rows || []).filter(r => !r.demote) : fix;
   const orHigher = r => r.kind === 'Raider' || (r.kind === 'Secondary main' && m.secondary == null);
@@ -1008,7 +1009,7 @@ function ranksHtml() {
     <td>${r.ok ? '<span class="pill ok">OK</span>' : `<b style="color:${r.demote ? '#ff7b72' : '#e3b341'}">${action(r)}</b>`}</td></tr>`;
   return `<div class="card"><div class="card-head"><h2>Guild ranks</h2><span class="hint">raid characters only &middot; in-game ranks from Blizzard${R.fetched ? ', ' + new Date(R.fetched).toLocaleString([], { month: 'short', day: 'numeric', hour: 'numeric', minute: '2-digit' }) : ''}</span></div>
     <div class="rank-set">${sel('raider', 'Raider rank <span class="hint">(this or higher)</span>')}${sel('secondary', 'Secondary main rank <span class="hint">(optional)</span>')}${sel('initiate', 'Initiate rank <span class="hint">(optional)</span>')}</div>
-    <div class="rank-off"><span class="rank-lbl">Officer ranks <span class="hint">(never flagged)</span></span>${leg.map(l => `<button type="button" class="rank-chip${offSet.indexOf(l.rank) >= 0 ? ' on' : ''}" data-rankchip="${l.rank}" data-tip="${esc(l.n + ' members, e.g. ' + l.sample.join(', '))}">${offSet.indexOf(l.rank) >= 0 ? '&#10003; ' : ''}${esc(rankName(l))}</button>`).join('')}</div>
+    <div class="rank-off"><span class="rank-lbl">Officer ranks <span class="hint">(never flagged)</span></span>${leg.map(l => `<button type="button" class="rank-chip${offSet.indexOf(l.rank) >= 0 ? ' on' : ''}" data-rankchip="${l.rank}" data-tip="${esc(l.n + ' members, e.g. ' + l.sample.join(', '))}">${offSet.indexOf(l.rank) >= 0 ? '&#10003; ' : ''}${esc(rankName(l))}</button>`).join('')}${rankMsg ? `<span class="hint rank-msg">${rankMsg}</span>` : ''}</div>
     ${!leg.length ? '<p class="empty">No guild ranks yet: they load with the next refresh.</p>' : !set ? '<p class="empty">Pick the Raider rank above.</p>' :
       `<div class="rank-sec"><h3>Promote or invite</h3><span class="hint">${fix.length ? `<b style="color:#e3b341">${fix.length}</b> raid character${fix.length === 1 ? '' : 's'} below their rank` : '<b style="color:#7ee787">every raid character has the right rank</b>'} &middot; <a href="#approvals" data-ranksall="1">${ranksAll ? 'show only the ones to fix' : 'show everyone'}</a></span></div>
       ${shown.length ? `<table class="logs-table rank-table"><thead><tr><th>Character</th><th>On the sheet</th><th>In game</th><th>Should be</th><th>Do this</th></tr></thead><tbody>${shown.map(row).join('')}</tbody></table>` : ''}
@@ -1185,12 +1186,16 @@ document.addEventListener('click', e => {
   }
   const rc = e.target.closest('[data-rankchip]');
   if (rc) {
-    const n = Number(rc.dataset.rankchip), cur = (rankOffLocal || (OFF.ranks.map.officer || [])).slice(), i = cur.indexOf(n);
+    const n = Number(rc.dataset.rankchip), cur = (rankOffLocal || offList(OFF.ranks.map.officer)).slice(), i = cur.indexOf(n);
     i >= 0 ? cur.splice(i, 1) : cur.push(n); cur.sort((a, b) => a - b);
-    rankOffLocal = cur; OFF.ranks.map.officer = cur; render();
+    rankOffLocal = cur; OFF.ranks.map.officer = cur; rankMsg = 'Saving…'; render();
     clearTimeout(rankOffTimer);
     rankOffTimer = setTimeout(() => officerPost({ action: 'setOption', name: 'rank:officer', value: cur })
-      .then(() => { if (rankOffLocal === cur) rankOffLocal = null; return loadOfficer(); }).catch(err => { apprMsg = 'Not saved: ' + err.message; render(); }), 1200);
+      .then(() => loadOfficer())
+      .then(() => { if (rankOffLocal !== cur) return; const got = offList(OFF && OFF.ranks && OFF.ranks.map.officer);
+        rankMsg = got.join(',') === cur.join(',') ? '&#10003; Saved' : 'The sheet did not keep this: deploy the latest Apotheosis.gs (Deploy &rarr; Manage deployments &rarr; New version)';
+        if (got.join(',') === cur.join(',')) rankOffLocal = null; render(); })
+      .catch(err => { rankMsg = 'Not saved: ' + esc(err.message); render(); }), 900);
     return;
   }
   const mg = e.target.closest('[data-manage]');
@@ -1285,13 +1290,6 @@ document.addEventListener('click', e => {
 
 // Healer wishlist form: picking a healer fills the "missing BiS" list; picking a BiS item fills in its boss
 document.addEventListener('change', e => {
-  if (e.target.dataset && e.target.dataset.rankoff != null) {
-    const list = [...document.querySelectorAll('[data-rankoff]:checked')].map(x => Number(x.dataset.rankoff));
-    if (OFF && OFF.ranks) OFF.ranks.map.officer = list;
-    clearTimeout(rankOffTimer);
-    rankOffTimer = setTimeout(() => officerPost({ action: 'setOption', name: 'rank:officer', value: list }).then(() => loadOfficer()).catch(err => { apprMsg = 'Not saved: ' + err.message; render(); }), 1000);
-    return;
-  }
   if (e.target.dataset && e.target.dataset.rankset) {
     const k = e.target.dataset.rankset, v = e.target.value;
     if (OFF && OFF.ranks) OFF.ranks.map[k] = v === '' ? null : Number(v);
