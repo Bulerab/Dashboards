@@ -49,3 +49,16 @@ td .copy { margin-left: 8px; }
 .steps { margin: 0; padding-left: 20px; font-size: 13px; line-height: 1.7; }
 .calc-note { font-size: 12px; color: var(--muted); margin-top: 10px; }
 pre.way { background: #161616; border: 1px solid var(--line-2); border-radius: 6px; padding: 8px 10px; font-size: 12.5px; color: #d6e6ff; white-space: pre-wrap; margin: 0; }
+
+/* Column filters and Add buttons */
+.fbar { display: flex; gap: 14px; flex-wrap: wrap; align-items: center; font-size: 12px; color: var(--muted-2); margin: 0 0 10px; }
+.fbar label { display: flex; gap: 5px; align-items: center; }
+.fbar input[type=number] { width: 72px; padding: 2px 6px; font-size: 12px; }
+.fbar .fcount { color: #e0b84a; }
+td.addc { white-space: nowrap; }
+td.addc .add-qty { width: 56px; padding: 2px 5px; font-size: 12px; }
+td.addc .copy { margin-left: 5px; }
+.add-btn { border-color: #8a6420; color: #ffcf8a; }
+.add-btn:hover { border-color: #e0b84a; }
+#calc-add { padding: 4px 12px; font-size: 13px; }
+.cart-qty { width: 70px; text-align: right; }

@@ -49,26 +49,61 @@ function hotTable(d) {
     return;
   }
   const byItem = {}; d.recipes.forEach(r => { if (r.id) byItem[r.id] = r; });
-  const rows = d.hot.slice(0, 15).map(h => { const r = byItem[h.id] || {}; return `<tr>
+  const all = d.hot.map(h => { const r = byItem[h.id] || {};
+    return { h, r, f: { soldPerDay: r.soldPerDay, saleRate: r.saleRate, profit: r.profit, margin: r.margin, price: h.avg ?? r.price } }; });
+  const list = all.filter(x => passes('hot', x.f));
+  const shown = list.slice(0, filterOn('hot') ? 50 : 15);
+  $('hot-count').textContent = filterOn('hot') ? `${list.length} of ${all.length} match` : '';
+  if (!shown.length) { $('hot').innerHTML = '<p class="empty">Nothing matches these filters.</p>'; return; }
+  const rows = shown.map(({ h, r }) => `<tr>
     <td>${itemLink(h.id, h.name)}</td><td>${typeTag(h.type)}</td>
     <td>${h.known ? '<span class="tag yes">Known</span>' : '<span class="tag">Not learned</span>'}</td>
-    <td class="num">${int(h.sold)}</td><td class="num">${r.soldPerDay == null ? '' : num1(r.soldPerDay)}</td><td class="num">${g(h.avg)}</td>
-    <td class="num">${g(r.cost)}</td><td class="num ${profitCls(r.profit)}">${g(r.profit)}</td><td class="num">${int(h.listed)}</td></tr>`; }).join('');
+    <td class="num">${int(h.sold)}</td><td class="num">${r.soldPerDay == null ? '' : num1(r.soldPerDay)}</td><td class="num">${r.saleRate == null ? '' : pct1(r.saleRate)}</td>
+    <td class="num">${g(h.avg)}</td><td class="num">${g(r.cost)}</td><td class="num ${profitCls(r.profit)}">${g(r.profit)}</td>
+    <td class="num ${profitCls(r.margin)}">${pct(r.margin)}</td><td class="num">${int(h.listed)}</td>${addCell(h.known && r.rid ? 'r:' + r.rid : '')}</tr>`).join('');
   $('hot').innerHTML = `<table><thead><tr><th>Item</th><th>Type</th><th>Scribe</th><th class="num" title="Listings that disappeared between snapshots; includes expired and cancelled auctions">Est. sold (24h)</th>`
-    + `<th class="num" title="TSM: average sold per day across the US region">TSM sold/day</th><th class="num">Avg price</th><th class="num">Cost to craft</th><th class="num">Profit each</th><th class="num">Listed now</th></tr></thead><tbody>${rows}</tbody></table>`;
+    + `<th class="num" title="TSM: average sold per day across the US region">TSM sold/day</th><th class="num" title="TSM: share of auctions that sell">Sale rate</th><th class="num">Avg price</th><th class="num">Cost to craft</th>`
+    + `<th class="num">Profit each</th><th class="num">Margin</th><th class="num">Listed now</th><th>Add to list</th></tr></thead><tbody>${rows}</tbody></table>`;
 }
 
-function recipeRows(list, threshold) {
+/* ------------------------------------------------------------------ column filters
+ * Minimum values for Hot sellers and Gold makers. Blank means no filter. Saved in this browser. */
+const FILTER_KEY = 'wowGoldFilters';
+const FILTER_FIELDS = [
+  { k: 'soldPerDay', label: 'Sold/day at least', step: '1', unit: '' },
+  { k: 'saleRate', label: 'Sale rate at least', step: '1', unit: '%', scale: 0.01 },
+  { k: 'profit', label: 'Profit at least', step: '10', unit: 'g' },
+  { k: 'margin', label: 'Margin at least', step: '5', unit: '%', scale: 0.01 },
+  { k: 'price', label: 'AH price at least', step: '10', unit: 'g' },
+];
+let filters = { hot: {}, makers: {} };
+try { const f = JSON.parse(localStorage.getItem(FILTER_KEY) || '{}'); if (f.hot) filters.hot = f.hot; if (f.makers) filters.makers = f.makers; } catch (e) { /* storage blocked */ }
+const filterOn = t => FILTER_FIELDS.some(f => filters[t][f.k] != null && filters[t][f.k] !== '');
+function passes(table, row) {
+  return FILTER_FIELDS.every(f => {
+    const v = filters[table][f.k];
+    if (v == null || v === '') return true;
+    return row[f.k] != null && row[f.k] >= v * (f.scale || 1) - 1e-9;
+  });
+}
+function fillFilterBar(table) {
+  $(table + '-fbar').innerHTML = FILTER_FIELDS.map(f => `<label>${f.label} <input type="number" data-ftable="${table}" data-fk="${f.k}" step="${f.step}" value="${filters[table][f.k] ?? ''}" placeholder="any">${f.unit ? `<span>${f.unit}</span>` : ''}</label>`).join('')
+    + `<button type="button" class="copy" data-fclear="${table}">Clear filters</button><span class="fcount" id="${table}-count"></span>`;
+}
+const addCell = key => (key ? `<td class="addc"><input type="number" class="add-qty" min="1" max="10000" value="10" aria-label="How many"><button type="button" class="copy add-btn" data-add="${key}">Add</button></td>` : '<td></td>');
+
+function recipeRows(list, threshold, withAdd) {
   return list.map(r => `<tr class="${r.profit != null && r.profit >= threshold ? 'hit' : ''}">
     <td>${itemLink(r.id, r.name)}${r.unpriced ? `<span class="warn-ic" title="${r.unpriced} reagent(s) have no AH price and are counted as free">&#9888;</span>` : ''}</td>
     <td>${typeTag(r.type)}</td><td class="dim">${esc(r.exp)}</td>
     <td class="num">${g(r.cost)}</td><td class="num">${r.price == null ? '<span class="dim">none listed</span>' : g(r.price)}</td>
     <td class="num">${int(r.listed)}</td><td class="num">${r.soldPerDay == null ? '' : num1(r.soldPerDay)}</td><td class="num">${r.saleRate == null ? '' : pct1(r.saleRate)}</td>
-    <td class="num ${profitCls(r.profit)}">${g(r.profit)}</td><td class="num ${profitCls(r.margin)}">${pct(r.margin)}</td></tr>`).join('');
+    <td class="num ${profitCls(r.profit)}">${g(r.profit)}</td><td class="num ${profitCls(r.margin)}">${pct(r.margin)}</td>${withAdd ? addCell('r:' + r.rid) : ''}</tr>`).join('');
 }
 const RECIPE_HEAD = '<thead><tr><th>Recipe</th><th>Type</th><th>Expansion</th><th class="num">Cost to craft</th><th class="num">AH price</th><th class="num">Listed</th>'
   + '<th class="num" title="TSM: average number sold per day across the US region">Sold/day</th><th class="num" title="TSM: share of auctions that sell">Sale rate</th>'
-  + '<th class="num">Profit each</th><th class="num">Margin</th></tr></thead>';
+  + '<th class="num">Profit each</th><th class="num">Margin</th>';
+const recipeHead = withAdd => RECIPE_HEAD + (withAdd ? '<th>Add to list</th>' : '') + '</tr></thead>';
 const SELLS_WELL = 3;   // sold per day across the region, for the "Sells well" filter
 const num1 = n => Number(n).toLocaleString('en-US', { maximumFractionDigits: n < 10 ? 1 : 0 });
 const pct1 = n => (Math.round(n * 1000) / 10).toLocaleString('en-US') + '%';
@@ -78,18 +113,21 @@ function makersTable(d) {
   if (makerFilter === 'profit') list = list.filter(r => r.profit != null && r.profit > 0);
   else if (makerFilter === 'sells') list = list.filter(r => r.profit != null && r.profit > 0 && (r.soldPerDay || 0) >= SELLS_WELL);
   else if (makerFilter !== 'all') list = list.filter(r => r.type === makerFilter);
+  const before = list.length;
+  list = list.filter(r => passes('makers', r));
+  $('makers-count').textContent = filterOn('makers') ? `${list.length} of ${before} match` : '';
   list.sort((a, b) => (b.profit ?? -1e12) - (a.profit ?? -1e12));
   $('maker-note').textContent = `${list.length} recipes · profit is after the ${Math.round(d.ahCut * 100)}% AH cut · sold/day and sale rate are TSM region data`;
   $('makers').innerHTML = list.length
-    ? `<table>${RECIPE_HEAD}<tbody>${recipeRows(list, d.threshold)}</tbody></table>`
-    : '<p class="empty">Nothing in this filter right now.</p>';
+    ? `<table>${recipeHead(true)}<tbody>${recipeRows(list, d.threshold, true)}</tbody></table>`
+    : '<p class="empty">Nothing matches these filters right now.</p>';
 }
 
 function learnTable(d) {
   const list = d.recipes.filter(r => !r.known && r.type !== 'Reagent' && r.profit != null && r.profit > 0)
     .sort((a, b) => b.profit - a.profit);
   $('learn').innerHTML = list.length
-    ? `<table>${RECIPE_HEAD}<tbody>${recipeRows(list, d.threshold)}</tbody></table>`
+    ? `<table>${recipeHead(false)}<tbody>${recipeRows(list, d.threshold, false)}</tbody></table>`
     : '<p class="empty">No unlearned recipe would make gold at today\'s prices.</p>';
 }
 
@@ -140,15 +178,18 @@ function buildIndex(d) {
   return { mat, reag, craftOf, trade, vendor, names, umbralId: umbral ? umbral.id : null };
 }
 
-function calcPlan(d, target, qty, goblin) {
+function calcPlan(d, targets, goblin) {
   const ix = calcIndex;
-  const plan = { ah: {}, vendor: {}, farm: {}, mills: {}, trades: {}, crafts: {}, unknown: {} };
+  const plan = { ah: {}, vendor: {}, farm: {}, mills: {}, trades: {}, crafts: {}, unknown: {}, finals: [] };
   let level = {};
   const addTo = (map, id, n) => { map[id] = (map[id] || 0) + n; };
-  if (target.kind === 'recipe') {
-    (ix.reag[target.rid] || []).forEach(r => addTo(level, r.id, r.q * qty));
-    plan.final = { name: target.name, qty };
-  } else addTo(level, target.id, qty);
+  // Everything on the list goes in together, so shared inks and herbs are added up before rounding
+  targets.forEach(({ target, qty }) => {
+    if (target.kind === 'recipe') {
+      (ix.reag[target.rid] || []).forEach(r => addTo(level, r.id, r.q * qty));
+      plan.finals.push({ name: target.name, qty });
+    } else addTo(level, target.id, qty);
+  });
 
   for (let depth = 0; depth < 8 && Object.keys(level).length; depth++) {
     const next = {};
@@ -206,25 +247,63 @@ function calcPlan(d, target, qty, goblin) {
 
 function copyBtn(text, label) { return `<button type="button" class="copy" data-copy="${esc(text)}">${label || 'Copy'}</button>`; }
 
+/* ------------------------------------------------------------------ running shopping list
+ * Add from the tables or the picker; adding the same item again adds to its count. Saved in this browser. */
+const CART_KEY = 'wowGoldCart';
+let cart = [];
+try { cart = JSON.parse(localStorage.getItem(CART_KEY) || '[]').filter(c => c && c.key && c.qty > 0); } catch (e) { cart = []; }
+const saveCart = () => { try { localStorage.setItem(CART_KEY, JSON.stringify(cart)); } catch (e) { /* storage blocked */ } };
+const clampQty = v => Math.max(1, Math.min(10000, parseInt(v, 10) || 1));
+
+function cartTarget(d, key) {
+  if (key.startsWith('r:')) { const r = d.recipes.find(x => String(x.rid) === key.slice(2)); return r ? { kind: 'recipe', rid: r.rid, name: r.name, recipe: r } : null; }
+  const id = Number(key.slice(2)); const name = calcIndex && calcIndex.names[id];
+  return name ? { kind: 'item', id, name } : null;
+}
+function addToCart(key, qty) {
+  qty = clampQty(qty);
+  const c = cart.find(x => x.key === key);
+  if (c) c.qty += qty; else cart.push({ key, qty });
+  saveCart(); renderCalc();
+  const t = DATA && cartTarget(DATA, key), total = cart.find(x => x.key === key).qty;
+  toast(`Added ${qty} × ${t ? t.name : 'item'}${total > qty ? ` (${total} on the list)` : ''}`);
+}
+
+function renderCart(d, items) {
+  if (!items.length) { $('cart').innerHTML = ''; return; }
+  const rows = items.map(({ c, t }) => { const r = t.recipe;
+    const each = r && r.profit != null ? r.profit : null;
+    return `<tr><td>${t.kind === 'recipe' ? itemLink(r.id, t.name) : itemLink(t.id, t.name)}</td>
+      <td class="num"><input type="number" class="cart-qty" data-key="${esc(c.key)}" min="1" max="10000" value="${c.qty}" aria-label="How many"></td>
+      <td class="num ${profitCls(each)}">${g(each)}</td><td class="num ${profitCls(each)}">${each == null ? '' : g(each * c.qty)}</td>
+      <td class="num">${r && r.soldPerDay != null ? num1(r.soldPerDay) : ''}</td>
+      <td class="num"><button type="button" class="copy" data-remove="${esc(c.key)}" title="Remove from the list">Remove</button></td></tr>`; }).join('');
+  $('cart').innerHTML = `<div class="calc-block"><h3>On your list <button type="button" class="copy" data-cart-clear>Clear list</button></h3>
+    <table><thead><tr><th>Item</th><th class="num">How many</th><th class="num">Profit each</th><th class="num">Profit total</th><th class="num" title="TSM: sold per day across the US region">Sold/day</th><th></th></tr></thead><tbody>${rows}</tbody></table></div>`;
+}
+
 function renderCalc() {
   const d = DATA; if (!d || !calcIndex) return;
-  const sel = $('calc-item').value;
-  const qty = Math.max(1, Math.min(10000, parseInt($('calc-qty').value, 10) || 1));
   const goblin = $('calc-goblin').checked;
-  let target;
-  if (sel.startsWith('r:')) { const r = d.recipes.find(x => String(x.rid) === sel.slice(2)); if (!r) return; target = { kind: 'recipe', rid: r.rid, name: r.name, recipe: r }; }
-  else { const id = Number(sel.slice(2)); target = { kind: 'item', id, name: calcIndex.names[id] || '' }; }
-  const plan = calcPlan(d, target, qty, goblin);
+  const items = cart.map(c => ({ c, t: cartTarget(d, c.key) })).filter(x => x.t);
+  renderCart(d, items);
+  if (!items.length) {
+    $('calc-out').innerHTML = '<p class="empty">Your list is empty. Use <b>Add</b> on Hottest sellers or Gold makers below, or pick something above.</p>';
+    return;
+  }
+  const plan = calcPlan(d, items.map(x => ({ target: x.t, qty: x.c.qty })), goblin);
   const ix = calcIndex;
 
-  const r = target.recipe;
-  const revenue = r && r.price != null ? r.price * (1 - d.ahCut) * qty : null;
+  const recipes = items.filter(x => x.t.kind === 'recipe');
+  const unlisted = recipes.filter(x => x.t.recipe.price == null).map(x => x.t.name);
+  const revenue = recipes.length ? recipes.reduce((s, x) => s + (x.t.recipe.price == null ? 0 : x.t.recipe.price * (1 - d.ahCut) * x.c.qty), 0) : null;
   const profit = revenue != null ? revenue - plan.cost : null;
+  const crafts = recipes.reduce((s, x) => s + x.c.qty, 0);
   const sum = `<div class="calc-sum">
     <div class="mini"><div class="k">Materials cost</div><div class="v">${g(plan.cost)}</div></div>
-    ${r ? `<div class="mini"><div class="k">Sells for (after ${Math.round(d.ahCut * 100)}% cut)</div><div class="v">${revenue == null ? 'Not listed' : g(revenue)}</div></div>
-    <div class="mini"><div class="k">Profit for ${qty}</div><div class="v ${profit == null ? '' : profit >= 0 ? 'pos' : 'neg'}">${profit == null ? '' : g(profit)}</div></div>
-    <div class="mini"><div class="k">Region sells per day</div><div class="v">${r.soldPerDay == null ? 'No data' : num1(r.soldPerDay)}${r.saleRate == null ? '' : ` <span class="dim" style="font-size:12px">(${pct1(r.saleRate)} sale rate)</span>`}</div></div>` : `<div class="mini"><div class="k">Per item</div><div class="v">${g(plan.cost / qty)}</div></div>`}
+    ${recipes.length ? `<div class="mini"><div class="k">Sells for (after ${Math.round(d.ahCut * 100)}% cut)</div><div class="v">${g(revenue)}</div></div>
+    <div class="mini"><div class="k">Profit for the list</div><div class="v ${profit >= 0 ? 'pos' : 'neg'}">${g(profit)}</div></div>
+    <div class="mini"><div class="k">Crafts</div><div class="v">${int(crafts)} <span class="dim" style="font-size:12px">(${recipes.length} kind${recipes.length > 1 ? 's' : ''})</span></div></div>` : ''}
   </div>`;
 
   const ahTable = plan.ahRows.length ? `<div class="calc-block"><h3>Buy on the Auction House ${copyBtn(plan.ahRows.map(x => x.name).join('\n'), 'Copy all names')}</h3>
@@ -243,7 +322,7 @@ function renderCalc() {
   Object.keys(plan.trades).forEach(id => { const t = ix.trade[id]; steps.push(`Trade <b>${int(plan.trades[id] * t.umbral)} Umbral Ink</b> to the ink trader for <b>${int(plan.trades[id])} ${esc(t.name)}</b>`); });
   // crafts: inks first, then the final item
   Object.keys(plan.crafts).forEach(id => { const rr = ix.craftOf[id]; steps.push(`Craft <b>${int(plan.crafts[id])} × ${esc(rr ? rr.name : ix.names[id])}</b>${rr && rr.yield > 1 ? ` (makes ${int(plan.crafts[id] * rr.yield)})` : ''}`); });
-  if (plan.final) steps.push(`Craft <b>${int(plan.final.qty)} × ${esc(plan.final.name)}</b>`);
+  plan.finals.forEach(f => steps.push(`Craft <b>${int(f.qty)} × ${esc(f.name)}</b>`));
   Object.keys(plan.farm).forEach(id => steps.push(`Use <b>${int(plan.farm[id])} ${esc(ix.names[id])}</b> you farmed`));
   const stepsHtml = steps.length ? `<div class="calc-block"><h3>Then</h3><ol class="steps">${steps.map(s => `<li>${s}</li>`).join('')}</ol></div>` : '';
 
@@ -267,6 +346,7 @@ function renderCalc() {
     <p class="calc-note">In game: paste <b>/ttpaste</b> into chat, then paste the stops into the window and press Ctrl+Enter. It clears old TomTom and Zygor waypoints first, then adds ${wayLines.length} stop${wayLines.length > 1 ? 's' : ''}; Zygor's arrow takes you there. Type <b>/cway</b> to switch the arrow to the closest stop.${noStop.length ? ' No saved vendor location for: ' + esc(noStop.join(', ')) + ' (add one on the gold sheet\'s Vendor tab).' : ''}</p></div>` : '';
 
   const notes = [];
+  if (unlisted.length) notes.push(`Not on the Auction House right now, so not counted in "Sells for": ${esc(unlisted.join(', '))}.`);
   if (Object.keys(plan.mills).length) notes.push('Milling uses average yields, so you may get a few more or less pigment than shown.');
   if (plan.missing) notes.push(`${plan.missing} item(s) have no price right now, so the cost is missing them.`);
   if (goblin && plan.vendorRows.length) notes.push('Goblin prices apply at vendors with a reputation (city and profession suppliers).');
@@ -282,7 +362,7 @@ function setupCalc(d) {
   sel.innerHTML = `<optgroup label="Glyphs and marks you know (best profit first)">${known.map(r => `<option value="r:${r.rid}">${esc(r.name)}${r.profit != null ? ' (' + g(r.profit) + ' each)' : ''}</option>`).join('')}</optgroup>
     <optgroup label="Inks and pigments">${items.map(m => `<option value="i:${m.id}">${esc(m.name)}</option>`).join('')}</optgroup>`;
   if (prev && sel.querySelector(`option[value="${prev}"]`)) sel.value = prev;
-  if (!setupCalc.done) { $('calc-goblin').checked = !!d.goblin; setupCalc.done = true; }
+  if (!setupCalc.done) { $('calc-goblin').checked = !!d.goblin; fillFilterBar('hot'); fillFilterBar('makers'); setupCalc.done = true; }
   renderCalc();
 }
 
@@ -320,8 +400,49 @@ function render(d, live, when) {
   glance(d); setupCalc(d); hotTable(d); makersTable(d); learnTable(d); inksTable(d); pigmentsTable(d); crafterCards(d);
 }
 
-['calc-item', 'calc-qty', 'calc-goblin'].forEach(id => $(id).addEventListener('input', renderCalc));
+$('calc-goblin').addEventListener('input', renderCalc);
+$('calc-add').addEventListener('click', () => { if ($('calc-item').value) addToCart($('calc-item').value, $('calc-qty').value); });
+// Add buttons in Hottest sellers and Gold makers
+document.addEventListener('click', e => {
+  const b = e.target.closest('[data-add]');
+  if (!b || !DATA) return;
+  const q = b.parentElement.querySelector('.add-qty');
+  addToCart(b.dataset.add, q ? q.value : 1);
+});
+document.addEventListener('keydown', e => {
+  if (e.key === 'Enter' && e.target.classList && e.target.classList.contains('add-qty')) e.target.parentElement.querySelector('[data-add]').click();
+});
+// Filters
+document.addEventListener('input', e => {
+  const t = e.target.dataset && e.target.dataset.ftable;
+  if (!t || !DATA) return;
+  const v = e.target.value.trim();
+  if (v === '' || isNaN(Number(v))) delete filters[t][e.target.dataset.fk]; else filters[t][e.target.dataset.fk] = Number(v);
+  try { localStorage.setItem(FILTER_KEY, JSON.stringify(filters)); } catch (er) { /* storage blocked */ }
+  t === 'hot' ? hotTable(DATA) : makersTable(DATA);
+});
+document.addEventListener('click', e => {
+  const b = e.target.closest('[data-fclear]');
+  if (!b || !DATA) return;
+  const t = b.dataset.fclear; filters[t] = {};
+  try { localStorage.setItem(FILTER_KEY, JSON.stringify(filters)); } catch (er) { /* storage blocked */ }
+  fillFilterBar(t); t === 'hot' ? hotTable(DATA) : makersTable(DATA);
+});
+// Cart edits
+$('calc-card').addEventListener('change', e => {
+  const k = e.target.dataset && e.target.dataset.key;
+  if (!k) return;
+  const c = cart.find(x => x.key === k); if (c) { c.qty = clampQty(e.target.value); saveCart(); renderCalc(); }
+});
 $('calc-card').addEventListener('click', e => {
+  const rm = e.target.closest('[data-remove]');
+  if (rm) { cart = cart.filter(x => x.key !== rm.dataset.remove); saveCart(); renderCalc(); return; }
+  const clr = e.target.closest('[data-cart-clear]');
+  if (clr) {   // two clicks so a stray tap doesn't wipe the list
+    if (clr.dataset.armed) { cart = []; saveCart(); renderCalc(); toast('Shopping list cleared'); }
+    else { clr.dataset.armed = '1'; clr.textContent = 'Click again to clear'; setTimeout(() => { if (clr.isConnected) { delete clr.dataset.armed; clr.textContent = 'Clear list'; } }, 3000); }
+    return;
+  }
   const b = e.target.closest('[data-copy]');
   if (!b) return;
   const text = b.getAttribute('data-copy');

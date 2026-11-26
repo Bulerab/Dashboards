@@ -7,7 +7,7 @@
 <link rel="preconnect" href="https://script.google.com">
 <link rel="preconnect" href="https://script.googleusercontent.com" crossorigin>
 <link rel="stylesheet" href="wow.css?v=9">
-<link rel="stylesheet" href="gold.css?v=4">
+<link rel="stylesheet" href="gold.css?v=5">
 </head>
 <body data-page="gold">
 <div class="container">
@@ -23,17 +23,20 @@
   <div class="stats-grid" id="glance"></div>
 
   <div class="card" id="calc-card">
-    <div class="card-head"><h2>Shopping list</h2><span class="hint">Pick a glyph, mark or ink and how many to make. Uses the cheapest way for every material.</span></div>
+    <div class="card-head"><h2>Shopping list</h2><span class="hint">Use Add on Hottest sellers or Gold makers, or pick one here. Adding the same item again adds to its count; everything is bought together.</span></div>
     <div class="calc-form">
-      <label>Make <select id="calc-item"></select></label>
+      <label>Add <select id="calc-item"></select></label>
       <label>How many <input type="number" id="calc-qty" min="1" max="10000" value="10"></label>
+      <button type="button" class="copy add-btn" id="calc-add">Add to list</button>
       <label class="calc-check"><input type="checkbox" id="calc-goblin"> Goblin vendor prices</label>
     </div>
+    <div id="cart"></div>
     <div id="calc-out"></div>
   </div>
 
   <div class="card">
     <div class="card-head"><h2>Hottest sellers</h2><span class="hint" id="hot-note"></span></div>
+    <div class="fbar" id="hot-fbar"></div>
     <div class="table-wrap" id="hot"></div>
   </div>
 
@@ -49,6 +52,7 @@
         </div></div>
       <span class="hint" id="maker-note"></span>
     </div>
+    <div class="fbar" id="makers-fbar"></div>
     <div class="table-wrap" id="makers"></div>
   </div>
 
@@ -71,6 +75,6 @@
   <div class="gcrafters" id="gcrafters"></div>
 </div>
 <div id="toast"></div>
-<script src="gold.js?v=10"></script>
+<script src="gold.js?v=11"></script>
 </body>
 </html>
