@@ -1050,7 +1050,9 @@ function performanceHtml() {
   // One row per role a raider played (healing nights and dps nights are never mixed), so an off-role night isn't a "drop"
   const rows = []; ps.forEach(x => { const roles = x.roles && x.roles.length ? x.roles : [{ role: '', kills: x.kills, avg: x.avg, weekly: x.weekly, byBoss: x.byBoss }];
     roles.forEach((r, i) => rows.push({ x, r, first: i === 0, multi: roles.length > 1 })); if (!x.kills) rows.push({ x, r: { role: '', kills: 0, avg: null, weekly: weeks.map(() => null), byBoss: [] }, first: true }); });
-  const delta = r => { const v = (r.weekly || []).filter(y => y != null); if (v.length < 3) return null;
+  // DPS weeks where 15%+ of their output was healing (off-healing) are left out of the DPS trend
+  const OFFHEAL = 15, offheal = (r, i) => r.role === 'DPS' && r.heal && r.heal[i] != null && r.heal[i] >= OFFHEAL;
+  const delta = r => { const v = (r.weekly || []).filter((y, i) => y != null && !offheal(r, i)); if (v.length < 3) return null;
     return Math.round(v.slice(-2).reduce((a, y) => a + y, 0) / 2 - v.slice(0, -2).reduce((a, y) => a + y, 0) / (v.length - 2)); };
   const trend = r => { const d = delta(r); return d == null ? '<span class="hint">-</span>' : `<b style="color:${d > 2 ? '#7ee787' : d < -2 ? '#ff7b72' : '#aaa'}">${d > 0 ? '&#9650; +' : d < 0 ? '&#9660; ' : ''}${d}</b>`; };
   const fd = x => x.pulls ? Math.round(x.firsts / x.pulls * 100) : 0;
@@ -1062,11 +1064,11 @@ function performanceHtml() {
       ${leaders.length ? leaders.map((x, i) => `<div class="sum-row"><span class="rk">${i + 1}</span>${nameHtml(x.main)}<span class="r"><b>${fd(x)}%</b> <span class="hint">${x.firsts} of ${x.pulls} pulls</span></span></div>`).join('') : '<p class="empty">No deaths logged yet.</p>'}</div>
     <div class="card"><div class="card-head"><h2>Trending</h2><span class="hint">parse % last 2 weeks vs the weeks before, same role only</span></div>
       ${tr.length ? [tr.slice(0, 3).filter(t => t.d > 0), tr.slice(-3).reverse().filter(t => t.d < 0)].map(list => list.map(t => `<div class="sum-row">${nameHtml(t.o.x.main)} ${t.o.multi ? roleTag(t.o.r) : ''}<span class="r"><b style="color:${t.d > 0 ? '#7ee787' : '#ff7b72'}">${t.d > 0 ? '&#9650; +' : '&#9660; '}${t.d}</b></span></div>`).join('')).join('') || '<p class="empty">Nobody is trending up or down.</p>' : '<p class="empty">Needs 3+ weeks of logs.</p>'}</div></div>
-    <div class="card"><div class="card-head"><h2>Performance &amp; trends</h2><span class="hint">parse % on ${OFF.difficulty} kills per reset week (overall %), by the role they played &middot; 8 weeks</span></div>
+    <div class="card"><div class="card-head"><h2>Performance &amp; trends</h2><span class="hint">parse % on ${OFF.difficulty} kills per reset week (overall %), by the role they played &middot; <span class="oh">+20%&#10010;</span> = off-healed that week (left out of the DPS trend) &middot; 8 weeks</span></div>
     ${ps.length ? `<div class="table-wrap"><table class="logs-table perf-table"><thead><tr><th>Raider</th><th>Role</th><th>Avg</th><th data-tip="Last 2 weeks compared with the weeks before, in this role only">Trend</th>${weeks.map(w => `<th>${wk(w)}</th>`).join('')}<th>Kills</th><th data-tip="Pulls where they died first / pulls they were in">First deaths</th><th>Best / worst boss</th></tr></thead><tbody>${
       rows.map(({ x, r, first }) => { const bb = (r.byBoss || []).slice().sort((a, b) => b.avg - a.avg); const best = bb[0], worst = bb[bb.length - 1];
-        return `<tr${first ? '' : ' class="role-row"'}><td>${first ? nameHtml(x.main) : ''}</td><td>${roleTag(r)}</td><td><b style="color:${parseColor(r.avg)}">${r.avg == null ? '-' : r.avg}</b></td><td>${trend(r)}</td>${
-          (r.weekly || []).map(v => `<td><span style="color:${parseColor(v)}">${v == null ? '<span class="hint">-</span>' : v}</span></td>`).join('')}<td>${r.kills}</td>
+        return `<tr${first ? '' : ' class="role-row"'}><td${first ? '' : ' class="dimname"'}>${nameHtml(x.main)}</td><td>${roleTag(r)}</td><td><b style="color:${parseColor(r.avg)}">${r.avg == null ? '-' : r.avg}</b></td><td>${trend(r)}</td>${
+          (r.weekly || []).map((v, i) => `<td${offheal(r, i) ? ` data-tip="${r.heal[i]}% of their output this week was healing: left out of the DPS trend"` : ''}><span style="color:${parseColor(v)}">${v == null ? '<span class="hint">-</span>' : v}</span>${offheal(r, i) ? `<span class="oh">+${r.heal[i]}%&#10010;</span>` : ''}</td>`).join('')}<td>${r.kills}</td>
           <td${first ? ` data-tip="${esc(Object.keys(x.firstBy).map(b => b + ': ' + x.firstBy[b]).join('<br>') || 'none')}"` : ''}>${first ? `${x.firsts} <span class="hint">/ ${x.pulls} (${fd(x)}%)</span>` : ''}</td>
           <td class="hint">${best ? `<span style="color:${parseColor(best.avg)}">${esc(best.boss)} ${best.avg}</span>${worst && worst !== best ? ` &middot; <span style="color:${parseColor(worst.avg)}">${esc(worst.boss)} ${worst.avg}</span>` : ''}` : '-'}</td></tr>`; }).join('')}</tbody></table></div>`
       : '<p class="empty">No raid logs read yet.</p>'}${logInfoHtml()}</div>`;
