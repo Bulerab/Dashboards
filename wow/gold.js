@@ -169,6 +169,17 @@ function calcPlan(d, target, qty, goblin) {
     });
     level = next;
   }
+  // Mills give other pigments too (Nightshade: Umbral, Luminous and Tranquil). Count those against what you'd buy.
+  Object.values(plan.mills).forEach(m => {
+    m.extras = [];
+    d.milling.filter(x => x.herbId === m.herbId && x.pigmentId !== m.pigmentId).forEach(x => {
+      const got = Math.floor(m.mills * x.perMill);
+      if (!got) return;
+      const need = plan.ah[x.pigmentId] || 0, use = Math.min(need, got);
+      if (use) { plan.ah[x.pigmentId] -= use; if (plan.ah[x.pigmentId] <= 0) delete plan.ah[x.pigmentId]; }
+      m.extras.push({ name: x.pigment, got, use });
+    });
+  });
   // prices
   const herbPrice = {}; d.milling.forEach(m => { if (m.herbPrice != null) herbPrice[m.herbId] = m.herbPrice; });
   const ahEach = id => (ix.mat[id] && ix.mat[id].ah != null ? ix.mat[id].ah : herbPrice[id] ?? null);
@@ -216,7 +227,8 @@ function renderCalc() {
       <td class="num">${x.each == null ? '' : (x.each * x.qty < 0.01 ? '&lt;0.01g' : g(x.each * x.qty))}</td></tr>`).join('')}</tbody></table></div>` : '';
 
   const steps = [];
-  Object.values(plan.mills).forEach(m => steps.push(`Mill <b>${int(m.mills * 5)} ${esc(m.herb)}</b> (${int(m.mills)} mills) for about <b>${int(Math.round(m.mills * m.perMill))} ${esc(m.pigment)}</b>`));
+  Object.values(plan.mills).forEach(m => steps.push(`Mill <b>${int(m.mills * 5)} ${esc(m.herb)}</b> (${int(m.mills)} mills) for about <b>${int(Math.round(m.mills * m.perMill))} ${esc(m.pigment)}</b>`
+    + (m.extras && m.extras.length ? ', plus about ' + m.extras.map(x => `${int(x.got)} ${esc(x.name)}${x.use ? ` (covers ${int(x.use)} you need)` : ''}`).join(' and ') : '')));
   Object.keys(plan.trades).forEach(id => { const t = ix.trade[id]; steps.push(`Trade <b>${int(plan.trades[id] * t.umbral)} Umbral Ink</b> to the ink trader for <b>${int(plan.trades[id])} ${esc(t.name)}</b>`); });
   // crafts: inks first, then the final item
   Object.keys(plan.crafts).forEach(id => { const rr = ix.craftOf[id]; steps.push(`Craft <b>${int(plan.crafts[id])} × ${esc(rr ? rr.name : ix.names[id])}</b>${rr && rr.yield > 1 ? ` (makes ${int(plan.crafts[id] * rr.yield)})` : ''}`); });
