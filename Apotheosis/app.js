@@ -1077,6 +1077,23 @@ function logInfoHtml() {
 }
 const parseColor = v => v == null ? '#666' : v >= 99 ? '#e268a8' : v >= 95 ? '#ff8000' : v >= 75 ? '#a335ee' : v >= 50 ? '#0070ff' : v >= 25 ? '#1eff00' : '#9d9d9d';
 const offPlayers = () => (OFF.players || []).filter(x => x.raid || (x.att || []).some(Boolean)).sort((a, b) => (b.raid - a.raid) || a.player.localeCompare(b.player));
+/* Characters seen on raid nights that are not on anyone's roster row: one click links them to a player */
+let unmMsg = '', unmAll = false;
+function unmatchedHtml() {
+  const all = OFF.unmatched || []; if (!all.length && !unmMsg) return '';
+  const list = unmAll ? all : all.filter(u => u.guild);
+  const ps = (STATE.roster || []).map(p => p.player).sort((a, b) => a.localeCompare(b));
+  const d = s => { const [y, m, dd] = s.split('-'); return `${Number(m)}/${Number(dd)}`; };
+  return `<div class="card"><div class="card-head"><h2>Who else was there?</h2><span class="hint">characters in the raid logs that are not on the roster &middot; link one to a player and their nights count for them</span></div>
+    ${unmMsg ? `<p class="hint" style="margin:0 0 8px">${esc(unmMsg)}</p>` : ''}
+    <p class="hint" style="margin:0 0 8px">${(n => n + ' guild member' + (n === 1 ? '' : 's'))(all.filter(u => u.guild).length)}${all.length > list.length ? ` &middot; <a href="#attendance" data-unmall="1">show ${all.length - list.length} non-guild characters too (pugs)</a>` : unmAll ? ` &middot; <a href="#attendance" data-unmall="1">guild members only</a>` : ''}</p>
+    ${list.length ? `<div class="table-wrap"><table class="logs-table unm-table"><thead><tr><th>Character</th><th>Raid nights</th><th>Whose is it?</th><th></th></tr></thead><tbody>${list.map(u => `<tr data-unm="${esc(u.name)}|${esc(u.realm)}">
+      <td><b>${esc(u.name)}</b> <span class="hint">${esc(u.realm)}${u.guild ? '' : ' &middot; not in the guild'}</span></td>
+      <td>${u.nights.length} <span class="hint">(${u.nights.map(d).join(', ')})</span></td>
+      <td><select class="unm-who"><option value="">Pick the player…</option>${ps.map(n => `<option>${esc(n)}</option>`).join('')}</select></td>
+      <td class="unm-act"><button type="button" class="toggle-btn" data-unmadd="alt">Add as alt</button><button type="button" class="toggle-btn" data-unmadd="secondary">Add as secondary main</button></td></tr>`).join('')}</tbody></table></div>`
+      : '<p class="empty">Every guild member in the logs is on the roster.</p>'}</div>`;
+}
 function attendanceHtml() {
   if (!OFF) { $('att-body').innerHTML = offNeed(); return; }
   const nights = OFF.nights || [], ps = offPlayers();
@@ -1086,8 +1103,9 @@ function attendanceHtml() {
     ${nights.length ? `<p class="hint" style="margin:0 0 8px">${nights.length} raid nights &middot; raid team average <b>${avg.length ? Math.round(avg.reduce((a, x) => a + x.attPct, 0) / avg.length) : '-'}%</b></p>
     <div class="table-wrap"><table class="logs-table att-table"><thead><tr><th>Raider</th><th>%</th>${nights.map(n => `<th data-tip="${esc(n.zones.join(', '))}: ${n.pulls} pulls, ${n.kills} kills">${d(n.date)}</th>`).join('')}</tr></thead><tbody>${
       ps.map(x => `<tr${x.raid ? '' : ' class="bench"'}><td>${nameHtml(x.main)}${x.raid ? '' : ' <span class="hint">bench</span>'}</td><td><b style="color:${x.attPct >= 90 ? '#7ee787' : x.attPct >= 75 ? '#e3b341' : '#ff7b72'}">${x.attPct == null ? '-' : x.attPct + '%'}</b></td>${
-        x.att.map(a => `<td class="att ${a ? 'y' : 'n'}">${a ? '&#10003;' : '&middot;'}</td>`).join('')}</tr>`).join('')}</tbody></table></div>`
-      : '<p class="empty">No raid nights logged in the last 8 weeks yet.</p>'}${logInfoHtml()}</div>`;
+        x.att.map((a, i) => { const on = a && x.attOn && x.attOn[i]; return `<td class="att ${a ? 'y' : 'n'}${on ? ' on-alt' : ''}"${on ? ` data-tip="On ${esc(on)}"` : ''}>${a ? '&#10003;' : '&middot;'}${on ? `<span class="att-alt">${esc(on)}</span>` : ''}</td>`; }).join('')}</tr>`).join('')}</tbody></table></div>
+    <p class="hint" style="margin:6px 0 0">&#10003; on their main &middot; <span class="att-key">&#10003;</span> with a name under it = they came on a secondary main or alt</p>`
+      : '<p class="empty">No raid nights logged in the last 8 weeks yet.</p>'}${logInfoHtml()}</div>${unmatchedHtml()}`;
 }
 function performanceHtml() {
   if (!OFF) { $('perf-body').innerHTML = offNeed(); return; }
@@ -1212,6 +1230,16 @@ document.addEventListener('click', e => {
         rankMsg = got.join(',') === cur.join(',') ? '&#10003; Saved' : 'The sheet did not keep this: deploy the latest Apotheosis.gs (Deploy &rarr; Manage deployments &rarr; New version)';
         if (got.join(',') === cur.join(',')) rankOffLocal = null; render(); })
       .catch(err => { rankMsg = 'Not saved: ' + esc(err.message); render(); }), 900);
+    return;
+  }
+  if (e.target.closest('[data-unmall]')) { e.preventDefault(); unmAll = !unmAll; render(); return; }
+  const ua = e.target.closest('[data-unmadd]');
+  if (ua) {
+    const tr = ua.closest('[data-unm]'), [name, realm] = tr.dataset.unm.split('|'), player = tr.querySelector('.unm-who').value;
+    if (!player) { unmMsg = 'Pick whose character ' + name + ' is first.'; render(); return; }
+    tr.querySelectorAll('button').forEach(b => { b.disabled = true; }); unmMsg = 'Adding ' + name + '…'; 
+    officerPost({ action: 'rosterAdd', what: ua.dataset.unmadd, player, name, realm }).then(msg => { unmMsg = '✓ ' + msg; return Promise.all([load(), loadOfficer()]); })
+      .catch(err => { unmMsg = 'Not added: ' + err.message; render(); });
     return;
   }
   if (e.target.closest('[data-addopen]')) { addOpen = !addOpen; addMsg = ''; render(); return; }
