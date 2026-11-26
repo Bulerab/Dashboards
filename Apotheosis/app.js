@@ -161,7 +161,7 @@ function playerTile(p, key) {
     `<div class="target"><span class="boss">${esc(b)}</span><div class="need-grid one-line" style="grid-template-columns:72px minmax(0,1fr)">${by[b].map(n => `<span class="slot">${esc(slotName(n.slot))}</span><span>${esc(n.item)}</span>`).join('')}</div></div>`).join('');
   return `<div class="char pvpc lite${open ? ' open' : ''}" style="--accent:${accentFor(c.cls)};${classBg(c.cls)}">
     <div class="pvp-sum">
-      <div class="char-head"><div><div class="name-row">${classIcon(c.cls)}<span class="char-name">${esc(c.name)}</span>${profileLinks(c.name, c.realm)}</div>
+      <div class="char-head"><div><div class="name-row">${classIcon(c.cls)}<span class="char-name">${esc(c.name)}</span>${profileLinks(c.name, c.realm)}${p.status === 'Initiate' ? '<span class="pill init" data-tip="Initiate: officers approve their trial after 2 weeks of attendance">Initiate</span>' : ''}</div>
         <div class="char-meta meta-row">${esc([c.spec, c.cls].filter(Boolean).join(' '))}${p.player !== c.name ? ' &middot; ' + esc(p.player) : ''}<button type="button" class="toggle-btn" data-apotoggle="${esc(id)}">${open ? 'Collapse' : 'Expand'} <span class="chev">&#9662;</span></button></div></div>
         <div class="headline-row"><div class="headline"><div class="lbl">ilvl</div><div class="big">${f2(c.ilvl)}</div></div><div class="headline"><div class="lbl">M+</div><div class="big">${f1(c.score)}</div></div>${tierHead(c)}</div></div>
       ${bis}
@@ -909,7 +909,7 @@ const CLASS_SPECS = { 'Death Knight': ['Blood', 'Frost', 'Unholy'], 'Demon Hunte
   Warlock: ['Affliction', 'Demonology', 'Destruction'], Warrior: ['Arms', 'Fury', 'Protection'] };
 const ALL_SPECS = ['Blood', 'Frost', 'Unholy', 'Havoc', 'Vengeance', 'Devourer', 'Balance', 'Feral', 'Guardian', 'Restoration', 'Devastation', 'Preservation', 'Augmentation', 'Beast Mastery', 'Marksmanship', 'Survival',
   'Arcane', 'Fire', 'Brewmaster', 'Mistweaver', 'Windwalker', 'Holy', 'Protection', 'Retribution', 'Discipline', 'Shadow', 'Assassination', 'Outlaw', 'Subtlety', 'Elemental', 'Enhancement', 'Affliction', 'Demonology', 'Destruction', 'Arms', 'Fury'];
-let reqMsg = { secondary: '', alt: '', main: '' };
+let reqMsg = { secondary: '', alt: '', main: '', initiate: '' };
 function realmOptions() {
   const list = (STATE.realms && STATE.realms.length ? STATE.realms : []).slice();
   const g = (STATE.guild && STATE.guild.realm) || 'eldrethalas';
@@ -922,8 +922,8 @@ function requestsHtml() {
   $('req-hint').textContent = pend ? pend + ' waiting for an officer' : '';
   const form = (type, title, help) => `<div class="card"><div class="card-head"><h2>${title}</h2></div><p class="hint" style="margin:0 0 10px">${help}</p>
     <form class="req-form" data-reqform="${type}">
-      <label>${type === 'main' ? 'Your current main' : 'Your main'}<select name="player" required><option value="">Pick your main…</option>${players.map(n => `<option>${esc(n)}</option>`).join('')}</select></label>
-      <label>${type === 'alt' ? 'Alt' : type === 'main' ? 'New main' : 'Secondary main'} name<input name="name" required maxlength="12" placeholder="Character name"></label>
+      ${type === 'initiate' ? '' : `<label>${type === 'main' ? 'Your current main' : 'Your main'}<select name="player" required><option value="">Pick your main…</option>${players.map(n => `<option>${esc(n)}</option>`).join('')}</select></label>`}
+      <label>${type === 'alt' ? 'Alt' : type === 'main' ? 'New main' : type === 'initiate' ? 'Character' : 'Secondary main'} name<input name="name" required maxlength="12" placeholder="Character name"></label>
       <label>Server<select name="realm">${realmOptions()}</select></label>
       <label>Class<select name="cls" data-reqcls="${type}" required><option value="">Pick a class…</option>${Object.keys(CLASS_SPECS).map(c => `<option>${c}</option>`).join('')}</select></label>
       <label>Spec${type === 'alt' ? '' : ' <span class="hint">(raid spec)</span>'}<select name="spec" required disabled><option value="">Pick the class first</option></select></label>
@@ -933,7 +933,8 @@ function requestsHtml() {
   $('req-forms').innerHTML = `<datalist id="spec-list">${ALL_SPECS.map(x => `<option value="${x}">`).join('')}</datalist>` +
     form('secondary', 'Request a secondary main', 'A character you would bring to raid. Once approved it shows on the roster as your offspec, like Clamshell and Jacii.') +
     form('alt', 'Request an alt', 'A character that is not for raid: tracked for Great Vault and activity.') +
-    form('main', 'Request a new main', 'Swapping mains? Once approved this character replaces your current main on the roster (your secondary mains and alts stay).');
+    form('main', 'Request a new main', 'Swapping mains? Once approved this character replaces your current main on the roster (your secondary mains and alts stay).') +
+    form('initiate', 'Join the raid (initiate)', 'New to the team? Once an officer approves, you are on the roster as an <b>Initiate</b>. After you have raided in 2 different weeks, officers review your trial and move you to Raider.');
 }
 const okBad = (ok, txt) => `<span class="pill ${ok ? 'ok' : 'bad'}">${txt}</span>`;
 function rundownHtml(rd) {
@@ -953,8 +954,8 @@ let apprMsg = '';
 function approvalsHtml() {
   if (!OFF) { $('appr-body').innerHTML = offNeed(); return; }
   const reqs = OFF.requests || [], pend = reqs.filter(r => r.status === 'Pending'), done = reqs.filter(r => r.status !== 'Pending');
-  const card = r => `<div class="card req-card"><div class="card-head"><h2>${r.type === 'alt' ? 'Alt' : r.type === 'main' ? 'New main' : 'Secondary main'}: <span style="color:${classHex(r.rundown && r.rundown.cls)}">${esc(r.name)}</span> <span class="hint" style="font-size:13px">${esc(r.realm)}</span></h2>
-      <span class="hint">for <b>${esc(r.player)}</b> &middot; sent ${esc(r.submitted)}</span></div>
+  const card = r => `<div class="card req-card"><div class="card-head"><h2>${r.type === 'alt' ? 'Alt' : r.type === 'main' ? 'New main' : r.type === 'initiate' ? 'Initiate' : 'Secondary main'}: <span style="color:${classHex(r.rundown && r.rundown.cls)}">${esc(r.name)}</span> <span class="hint" style="font-size:13px">${esc(r.realm)}</span></h2>
+      <span class="hint">${r.type === 'initiate' ? `wants to join the raid${r.spec ? ' as ' + esc(r.spec.replace('|', ' ')) : ''}` : `for <b>${esc(r.player)}</b>`} &middot; sent ${esc(r.submitted)}</span></div>
     ${r.note ? `<p style="margin:0 0 8px">&ldquo;${esc(r.note)}&rdquo;</p>` : ''}${rundownHtml(r.rundown)}
     ${r.type === 'main' ? `<p class="hint" style="margin:8px 0 0">Approving replaces <b>${esc((((STATE.roster || []).find(p => p.player === r.player) || {}).main || {}).name || '?')}</b> as ${esc(r.player)}'s main.</p>` : ''}
     <div class="req-actions">${r.type !== 'secondary' ? '' : `<label class="hint">Raid spec <input data-reqspec="${esc(r.id)}" list="spec-list" value="${esc(r.spec || (r.rundown && r.rundown.spec) || '')}"></label>`}
@@ -964,9 +965,39 @@ function approvalsHtml() {
     <div class="card"><div class="card-head"><h2>Requests waiting</h2><span class="hint">${pend.length} pending &middot; approving adds the character to the Roster tab of the sheet</span></div>
       ${apprMsg ? `<p class="hint" style="margin:0">${esc(apprMsg)}</p>` : ''}${pend.length ? '' : '<p class="empty">Nothing waiting.</p>'}</div>
     <div class="req-grid">${pend.map(card).join('')}</div>
+    ${initiatesHtml()}
+    ${ranksHtml()}
     ${seasonTools()}
     ${done.length ? `<div class="card"><div class="card-head"><h2>Decided</h2><span class="hint">last 30</span></div><table class="logs-table"><tbody>${done.map(r =>
-      `<tr><td>${esc(r.name)} <span class="hint">${esc(r.realm)}</span></td><td class="hint">${r.type === 'alt' ? 'Alt' : r.type === 'main' ? 'New main' : 'Secondary main'} for ${esc(r.player)}</td><td>${r.status === 'Approved' ? '<span class="pill ok">Approved</span>' : '<span class="pill bad">Denied</span>'}</td><td class="hint">${esc(r.decided)}</td></tr>`).join('')}</tbody></table></div>` : ''}`;
+      `<tr><td>${esc(r.name)} <span class="hint">${esc(r.realm)}</span></td><td class="hint">${r.type === 'initiate' ? 'Initiate' : (r.type === 'alt' ? 'Alt' : r.type === 'main' ? 'New main' : 'Secondary main') + ' for ' + esc(r.player)}</td><td>${r.status === 'Approved' ? '<span class="pill ok">Approved</span>' : '<span class="pill bad">Denied</span>'}</td><td class="hint">${esc(r.decided)}</td></tr>`).join('')}</tbody></table></div>` : ''}`;
+}
+
+/* Initiates: after raiding in 2 different reset weeks they are flagged for an officer to approve the trial (-> Raider) */
+function initiatesHtml() {
+  const list = (OFF.players || []).filter(x => x.status === 'Initiate');
+  if (!list.length) return '';
+  return `<div class="card"><div class="card-head"><h2>Initiates</h2><span class="hint">flagged once they have raided in 2 different weeks since joining</span></div>
+    ${list.sort((a, b) => (b.initWeeks || 0) - (a.initWeeks || 0)).map(x => { const ready = (x.initWeeks || 0) >= 2;
+      return `<div class="tool-row"><div>${nameHtml(x.main)} <span class="hint">joined ${x.since ? new Date(x.since).toLocaleDateString([], { month: 'short', day: 'numeric' }) : '?'} &middot; raided ${x.initWeeks || 0} of 2 weeks${x.attPct != null ? ' &middot; attendance ' + x.attPct + '%' : ''}</span>
+        ${ready ? '<span class="pill ok">Ready for trial review</span>' : ''}</div>
+        <button type="button" class="toggle-btn${ready ? ' ok' : ''}" data-promote="${esc(x.player)}">Approve trial &rarr; Raider</button></div>`; }).join('')}</div>`;
+}
+/* Guild ranks: in-game rank vs the sheet, raid characters only. Rank numbers come from Blizzard (0 = Guild Master); officers say which number is which. */
+let ranksAll = false;
+function ranksHtml() {
+  const R = OFF.ranks; if (!R) return '';
+  const leg = R.legend || [], m = R.map || {};
+  const sel = (k, label) => `<label class="rank-pick">${label}<select data-rankset="${k}"><option value="">not set</option>${leg.map(l => `<option value="${l.rank}"${m[k] === l.rank ? ' selected' : ''}>Rank ${l.rank} (${l.n}: ${esc(l.sample.join(', '))})</option>`).join('')}</select></label>`;
+  const set = m.raider != null && m.secondary != null && m.initiate != null;
+  const bad = (R.rows || []).filter(r => r.ok === false), shown = ranksAll ? R.rows : bad;
+  const action = r => r.current == null ? 'Invite to the guild' : r.kind === 'Raider' ? `Promote to rank ${r.want} or higher` : `Set to rank ${r.want}`;
+  return `<div class="card"><div class="card-head"><h2>Guild ranks</h2><span class="hint">raid characters only &middot; in-game ranks from Blizzard${R.fetched ? ', ' + new Date(R.fetched).toLocaleString([], { month: 'short', day: 'numeric', hour: 'numeric', minute: '2-digit' }) : ''}</span></div>
+    <div class="rank-set">${sel('raider', 'Raider rank')}${sel('secondary', 'Secondary main rank')}${sel('initiate', 'Initiate rank')}${sel('officer', 'Officer ranks (never flagged): this and higher')}</div>
+    ${!leg.length ? '<p class="empty">No guild ranks yet: they load with the next refresh.</p>' : !set ? '<p class="empty">Pick which rank number is Raider, Secondary main and Initiate above (Blizzard only gives numbers; the examples show who holds each).</p>' :
+      `<p class="hint" style="margin:6px 0">${bad.length ? `<b style="color:#ff7b72">${bad.length}</b> to fix in game` : '<b style="color:#7ee787">All raid characters have the right rank</b>'} &middot; <a href="#approvals" data-ranksall="1">${ranksAll ? 'show only the ones to fix' : 'show everyone'}</a></p>
+      ${shown.length ? `<table class="logs-table"><thead><tr><th>Character</th><th>On the sheet</th><th>In-game rank</th><th>Should be</th><th>Do this</th></tr></thead><tbody>${shown.map(r => `<tr>
+        <td>${nameHtml(r)}${r.name !== r.player ? ` <span class="hint">(${esc(r.player)})</span>` : ''}</td><td>${esc(r.kind)}</td><td>${r.current == null ? '<span class="pill bad">not in guild</span>' : 'Rank ' + r.current}</td>
+        <td class="hint">${r.want == null ? '-' : r.kind === 'Raider' ? 'Rank ' + r.want + ' or higher' : 'Rank ' + r.want}</td><td>${r.ok ? '<span class="pill ok">OK</span>' : `<b style="color:#e3b341">${action(r)}</b>`}</td></tr>`).join('')}</tbody></table>` : ''}`}</div>`;
 }
 
 /* Season tools: show / hide alts, clear all alts, clear all secondary mains (pick each player's main first) */
@@ -1015,24 +1046,27 @@ function performanceHtml() {
   if (!OFF) { $('perf-body').innerHTML = offNeed(); return; }
   const weeks = OFF.weeks || [], ps = offPlayers().filter(x => x.kills || x.pulls);
   const wk = ms => new Date(ms).toLocaleDateString([], { month: 'numeric', day: 'numeric' });
-  const trend = x => { const v = x.weekly.filter(y => y != null); if (v.length < 2) return '<span class="hint">-</span>';
-    const last = v.slice(-2).reduce((a, y) => a + y, 0) / Math.min(2, v.length), before = v.slice(0, -2); if (!before.length) return '<span class="hint">-</span>';
-    const diff = Math.round(last - before.reduce((a, y) => a + y, 0) / before.length);
-    return `<b style="color:${diff > 2 ? '#7ee787' : diff < -2 ? '#ff7b72' : '#aaa'}">${diff > 0 ? '&#9650; +' : diff < 0 ? '&#9660; ' : ''}${diff}</b>`; };
+  // One row per role a raider played (healing nights and dps nights are never mixed), so an off-role night isn't a "drop"
+  const rows = []; ps.forEach(x => { const roles = x.roles && x.roles.length ? x.roles : [{ role: '', kills: x.kills, avg: x.avg, weekly: x.weekly, byBoss: x.byBoss }];
+    roles.forEach((r, i) => rows.push({ x, r, first: i === 0, multi: roles.length > 1 })); if (!x.kills) rows.push({ x, r: { role: '', kills: 0, avg: null, weekly: weeks.map(() => null), byBoss: [] }, first: true }); });
+  const delta = r => { const v = (r.weekly || []).filter(y => y != null); if (v.length < 3) return null;
+    return Math.round(v.slice(-2).reduce((a, y) => a + y, 0) / 2 - v.slice(0, -2).reduce((a, y) => a + y, 0) / (v.length - 2)); };
+  const trend = r => { const d = delta(r); return d == null ? '<span class="hint">-</span>' : `<b style="color:${d > 2 ? '#7ee787' : d < -2 ? '#ff7b72' : '#aaa'}">${d > 0 ? '&#9650; +' : d < 0 ? '&#9660; ' : ''}${d}</b>`; };
   const fd = x => x.pulls ? Math.round(x.firsts / x.pulls * 100) : 0;
   const leaders = ps.filter(x => x.firsts).sort((a, b) => fd(b) - fd(a) || b.firsts - a.firsts).slice(0, 5);
+  const tr = rows.filter(o => o.r.kills).map(o => ({ o, d: delta(o.r) })).filter(t => t.d != null).sort((a, b) => b.d - a.d);
+  const roleTag = r => r.role ? `${roleIcon(r.role)} <span class="hint">${r.role}</span>` : '';
   $('perf-body').innerHTML = `<div class="sum-grid">
     <div class="card"><div class="card-head"><h2>Dies first most</h2><span class="hint">share of pulls where they were the first death</span></div>
       ${leaders.length ? leaders.map((x, i) => `<div class="sum-row"><span class="rk">${i + 1}</span>${nameHtml(x.main)}<span class="r"><b>${fd(x)}%</b> <span class="hint">${x.firsts} of ${x.pulls} pulls</span></span></div>`).join('') : '<p class="empty">No deaths logged yet.</p>'}</div>
-    <div class="card"><div class="card-head"><h2>Trending</h2><span class="hint">parse % last 2 weeks vs the weeks before</span></div>
-      ${(() => { const t = ps.map(x => { const v = x.weekly.filter(y => y != null); if (v.length < 3) return null; const last = v.slice(-2).reduce((a, y) => a + y, 0) / 2, before = v.slice(0, -2).reduce((a, y) => a + y, 0) / (v.length - 2); return { x, d: Math.round(last - before) }; }).filter(Boolean).sort((a, b) => b.d - a.d);
-        return t.length ? [t.slice(0, 3), t.slice(-3).reverse()].map((list, j) => list.filter(o => j ? o.d < 0 : o.d > 0).map(o => `<div class="sum-row">${nameHtml(o.x.main)}<span class="r"><b style="color:${o.d > 0 ? '#7ee787' : '#ff7b72'}">${o.d > 0 ? '&#9650; +' : '&#9660; '}${o.d}</b></span></div>`).join('')).join('') : '<p class="empty">Needs 3+ weeks of logs.</p>'; })()}</div></div>
-    <div class="card"><div class="card-head"><h2>Performance &amp; trends</h2><span class="hint">parse % on ${OFF.difficulty} kills per reset week (overall %), from the guild's Warcraft Logs reports &middot; 8 weeks</span></div>
-    ${ps.length ? `<div class="table-wrap"><table class="logs-table perf-table"><thead><tr><th>Raider</th><th>Avg</th><th data-tip="Last 2 weeks compared with the weeks before">Trend</th>${weeks.map(w => `<th>${wk(w)}</th>`).join('')}<th>Kills</th><th data-tip="Pulls where they died first / pulls they were in">First deaths</th><th>Best / worst boss</th></tr></thead><tbody>${
-      ps.map(x => { const bb = x.byBoss.slice().sort((a, b) => b.avg - a.avg); const best = bb[0], worst = bb[bb.length - 1];
-        return `<tr><td>${nameHtml(x.main)}</td><td><b style="color:${parseColor(x.avg)}">${x.avg == null ? '-' : x.avg}</b></td><td>${trend(x)}</td>${
-          x.weekly.map(v => `<td><span style="color:${parseColor(v)}">${v == null ? '<span class="hint">-</span>' : v}</span></td>`).join('')}<td>${x.kills}</td>
-          <td data-tip="${esc(Object.keys(x.firstBy).map(b => b + ': ' + x.firstBy[b]).join('<br>') || 'none')}">${x.firsts} <span class="hint">/ ${x.pulls} (${fd(x)}%)</span></td>
+    <div class="card"><div class="card-head"><h2>Trending</h2><span class="hint">parse % last 2 weeks vs the weeks before, same role only</span></div>
+      ${tr.length ? [tr.slice(0, 3).filter(t => t.d > 0), tr.slice(-3).reverse().filter(t => t.d < 0)].map(list => list.map(t => `<div class="sum-row">${nameHtml(t.o.x.main)} ${t.o.multi ? roleTag(t.o.r) : ''}<span class="r"><b style="color:${t.d > 0 ? '#7ee787' : '#ff7b72'}">${t.d > 0 ? '&#9650; +' : '&#9660; '}${t.d}</b></span></div>`).join('')).join('') || '<p class="empty">Nobody is trending up or down.</p>' : '<p class="empty">Needs 3+ weeks of logs.</p>'}</div></div>
+    <div class="card"><div class="card-head"><h2>Performance &amp; trends</h2><span class="hint">parse % on ${OFF.difficulty} kills per reset week (overall %), by the role they played &middot; 8 weeks</span></div>
+    ${ps.length ? `<div class="table-wrap"><table class="logs-table perf-table"><thead><tr><th>Raider</th><th>Role</th><th>Avg</th><th data-tip="Last 2 weeks compared with the weeks before, in this role only">Trend</th>${weeks.map(w => `<th>${wk(w)}</th>`).join('')}<th>Kills</th><th data-tip="Pulls where they died first / pulls they were in">First deaths</th><th>Best / worst boss</th></tr></thead><tbody>${
+      rows.map(({ x, r, first }) => { const bb = (r.byBoss || []).slice().sort((a, b) => b.avg - a.avg); const best = bb[0], worst = bb[bb.length - 1];
+        return `<tr${first ? '' : ' class="role-row"'}><td>${first ? nameHtml(x.main) : ''}</td><td>${roleTag(r)}</td><td><b style="color:${parseColor(r.avg)}">${r.avg == null ? '-' : r.avg}</b></td><td>${trend(r)}</td>${
+          (r.weekly || []).map(v => `<td><span style="color:${parseColor(v)}">${v == null ? '<span class="hint">-</span>' : v}</span></td>`).join('')}<td>${r.kills}</td>
+          <td${first ? ` data-tip="${esc(Object.keys(x.firstBy).map(b => b + ': ' + x.firstBy[b]).join('<br>') || 'none')}"` : ''}>${first ? `${x.firsts} <span class="hint">/ ${x.pulls} (${fd(x)}%)</span>` : ''}</td>
           <td class="hint">${best ? `<span style="color:${parseColor(best.avg)}">${esc(best.boss)} ${best.avg}</span>${worst && worst !== best ? ` &middot; <span style="color:${parseColor(worst.avg)}">${esc(worst.boss)} ${worst.avg}</span>` : ''}` : '-'}</td></tr>`; }).join('')}</tbody></table></div>`
       : '<p class="empty">No raid logs read yet.</p>'}${logInfoHtml()}</div>`;
 }
@@ -1117,6 +1151,11 @@ document.addEventListener('click', e => {
       ? `Your browser blocked the pop-ups: allow pop-ups for this site (icon at the right of the address bar), then click again.` : `Opened ${list.length} tabs.`;
     return;
   }
+  const pr = e.target.closest('[data-promote]');
+  if (pr) { if (!confirm('Move ' + pr.dataset.promote + ' from Initiate to Raider?')) return; pr.disabled = true; toolMsg = 'Saving…';
+    officerPost({ action: 'setStatus', player: pr.dataset.promote, status: 'Raider' }).then(msg => { toolMsg = msg; apprMsg = msg; return Promise.all([load(), loadOfficer()]); }).catch(err => { apprMsg = 'Not saved: ' + err.message; render(); }); return; }
+  const ra = e.target.closest('[data-ranksall]');
+  if (ra) { e.preventDefault(); ranksAll = !ranksAll; render(); return; }
   const tl = e.target.closest('[data-tool]');
   if (tl) {
     const [what, val] = tl.dataset.tool.split('|');
@@ -1192,6 +1231,12 @@ document.addEventListener('click', e => {
 
 // Healer wishlist form: picking a healer fills the "missing BiS" list; picking a BiS item fills in its boss
 document.addEventListener('change', e => {
+  if (e.target.dataset && e.target.dataset.rankset) {
+    const k = e.target.dataset.rankset, v = e.target.value;
+    if (OFF && OFF.ranks) OFF.ranks.map[k] = v === '' ? null : Number(v);
+    officerPost({ action: 'setOption', name: 'rank:' + k, value: v }).then(() => loadOfficer()).catch(err => { apprMsg = 'Not saved: ' + err.message; render(); });
+    return;
+  }
   if (e.target.dataset && e.target.dataset.reqcls) {
     const sel = e.target.closest('form').querySelector('select[name=spec]'), specs = CLASS_SPECS[e.target.value] || [];
     sel.innerHTML = specs.length ? '<option value="">Pick a spec…</option>' + specs.map(x => `<option>${x}</option>`).join('') : '<option value="">Pick the class first</option>';
@@ -1217,7 +1262,7 @@ document.addEventListener('submit', e => {
   if (rf) {
     e.preventDefault();
     const type = rf.dataset.reqform, f = new FormData(rf), btn = rf.querySelector('button');
-    const body = { action: 'request', type, player: f.get('player'), name: String(f.get('name') || '').trim(), realm: f.get('realm'), spec: String(f.get('spec') || '').trim(), cls: String(f.get('cls') || ''), note: String(f.get('note') || '').trim() };
+    const body = { action: 'request', type, player: type === 'initiate' ? '' : f.get('player'), name: String(f.get('name') || '').trim(), realm: f.get('realm'), spec: String(f.get('spec') || '').trim(), cls: String(f.get('cls') || ''), note: String(f.get('note') || '').trim() };
     btn.disabled = true; rf.querySelector('.req-msg').textContent = 'Sending…';
     fetch(WEBAPP_URL, { method: 'POST', body: JSON.stringify(body) }).then(r => r.json())
       .then(out => { reqMsg[type] = out.ok ? '✓ ' + out.message : 'Not sent: ' + out.error; if (out.ok) { rf.reset(); return load(); } render(); })

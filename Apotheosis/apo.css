@@ -278,3 +278,9 @@ p .tal-cell { font-weight: 700; }
 .req-form label .hint { display: inline; }
 .req-form button { justify-self: start; padding: 6px 16px; }
 .req-form label { display: block; } .req-form label input, .req-form label select { display: block; margin-top: 4px; }
+
+.pill.init { margin-left: 8px; color: #79c0ff; border-color: rgba(121,192,255,.5); font-size: 11px; }
+.perf-table tr.role-row td { border-top: 0; padding-top: 0; }
+.rank-set { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 8px 14px; margin-bottom: 6px; }
+.rank-pick { display: flex; flex-direction: column; gap: 4px; font-size: 12.5px; color: var(--muted-2, #aaa); }
+.rank-pick select { background: #1a1a1a; color: #eee; border: 1px solid #3a3a3a; border-radius: 6px; padding: 5px 8px; font: inherit; font-size: 12.5px; width: 100%; }
