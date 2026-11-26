@@ -886,6 +886,11 @@ function vaultHtml() {
   const ps = raidPlayers();
   const rows = ps.map(p => ({ p, a: playerActivity(p), c: p.main }));
   $('vault-hint').textContent = `${ps.length} raiders · ${rows.filter(r => r.a.raidOnly).length} only raiding`;
+  const slots = rows.map(r => vUnlocked(r.c)), full = slots.filter(n => n >= 9).length, ro = rows.filter(r => r.a.raidOnly), noKey = rows.filter(r => !r.a.keysWeek);
+  $('vault-strip').innerHTML = rows.length ? strip([{ k: 'Full vault', v: full + '<span class="of"> / ' + rows.length + '</span>', c: '#7ee787', sub: '9 of 9 slots this week' },
+    { k: 'Average slots', v: (slots.reduce((a, n) => a + n, 0) / slots.length).toFixed(1), sub: 'of 9' },
+    { k: 'No keys this week', v: noKey.length, c: noKey.length ? '#e3b341' : '#7ee787', tip: noKey.map(r => r.c.name).join('<br>') || 'Nobody' },
+    { k: 'Raid only', v: ro.length, c: ro.length ? '#e3b341' : '#7ee787', sub: 'no keys or delves lately', tip: ro.map(r => r.c.name).join('<br>') || 'Nobody' }]) : '';
   const spark = hist => `<span class="vh-spark">${hist.map(h => `<span class="vh-w" data-tip="Week of ${new Date(h.week).toLocaleDateString([], { month: 'short', day: 'numeric' })}: ${h.r} raid bosses, ${h.m} keys, ${h.w} delves">
     <i style="height:${Math.min(100, h.r / 8 * 100)}%;background:#a335ee"></i><i style="height:${Math.min(100, h.m / 8 * 100)}%;background:#3987e5"></i><i style="height:${Math.min(100, h.w / 8 * 100)}%;background:#3fb950"></i></span>`).join('')}</span>`;
   const sinceTxt = a => a.since && a.since !== Infinity ? new Date(a.since).toLocaleDateString([], { month: 'short', day: 'numeric' }) : '';
@@ -967,23 +972,30 @@ function approvalsHtml() {
     <div class="req-actions">${r.type !== 'secondary' ? '' : `<label class="hint">Raid spec <input data-reqspec="${esc(r.id)}" list="spec-list" value="${esc(r.spec || (r.rundown && r.rundown.spec) || '')}"></label>`}
       <button type="button" class="toggle-btn ok" data-reqdo="${esc(r.id)}|approve">Approve</button><button type="button" class="toggle-btn bad" data-reqdo="${esc(r.id)}|deny">Deny</button>
       <button type="button" class="toggle-btn" data-reqdo="${esc(r.id)}|recheck">Recheck gear</button></div></div>`;
+  const inits = (OFF.players || []).filter(x => x.status === 'Initiate'), ready = inits.filter(x => (x.initWeeks || 0) >= 2);
+  const rrows = (OFF.ranks && OFF.ranks.rows) || [], fixN = rrows.filter(r => r.ok === false && !r.demote).length, demN = rrows.filter(r => r.demote).length;
   $('appr-body').innerHTML = `<datalist id="spec-list">${ALL_SPECS.map(x => `<option value="${x}">`).join('')}</datalist>
-    <div class="card"><div class="card-head"><h2>Requests waiting</h2><span class="hint">${pend.length} pending &middot; approving adds the character to the Roster tab of the sheet</span></div>
-      ${apprMsg ? `<p class="hint" style="margin:0">${esc(apprMsg)}</p>` : ''}${pend.length ? '' : '<p class="empty">Nothing waiting.</p>'}</div>
-    <div class="req-grid">${pend.map(card).join('')}</div>
+    ${strip([{ k: 'Requests waiting', v: pend.length, c: pend.length ? '#e3b341' : '', jump: 'appr-reqs' },
+      { k: 'Initiates ready', v: ready.length + '<span class="of"> / ' + inits.length + '</span>', c: ready.length ? '#7ee787' : '', sub: inits.length ? 'raided 2 weeks' : 'no initiates', jump: 'appr-inits' },
+      { k: 'Rank fixes', v: fixN, c: fixN ? '#e3b341' : '#7ee787', sub: 'promote or invite', jump: 'appr-ranks' },
+      { k: 'To demote', v: demN, c: demN ? '#ff7b72' : '#7ee787', sub: 'not on the raid list', jump: 'appr-ranks' }])}
+    ${apprMsg ? `<p class="msg-line">${esc(apprMsg)}</p>` : ''}
+    <div class="card" id="appr-reqs"><div class="card-head"><h2>Requests waiting</h2><span class="hint">${pend.length} pending &middot; Approving adds the character to the Roster tab of the sheet</span></div>
+      ${pend.length ? `<div class="req-grid inner">${pend.map(card).join('')}</div>` : '<p class="empty">Nothing waiting.</p>'}</div>
     ${initiatesHtml()}
     ${ranksHtml()}
+    <div class="sub-title">Roster admin</div>
     ${manageHtml()}
     ${seasonTools()}
-    ${done.length ? `<div class="card"><div class="card-head"><h2>Decided</h2><span class="hint">last 30</span></div><table class="logs-table"><tbody>${done.map(r =>
-      `<tr><td>${esc(r.name)} <span class="hint">${esc(r.realm)}</span></td><td class="hint">${r.type === 'initiate' ? 'Initiate' : (r.type === 'alt' ? 'Alt' : r.type === 'main' ? 'New main' : 'Secondary main') + ' for ' + esc(r.player)}</td><td>${r.status === 'Approved' ? '<span class="pill ok">Approved</span>' : '<span class="pill bad">Denied</span>'}</td><td class="hint">${esc(r.decided)}</td></tr>`).join('')}</tbody></table></div>` : ''}`;
+    ${done.length ? fold('appr-done', 'Decided requests', 'last ' + done.length, `<table class="logs-table"><tbody>${done.map(r =>
+      `<tr><td>${esc(r.name)} <span class="hint">${esc(r.realm)}</span></td><td class="hint">${r.type === 'initiate' ? 'Initiate' : (r.type === 'alt' ? 'Alt' : r.type === 'main' ? 'New main' : 'Secondary main') + ' for ' + esc(r.player)}</td><td>${r.status === 'Approved' ? '<span class="pill ok">Approved</span>' : '<span class="pill bad">Denied</span>'}</td><td class="hint">${esc(r.decided)}</td></tr>`).join('')}</tbody></table>`) : ''}`;
 }
 
 /* Initiates: after raiding in 2 different reset weeks they are flagged for an officer to approve the trial (-> Raider) */
 function initiatesHtml() {
   const list = (OFF.players || []).filter(x => x.status === 'Initiate');
   if (!list.length) return '';
-  return `<div class="card"><div class="card-head"><h2>Initiates</h2><span class="hint">flagged once they have raided in 2 different weeks since joining</span></div>
+  return `<div class="card" id="appr-inits"><div class="card-head"><h2>Initiates</h2><span class="hint">flagged once they have raided in 2 different weeks since joining</span></div>
     ${list.sort((a, b) => (b.initWeeks || 0) - (a.initWeeks || 0)).map(x => { const ready = (x.initWeeks || 0) >= 2;
       return `<div class="tool-row"><div>${nameHtml(x.main)} <span class="hint">joined ${x.since ? new Date(x.since).toLocaleDateString([], { month: 'short', day: 'numeric' }) : '?'} &middot; raided ${x.initWeeks || 0} of 2 weeks${x.attPct != null ? ' &middot; attendance ' + x.attPct + '%' : ''}</span>
         ${ready ? '<span class="pill ok">Ready for trial review</span>' : ''}</div>
@@ -1007,7 +1019,7 @@ function ranksHtml() {
     <td>${r.current == null ? '<span class="pill bad">not in guild</span>' : esc(nameOf(r.current))}</td>
     <td class="hint">${r.demote ? 'below ' + esc(nameOf(r.want)) : r.want == null ? 'in the guild' : orHigher(r) ? esc(nameOf(r.want)) + ' or higher' : esc(nameOf(r.want))}</td>
     <td>${r.ok ? '<span class="pill ok">OK</span>' : `<b style="color:${r.demote ? '#ff7b72' : '#e3b341'}">${action(r)}</b>`}</td></tr>`;
-  return `<div class="card"><div class="card-head"><h2>Guild ranks</h2><span class="hint">raid characters only &middot; in-game ranks from Blizzard${R.fetched ? ', ' + new Date(R.fetched).toLocaleString([], { month: 'short', day: 'numeric', hour: 'numeric', minute: '2-digit' }) : ''}</span></div>
+  return `<div class="card" id="appr-ranks"><div class="card-head"><h2>Guild ranks</h2><span class="hint">raid characters only &middot; in-game ranks from Blizzard${R.fetched ? ', ' + new Date(R.fetched).toLocaleString([], { month: 'short', day: 'numeric', hour: 'numeric', minute: '2-digit' }) : ''}</span></div>
     <div class="rank-set">${sel('raider', 'Raider rank <span class="hint">(this or higher)</span>')}${sel('secondary', 'Secondary main rank <span class="hint">(optional)</span>')}${sel('initiate', 'Initiate rank <span class="hint">(optional)</span>')}</div>
     <div class="rank-off"><span class="rank-lbl">Officer ranks <span class="hint">(never flagged)</span></span>${leg.map(l => `<button type="button" class="rank-chip${offSet.indexOf(l.rank) >= 0 ? ' on' : ''}" data-rankchip="${l.rank}" data-tip="${esc(l.n + ' members, e.g. ' + l.sample.join(', '))}">${offSet.indexOf(l.rank) >= 0 ? '&#10003; ' : ''}${esc(rankName(l))}</button>`).join('')}${rankMsg ? `<span class="hint rank-msg">${rankMsg}</span>` : ''}</div>
     ${!leg.length ? '<p class="empty">No guild ranks yet: they load with the next refresh.</p>' : !set ? '<p class="empty">Pick the Raider rank above.</p>' :
@@ -1036,7 +1048,7 @@ function addFormHtml(ps) {
 function manageHtml() {
   const ps = (STATE.roster || []).slice().sort((a, b) => (b.raid - a.raid) || a.player.localeCompare(b.player));
   const chip = (p, c, what) => `<span class="m-chip">${nameHtml(c)}<button type="button" class="m-x" data-redit="${esc(p.player)}|${what}|${esc((c.name + '-' + c.realm).toLowerCase())}" data-tip="Remove ${esc(c.name)}">&times;</button></span>`;
-  return `<div class="card"><div class="card-head"><h2>Manage roster</h2><span class="hint">add or remove players, secondary mains and alts, or take players off the raid team &middot; everything removed is copied to the Roster archive tab first</span></div>
+  return `<div class="card"><div class="card-head"><h2>Manage roster</h2><span class="hint">add, remove or bench &middot; Anything removed is copied to the Roster archive tab first</span></div>
     <div class="manage-bar"><a href="#approvals" data-manage="1" class="hint">${manageOpen ? 'Hide the roster list' : 'Show the roster list (' + ps.length + ' players)'}</a>
       <button type="button" class="toggle-btn" data-addopen="1">${addOpen ? 'Cancel' : '+ Add to roster'}</button></div>
     ${addMsg ? `<p class="hint" style="margin:8px 0 0">${esc(addMsg)}</p>` : ''}${addOpen ? addFormHtml(ps) : ''}
@@ -1053,7 +1065,7 @@ function seasonTools() {
   const show = !!(STATE.guild && STATE.guild.showAlts);
   const withSec = (STATE.roster || []).filter(p => (p.alts || []).length);
   const altN = (STATE.roster || []).reduce((n, p) => n + (p.extras || []).length, 0), secN = withSec.reduce((n, p) => n + p.alts.length, 0);
-  return `<div class="card"><div class="card-head"><h2>Roster &amp; season tools</h2><span class="hint">everything cleared is copied to a "Roster archive" tab on the sheet first</span></div>
+  return fold('appr-season', 'Season tools', 'show or hide alts, new-season clears', `
     ${toolMsg ? `<p class="hint" style="margin:0 0 8px">${esc(toolMsg)}</p>` : ''}
     <div class="tool-row"><div><b>Alts on the Roster tab</b><span class="hint"> ${altN} alts &middot; ${show ? 'everyone can see them' : 'hidden from raiders (officers still see them)'}</span></div>
       <button type="button" class="toggle-btn" data-tool="showAlts|${show ? '0' : '1'}">${show ? 'Hide alts' : 'Show alts'}</button></div>
@@ -1063,7 +1075,7 @@ function seasonTools() {
       <button type="button" class="toggle-btn bad" data-tool="resetOpen"${secN ? '' : ' disabled'}>${resetOpen ? 'Cancel' : 'Clear secondary mains…'}</button></div>
     ${resetOpen ? `<div class="reset-box"><p class="hint" style="margin:0 0 8px">Each player keeps one main. Pick it, then confirm: secondary mains and their offspec notes are removed.</p>
       ${withSec.map(p => `<div class="reset-row"><b>${esc(p.player)}</b>${[p.main].concat(p.alts).map((t, i) => `<label class="reset-pick"><input type="radio" name="rm-${esc(p.player)}" value="${esc(t.name + '-' + t.realm)}"${i === 0 ? ' checked' : ''}>${nameHtml(t)}${i === 0 ? ' <span class="hint">(main now)</span>' : ''}</label>`).join('')}</div>`).join('')}
-      <button type="button" class="toggle-btn bad" data-tool="clearSecondaries" style="margin-top:10px">Clear all secondary mains</button></div>` : ''}</div>`;
+      <button type="button" class="toggle-btn bad" data-tool="clearSecondaries" style="margin-top:10px">Clear all secondary mains</button></div>` : ''}`);
 }
 
 /* ------------------------------------------------------------------ Attendance and Performance (officers) */
@@ -1084,7 +1096,7 @@ function unmatchedHtml() {
   const list = unmAll ? all : all.filter(u => u.guild);
   const ps = (STATE.roster || []).map(p => p.player).sort((a, b) => a.localeCompare(b));
   const d = s => { const [y, m, dd] = s.split('-'); return `${Number(m)}/${Number(dd)}`; };
-  return `<div class="card"><div class="card-head"><h2>Who else was there?</h2><span class="hint">characters in the raid logs that are not on the roster &middot; link one to a player and their nights count for them</span></div>
+  return `<div class="card" id="att-unm"><div class="card-head"><h2>Who else was there?</h2><span class="hint">not on the roster &middot; Characters in the raid logs that are not on anyone's roster row &middot; Link one to a player and their nights count for them</span></div>
     ${unmMsg ? `<p class="hint" style="margin:0 0 8px">${esc(unmMsg)}</p>` : ''}
     <p class="hint" style="margin:0 0 8px">${(n => n + ' guild member' + (n === 1 ? '' : 's'))(all.filter(u => u.guild).length)}${all.length > list.length ? ` &middot; <a href="#attendance" data-unmall="1">show ${all.length - list.length} non-guild characters too (pugs)</a>` : unmAll ? ` &middot; <a href="#attendance" data-unmall="1">guild members only</a>` : ''}</p>
     ${list.length ? `<div class="table-wrap"><table class="logs-table unm-table"><thead><tr><th>Character</th><th>Raid nights</th><th>Whose is it?</th><th></th></tr></thead><tbody>${list.map(u => `<tr data-unm="${esc(u.name)}|${esc(u.realm)}">
@@ -1099,8 +1111,15 @@ function attendanceHtml() {
   const nights = OFF.nights || [], ps = offPlayers();
   const avg = ps.filter(x => x.raid && x.attPct != null);
   const d = s => { const [y, m, dd] = s.split('-'); return `${Number(m)}/${Number(dd)}`; };
-  $('att-body').innerHTML = `<div class="card"><div class="card-head"><h2>Attendance</h2><span class="hint">rolling 8 weeks &middot; ${OFF.difficulty} raid nights from the guild's Warcraft Logs &middot; any of a player's characters counts</span></div>
-    ${nights.length ? `<p class="hint" style="margin:0 0 8px">${nights.length} raid nights &middot; raid team average <b>${avg.length ? Math.round(avg.reduce((a, x) => a + x.attPct, 0) / avg.length) : '-'}%</b></p>
+  const teamAvg = avg.length ? Math.round(avg.reduce((a, x) => a + x.attPct, 0) / avg.length) : null, low = avg.filter(x => x.attPct < 75);
+  const altN = ps.reduce((n, x) => n + (x.attOn || []).filter(Boolean).length, 0), unm = (OFF.unmatched || []).filter(u => u.guild).length;
+  $('att-body').innerHTML = (nights.length ? strip([{ k: 'Raid nights', v: nights.length, sub: 'last 8 weeks' },
+      { k: 'Team average', v: teamAvg == null ? '-' : teamAvg + '%', c: teamAvg >= 90 ? '#7ee787' : teamAvg >= 75 ? '#e3b341' : '#ff7b72' },
+      { k: 'Below 75%', v: low.length, c: low.length ? '#ff7b72' : '#7ee787', tip: low.map(x => x.main.name + ' ' + x.attPct + '%').join('<br>') || 'Nobody' },
+      { k: 'Nights on an alt', v: altN, sub: 'still counted' },
+      { k: 'Unlisted characters', v: unm, c: unm ? '#e3b341' : '#7ee787', sub: unm ? 'link them below' : 'all matched', jump: 'att-unm' }]) : '') +
+    `<div class="card"><div class="card-head"><h2>Attendance</h2><span class="hint">rolling 8 weeks &middot; ${OFF.difficulty} raid nights from the guild's Warcraft Logs &middot; Any of a player's characters counts</span></div>
+    ${nights.length ? `
     <div class="table-wrap"><table class="logs-table att-table"><thead><tr><th>Raider</th><th>%</th>${nights.map(n => `<th data-tip="${esc(n.zones.join(', '))}: ${n.pulls} pulls, ${n.kills} kills">${d(n.date)}</th>`).join('')}</tr></thead><tbody>${
       ps.map(x => `<tr${x.raid ? '' : ' class="bench"'}><td>${nameHtml(x.main)}${x.raid ? '' : ' <span class="hint">bench</span>'}</td><td><b style="color:${x.attPct >= 90 ? '#7ee787' : x.attPct >= 75 ? '#e3b341' : '#ff7b72'}">${x.attPct == null ? '-' : x.attPct + '%'}</b></td>${
         x.att.map((a, i) => { const on = a && x.attOn && x.attOn[i]; return `<td class="att ${a ? 'y' : 'n'}${on ? ' on-alt' : ''}"${on ? ` data-tip="On ${esc(on)}"` : ''}>${a ? '&#10003;' : '&middot;'}${on ? `<span class="att-alt">${esc(on)}</span>` : ''}</td>`; }).join('')}</tr>`).join('')}</tbody></table></div>
@@ -1123,12 +1142,18 @@ function performanceHtml() {
   const leaders = ps.filter(x => x.firsts).sort((a, b) => fd(b) - fd(a) || b.firsts - a.firsts).slice(0, 5);
   const tr = rows.filter(o => o.r.kills).map(o => ({ o, d: delta(o.r) })).filter(t => t.d != null).sort((a, b) => b.d - a.d);
   const roleTag = r => r.role ? `${roleIcon(r.role)} <span class="hint">${r.role}</span>` : '';
-  $('perf-body').innerHTML = `<div class="sum-grid">
+  const firstRows = rows.filter(o => o.first && o.r.avg != null), teamParse = firstRows.length ? Math.round(firstRows.reduce((a, o) => a + o.r.avg, 0) / firstRows.length) : null;
+  const up = tr.filter(t => t.d > 2), down = tr.filter(t => t.d < -2), kills = ps.reduce((n, x) => n + (x.kills || 0), 0);
+  $('perf-body').innerHTML = (ps.length ? strip([{ k: 'Team avg parse', v: teamParse == null ? '-' : teamParse, c: parseColor(teamParse), sub: OFF.difficulty + ' kills' },
+      { k: 'Parses logged', v: kills, sub: weeks.length + ' weeks' },
+      { k: 'Trending up', v: up.length, c: up.length ? '#7ee787' : '', tip: up.map(t => t.o.x.main.name + ' +' + t.d).join('<br>') || 'Nobody' },
+      { k: 'Trending down', v: down.length, c: down.length ? '#ff7b72' : '', tip: down.map(t => t.o.x.main.name + ' ' + t.d).join('<br>') || 'Nobody' },
+      (lowP => ({ k: 'Avg under 50', v: lowP.length, c: lowP.length ? '#e3b341' : '#7ee787', sub: 'worth a look', tip: lowP.map(o => o.x.main.name + (o.multi ? ' (' + o.r.role + ')' : '') + ' ' + o.r.avg).join('<br>') || 'Nobody' }))(rows.filter(o => o.r.kills && o.r.avg != null && o.r.avg < 50))]) : '') + `<div class="sum-grid">
     <div class="card"><div class="card-head"><h2>Dies first most</h2><span class="hint">share of pulls where they were the first death</span></div>
       ${leaders.length ? leaders.map((x, i) => `<div class="sum-row"><span class="rk">${i + 1}</span>${nameHtml(x.main)}<span class="r"><b>${fd(x)}%</b> <span class="hint">${x.firsts} of ${x.pulls} pulls</span></span></div>`).join('') : '<p class="empty">No deaths logged yet.</p>'}</div>
     <div class="card"><div class="card-head"><h2>Trending</h2><span class="hint">parse % last 2 weeks vs the weeks before, same role only</span></div>
       ${tr.length ? [tr.slice(0, 3).filter(t => t.d > 0), tr.slice(-3).reverse().filter(t => t.d < 0)].map(list => list.map(t => `<div class="sum-row">${nameHtml(t.o.x.main)} ${t.o.multi ? roleTag(t.o.r) : ''}<span class="r"><b style="color:${t.d > 0 ? '#7ee787' : '#ff7b72'}">${t.d > 0 ? '&#9650; +' : '&#9660; '}${t.d}</b></span></div>`).join('')).join('') || '<p class="empty">Nobody is trending up or down.</p>' : '<p class="empty">Needs 3+ weeks of logs.</p>'}</div></div>
-    <div class="card"><div class="card-head"><h2>Performance &amp; trends</h2><span class="hint">parse % on ${OFF.difficulty} kills per reset week (overall %), by the role they played &middot; <span class="oh">+20%&#10010;</span> = off-healed that week (left out of the DPS trend) &middot; 8 weeks</span></div>
+    <div class="card"><div class="card-head"><h2>Performance &amp; trends</h2><span class="hint">8 weeks, by role &middot; Parse % on ${OFF.difficulty} kills per reset week (overall %), split by the role they played &middot; <span class="oh">+20%&#10010;</span> = off-healed that week, left out of the DPS trend</span></div>
     ${ps.length ? `<div class="table-wrap"><table class="logs-table perf-table"><thead><tr><th>Raider</th><th>Role</th><th>Avg</th><th data-tip="Last 2 weeks compared with the weeks before, in this role only">Trend</th>${weeks.map(w => `<th>${wk(w)}</th>`).join('')}<th>Kills</th><th data-tip="Pulls where they died first / pulls they were in">First deaths</th><th>Best / worst boss</th></tr></thead><tbody>${
       rows.map(({ x, r, first }) => { const bb = (r.byBoss || []).slice().sort((a, b) => b.avg - a.avg); const best = bb[0], worst = bb[bb.length - 1];
         return `<tr${first ? '' : ' class="role-row"'}><td${first ? '' : ' class="dimname"'}>${nameHtml(x.main)}</td><td>${roleTag(r)}</td><td><b style="color:${parseColor(r.avg)}">${r.avg == null ? '-' : r.avg}</b></td><td>${trend(r)}</td>${
@@ -1151,6 +1176,39 @@ function guildLinks() {
   ].filter(l => l[2]);
   $('guild-links').innerHTML = links.map(([d, l, u]) => `<a class="glink" href="${esc(u)}" target="_blank" rel="noopener">${fav(d, l[0])}<span>${l}</span></a>`).join('');
 }
+
+/* ---------- Tidy-up helpers ---------- */
+// Hover tips (data-tip) for the whole page
+document.addEventListener('mousemove', e => {
+  const tip = document.getElementById('tip'); if (!tip) return;
+  const t = e.target.closest && e.target.closest('[data-tip]');
+  if (!t) { tip.style.display = 'none'; return; }
+  tip.innerHTML = t.getAttribute('data-tip');
+  tip.style.display = 'block';
+  tip.style.left = Math.max(8, Math.min(e.clientX + 14, window.innerWidth - tip.offsetWidth - 8)) + 'px';
+  tip.style.top = (e.clientY + 18 + tip.offsetHeight > window.innerHeight ? e.clientY - tip.offsetHeight - 10 : e.clientY + 18) + 'px';
+});
+const info = t => `<span class="info" data-tip="${esc(t)}">i</span>`;
+// Row of number tiles at the top of a tab: [{k: label, v: value, c: color, sub: small text, tip, jump: card id}]
+const strip = items => `<div class="stat-strip">${items.filter(Boolean).map(x => `<div class="stat${x.jump ? ' jump' : ''}"${x.jump ? ` data-jump="${x.jump}"` : ''}${x.tip ? ` data-tip="${esc(x.tip)}"` : ''}>
+  <div class="k">${x.k}</div><div class="v"${x.c ? ` style="color:${x.c}"` : ''}>${x.v}</div>${x.sub ? `<div class="s">${x.sub}</div>` : ''}</div>`).join('')}</div>`;
+// Cards that start folded (state kept only while the page is open)
+const foldOpen = new Set();
+const fold = (id, title, hint, body) => `<div class="card fold${foldOpen.has(id) ? ' open' : ''}" id="${id}"><div class="card-head" data-fold="${id}"><h2><span class="fold-ar">&#9656;</span>${title}</h2><span class="hint">${hint || ''}</span></div>${foldOpen.has(id) ? body : ''}</div>`;
+// Card headers: keep the first short part of a long note, move the rest behind an (i)
+function tidyHeads() {
+  document.querySelectorAll('.card-head > span.hint:last-child').forEach(h => {
+    if (h.dataset.tidy === h.innerHTML) return;
+    const html = h.innerHTML, txt = h.textContent.trim();
+    if (txt.length <= 46) { h.dataset.tidy = html; return; }
+    const parts = html.split(/\s*(?:&middot;|·)\s*/), keep = [], move = [];
+    parts.forEach((x, i) => { const live = /<(a|button|select|input)\b/i.test(x); const plain = x.replace(/<[^>]+>/g, '');
+      if (live || (i === 0 && plain.length <= 46)) keep.push(x); else move.push(x); });
+    const out = keep.join(' &middot; ') + (move.length ? ' ' + `<span class="info" data-tip="${move.map(x => x.charAt(0).toUpperCase() + x.slice(1)).join('<br>').replace(/"/g, '&quot;')}">i</span>` : '');
+    h.innerHTML = out; h.dataset.tidy = out;
+  });
+}
+
 function render() {
   if (!STATE) return;
   guildLinks();
@@ -1194,9 +1252,14 @@ function render() {
   if (officerKey) { uploadHtml(); approvalsHtml(); attendanceHtml(); performanceHtml(); }
   guildHtml();
   mplusHtml();
+  tidyHeads();
 }
 
 document.addEventListener('click', e => {
+  const fh = e.target.closest('[data-fold]');
+  if (fh && !e.target.closest('a,button,select,input')) { const id = fh.dataset.fold; foldOpen.has(id) ? foldOpen.delete(id) : foldOpen.add(id); render(); return; }
+  const jp = e.target.closest('[data-jump]');
+  if (jp) { const el = document.getElementById(jp.dataset.jump); if (el) { if (el.classList.contains('fold') && !foldOpen.has(el.id)) { foldOpen.add(el.id); render(); } document.getElementById(jp.dataset.jump).scrollIntoView({ behavior: 'smooth', block: 'start' }); } return; }
   if (e.target.closest('[data-lock]')) {
     e.preventDefault();
     if (officerKey) { officerKey = ''; OFF = null; try { localStorage.removeItem('apoOfficerKey'); } catch (er) { /* */ } render(); return; }

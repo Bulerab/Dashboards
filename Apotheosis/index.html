@@ -7,7 +7,7 @@
 <link rel="preconnect" href="https://script.google.com">
 <link rel="preconnect" href="https://script.googleusercontent.com" crossorigin>
 <link rel="stylesheet" href="app.css?v=1">
-<link rel="stylesheet" href="apo.css?v=49">
+<link rel="stylesheet" href="apo.css?v=51">
 </head>
 <body>
 <div class="container">
@@ -46,9 +46,8 @@
   <section class="tab" id="tab-loot">
     <div class="lt-grid" id="loot-tiles"></div>
     <div class="card"><div class="card-head"><h2>Loot Targets</h2><span class="hint" id="loot-hint"></span></div>
-      <p class="hint" style="margin:0 0 10px">Everything the raid team wants, in one place: <span class="tag bis">BiS</span> missing from their BiS list,
-        <span class="tag sim">Sim</span> Raidbots Heroic drops upgrade, <span class="tag bonus">Bonus</span> Raidbots bonus roll &amp; vault upgrade, <span class="tag wish">Wish</span> manual entry.
-        <b class="strong-lbl">Gold</b> = worth chasing on our Heroic kills: a Heroic sim upgrade of 1% or more, or a manual entry.</p>
+      <div class="legend"><span><span class="tag bis">BiS</span> missing BiS</span><span><span class="tag sim">Sim</span> Heroic drops sim</span><span><span class="tag bonus">Bonus</span> bonus roll &amp; vault sim</span><span><span class="tag wish">Wish</span> manual entry</span>
+        <span><b class="strong-lbl">Gold</b> worth chasing <span class="info" data-tip="A Heroic sim upgrade of 1% or more, or a manual entry">i</span></span></div>
       <div class="filters" id="loot-view"></div></div>
     <div id="loot-body"></div>
   </section>
@@ -73,26 +72,25 @@
 
   <section class="tab" id="tab-talents">
     <div class="card"><div class="card-head"><h2>Talents Check</h2><span class="hint" id="tal-info"></span></div>
-      <p class="hint" style="margin:0 0 10px">Each raider's current talents (Raider.io) compared with what the top Warcraft Logs players of their spec took on each boss.
-        The % is how many of the <b>core</b> talents (taken by 70%+ of the top 15 US players) the raider has; situational picks like utility or defensives
-        that only some top players take never count against anyone. <b>Missing</b> = taken by 85%+ of them, <b>Rarely taken</b> = 10% or fewer. <br><b>To copy a top build:</b> click a boss button below (or a boss column in the table), then find your spec and click <b>Copy build</b> to get an in-game import string.</p>
+      <p class="lead">Your talents vs the top 15 US players of your spec, per boss. <b>To copy a top build:</b> pick a boss below, find your spec, click <b>Copy build</b>.
+        <span class="info" data-tip="Current talents come from Raider.io, top players from Warcraft Logs.<br>The % = how many <b>core</b> talents (taken by 70%+ of the top players) you have. Situational picks only some take never count against you.<br><b>Missing</b> = taken by 85%+ of them &middot; <b>Rarely taken</b> = 10% or fewer.">i</span></p>
       <div class="filters" id="tal-boss"></div></div>
     <div id="tal-body"></div>
   </section>
 
 
   <section class="tab" id="tab-vault">
+    <div id="vault-strip"></div>
     <div class="card"><div class="card-head"><h2>Great Vault</h2><span class="hint" id="vault-hint"></span></div>
-      <p class="hint" style="margin:0 0 8px">This week's vault for the raid team (same rules as in game: Raid = different bosses killed since the reset, Mythic+ = keys this week, World = delves),
-        plus season activity so you can see who plays outside of raid nights. Raid kills, keys and delves update with each refresh.</p>
+      <p class="lead">This week's vault for the raid team, plus season activity outside raid nights.
+        <span class="info" data-tip="Same rules as in game: Raid = different bosses killed since the reset, Mythic+ = keys this week, World = delves.<br>Updates with each refresh.">i</span></p>
       <div id="vault-summary"></div></div>
     <div id="vault-tiles"></div>
   </section>
 
   <section class="tab" id="tab-requests">
     <div class="card"><div class="card-head"><h2>Requests</h2><span class="hint" id="req-hint"></span></div>
-      <p class="hint" style="margin:0">Ask to add a <b>secondary main</b> (a character you'd raid on: shows as a raid offspec on the roster), an <b>alt</b> (tracked for Great Vault and activity), to swap to a <b>new main</b>, or to <b>join the raid</b> as an initiate.
-        An officer approves it, then it shows up on the roster.</p></div>
+      <p class="lead">Add a secondary main or alt, swap to a new main, or join the raid. An officer approves it, then it shows on the roster.</p></div>
     <div class="req-grid" id="req-forms"></div>
   </section>
 
@@ -118,6 +116,6 @@
 </div>
 <div class="tip" id="tip"></div>
 <script src="shared.js?v=2"></script>
-<script src="app.js?v=60"></script>
+<script src="app.js?v=62"></script>
 </body>
 </html>
