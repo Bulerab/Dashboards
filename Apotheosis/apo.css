@@ -321,3 +321,7 @@ p .tal-cell { font-weight: 700; }
 .req-form label > input, .req-form label > select { margin-top: 5px; }
 
 .rank-msg { margin-left: 6px; }
+
+.manage-bar { display: flex; align-items: center; justify-content: space-between; gap: 10px; }
+.add-form { margin-top: 12px; padding: 12px; background: #1a1a1a; border: 1px solid #333; border-radius: 10px; grid-template-columns: repeat(3, minmax(0, 1fr)); }
+.add-form button, .add-form .req-msg { grid-column: auto; align-self: end; }

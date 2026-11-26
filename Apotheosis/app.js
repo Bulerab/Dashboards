@@ -1019,11 +1019,27 @@ function ranksHtml() {
 
 /* Manage roster: take players off the raid team, remove players, secondary mains or alts (archived first) */
 let manageOpen = false;
+let addOpen = false, addType = 'player', addMsg = '';
+function addFormHtml(ps) {
+  const t = addType;
+  return `<form class="req-form add-form" id="add-form">
+    <label>Add<select name="what" data-addtype="1">${[['player', 'New player (main)'], ['secondary', 'Secondary main'], ['alt', 'Alt']].map(([v, l]) => `<option value="${v}"${v === t ? ' selected' : ''}>${l}</option>`).join('')}</select></label>
+    ${t === 'player' ? `<label>Starts as<select name="status"><option>Raider</option><option>Initiate</option></select></label>`
+      : `<label>For player<select name="player" required><option value="">Pick the player…</option>${ps.map(p => `<option>${esc(p.player)}</option>`).join('')}</select></label>`}
+    <label>Character name<input name="name" required maxlength="12" placeholder="Character name"></label>
+    <label>Server<select name="realm">${realmOptions()}</select></label>
+    <label>Class<select name="cls" data-reqcls="add" required><option value="">Pick a class…</option>${Object.keys(CLASS_SPECS).map(c => `<option>${c}</option>`).join('')}</select></label>
+    <label>Spec${t === 'alt' ? '' : ' <span class="hint">(raid spec)</span>'}<select name="spec" required disabled><option value="">Pick the class first</option></select></label>
+    <button type="submit" class="toggle-btn">${t === 'player' ? 'Add player' : t === 'alt' ? 'Add alt' : 'Add secondary main'}</button><span class="hint req-msg"></span>
+  </form>`;
+}
 function manageHtml() {
   const ps = (STATE.roster || []).slice().sort((a, b) => (b.raid - a.raid) || a.player.localeCompare(b.player));
   const chip = (p, c, what) => `<span class="m-chip">${nameHtml(c)}<button type="button" class="m-x" data-redit="${esc(p.player)}|${what}|${esc((c.name + '-' + c.realm).toLowerCase())}" data-tip="Remove ${esc(c.name)}">&times;</button></span>`;
-  return `<div class="card"><div class="card-head"><h2>Manage roster</h2><span class="hint">take players off the raid team or remove players, secondary mains and alts &middot; everything removed is copied to the Roster archive tab first</span></div>
-    <a href="#approvals" data-manage="1" class="hint">${manageOpen ? 'Hide the roster list' : 'Show the roster list (' + ps.length + ' players)'}</a>
+  return `<div class="card"><div class="card-head"><h2>Manage roster</h2><span class="hint">add or remove players, secondary mains and alts, or take players off the raid team &middot; everything removed is copied to the Roster archive tab first</span></div>
+    <div class="manage-bar"><a href="#approvals" data-manage="1" class="hint">${manageOpen ? 'Hide the roster list' : 'Show the roster list (' + ps.length + ' players)'}</a>
+      <button type="button" class="toggle-btn" data-addopen="1">${addOpen ? 'Cancel' : '+ Add to roster'}</button></div>
+    ${addMsg ? `<p class="hint" style="margin:8px 0 0">${esc(addMsg)}</p>` : ''}${addOpen ? addFormHtml(ps) : ''}
     ${manageOpen ? `<table class="logs-table manage-table"><thead><tr><th>Player</th><th>Raid team</th><th>Secondary mains</th><th>Alts</th><th></th></tr></thead><tbody>${ps.map(p => `<tr${p.raid ? '' : ' class="bench"'}>
       <td>${nameHtml(p.main)}${p.status === 'Initiate' ? ' <span class="pill init">Initiate</span>' : ''}</td>
       <td>${p.raid ? '<span class="pill ok">Raid team</span>' : '<span class="pill">Benched</span>'} <button type="button" class="toggle-btn" data-redit="${esc(p.player)}|${p.raid ? 'bench' : 'unbench'}|">${p.raid ? 'Bench' : 'Add back'}</button></td>
@@ -1198,6 +1214,7 @@ document.addEventListener('click', e => {
       .catch(err => { rankMsg = 'Not saved: ' + esc(err.message); render(); }), 900);
     return;
   }
+  if (e.target.closest('[data-addopen]')) { addOpen = !addOpen; addMsg = ''; render(); return; }
   const mg = e.target.closest('[data-manage]');
   if (mg) { e.preventDefault(); manageOpen = !manageOpen; render(); return; }
   const re2 = e.target.closest('[data-redit]');
@@ -1296,6 +1313,7 @@ document.addEventListener('change', e => {
     officerPost({ action: 'setOption', name: 'rank:' + k, value: v }).then(() => loadOfficer()).catch(err => { apprMsg = 'Not saved: ' + err.message; render(); });
     return;
   }
+  if (e.target.dataset && e.target.dataset.addtype) { addType = e.target.value; render(); return; }
   if (e.target.dataset && e.target.dataset.reqcls) {
     const sel = e.target.closest('form').querySelector('select[name=spec]'), specs = CLASS_SPECS[e.target.value] || [];
     sel.innerHTML = specs.length ? '<option value="">Pick a spec…</option>' + specs.map(x => `<option>${x}</option>`).join('') : '<option value="">Pick the class first</option>';
@@ -1326,6 +1344,15 @@ document.addEventListener('submit', e => {
     fetch(WEBAPP_URL, { method: 'POST', body: JSON.stringify(body) }).then(r => r.json())
       .then(out => { reqMsg[type] = out.ok ? '✓ ' + out.message : 'Not sent: ' + out.error; if (out.ok) { rf.reset(); return load(); } render(); })
       .catch(err => { reqMsg[type] = 'Not sent: ' + err.message; render(); });
+    return;
+  }
+  if (e.target.id === 'add-form') {
+    e.preventDefault();
+    const f = new FormData(e.target), btn = e.target.querySelector('button[type=submit]');
+    const body = { action: 'rosterAdd', what: addType, player: String(f.get('player') || ''), status: String(f.get('status') || 'Raider'), name: String(f.get('name') || '').trim(), realm: f.get('realm'), cls: String(f.get('cls') || ''), spec: String(f.get('spec') || '') };
+    btn.disabled = true; e.target.querySelector('.req-msg').textContent = 'Adding… (looks the character up on Raider.io)';
+    officerPost(body).then(msg => { addMsg = '✓ ' + msg; addOpen = false; return Promise.all([load(), loadOfficer()]); })
+      .catch(err => { const m = document.querySelector('#add-form .req-msg'); if (m) m.textContent = 'Not added: ' + err.message; btn.disabled = false; });
     return;
   }
   if (e.target.id === 'wish-form') {
