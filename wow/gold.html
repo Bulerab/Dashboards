@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>WoW Midnight – Gold Making</title>
+<link rel="preconnect" href="https://script.google.com">
+<link rel="preconnect" href="https://script.googleusercontent.com" crossorigin>
+<link rel="stylesheet" href="wow.css?v=9">
+<link rel="stylesheet" href="gold.css?v=1">
+</head>
+<body data-page="gold">
+<div class="container">
+  <div class="topbar">
+    <div>
+      <h1>&#129689; WoW Midnight: Gold Making</h1>
+      <p class="sub" id="sub">Inscription glyphs and marks, priced from the Auction House every 2 hours</p>
+      <p class="generated"><span id="src" class="src snap">Loading</span><span id="when"></span></p>
+    </div>
+  </div>
+  <nav class="nav"><a href="index.html">Personal</a><a href="guests.html">Guests</a><a href="teams.html">Mythic+ Teams</a><a href="blake.html">Blake</a><a href="gold.html" class="on">Gold</a></nav>
+
+  <div class="stats-grid" id="glance"></div>
+
+  <div class="card">
+    <div class="card-head"><h2>Hottest sellers</h2><span class="hint" id="hot-note"></span></div>
+    <div class="table-wrap" id="hot"></div>
+  </div>
+
+  <div class="card">
+    <div class="card-head">
+      <div class="head-left"><h2>Gold makers</h2>
+        <div class="filters" id="maker-filters">
+          <button type="button" class="chip on" data-f="profit">Making gold</button>
+          <button type="button" class="chip" data-f="all">All known</button>
+          <button type="button" class="chip" data-f="Glyph">Glyphs</button>
+          <button type="button" class="chip" data-f="Mark">Marks</button>
+        </div></div>
+      <span class="hint" id="maker-note"></span>
+    </div>
+    <div class="table-wrap" id="makers"></div>
+  </div>
+
+  <div class="card">
+    <div class="card-head"><h2>Worth learning</h2><span class="hint">Recipes the scribe doesn't know yet that would make gold at today's prices</span></div>
+    <div class="table-wrap" id="learn"></div>
+  </div>
+
+  <div class="card">
+    <div class="card-head"><h2>Inks: craft or buy</h2><span class="hint">Cost per ink from pigment vs the Auction House. Recipe costs above already use the cheaper one.</span></div>
+    <div class="table-wrap" id="inks"></div>
+  </div>
+
+  <div class="section-title"><h2>Crafters</h2><span class="hint">Professions by character, newest expansion first. Edit the list on the gold sheet's Settings tab.</span></div>
+  <div class="crafters" id="crafters"></div>
+</div>
+<div id="toast"></div>
+<script src="gold.js?v=1"></script>
+</body>
+</html>

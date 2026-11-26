@@ -1,0 +1,34 @@
+/* Gold Making page: only what wow.css doesn't already cover */
+.head-left { display: flex; gap: 14px; align-items: center; flex-wrap: wrap; }
+.stat-box.gold { border-left-color: #e0b84a; }
+.stat-box .small { font-size: 12px; color: var(--muted-2); font-weight: 400; margin-top: 4px; }
+
+td.pos { color: var(--ok); font-weight: 600; }
+td.neg { color: var(--bad); }
+td.dim, span.dim { color: var(--muted); }
+tr.hit td:first-child { box-shadow: inset 3px 0 0 #e0b84a; }
+a.item { color: #c9a5ff; text-decoration: none; }
+a.item:hover { text-decoration: underline; }
+.tag { font-size: 10.5px; font-weight: 600; padding: 1px 7px; border-radius: 9px; border: 1px solid #444; color: var(--muted-2); white-space: nowrap; }
+.tag.glyph { color: #9fd0ff; border-color: #2c5d8a; }
+.tag.mark { color: #ffcf8a; border-color: #8a6420; }
+.tag.yes { color: var(--ok); border-color: var(--ok-line); }
+.warn-ic { color: var(--warn); margin-left: 5px; cursor: help; }
+.more { margin-top: 10px; }
+
+.crafters { display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 20px; margin-bottom: 25px; align-items: start; }
+.crafter { background: var(--card); border-radius: 8px; padding: 14px 16px; border-top: 4px solid #e0b84a; box-shadow: 0 4px 6px rgba(0,0,0,0.3); }
+.crafter .char-name { font-size: 18px; }
+.prof { margin-top: 12px; }
+.prof-head { display: grid; grid-template-columns: 1fr auto; gap: 8px; align-items: baseline; font-size: 13px; }
+.prof-head .pn { color: var(--text-strong); font-weight: 600; }
+.prof-head .pk { font-size: 10.5px; color: var(--muted); margin-left: 5px; text-transform: uppercase; letter-spacing: .4px; }
+.prof-head .pt { color: var(--muted-2); font-size: 12px; font-variant-numeric: tabular-nums; }
+.prof .meter { margin-top: 4px; }
+.prof .meter > div.full { background: var(--ok-line); }
+.prof-sub { display: flex; justify-content: space-between; font-size: 11.5px; color: var(--muted); margin-top: 3px; }
+.tier-toggle { background: none; border: 0; color: #6aa6ef; font-size: 11.5px; cursor: pointer; padding: 0; }
+.tiers { display: none; margin-top: 6px; border-top: 1px solid var(--line); padding-top: 4px; }
+.prof.open .tiers { display: block; }
+.tier { display: grid; grid-template-columns: 1fr 70px 70px; gap: 6px; font-size: 12px; padding: 2px 0; color: #bdbdbd; font-variant-numeric: tabular-nums; }
+.tier span:nth-child(n+2) { text-align: right; color: var(--muted-2); }
