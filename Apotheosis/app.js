@@ -1025,7 +1025,7 @@ function manageHtml() {
   return `<div class="card"><div class="card-head"><h2>Manage roster</h2><span class="hint">take players off the raid team or remove players, secondary mains and alts &middot; everything removed is copied to the Roster archive tab first</span></div>
     <a href="#approvals" data-manage="1" class="hint">${manageOpen ? 'Hide the roster list' : 'Show the roster list (' + ps.length + ' players)'}</a>
     ${manageOpen ? `<table class="logs-table manage-table"><thead><tr><th>Player</th><th>Raid team</th><th>Secondary mains</th><th>Alts</th><th></th></tr></thead><tbody>${ps.map(p => `<tr${p.raid ? '' : ' class="bench"'}>
-      <td>${nameHtml(p.main)}${p.player !== p.main.name ? ` <span class="hint">(${esc(p.player)})</span>` : ''}${p.status === 'Initiate' ? ' <span class="pill init">Initiate</span>' : ''}</td>
+      <td>${nameHtml(p.main)}${p.status === 'Initiate' ? ' <span class="pill init">Initiate</span>' : ''}</td>
       <td>${p.raid ? '<span class="pill ok">Raid team</span>' : '<span class="pill">Benched</span>'} <button type="button" class="toggle-btn" data-redit="${esc(p.player)}|${p.raid ? 'bench' : 'unbench'}|">${p.raid ? 'Bench' : 'Add back'}</button></td>
       <td>${(p.alts || []).map(c => chip(p, c, 'secondary')).join('') || '<span class="hint">-</span>'}</td><td>${(p.extras || []).map(c => chip(p, c, 'alt')).join('') || '<span class="hint">-</span>'}</td>
       <td><button type="button" class="toggle-btn bad" data-redit="${esc(p.player)}|player|">Remove</button></td></tr>`).join('')}</tbody></table>` : ''}</div>`;
