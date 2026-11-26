@@ -239,7 +239,7 @@ function renderCalc() {
   const notes = [];
   if (Object.keys(plan.mills).length) notes.push('Milling uses average yields, so you may get a few more or less pigment than shown.');
   if (plan.missing) notes.push(`${plan.missing} item(s) have no price right now, so the cost is missing them.`);
-  if (goblin) notes.push('Goblin prices apply at vendors with a reputation (city and profession suppliers).');
+  if (goblin && plan.vendorRows.length) notes.push('Goblin prices apply at vendors with a reputation (city and profession suppliers).');
   $('calc-out').innerHTML = sum + ahTable + vendorTable + stepsHtml + (notes.length ? `<p class="calc-note">${notes.join(' ')}</p>` : '');
 }
 
