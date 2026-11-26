@@ -882,6 +882,28 @@ function playerActivity(p) {
   return { cs, raidKills: sum('raidKills'), best, seasonDungeons, keysWeek, delvesWeek, raidWeek, delves, dungeons, hist, outside, raidOnly,
     since: Math.min(...cs.map(c => c.act.since || Infinity)) };
 }
+// Great Vault "this week": three rows (Raid / Mythic+ / World) of 3 slots, filled when unlocked, like the in-game vault
+const V_THR = { raid: [2, 4, 6], mplus: [1, 4, 8], world: [2, 4, 8] }, V_COL = { raid: '#a335ee', mplus: '#3987e5', world: '#3fb950' };
+const V_UNIT = { raid: 'bosses', mplus: 'keys', world: 'delves' }, V_NAME = { raid: 'Raid', mplus: 'Mythic+', world: 'World' };
+const vSlots = (kind, n) => V_THR[kind].filter(t => n >= t).length;
+function vaultPips(c, a) {
+  const done = { raid: a.raidWeek, mplus: a.keysWeek, world: a.delvesWeek };
+  (c.vault || []).forEach(v => { if (V_THR[v.kind] && v.kind === 'raid') done.raid = v.done; });
+  return `<div class="vpips">${['raid', 'mplus', 'world'].map(k => { const v = (c.vault || []).find(x => x.kind === k), thr = (v && v.thresholds && v.thresholds.length ? v.thresholds : V_THR[k]), n = done[k] || 0, got = thr.filter(t => n >= t).length, next = thr.find(t => n < t);
+    return `<div class="vp-row" data-tip="<b>${V_NAME[k]}</b>: ${n} ${V_UNIT[k]} this week &rarr; ${got} of 3 slots<br>Slots unlock at ${thr.join(' / ')} ${V_UNIT[k]}${next ? '<br>Next slot at ' + next : ''}">
+      <span class="vp-l">${V_NAME[k]}</span>${thr.map(t => `<i class="${n >= t ? 'on' : ''}" style="--c:${V_COL[k]}"></i>`).join('')}<span class="vp-n">${n} ${V_UNIT[k]}</span></div>`; }).join('')}</div>`;
+}
+// Past weeks: one box per week with the vault slots that week's activity would unlock (0-9)
+function weekBoxes(hist) {
+  const W = 7 * 86400000, now = Date.now(), byW = {}; hist.forEach(h => { byW[h.week] = h; });
+  const last = hist.length ? hist[hist.length - 1].week : now, cells = [];
+  for (let i = 7; i >= 0; i--) { const wk = last - i * W, h = byW[wk];
+    const d = new Date(wk).toLocaleDateString([], { month: 'short', day: 'numeric' });
+    if (!h) { cells.push(`<i class="wb none" data-tip="Week of ${d}: not tracked yet"></i>`); continue; }
+    const sl = vSlots('raid', h.r) + vSlots('mplus', h.m) + vSlots('world', h.w);
+    cells.push(`<i class="wb" style="--a:${(0.15 + sl / 9 * 0.85).toFixed(2)}" data-tip="Week of ${d}: <b>${sl}/9</b> vault slots<br>${h.r} raid bosses &middot; ${h.m} keys &middot; ${h.w} delves">${sl}</i>`); }
+  return `<span class="wboxes">${cells.join('')}</span>`;
+}
 function vaultHtml() {
   const ps = raidPlayers();
   const rows = ps.map(p => ({ p, a: playerActivity(p), c: p.main }));
@@ -894,15 +916,15 @@ function vaultHtml() {
   const spark = hist => `<span class="vh-spark">${hist.map(h => `<span class="vh-w" data-tip="Week of ${new Date(h.week).toLocaleDateString([], { month: 'short', day: 'numeric' })}: ${h.r} raid bosses, ${h.m} keys, ${h.w} delves">
     <i style="height:${Math.min(100, h.r / 8 * 100)}%;background:#a335ee"></i><i style="height:${Math.min(100, h.m / 8 * 100)}%;background:#3987e5"></i><i style="height:${Math.min(100, h.w / 8 * 100)}%;background:#3fb950"></i></span>`).join('')}</span>`;
   const sinceTxt = a => a.since && a.since !== Infinity ? new Date(a.since).toLocaleDateString([], { month: 'short', day: 'numeric' }) : '';
-  $('vault-summary').innerHTML = `<div class="table-wrap"><table class="logs-table vault-table"><thead><tr><th>Raider</th><th data-tip="Vault rewards unlocked on their main">Vault</th>
-    <th>This week</th><th data-tip="Raid boss kills in this season's raids, all difficulties, all their characters">Raid kills (season)</th><th data-tip="Best Mythic+ score this season and dungeons with a timed or completed run">Mythic+ (season)</th>
-    <th data-tip="Dungeon clears and delves on all their characters since the page started tracking">Dungeons / delves</th><th data-tip="Last 8 weeks: purple raid bosses, blue keys, green delves">Weeks</th><th></th></tr></thead><tbody>${
+  $('vault-summary').innerHTML = `<div class="table-wrap"><table class="logs-table vault-table"><thead><tr><th>Raider</th><th data-tip="Vault slots unlocked on their main this week">Vault</th>
+    <th data-tip="Each row is one part of the vault: a box fills when that slot is unlocked">This week</th><th data-tip="Raid boss kills in this season's raids, all difficulties, all their characters">Raid kills (season)</th><th data-tip="Best Mythic+ score this season and dungeons with a timed or completed run">Mythic+ (season)</th>
+    <th data-tip="Dungeon clears and delves on all their characters since the page started tracking">Dungeons / delves</th><th data-tip="One box per week: how many vault slots (0-9) they unlocked. Brighter = more. Dashed = not tracked yet">Last 8 weeks</th><th></th></tr></thead><tbody>${
     rows.sort((a, b) => b.a.raidOnly - a.a.raidOnly || a.p.player.localeCompare(b.p.player)).map(({ p, a, c }) => `<tr${a.raidOnly ? ' class="raid-only"' : ''}>
       <td>${nameHtml(c)}</td><td><b>${vUnlocked(c)}</b>/9</td>
-      <td class="hint"><b style="color:#d2a8ff">${a.raidWeek}</b> bosses &middot; <b style="color:#79c0ff">${a.keysWeek}</b> keys &middot; <b style="color:#7ee787">${a.delvesWeek}</b> delves</td>
+      <td>${vaultPips(c, a)}</td>
       <td>${a.cs.length ? a.raidKills : '-'}</td><td>${a.cs.length ? `<b>${Math.round(a.best)}</b> <span class="hint">&middot; ${a.seasonDungeons} dungeons</span>` : '-'}</td>
       <td class="hint">${a.dungeons == null ? '-' : `${a.dungeons} dungeons &middot; ${a.delves} delves <span data-tip="Counting since ${esc(sinceTxt(a))}">since ${esc(sinceTxt(a))}</span>`}</td>
-      <td>${a.hist.length ? spark(a.hist) : '<span class="hint">-</span>'}</td>
+      <td>${weekBoxes(a.hist)}</td>
       <td>${a.raidOnly ? '<span class="pill warn" data-tip="Almost no Mythic+ this season and no keys or delves in the weeks tracked">Raid only</span>' : a.cs.length ? '<span class="pill ok">Active</span>' : '<span class="hint">no data yet</span>'}</td></tr>`).join('')}</tbody></table></div>`;
   $('vault-tiles').innerHTML = `<div class="boss-grid vault-grid">${ps.slice().sort((a, b) => a.player.localeCompare(b.player)).map(p => {
     const key = 'v|' + p.player, open = tileOpen.has(key), others = (p.alts || []).concat(p.extras || []).filter(c => c.vault);
