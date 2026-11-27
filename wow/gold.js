@@ -573,6 +573,7 @@ $('calc-goblin').addEventListener('input', renderCalc);
  *   G^itemID^reagentID^qty                                            (reagents per craft, by the crafted item)
  *   M^itemID^name^way^ahPrice                                         (cheapest way to get a material)
  *   V^itemID^name^price^npc^zone^x^y                                  (vendor spots)
+ *   Q^itemID^crafts / B^itemID^qty^name                               (this page's Shopping list: queue / buy)
  * Prices in copper. */
 function konaExport() {
   const d = DATA; if (!d) return '';
@@ -590,15 +591,27 @@ function konaExport() {
   best(d.recipes.filter(r => r.known && r.type !== 'Reagent')).slice(0, 150).forEach(r => take(r, 'Inscription', d.character, 'sell'));
   d.recipes.filter(r => r.known && r.type === 'Reagent').forEach(r => take(r, 'Inscription', d.character, 'reagent'));
   if (CRAFTS) best(CRAFTS.crafts.filter(x => (x.soldPerDay || 0) >= 0.5)).slice(0, 150).forEach(x => take(x, x.prof, x.who, 'sell'));
+  // the Shopping list on this page: crafts go to the addon's queue (Q), plain items to its buy list (B)
+  const queue = [], buys = [];
+  cart.forEach(c => {
+    const t = cartTarget(d, c.key);
+    if (!t) return;
+    if (t.kind === 'recipe' && t.recipe.id) {
+      const inscr = c.key.startsWith('r:');
+      take(t.recipe, inscr ? 'Inscription' : t.recipe.prof, inscr ? d.character : t.recipe.who, t.recipe.type === 'Reagent' ? 'reagent' : 'sell');
+      queue.push(['Q', t.recipe.id, c.qty].join('^'));
+    } else if (t.kind === 'item') buys.push(['B', t.id, c.qty, clean(t.name)].join('^'));
+  });
   const reag = d.reagents.concat(CRAFTS ? CRAFTS.reagents : []);
   const used = {};
+  buys.forEach(b => { used[b.split('^')[1]] = true; });
   reag.forEach(([rid, id, , q]) => { if (rids[rid] && id) { lines.push(['G', rids[rid], id, q].join('^')); used[id] = true; } });
   const mats = {};
   d.materials.forEach(m => { mats[m.id] = m; });
   if (CRAFTS) CRAFTS.prices.forEach(p => { if (!mats[p.id]) mats[p.id] = { id: p.id, name: p.name, ah: p.ah, way: p.vendor != null && (p.ah == null || p.vendor < p.ah) ? 'Vendor' : 'Buy on AH' }; });
   Object.keys(used).forEach(id => { const m = mats[id]; if (m) lines.push(['M', id, clean(m.name), clean(m.way), cp(m.ah)].join('^')); });
   d.vendor.forEach(v => { if (used[v.id] && v.npc && v.x != null) lines.push(['V', v.id, clean(v.name), cp(v.price), clean(v.npc), clean(v.zone), v.x, v.y].join('^')); });
-  return lines.join('\n');
+  return lines.concat(queue, buys).join('\n');
 }
 // Shows the export in a box, already selected, and also tries the clipboard (some browsers refuse that).
 $('kona-export').addEventListener('click', () => {
