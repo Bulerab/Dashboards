@@ -567,6 +567,46 @@ function render(d, live, when) {
 }
 
 $('calc-goblin').addEventListener('input', renderCalc);
+/* ------------------------------------------------------------------ export for Kona's Addon
+ * One paste for the in-game craft list (/kona craft -> Import). Lines, fields split by ^ (no | : WoW reads it as a code):
+ *   R^itemID^name^profit^soldPerDay^saleRate^price^prof^who^yield^kind   (kind: sell / reagent)
+ *   G^itemID^reagentID^qty                                            (reagents per craft, by the crafted item)
+ *   M^itemID^name^way^ahPrice                                         (cheapest way to get a material)
+ *   V^itemID^name^price^npc^zone^x^y                                  (vendor spots)
+ * Prices in copper. */
+function konaExport() {
+  const d = DATA; if (!d) return '';
+  const cp = v => (v == null ? '' : Math.round(v * 10000));
+  const clean = v => String(v == null ? '' : v).replace(/[\^\n|]/g, ' ');
+  const lines = ['KONACRAFT^1^' + clean(d.generated) + '^' + clean(d.character)];
+  const out = {}, rids = {};
+  const sells = x => (x.soldPerDay || 0) > 0;
+  const take = (x, prof, who, kind) => {
+    if (!x.id || out[x.id]) return;
+    out[x.id] = true; rids[x.rid] = x.id;
+    lines.push(['R', x.id, clean(x.name), cp(x.profit), x.soldPerDay == null ? '' : +(+x.soldPerDay).toFixed(2), x.saleRate == null ? '' : +(+x.saleRate).toFixed(3), cp(x.price), clean(prof), clean(who), x.yield || 1, kind].join('^'));
+  };
+  const best = (list) => list.filter(x => x.profit != null && x.profit > 0).sort((a, b) => (sells(b) - sells(a)) || (b.profit - a.profit));
+  best(d.recipes.filter(r => r.known && r.type !== 'Reagent')).slice(0, 150).forEach(r => take(r, 'Inscription', d.character, 'sell'));
+  d.recipes.filter(r => r.known && r.type === 'Reagent').forEach(r => take(r, 'Inscription', d.character, 'reagent'));
+  if (CRAFTS) best(CRAFTS.crafts).slice(0, 150).forEach(x => take(x, x.prof, x.who, 'sell'));
+  const reag = d.reagents.concat(CRAFTS ? CRAFTS.reagents : []);
+  const used = {};
+  reag.forEach(([rid, id, , q]) => { if (rids[rid] && id) { lines.push(['G', rids[rid], id, q].join('^')); used[id] = true; } });
+  const mats = {};
+  d.materials.forEach(m => { mats[m.id] = m; });
+  if (CRAFTS) CRAFTS.prices.forEach(p => { if (!mats[p.id]) mats[p.id] = { id: p.id, name: p.name, ah: p.ah, way: p.vendor != null && (p.ah == null || p.vendor < p.ah) ? 'Vendor' : 'Buy on AH' }; });
+  Object.keys(used).forEach(id => { const m = mats[id]; if (m) lines.push(['M', id, clean(m.name), clean(m.way), cp(m.ah)].join('^')); });
+  d.vendor.forEach(v => { if (used[v.id] && v.npc && v.x != null) lines.push(['V', v.id, clean(v.name), cp(v.price), clean(v.npc), clean(v.zone), v.x, v.y].join('^')); });
+  return lines.join('\n');
+}
+$('kona-export').addEventListener('click', e => {
+  const text = konaExport(), b = e.currentTarget;
+  if (!text) { toast('Prices are still loading', true); return; }
+  const done = () => { toast('Copied - in game: /kona craft, Import, Ctrl+V'); b.textContent = 'Copied'; setTimeout(() => { b.textContent = "Copy for Kona's Addon"; }, 1500); };
+  if (navigator.clipboard && navigator.clipboard.writeText) navigator.clipboard.writeText(text).then(done, () => fallbackCopy(text, done));
+  else fallbackCopy(text, done);
+});
 $('calc-add').addEventListener('click', () => { if ($('calc-item').value) addToCart($('calc-item').value, $('calc-qty').value); });
 // Add buttons in Hottest sellers and Gold makers
 document.addEventListener('click', e => {
