@@ -589,7 +589,7 @@ function konaExport() {
   const best = (list) => list.filter(x => x.profit != null && x.profit > 0).sort((a, b) => (sells(b) - sells(a)) || (b.profit - a.profit));
   best(d.recipes.filter(r => r.known && r.type !== 'Reagent')).slice(0, 150).forEach(r => take(r, 'Inscription', d.character, 'sell'));
   d.recipes.filter(r => r.known && r.type === 'Reagent').forEach(r => take(r, 'Inscription', d.character, 'reagent'));
-  if (CRAFTS) best(CRAFTS.crafts).slice(0, 150).forEach(x => take(x, x.prof, x.who, 'sell'));
+  if (CRAFTS) best(CRAFTS.crafts.filter(x => (x.soldPerDay || 0) >= 0.5)).slice(0, 150).forEach(x => take(x, x.prof, x.who, 'sell'));
   const reag = d.reagents.concat(CRAFTS ? CRAFTS.reagents : []);
   const used = {};
   reag.forEach(([rid, id, , q]) => { if (rids[rid] && id) { lines.push(['G', rids[rid], id, q].join('^')); used[id] = true; } });
