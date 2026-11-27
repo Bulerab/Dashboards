@@ -600,12 +600,33 @@ function konaExport() {
   d.vendor.forEach(v => { if (used[v.id] && v.npc && v.x != null) lines.push(['V', v.id, clean(v.name), cp(v.price), clean(v.npc), clean(v.zone), v.x, v.y].join('^')); });
   return lines.join('\n');
 }
-$('kona-export').addEventListener('click', e => {
-  const text = konaExport(), b = e.currentTarget;
+// Shows the export in a box, already selected, and also tries the clipboard (some browsers refuse that).
+$('kona-export').addEventListener('click', () => {
+  const text = konaExport();
   if (!text) { toast('Prices are still loading', true); return; }
-  const done = () => { toast('Copied - in game: /kona craft, Import, Ctrl+V'); b.textContent = 'Copied'; setTimeout(() => { b.textContent = "Copy for Kona's Addon"; }, 1500); };
-  if (navigator.clipboard && navigator.clipboard.writeText) navigator.clipboard.writeText(text).then(done, () => fallbackCopy(text, done));
-  else fallbackCopy(text, done);
+  let box = $('kona-box');
+  if (!box) {
+    box = document.createElement('div');
+    box.id = 'kona-box';
+    box.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:999;display:flex;align-items:center;justify-content:center';
+    box.innerHTML = `<div style="background:#1b1b1b;border:1px solid #444;border-radius:8px;padding:14px;width:min(640px,92vw)">
+      <div style="margin-bottom:8px"><b>For Kona's Addon</b> <span class="dim" id="kona-msg"></span></div>
+      <textarea id="kona-text" readonly style="width:100%;height:220px;background:#111;color:#ccc;border:1px solid #333;font:11px monospace"></textarea>
+      <p class="calc-note">In game: <b>/kona craft</b>, then <b>Import</b>, then Ctrl+V and <b>Import</b>.</p>
+      <div style="text-align:right"><button type="button" class="copy" id="kona-close">Close</button></div></div>`;
+    document.body.appendChild(box);
+    box.addEventListener('click', e => { if (e.target === box || e.target.id === 'kona-close') box.style.display = 'none'; });
+  }
+  const ta = $('kona-text');
+  ta.value = text;
+  box.style.display = 'flex';
+  ta.focus(); ta.select();
+  const msg = $('kona-msg');
+  msg.textContent = 'Selected - press Ctrl+C';
+  let copied = false;
+  try { copied = document.execCommand('copy'); } catch (e) { /* refused */ }
+  if (copied) msg.textContent = 'Copied! (or press Ctrl+C to be sure)';
+  else if (navigator.clipboard && navigator.clipboard.writeText) navigator.clipboard.writeText(text).then(() => { msg.textContent = 'Copied!'; }, () => {});
 });
 $('calc-add').addEventListener('click', () => { if ($('calc-item').value) addToCart($('calc-item').value, $('calc-qty').value); });
 // Add buttons in Hottest sellers and Gold makers
