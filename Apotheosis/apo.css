@@ -414,7 +414,8 @@ p .tal-cell { font-weight: 700; }
 .roll > b { font: 700 18px ui-monospace, Consolas, monospace; color: var(--rc); }
 .roll h4 { margin: 4px 0 2px !important; } .roll p { margin: 0 !important; font-size: 12.5px !important; }
 .roll.r101 { --rc: #ff8000; } .roll.r100 { --rc: #a335ee; } .roll.r99 { --rc: #0070dd; } .roll.r50 { --rc: #1eff00; } .roll.r25 { --rc: #9d9d9d; }
-.rules-matrix td, .rules-matrix th { text-align: center; } .rules-matrix td:nth-child(-n+3), .rules-matrix th:nth-child(-n+3) { text-align: left; }
+.rules-matrix th:nth-child(n+4), .rules-matrix td.p1, .rules-matrix td.p2, .rules-matrix td.tm, .rules-matrix tr.roll-row td:nth-child(n+2) { text-align: center !important; }
+.rules-matrix td.p1, .rules-matrix td.p2 { font-size: 15px; }
 .rules-matrix td { border-left: 1px solid #262626; }
 .rules-matrix td.p1 { color: #7ee787; font-weight: 700; } .rules-matrix td.p2 { color: #e3b341; font-weight: 700; }
 .rules-matrix tr.g-core td { background: rgba(227,179,65,.04); }
