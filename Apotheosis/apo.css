@@ -430,3 +430,4 @@ p .tal-cell { font-weight: 700; }
 
 .rstep, .rstep * { position: static; } .rstep > div { flex: 1; min-width: 0; }
 .rules-matrix + .rules-cols, .table-wrap + .rules-cols { margin-top: 14px; }
+.stat .v a.addon { color: inherit; text-decoration: underline; text-decoration-color: #555; text-underline-offset: 3px; } .stat .v a.addon:hover { color: #79c0ff; text-decoration-color: #79c0ff; }
