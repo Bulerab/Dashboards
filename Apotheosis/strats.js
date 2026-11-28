@@ -8,14 +8,14 @@ let stratPick = (location.hash.split('/')[1] || '');       // boss id from #stra
 let stratSeason = '', stratRaid = '';
 let snPick = '', snMsg = '', snImg = null, snEdit = '', snBusy = false;  // officer form state
 
-fetch('strats.json?v=3', { cache: 'no-cache' }).then(r => r.json()).then(j => { STRATS = j; if (typeof render === 'function' && STATE) render(); else stratsRender(); })
+fetch('strats.json?v=4', { cache: 'no-cache' }).then(r => r.json()).then(j => { STRATS = j; if (typeof render === 'function' && STATE) render(); else stratsRender(); })
   .catch(e => { stratErr = e.message; stratsRender(); });
 
 const stratAll = () => (STRATS ? STRATS.seasons : []).flatMap(s => s.raids.flatMap(r => r.bosses.map(b => ({ s, r, b }))));
 const stratFind = id => stratAll().find(x => x.b.id === id);
 const stratNotes = id => ((STATE && STATE.strat && STATE.strat.notes) || {})[id] || [];
 // Officer cliff notes: 5 lines, then the Hero call as a 6th entry
-const stratCliff = b => { const c = ((STATE && STATE.strat && STATE.strat.cliff) || {})[b.id], custom = !!(c && c.some(Boolean));
+const stratCliff = b => { const c = ((STATE && STATE.strat && STATE.strat.cliff) || {})[b.id], custom = !!(c && c.some(Boolean));  // eslint-disable-line
   return { lines: (custom ? c.slice(0, 5) : (b.cliff || [])).filter(Boolean), hero: (custom && c[5]) || b.hero || '', custom }; };
 const HERO_ICON = `<img class="hero-ic" src="${ICON_BASE}ability_shaman_heroism.jpg" alt="" onerror="this.style.display='none'">`;
 // Cliff note roles: a line can start with [T], [H], [D] or a mix ("[TH] text")
@@ -23,6 +23,9 @@ const cliffParse = line => { const m = String(line || '').match(/^\s*\[([THD]{1,
 const CLIFF_ROLES = [['T', 'Tank', 'Tanks'], ['H', 'Healer', 'Healers'], ['D', 'DPS', 'DPS']];
 const cliffIcons = roles => roles === 'THD' || !roles ? `<span class="cl-roles all" data-tip="Everyone">${CLIFF_ROLES.map(r => roleIcon(r[1])).join('')}</span>`
   : `<span class="cl-roles" data-tip="${CLIFF_ROLES.filter(r => roles.includes(r[0])).map(r => r[2]).join(' &amp; ')}">${CLIFF_ROLES.filter(r => roles.includes(r[0])).map(r => roleIcon(r[1])).join('')}</span>`;
+// Guide lines starting with "HC: " are Heroic additions
+const HC_TAG = '<span class="hc-tag" data-tip="Heroic addition: not on Normal">Heroic</span>';
+const gl = x => { const h = /^HC:\s*/.test(x); return `<li${h ? ' class="hc"' : ''}>${h ? HC_TAG : ''}${esc(String(x).replace(/^HC:\s*/, ''))}</li>`; };
 const stratArt = b => STATE ? (artOf(b.journal || b.name) || artOf(b.name)) : '';
 const linkify = s => esc(s).replace(/(https:\/\/[^\s<]+)/g, '<a href="$1" target="_blank" rel="noopener">$1</a>').replace(/\n/g, '<br>');
 const statusTag = b => b.status === 'ready' ? '' : b.status === 'draft' ? '<span class="st-tag draft">draft</span>' : '<span class="st-tag todo">guide coming</span>';
@@ -49,7 +52,15 @@ function noteHtml(n, b, canEdit, i, total) {
 
 function stratBossHtml(cur) {
   const b = cur.b, notes = stratNotes(b.id), cl = stratCliff(b), art = stratArt(b);
-  const list = (title, items, cls) => items && items.length ? `<div class="sg-sec ${cls || ''}"><h3>${title}</h3><ul>${items.map(x => `<li>${esc(x)}</li>`).join('')}</ul></div>` : '';
+  const list = (title, items, cls) => items && items.length ? `<div class="sg-sec ${cls || ''}"><h3>${title}</h3><ul>${items.map(gl).join('')}</ul></div>` : '';
+  const df = b.diff, meta = STRATS.metas && STRATS.metas[cur.s.id];
+  const diffHtml = df ? `<div class="diff-tiles">${[['normal', 'Normal', 'What\'s easier or missing'], ['heroic', 'Heroic', 'What Heroic adds: this guide'], ['mythic', 'Mythic', 'For reference only']].map(([k, l, h]) =>
+    `<div class="diff-tile ${k}"><div class="dt-head"><b>${l}</b><span class="hint">${h}</span></div><ul>${(df[k] || []).map(x => `<li>${esc(x)}</li>`).join('') || '<li class="hint">No changes listed.</li>'}</ul></div>`).join('')}</div>` : '';
+  const ach = b.ach ? `<div class="card ach-card"><div class="card-head"><h2>&#127942; Achievement: ${esc(b.ach.name)}</h2><span class="hint">${meta ? 'part of ' + esc(meta.name) : ''}</span></div>
+      <p class="ach-req">${esc(b.ach.req)}</p>
+      <h3>How we do it</h3><ol class="ach-how">${b.ach.how.map(x => `<li>${esc(x)}</li>`).join('')}</ol>
+      ${b.ach.note ? `<p class="hint">&#9432; ${esc(b.ach.note)}</p>` : ''}
+      ${meta ? `<p class="ach-meta">${esc(meta.name)}: ${esc(meta.note)} Reward: <b>${esc(meta.reward)}</b>.</p>` : ''}</div>` : '';
   const facts = [b.setup && ['Setup', b.setup], b.lust && ['Lust', b.lust], b.style && ['Fight', b.style]].filter(Boolean);
   return `<div class="sb-head${art ? ' has-art' : ''}"${art ? ` style="--art:url('${esc(art)}')"` : ''}>
       <div class="sb-title"><span class="hint">${esc(cur.s.name)} &middot; ${esc(cur.r.name)}</span><h2>${esc(b.name)} ${statusTag(b)}</h2>
@@ -64,13 +75,15 @@ function stratBossHtml(cur) {
         ${notes.length ? notes.map((n, i) => noteHtml(n, b, !!officerKey, i, notes.length)).join('') : '<p class="empty">No officer notes for this boss yet.</p>'}
         ${officerKey ? `<a class="toggle-btn sn-add" data-tab="stratnotes" data-snboss="${esc(b.id)}" href="#stratnotes">+ Add a note or picture</a>` : ''}</div>
     </div>
-    ${b.summary ? `<div class="card"><div class="card-head"><h2>Overview</h2></div><p class="lead">${esc(b.summary)}</p>
-      ${(b.phases || []).map(p => `<div class="sg-phase"><h3>${esc(p.t)}</h3><ul>${p.items.map(x => `<li>${esc(x)}</li>`).join('')}</ul></div>`).join('')}</div>` : ''}
+    ${diffHtml}
+    ${b.summary ? `<div class="card"><div class="card-head"><h2>Overview</h2><span class="hint">Heroic guide &middot; ${HC_TAG} = Heroic addition</span></div><p class="lead">${esc(b.summary)}</p>
+      ${(b.phases || []).map(p => `<div class="sg-phase"><h3>${esc(p.t)}</h3><ul>${p.items.map(gl).join('')}</ul></div>`).join('')}</div>` : ''}
     ${(b.tank || b.healer || b.raid) ? `<div class="sg-roles">
       ${list(`${roleIcon('Tank')} Tanks <span class="hint">cooldowns &amp; swaps</span>`, b.tank, 'tank')}
       ${list(`${roleIcon('Healer')} Healers <span class="hint">cooldowns &amp; dispels</span>`, b.healer, 'healer')}
       ${list(`${roleIcon('DPS')} Raid &amp; DPS <span class="hint">soaks, positioning, adds</span>`, b.raid, 'dps')}</div>` : ''}
     ${b.wipes && b.wipes.length ? `<div class="card wipes"><div class="card-head"><h2>&#9888; What wipes us</h2></div><ul>${b.wipes.map(x => `<li>${esc(x)}</li>`).join('')}</ul></div>` : ''}
+    ${ach}
     ${b.status !== 'ready' ? `<div class="card"><p class="empty">${b.status === 'draft' ? 'This guide is a short draft.' : 'The full guide for this boss isn\'t written yet.'} ${(b.links || []).length ? 'In the meantime, the guides below cover it.' : ''}</p></div>` : ''}
     ${(b.links || []).length ? `<p class="sg-links">Full guides: ${b.links.map(l => `<a href="${esc(l.u)}" target="_blank" rel="noopener">${esc(l.t)}</a>`).join(' &middot; ')}</p>` : ''}`;
 }

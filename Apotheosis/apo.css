@@ -515,3 +515,18 @@ ol.cliff li .cl-text { flex: 1; min-width: 0; }
 .hero-line b { display: block; font-size: 11px; text-transform: uppercase; letter-spacing: .5px; color: #ffae5c; }
 .hero-line span { font-size: 14.5px; font-weight: 700; color: #fff; }
 .hero-edit .hero-ic { width: 22px; height: 22px; border-radius: 5px; flex: none; }
+
+.diff-tiles { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 14px; margin-bottom: 14px; }
+@media (max-width: 900px) { .diff-tiles { grid-template-columns: 1fr; } }
+.diff-tile { background: var(--card, #1e1e1e); border: 1px solid #2e2e2e; border-top: 3px solid #888; border-radius: 12px; padding: 12px 16px; }
+.diff-tile.normal { border-top-color: #3fb950; } .diff-tile.heroic { border-top-color: #a335ee; box-shadow: 0 0 0 1px rgba(163,53,238,.35); } .diff-tile.mythic { border-top-color: #ff8000; opacity: .8; }
+.dt-head { display: flex; justify-content: space-between; align-items: baseline; gap: 8px; margin-bottom: 6px; }
+.dt-head b { font-size: 16px; } .diff-tile.normal .dt-head b { color: #56d364; } .diff-tile.heroic .dt-head b { color: #c37cff; } .diff-tile.mythic .dt-head b { color: #ffa040; }
+.diff-tile ul { margin: 0; padding-left: 18px; } .diff-tile li { font-size: 13px; line-height: 1.5; color: #cfcfcf; margin: 3px 0; }
+.hc-tag { display: inline-block; font-size: 10.5px; font-weight: 800; letter-spacing: .3px; text-transform: uppercase; color: #fff; background: #8a2be2; border-radius: 4px; padding: 1px 5px; margin-right: 6px; vertical-align: 1px; cursor: help; }
+li.hc { list-style: none; margin-left: -18px; display: flex; gap: 0; align-items: baseline; } li.hc .hc-tag { flex: none; }
+.ach-card { border-top: 3px solid #e3b341; }
+.ach-req { font-size: 14.5px; font-weight: 600; color: #f2f2f2; margin: 0 0 8px; }
+.ach-card h3 { font-size: 14px; margin: 10px 0 4px; }
+.ach-how { margin: 0 0 8px; padding-left: 20px; } .ach-how li { font-size: 13.5px; line-height: 1.55; color: #cfcfcf; margin: 3px 0; }
+.ach-meta { font-size: 12.5px; color: #999; border-top: 1px solid #2a2a2a; padding-top: 8px; margin: 8px 0 0; }

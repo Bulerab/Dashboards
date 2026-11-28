@@ -1,5 +1,5 @@
 {
- "note": "Boss guides for the Raid Boss Strats tab. Heroic focus. Officer notes, pictures and edited cliff notes live on the sheet's Strat Notes tab. Cliff note lines can start with [T], [H], [D] or a mix like [TH] to show which roles they affect.",
+ "note": "Boss guides for the Raid Boss Strats tab. Heroic focus. Officer notes, pictures and edited cliff notes live on the sheet's Strat Notes tab. Cliff note lines can start with [T], [H], [D] or a mix like [TH] to show which roles they affect. Guide lines starting with \"HC: \" are Heroic additions.",
  "seasons": [
   {
    "id": "s1",
@@ -46,8 +46,10 @@
        "tank": [
         "Blackening Wounds: every melee hit lowers your max health by 4% for 20 seconds and stacks. Swap at 8–10 stacks.",
         "When adds spawn they run at the tank with the most stacks. Swap at the start of each add wave, and the high-stack tank stands away from the boss.",
-        "Imperator's Glory: within 10 yards of claimed territory the boss deals 75% more damage and takes 99% less. On Heroic his adds give him the same buff. Keep him clear of both.",
-        "Move him quickly to the area you want to fight in for each wave."
+        "Imperator's Glory: within 10 yards of claimed territory the boss deals 75% more damage and takes 99% less.",
+        "HC: On Heroic his adds give him the same buff when he is within 10 yards of them. Keep him clear of both.",
+        "Move him quickly to the area you want to fight in for each wave.",
+        "HC: In the intermission, tank every add at least 10 yards from the boss."
        ],
        "healer": [
         "Dark Upheaval: a burst of raid damage followed by ticking damage. This is the main place for raid cooldowns.",
@@ -56,7 +58,7 @@
        "raid": [
         "Kill priority: Abyssal Voidshaper, then Shadowguard Stalwart, then Voidmaws.",
         "Stack for every Umbral Collapse so the damage is split, then move together.",
-        "Heroic adds Obscurion Endwalkers and the add-proximity buff, so position wider."
+        "HC: Voidmaws at 35% health run to the nearest claimed tile to heal: kill them before they get there."
        ],
        "wipes": [
         "Averzian claims three tiles in a row.",
@@ -74,7 +76,35 @@
          "u": "https://www.icy-veins.com/wow/imperator-averzian-raid-guide"
         }
        ],
-       "hero": "Pop Hero on pull"
+       "hero": "Pop Hero on pull",
+       "diff": {
+        "normal": [
+         "The board, Umbral Collapse soaks and add waves all work the same.",
+         "Adds don't buff the boss, and Voidmaws don't run off to heal."
+        ],
+        "heroic": [
+         "Imperator's Glory also triggers when the boss is within 10 yards of his adds.",
+         "Intermission adds must be tanked 10+ yards from the boss.",
+         "Voidmaws at 35% run to a claimed tile to heal."
+        ],
+        "mythic": [
+         "Cosmic Shell shields the Voidshapers: two Void Marked dispels are needed to break it.",
+         "Six players get Void Marked and are dispelled on the adds.",
+         "Voidshapers at 100 energy turn into Endwalkers that must be hard-swapped.",
+         "Oblivion's Wrath spikes return."
+        ]
+       },
+       "ach": {
+        "name": "The Only Winning Move Is Not To Play",
+        "req": "Defeat Imperator Averzian after he destroys your banners.",
+        "how": [
+         "Three players pick up the banners before the boss arena.",
+         "Place them in a row on the board.",
+         "Let Umbral Collapse destroy them.",
+         "Still never let him get three Voidshapers in a row."
+        ],
+        "note": "Method not fully confirmed."
+       }
       },
       {
        "id": "vorasius",
@@ -104,7 +134,7 @@
         {
          "t": "Walls and adds",
          "items": [
-          "Void Crystal walls go up. Blistercreeps explode when they die: on Heroic two explosions destroy a wall.",
+          "HC: Void Crystal walls go up. Blistercreeps explode when they die: on Heroic it takes two explosions to destroy a wall (one on Normal).",
           "Kill them on the markers, starting with the ones furthest back, because their goo expands.",
           "Killing the first set of 3 adds does raid-wide damage: everyone uses a personal."
          ]
@@ -142,7 +172,32 @@
          "u": "https://www.icy-veins.com/wow/vorasius-raid-guide"
         }
        ],
-       "hero": "Pop Hero on pull"
+       "hero": "Pop Hero on pull",
+       "diff": {
+        "normal": [
+         "One Blistercreep explosion breaks a wall.",
+         "Play around the middle for Shadowclaw Slam."
+        ],
+        "heroic": [
+         "Two Blistercreep explosions per wall."
+        ],
+        "mythic": [
+         "Three explosions per wall, with 7 adds: at most one can be wasted.",
+         "Adds must die on the wall, and their pools are permanent and grow.",
+         "Raid-wide personals after the first three adds die; groups split left and right walls."
+        ]
+       },
+       "ach": {
+        "name": "Hungry Hungry Hatchlings",
+        "req": "Defeat Vorasius after every player feeds their hatchling until it falls asleep.",
+        "how": [
+         "After the pull, a Surprisingly Large Egg appears on the right side of the room.",
+         "Every player clicks the Hungry Hatchling peeking out of it (set it as your focus target).",
+         "In the wall phase, kill Blistercreeps: they drop meat the hatchlings eat.",
+         "When a hatchling has enough it falls asleep and shows a heart. Once all are asleep, kill the boss."
+        ],
+        "note": "If you die you lose your hatchling and the group has to reset."
+       }
       },
       {
        "id": "salhadaar",
@@ -166,7 +221,7 @@
          "items": [
           "Two Concentrated Void orbs spawn from the Riftlabs and drift toward the boss.",
           "If one reaches him he gets Void Infusion: big Shadow damage to everyone plus damage every second for a minute. In practice it's a wipe.",
-          "On Heroic each orb releases Dark Radiation when it dies. Kill one, let the Dark Radiation fall off, then kill the second."
+          "HC: On Heroic each orb releases Dark Radiation when it dies: an 8-second raid DoT that stacks. Kill one, let it fall off, then kill the second."
          ]
         },
         {
@@ -179,18 +234,19 @@
        ],
        "tank": [
         "Destabilizing Strikes: his melee applies a stacking Shadow DoT. Swap at about 8 stacks.",
-        "He throws a dark star at the current tank: a huge Shadow hit, then Twilight Spikes run outward from the impact. On Heroic the star also bounces to several more players.",
+        "He throws a dark star at the current tank (Shattering Twilight): a huge Shadow hit, then Twilight Spikes run outward from the impact.",
+        "HC: On Heroic the star also hits several more players.",
         "Face the impact so the spike lines go away from the raid."
        ],
        "healer": [
         "Entropic Unraveling at 100 energy is the big cooldown moment.",
-        "A dispellable debuff pulses damage around its target: they run to the edge of the room first. When it's dispelled it leaves a pool and a healing absorb.",
-        "Orb deaths (Dark Radiation) add raid damage; don't stack both orbs dying together."
+        "Despotic Command puts circles on several players: they run to the edge of the room first. Dispelling leaves a pool and a healing absorb.",
+        "HC: Orb deaths (Dark Radiation) add stacking raid damage; never let both orbs die together."
        ],
        "raid": [
         "Ranged and cleave on orbs the moment they spawn.",
         "Drop puddles at the edges. The fight only gets hard if the room fills up.",
-        "Marked for the star bounce on Heroic: aim your spikes away from everyone."
+        "HC: Marked for the star on Heroic: aim your spikes away from everyone."
        ],
        "wipes": [
         "An orb reaches the boss (Void Infusion).",
@@ -208,7 +264,32 @@
          "u": "https://www.icy-veins.com/wow/fallen-king-salhadaar-raid-guide"
         }
        ],
-       "hero": "Pop Hero on pull"
+       "hero": "Pop Hero on pull",
+       "diff": {
+        "normal": [
+         "Orbs can die back to back: no Dark Radiation.",
+         "Shattering Twilight only hits the tank."
+        ],
+        "heroic": [
+         "Killing an orb gives the raid Dark Radiation (8-second stacking DoT).",
+         "Shattering Twilight also targets several players."
+        ],
+        "mythic": [
+         "Killed orbs stay in the room and hurt anyone under them, then come back with less health when new orbs spawn.",
+         "Tanks kite so all orbs die in one spot.",
+         "Fractured Projection adds: interrupt them one at a time in the same window.",
+         "Enrage after the third Entropic Unraveling."
+        ]
+       },
+       "ach": {
+        "name": "It's Treason Then",
+        "req": "Defeat Salhadaar after everyone kneels to him before the fight.",
+        "how": [
+         "Before the pull, everyone kneels to him one at a time (gives a debuff).",
+         "During the fight a shade of each player spawns now and then.",
+         "Face your own shade or it kills you; otherwise play the fight normally."
+        ]
+       }
       },
       {
        "id": "vaelgor",
@@ -252,7 +333,7 @@
         "Swap after every Gloom by running to the other dragon. Don't drag them. Tank near spawn, close to the 15-yard limit."
        ],
        "healer": [
-        "Nullzone Implosion: heavy raid DoT for 6 seconds when the last tether snaps. Your main cooldown each combo.",
+        "HC: Nullzone Implosion: heavy raid DoT for 6 seconds when the last tether snaps (bigger on Heroic). Your main cooldown each combo.",
         "Midnight Flames in the intermission: only people inside the barrier survive comfortably.",
         "Dread Breath fears its target: dispel after the cone has hit and the player has stepped aside.",
         "Tail Lash and Impale cause bleeds and a 3-second stun."
@@ -260,7 +341,8 @@
        "raid": [
         "Stand between the dragons and hit from the sides. Never behind (Tail Lash).",
         "Void Howl: stack tightly without overlapping circles so the Voidorbs spawn together. After tethers break, grip them in and AoE them. Stun or interrupt their Voidbolt.",
-        "Gloom: the first goes to the blue marker, soaked by 5+ ranged to shrink the puddle. Rotate markers and groups. Soakers get Diminish for 1 minute and can't soak again.",
+        "Gloom: the first goes to the blue marker, soaked by 5+ ranged to shrink the puddle. Rotate markers and groups.",
+        "HC: Soakers get Diminish for 1 minute and can't soak again: have teams ready.",
         "Dread Breath target steps to the side so the cone misses the raid."
        ],
        "wipes": [
@@ -280,7 +362,30 @@
          "u": "https://www.icy-veins.com/wow/vaelgor-and-ezzorak-raid-guide"
         }
        ],
-       "hero": "Pop Hero on pull"
+       "hero": "Pop Hero on pull",
+       "diff": {
+        "normal": [
+         "Gloom has no soak debuff.",
+         "Smaller burst when Nullzone ends."
+        ],
+        "heroic": [
+         "Gloom soakers get Diminish: 1 minute before they can soak again.",
+         "Bigger raid burst when the last player leaves Nullzone."
+        ],
+        "mythic": [
+         "Our sources haven't listed the Mythic changes yet: see the full guides."
+        ]
+       },
+       "ach": {
+        "name": "Ready, Set, Snap!",
+        "req": "Defeat Vaelgor & Ezzorak after every player breaks each Nullzone tether within 3 seconds.",
+        "how": [
+         "Stay close together.",
+         "Use group speed (Stampeding Roar, Wind Rush Totem) so everyone breaks the tether at the same moment.",
+         "Healing cooldowns for each Nullsnap, since each one hits the raid."
+        ],
+        "note": "A big step up even on Normal. More item level makes it easier (faster kill, fewer Nullzones)."
+       }
       },
       {
        "id": "vanguard",
@@ -304,22 +409,22 @@
          "items": [
           "Light Infused ticks damage on the whole raid all fight.",
           "Each paladin gains energy; at 100 they activate an aura that empowers the others and unleash their biggest attack. Order: Bellamy first, Senn third.",
-          "When an aura expires, that boss consecrates the ground under them, so they should be at the edge.",
+          "HC: When an aura expires, that boss leaves a permanent Consecration on the ground, so they should be at the edge.",
           "When one dies, the others avenge them (+10% damage every 2 seconds). Spread damage so they die close together."
          ]
         },
         {
          "t": "The three paladins",
          "items": [
-          "General Amias Bellamy: Aura of Devotion and Divine Toll (waves of shields that silence anyone hit), plus Avenger's Shield.",
-          "War Chaplain Senn: Aura of Peace and Tyr's Wrath, a healing absorb; stand near the boss so it's shared.",
-          "Commander Venel Lightblood: Judgment into a hard follow-up hit; also watch for Execution Sentence."
+          "General Amias Bellamy (Protection): Aura of Devotion (bosses within 40 yards take 75% less damage), then Divine Toll, waves of shields across the room that silence anyone hit. Also Avenger's Shield.",
+          "Commander Venel Lightblood (Retribution): Aura of Wrath (bosses within 40 yards deal 100% more damage for 15 seconds), then Execution Sentence on four players. Also Judgment into a hard follow-up hit.",
+          "War Chaplain Senn (Holy): Aura of Peace (buffs the other bosses and pacifies players who attack them), then Blinding Light with a Sacred Shield on herself. Also Tyr's Wrath, a healing absorb."
          ]
         }
        ],
        "tank": [
         "Swap right after each Judgment, or the follow-up kills your co-tank.",
-        "When a boss is about to reach 100 energy, drag it to the edge so its Consecration doesn't cover the room.",
+        "HC: When a boss is about to reach 100 energy, drag it to the edge so its permanent Consecration doesn't cover the room.",
         "Lots of quick taunts all fight: call your swaps."
        ],
        "healer": [
@@ -348,7 +453,31 @@
          "u": "https://www.icy-veins.com/wow/lightblinded-vanguard-raid-guide"
         }
        ],
-       "hero": "Pop Hero on pull, but hold some cooldowns: Bellamy and Senn bubble for 8 seconds"
+       "hero": "Pop Hero on pull, but hold some cooldowns: Bellamy and Senn bubble for 8 seconds",
+       "diff": {
+        "normal": [
+         "No Consecration after the 100-energy cycles: the room stays clean."
+        ],
+        "heroic": [
+         "Every 100-energy cycle leaves a permanent Consecration: drag bosses to the edge."
+        ],
+        "mythic": [
+         "Zealous Spirit empowers one paladin (30% more damage, enhanced ability) and passes between them, lining up their big abilities.",
+         "Two bosses start with Divine Shield: Mass Dispel after lust.",
+         "Everything hits much harder: a bigger healing check."
+        ]
+       },
+       "ach": {
+        "name": "Aura Farming",
+        "req": "Defeat the Vanguard while the whole raid has Maximum Aura.",
+        "how": [
+         "Before the arena, click the Tome of Divinity on the small hill to the right of the stairs (everyone gets Aura Farming).",
+         "Pull normally and stand in each boss's aura when they hit 100 energy.",
+         "Keep going until everyone has Maximum Aura.",
+         "Capped players step aside: Maximum Aura stuns nearby players with less."
+        ],
+        "note": "An extra healer helps."
+       }
       },
       {
        "id": "crown",
@@ -374,14 +503,16 @@
           "Sentinels can't die until a Silverstrike Arrow hits them (Umbral Tether). Hit all three early so Corrupting Essence builds, but don't re-hit one without reason: that resets the stacks.",
           "They teleport back if pulled more than 25 yards from their portal: bring the adds to them.",
           "A Sentinel at 100 energy starts one-shotting people. Kill on time.",
-          "Dodge Grasp of Emptiness beams and stray arrows."
+          "Dodge Grasp of Emptiness beams and stray arrows.",
+          "HC: Grasp of Emptiness hits two players instead of one, and several players hit by Void Expulsion drop a second pool a few seconds later."
          ]
         },
         {
          "t": "Intermission 1",
          "items": [
           "Alleria knocks everyone up and the room splits into three slices. Stay in your slice near the middle and fight the pull.",
-          "Stellar Emission stacks fast, ramping damage and pull strength. An arrow resets it, but Silverstrike Barrage makes you take 300% more arrow damage for 8 seconds: get hit early, avoid a double hit, get hit again as it drops.",
+          "Stellar Emission stacks fast, ramping damage and pull strength. An arrow resets it.",
+          "HC: Silverstrike Barrage makes you take 300% more arrow damage for 8 seconds: get hit early, avoid a double hit, get hit again as it drops.",
           "Dodge Singularity Eruption puddles."
          ]
         },
@@ -398,7 +529,7 @@
          "t": "Intermission 2",
          "items": [
           "Same arrow and pull rules as Intermission 1.",
-          "Orbiting Matter forces you to rotate to another slice: it pulls in anyone close. Don't move while the arrow debuff is on the raid."
+          "HC: Orbiting Matter: a wall of orbs chases you, so the raid rotates at least one slice and must all end on the same one. Don't move while the arrow debuff is on the raid."
          ]
         },
         {
@@ -406,7 +537,7 @@
          "items": [
           "Alleria lands and is tanked in the middle. Lust, potions, every cooldown.",
           "Aspect of the End tethers one tank, one melee and one ranged. Breaking a tether (30 yards) causes Gravity Collapse: raid damage plus 300% physical damage taken for 12 seconds. Break order: Ranged, then Melee, then Tank, when the raid is healthy.",
-          "Grasp of Emptiness obelisks return: move as a group out of their beams.",
+          "HC: Grasp of Emptiness obelisks return, two circles at a time: move as a group out of their beams.",
           "Devouring Cosmos covers your slice, deals heavy damage and blocks healing. Grab a Dark Rush feather beforehand and glide to the next slice. This is the hard enrage."
          ]
         }
@@ -445,7 +576,32 @@
          "u": "https://icy-veins.com/wow/crown-of-the-cosmos-raid-guide"
         }
        ],
-       "hero": "Pop Hero at the start of Phase 3, when Alleria lands"
+       "hero": "Pop Hero at the start of Phase 3, when Alleria lands",
+       "diff": {
+        "normal": [
+         "One Grasp of Emptiness at a time.",
+         "No follow-up Void Expulsion pools.",
+         "No Silverstrike Barrage debuff in the intermissions."
+        ],
+        "heroic": [
+         "Void Expulsion leaves follow-up pools; Grasp of Emptiness on two players.",
+         "Silverstrike Barrage: 300% more arrow damage for 8 seconds.",
+         "Intermission 2 orb wall forces a slice rotation.",
+         "Phase 3: two Grasp circles at a time."
+        ],
+        "mythic": [
+         "Our sources haven't listed the Mythic changes yet: see the full guides."
+        ]
+       },
+       "ach": {
+        "name": "We Will, In Fact, See It Again",
+        "req": "Defeat Crown of the Cosmos after killing a Fleshy Monstrosity and returning its meat to The Emptiness.",
+        "how": [
+         "Stand in the void puddle behind Umbric's portal until you have 10 Clinging Void stacks: you get a Lump of Flesh (10 minutes).",
+         "After Morium, Demair and Vorelus die, Alleria starts the intermission: get close enough to use the extra action button, but don't get pulled into the middle.",
+         "Once the whole raid has thrown their lumps, a Fleshy Monstrosity spawns: kill it, then finish the fight."
+        ]
+       }
       }
      ]
     },
@@ -490,7 +646,7 @@
          "items": [
           "Chimaerus takes off with Corrupted Devastation and summons Manifestations below.",
           "Kill the Manifestations and keep clearing puddles with the Miasma dispels.",
-          "Ravenous Dive (Heroic): anything still alive gets eaten. Each one hits the raid, heals him for 500% of its remaining health and gives him +50% damage, stacking.",
+          "HC: Ravenous Dive: anything still alive gets eaten. Each one hits the raid, heals him for 500% of its remaining health and gives him +50% damage, stacking. On Heroic it no longer clears the pools.",
           "Then back to Phase 1."
          ]
         }
@@ -501,7 +657,7 @@
         "When adds come out of the Rift, swap so the right tank picks them up."
        ],
        "healer": [
-        "Consuming Miasma (Heroic): a curse on several players, damage every second for 12 seconds. Players step into Alndust Essence first, then you dispel: that removes the puddle too.",
+        "HC: Consuming Miasma: a curse on several players, damage every second for 12 seconds. Players step into Alndust Essence first, then you dispel: that removes the puddle too. On Heroic it's the only way to clear pools.",
         "Insatiable and Cannibalized Essence hit the whole raid: a cooldown if an add gets through or gets eaten.",
         "Each group has half the healers: stay with your group."
        ],
@@ -526,7 +682,32 @@
          "u": "https://icy-veins.com/wow/chimaerus-raid-guide"
         }
        ],
-       "hero": "Pop Hero on pull"
+       "hero": "Pop Hero on pull",
+       "diff": {
+        "normal": [
+         "No Consuming Miasma.",
+         "Ravenous Dive clears the pools for you."
+        ],
+        "heroic": [
+         "Consuming Miasma: dispel players inside puddles to clear them.",
+         "Ravenous Dive no longer clears pools: Miasma is the only way."
+        ],
+        "mythic": [
+         "Dissonance: you can't stand near players on the other floor.",
+         "Rift Madness: two players downstairs are feared and die unless soaked.",
+         "Teams split the room; Fearsome Cry must always be interrupted."
+        ]
+       },
+       "ach": {
+        "name": "Falling Between The Quacks",
+        "req": "Defeat Chimaerus after plucking all Corrupted Feathers from Sergeant Quackers and rescuing him from the Aln.",
+        "how": [
+         "Find Sergeant Quackers on the left of the first platform and talk to him to bring him along. Mark him: he runs around.",
+         "At the first Alndust Upheaval on the tank, Quackers goes downstairs and stays until every player has plucked a feather.",
+         "He comes back and attacks the boss; finish normally."
+        ],
+        "note": "After a wipe, collect him from the first platform again."
+       }
       }
      ]
     },
@@ -538,8 +719,8 @@
        "id": "beloren",
        "name": "Belo'ren, Child of Al'ar",
        "journal": "Belo'ren, Child of Al'ar",
-       "status": "todo",
-       "summary": "A void-touched phoenix guarding the Sunwell. In Stage Two it retreats into an ashen egg to be reborn. Full guide coming.",
+       "status": "ready",
+       "summary": "Every player and both tanks carry a Light or a Void feather. Each mechanic must be handled by the matching colour. Taking the boss to 0% in Phoenix form sends him into an egg for 30 seconds: burn it, then Phoenix form repeats with harder Embers each cycle.",
        "links": [
         {
          "t": "Method (Heroic)",
@@ -549,14 +730,88 @@
          "t": "Icy Veins",
          "u": "https://www.icy-veins.com/wow/beloren-raid-guide"
         }
-       ]
+       ],
+       "setup": "2 tanks · 4 healers · 14 DPS (Warlock Gateway helps)",
+       "lust": "Egg burn phase",
+       "hero": "Pop Hero in an egg phase (around 30%), not in Phoenix form",
+       "style": "Light vs Void colours · egg burns",
+       "cliff": [
+        "[THD] MATCH YOUR COLOUR. Wrong colour on anything = big damage.",
+        "[T] Tanks: get hit by YOUR colour's Guardian's Edict cone. A miss gives him +30%.",
+        "[D] Kill the Ember, then swap to the egg before it Rebirths.",
+        "[THD] Interrupt Light / Void Eruption with the matching colour.",
+        "[THD] Death Drop: away from the middle, gateway out after the crash."
+       ],
+       "phases": [
+        {
+         "t": "Phase 1: Phoenix form",
+         "items": [
+          "Open with a Light Dive or Void Dive: drop the puddle on the right marker; players of that colour soak it.",
+          "Kill the Ember, then hard swap to the egg and burn it before it can Rebirth. Later cycles spawn two Embers.",
+          "HC: Infused Quills: a beam aims at random players; a player of the matching colour stands in between to intercept it.",
+          "Radiant Echoes: orbs popped by the matching colour; the wrong colour takes heavy damage for 20 seconds.",
+          "Save Hero and big cooldowns for the egg."
+         ]
+        },
+        {
+         "t": "Phase 2: egg (30 seconds)",
+         "items": [
+          "At 0% he casts Death Drop: stand near the last puddle, away from the middle (damage and knock-up drop with distance). A Warlock Gateway right after the crash skips the knock-up.",
+          "Stand in your colour's cones, pop Radiant Echoes to make gaps, and use DPS cooldowns.",
+          "After 30 seconds he's back in Phoenix form and Phase 1 repeats."
+         ]
+        }
+       ],
+       "tank": [
+        "Light damage is Holy, Void is Shadow; Death Drop is Physical.",
+        "The two tanks always have opposite feathers.",
+        "Guardian's Edict: the tank of the matching colour must take the matching cone. A missed cone gives the boss +30% damage for 30 seconds, stacking.",
+        "Save big cooldowns for the egg phase."
+       ],
+       "healer": [
+        "Burning Heart hits the raid every 3 seconds and ramps during each egg phase: the egg is the hardest healing.",
+        "Eternal Burns puts a big absorb on everyone and keeps doing damage until it's healed through.",
+        "Ashen Benediction: every Rebirth adds a permanent, stacking 10% healing reduction."
+       ],
+       "raid": [
+        "Only soak Light / Void Dive if your colour matches. Puddles on the markers so you don't run out of room.",
+        "Light Eruption and Void Eruption hit the raid unless interrupted, and only the matching colour can interrupt them. Light Blast and Void Blast can be interrupted too.",
+        "Kill Embers fast and never let them Rebirth."
+       ],
+       "wipes": [
+        "Hit by the wrong colour (Quills, Eruptions, Echoes).",
+        "Missed Guardian's Edict cones stacking his damage.",
+        "An Ember or egg Rebirths.",
+        "Healing falls behind as Ashen Benediction stacks."
+       ],
+       "diff": {
+        "normal": [
+         "No Infused Quills."
+        ],
+        "heroic": [
+         "Infused Quills: the matching colour must intercept the beam."
+        ],
+        "mythic": [
+         "Our sources haven't listed the Mythic changes yet: see the full guides."
+        ]
+       },
+       "ach": {
+        "name": "Eggsistential Crisis",
+        "req": "Defeat Belo'ren after infusing the Sunwell Egg with Light and Void magic.",
+        "how": [
+         "The egg is on a terrace to the left of the arena, up the stairs. Tanks carry it.",
+         "Each tank charges it fully with their colour before handing it over: dropping it early resets progress.",
+         "Not done in Phase 1? Tanks can hold it through the egg phases to finish."
+        ],
+        "note": "Reported to be buggy at times."
+       }
       },
       {
        "id": "midnightfalls",
        "name": "Midnight Falls",
        "journal": "Midnight Falls",
-       "status": "todo",
-       "summary": "L'ura, the final boss of Season 1. Full guide coming.",
+       "status": "ready",
+       "summary": "L'ura, the Season 1 finale, fought around The Darkwell: stepping into it (or being pulled in) kills you. Phase 1 is about rune order, crystals and matrices; an intermission pull; Phase 2 is Void Cores inside a trap circle; Phase 3 runs on Dawn Crystals until the boss dies or they run out.",
        "links": [
         {
          "t": "Method (Heroic)",
@@ -566,7 +821,108 @@
          "t": "Icy Veins",
          "u": "https://www.icy-veins.com/wow/midnight-falls-raid-guide"
         }
-       ]
+       ],
+       "setup": "2 tanks · 4 healers · 14 DPS (interrupts and CC)",
+       "lust": "On pull",
+       "hero": "Pop Hero on pull: the early fight is on a set timer",
+       "style": "Three phases · crystals and soaks",
+       "cliff": [
+        "[THD] NOBODY TOUCHES THE DARKWELL. Fight every pull.",
+        "[THD] Dark Runes: hit by the laser in the order the symbols appeared.",
+        "[D] Midnight Crystals grouped and dead before Cosmic Fracture; heal Dusk Crystals to full.",
+        "[THD] No Void Core left alive at Dark Meltdown.",
+        "[THD] P3: stay in the light, soak both Light Siphons, crystal up for every Dark Archangel."
+       ],
+       "phases": [
+        {
+         "t": "Phase 1",
+         "items": [
+          "Death's Dirge: five Dark Rune players must be hit by the rotating laser in the order their symbols appeared. Right order = Resonance (small raid damage); wrong order = Dissonance (usually a wipe).",
+          "Dodge Heaven's Glaives (bouncing glaives, the most common random death) and the Dark Quasar laser from The Darkwell.",
+          "Safeguard Prism: the boss takes 33% less damage. Interrupt or dispel the Safeguard Matrices until they're destroyed.",
+          "Midnight Crystals: group them and kill them before Cosmic Fracture. Dusk Crystals: heal them to full, or they also cast it. Healed ones become Dawn Crystals: assigned players pick them up.",
+          "Dawn Crystal holders take little damage. Never leave a crystal on the ground for more than 3 seconds.",
+          "HC: A Cosmic hit on a crystal holder triggers Tears of L'ura: two pools that must be soaked, or they become Naaru's Lament.",
+          "The phase ends when the boss reaches 0 energy."
+         ]
+        },
+        {
+         "t": "Intermission",
+         "items": [
+          "Total Eclipse pulls everyone toward The Darkwell and stacks an absorb: fight the pull the whole time.",
+          "Dodge the rapid Dark Quasars.",
+          "Starsplinter: aim the spikes away from people. Crystal holders drop the crystal, sidestep, and pick it straight back up."
+         ]
+        },
+        {
+         "t": "Phase 2",
+         "items": [
+          "Iris of Oblivion traps the raid in a circle: leaving the outer edge kills you. Abyssal Pool deals constant raid damage.",
+          "HC: Split into four marker groups. Galvanize beams from four players hit the rotating Void Cores; extra players soak beams to reduce Overkill Current damage.",
+          "Hit cores from opposite sides so the Cosmic Fission pulls cancel out.",
+          "Core Harvest: avoid the marked lines.",
+          "At 100 energy, Dark Meltdown knocks everyone into Phase 3: stack in front of the boss first, with no Void Cores still active."
+         ]
+        },
+        {
+         "t": "Phase 3",
+         "items": [
+          "Thunderous Well: raid damage every 2 seconds for the whole phase.",
+          "Torchbearer: stay inside the 12-yard light around crystal holders.",
+          "The Dark Archangel wipes the raid without a Dawnlight Barrier: one Dawn Crystal per cast.",
+          "Black Tide: a frontal that leaves a puddle. Move or take a gate.",
+          "Dark Constellation: dodge the stars and the beams between them.",
+          "Light Siphon: fully soak both zones within 22 seconds, or Stellar Implosion wipes the raid.",
+          "Kill her before the crystals run out or Black Tide covers the room."
+         ]
+        }
+       ],
+       "tank": [
+        "Heaven's Lance stacks on each hit; at 5 stacks you get Impaled (50% more Heaven's Lance damage for 25 seconds). Swap after each cycle."
+       ],
+       "healer": [
+        "Shattered Sky lasts 25 seconds and overlaps other mechanics: a big cooldown.",
+        "Abyssal Pool (Phase 2) and Thunderous Well (Phase 3) are constant raid damage.",
+        "Heal Dusk Crystals to full in Phase 1.",
+        "Dissonance and Naaru's Lament are huge spikes. Dispel the Safeguard Matrices."
+       ],
+       "raid": [
+        "Grip and kill Midnight Crystals fast.",
+        "Soak Tears of L'ura when a crystal holder takes a Cosmic hit.",
+        "Interrupt or dispel Safeguard Matrices.",
+        "Hit Void Cores from opposite sides and soak Galvanize beams.",
+        "Dodge Glaives, Dark Quasar, Starsplinter, Dark Constellation and Black Tide; stay inside Torchbearer light."
+       ],
+       "wipes": [
+        "Wrong Death's Dirge order (Dissonance).",
+        "A Void Core still active at Dark Meltdown.",
+        "Light Siphon not fully soaked (Stellar Implosion).",
+        "Dark Archangel without a Dawnlight Barrier.",
+        "Someone walks or gets pulled into The Darkwell, or leaves Iris of Oblivion.",
+        "Running out of crystals, or Black Tide covers the room."
+       ],
+       "diff": {
+        "normal": [
+         "Galvanize isn't a group soak.",
+         "Cosmic hits on crystal holders don't make soak pools."
+        ],
+        "heroic": [
+         "Galvanize becomes a group soak: four groups in Phase 2.",
+         "A Cosmic hit on a crystal holder makes two pools to soak (Tears of L'ura)."
+        ],
+        "mythic": [
+         "Our sources haven't listed the Mythic changes yet: see the full guides."
+        ]
+       },
+       "ach": {
+        "name": "All The Things She Said",
+        "req": "Defeat Midnight Falls after returning 12 Memories of Alleria to L'ura.",
+        "how": [
+         "Before the fight, light the Void Torch in the alcove to the right of the boss room.",
+         "In Phase 3, find the 12 Memories around the room, interact with each and push them into L'ura before they despawn.",
+         "Move fast enough to beat the enrage."
+        ]
+       }
       }
      ]
     },
@@ -604,14 +960,32 @@
        "name": "Nek'zali the Soulcoiler",
        "journal": "Nek'zali the Soulcoiler",
        "status": "todo",
-       "links": []
+       "links": [],
+       "ach": {
+        "name": "Well, Well, Little Sky",
+        "req": "Defeat Nek'zali after returning Kupamanduka to the Soulcoil Well.",
+        "how": [
+         "Get the frog Kupamanduka into the well in the middle of the room.",
+         "Keep mobs out of the well for the rest of the fight."
+        ],
+        "note": "Where Kupamanduka is wasn't confirmed when our source was written."
+       }
       },
       {
        "id": "sentinels",
        "name": "Entombed Sentinels",
        "journal": "Entombed Sentinels",
        "status": "todo",
-       "links": []
+       "links": [],
+       "ach": {
+        "name": "Is Venom Stasis A Joke To You?",
+        "req": "Defeat the Entombed Sentinels after each one uses Vitriolic Stasis to restore more than half its total health.",
+        "how": [
+         "Bring one Sentinel low before its Stasis and let the Stasis play out.",
+         "Do the same with the other.",
+         "Once both have healed up, finish the fight."
+        ]
+       }
       },
       {
        "id": "explorers",
@@ -623,42 +997,93 @@
          "t": "Icy Veins",
          "u": "https://www.icy-veins.com/wow/lost-explorers-raid-guide"
         }
-       ]
+       ],
+       "ach": {
+        "name": "Accidental Inclusion",
+        "req": "Defeat The Lost Explorers, including Hoji.",
+        "how": [
+         "Feed Hoji a Disgusting Fish so he becomes one of Mor'zahi's possession targets.",
+         "Then play the fight normally while handling his mechanics."
+        ]
+       }
       },
       {
        "id": "vashnik",
        "name": "Vashnik the Malignant",
        "journal": "Vashnik the Malignant",
        "status": "todo",
-       "links": []
+       "links": [],
+       "ach": {
+        "name": "Kept You Waiting Huh?",
+        "req": "Defeat Vashnik after killing the Solidified Snake Venom.",
+        "how": [
+         "Hold Vashnik at the venom fountain until the venoms he spawns merge into one giant Solidified Snake Venom.",
+         "Kill it, then finish Vashnik."
+        ],
+        "note": "Expect heavy healing."
+       }
       },
       {
        "id": "sszorak",
        "name": "Sszorak",
        "journal": "Sszorak",
        "status": "todo",
-       "links": []
+       "links": [],
+       "ach": {
+        "name": "Jumping Through Hoops",
+        "req": "Defeat Sszorak while jumping through each ring that appears.",
+        "how": [
+         "Use the wind knockbacks to fly through the rings."
+        ],
+        "note": "Personal achievement: people can get it on different weeks."
+       }
       },
       {
        "id": "twinfangs",
        "name": "The Twin Fangs",
        "journal": "The Twin Fangs",
        "status": "todo",
-       "links": []
+       "links": [],
+       "ach": {
+        "name": "Taking a Bite out of Slime",
+        "req": "Defeat the Twin Fangs after feeding Ithraz four slimes in order during Ravenous Feast: Crunchy Appetizer, Sumptuous Soup, Tasty Blob, Jiggly Dessert.",
+        "how": [
+         "Assign one player per slime and have them find it before the pull.",
+         "Slimekeepers don't soak Ravenous Feast until it's their turn to feed."
+        ],
+        "note": "Slimes reportedly follow their player through death for about an hour."
+       }
       },
       {
        "id": "coiledaltar",
        "name": "The Coiled Altar",
        "journal": "The Coiled Altar",
        "status": "todo",
-       "links": []
+       "links": [],
+       "ach": {
+        "name": "Watch Out Behind You",
+        "req": "Defeat The Coiled Altar while all players are afflicted by Unnerving Fixation.",
+        "how": [
+         "In the later phases, DPS off Dreadmarch so Manifestations of Dread spawn and fixate random players.",
+         "Keep it going until everyone has Unnerving Fixation, without getting possessed."
+        ],
+        "note": "Can take some luck."
+       }
       },
       {
        "id": "ulatek",
        "name": "Ula'tek",
        "journal": "Ula'tek",
        "status": "todo",
-       "links": []
+       "links": [],
+       "ach": {
+        "name": "No Egg Scramble",
+        "req": "Defeat Ula'tek before the Greasy Hatchling breaks.",
+        "how": [
+         "The raid picks up the Greasy Hatchling egg and passes it every 20 seconds (the debuff's length) until the boss dies."
+        ],
+        "note": "Method not confirmed yet. Also gives the Ula'took battle pet."
+       }
       }
      ]
     },
@@ -720,5 +1145,17 @@
     }
    ]
   }
- ]
+ ],
+ "metas": {
+  "s1": {
+   "name": "Glory of the Midnight Raider",
+   "reward": "Tenebrous Harrower mount",
+   "note": "Boss achievements from the Voidspire, the Dreamrift and March on Quel'Danas, Normal or higher."
+  },
+  "s2": {
+   "name": "Glory of the Venomous Raider",
+   "reward": "Crimson Venomfang mount",
+   "note": "All 8 Venomous Abyss boss achievements, Normal or higher."
+  }
+ }
 }
