@@ -1196,6 +1196,7 @@ function guildLinks() {
     ['worldofwarcraft.blizzard.com', 'Armory', `https://worldofwarcraft.blizzard.com/en-us/guild/${region}/${realm}/${encodeURIComponent(name.toLowerCase())}`],
     ['discord.com', 'Discord', g.discord || '']
   ].filter(l => l[2]);
+  const rd = document.getElementById('rules-discord'); if (rd) { if (g.discord) rd.href = g.discord; else rd.removeAttribute('href'); }
   $('guild-links').innerHTML = links.map(([d, l, u]) => `<a class="glink" href="${esc(u)}" target="_blank" rel="noopener">${fav(d, l[0])}<span>${l}</span></a>`).join('');
 }
 

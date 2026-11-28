@@ -7,7 +7,7 @@
 <link rel="preconnect" href="https://script.google.com">
 <link rel="preconnect" href="https://script.googleusercontent.com" crossorigin>
 <link rel="stylesheet" href="app.css?v=1">
-<link rel="stylesheet" href="apo.css?v=52">
+<link rel="stylesheet" href="apo.css?v=53">
 </head>
 <body>
 <div class="container">
@@ -22,7 +22,7 @@
   </div>
   <div class="guild-links" id="guild-links"></div>
   <nav class="nav apo-tabs" id="tabs">
-    <a href="#guild" data-tab="guild">Guild</a><a href="#roster" data-tab="roster">Roster</a><a href="#loot" data-tab="loot">Loot Targets</a><a href="#priority" data-tab="priority">BiS Priority</a><a href="#sims" data-tab="sims">Sims Priority</a><a href="#talents" data-tab="talents">Talents Check</a><a href="#vault" data-tab="vault">Great Vault</a><a href="#mplus" data-tab="mplus">Mythic+</a><a href="#requests" data-tab="requests">Requests</a>
+    <a href="#guild" data-tab="guild">Guild</a><a href="#roster" data-tab="roster">Roster</a><a href="#loot" data-tab="loot">Loot Targets</a><a href="#priority" data-tab="priority">BiS Priority</a><a href="#sims" data-tab="sims">Sims Priority</a><a href="#talents" data-tab="talents">Talents Check</a><a href="#vault" data-tab="vault">Great Vault</a><a href="#mplus" data-tab="mplus">Mythic+</a><a href="#requests" data-tab="requests">Requests</a><a href="#rules" data-tab="rules">Raiding &amp; Loot Rules</a>
   </nav>
 
   <section class="tab" id="tab-guild">
@@ -94,6 +94,194 @@
     <div class="req-grid" id="req-forms"></div>
   </section>
 
+  <section class="tab" id="tab-rules">
+    <div class="rules-nav">
+      <a data-jump="r-about">About us</a><a data-jump="r-join">Joining &amp; trial</a><a data-jump="r-groups">Raid groups</a><a data-jump="r-core">Core rules</a>
+      <a data-jump="r-secondary">Secondary mains</a><a data-jump="r-loot">Loot &amp; rolls</a><a data-jump="r-resources">Resources</a>
+    </div>
+
+    <div class="rules-strip">
+      <div class="stat"><div class="k">Raid night</div><div class="v sm">Tuesday</div><div class="s">8pm EST &middot; 7pm CST &middot; 5pm PST, 3 hours</div></div>
+      <div class="stat"><div class="k">Difficulty</div><div class="v sm">Heroic</div><div class="s">one night a week</div></div>
+      <div class="stat"><div class="k">Trial</div><div class="v sm">2 weeks</div><div class="s">as an Initiate</div></div>
+      <div class="stat"><div class="k">Required add-on</div><div class="v sm">DBM <span class="of">or</span> BigWigs</div><div class="s"><a href="https://www.curseforge.com/wow/addons/deadly-boss-mods" target="_blank" rel="noopener">DBM</a> &middot; <a href="https://www.curseforge.com/wow/addons/big-wigs" target="_blank" rel="noopener">BigWigs</a></div></div>
+    </div>
+
+    <!-- About -->
+    <div class="card" id="r-about"><div class="card-head"><h2>Who we are</h2></div>
+      <p class="lead">Apotheosis is a former Mythic raiding guild that has become a one-night-a-week Heroic raiding guild. We're not a Mythic guild anymore, but our raids are still very structured, and we keep a friendly community feel.</p>
+      <div class="rules-cols">
+        <div><h3>Community</h3>
+          <p>We're a friendly, mature community. Let leadership know if there's ever an issue.</p>
+          <ul>
+            <li><b>Be respectful.</b> You represent our community, so show others what it has to offer. (Don't be a jerk.)</li>
+            <li><b>Someone else playing your account</b> is against the Terms of Service, but we don't particularly care (your risk, not ours), <b>except during community or guild events</b>: Mythic+, PvP, raids and so on.</li>
+          </ul>
+          <p class="hint">We're all adults. Please don't make us put you in a time out, or remove you&hellip;</p></div>
+        <div class="rules-warn"><h3>&#9888; We do not tolerate drama</h3>
+          <ul>
+            <li>No <a data-jump="r-loot">loot drama</a>.</li>
+            <li>No <a data-jump="r-secondary">secondary main drama</a>.</li>
+            <li>Be adults, not childish or immature. We share voice and raid for 3 hours every week.</li>
+            <li>Don't be obnoxious with an open mic (burping, eating chips and so on). Some background noise and side conversations happen, so be tolerant of others too.</li>
+            <li>No one is perfect, but there's a line. Don't cross it.</li>
+          </ul></div>
+      </div>
+    </div>
+
+    <!-- Joining -->
+    <div class="card" id="r-join"><div class="card-head"><h2>Joining &amp; the Initiate trial</h2></div>
+      <p class="lead">Just ask us in the <b>raid_discussion</b> channel on <a id="rules-discord" href="#" target="_blank" rel="noopener">Discord</a>, or use the <a href="#requests" data-tab="requests">Requests</a> tab ("Join the raid"). We aren't formal; we'll talk you through the next steps.</p>
+      <div class="rules-steps">
+        <div class="rstep"><b>1</b><div><h4>Join as an Initiate</h4><p>A 2-week trial. All eyes will be on you. (JK, we aren't that bad.)</p></div></div>
+        <div class="rstep"><b>2</b><div><h4>We pick your raid role</h4><p>During or after the trial: <b>Core</b>, <b>Casual / Farm</b>, or we part ways.</p></div></div>
+      </div>
+      <div class="rules-cols">
+        <div><h3>What we look at</h3>
+          <p><b>As a player</b></p>
+          <ul><li>Are you solidly tanking the floor? Are you dead often?</li><li>Are you doing mechanics? Do you even dance?</li><li>How's your comparative performance (below)?</li></ul>
+          <p><b>As a person</b></p>
+          <ul><li>Are you reliable with attendance and performance?</li><li>Are you a good fit for Apotheosis?</li></ul></div>
+        <div><h3>Comparative performance</h3>
+          <p>We look at the numbers that matter for your role in Warcraft Logs:</p>
+          <table class="logs-table rules-table"><tbody>
+            <tr><td><b>Parse %</b></td><td>Overall performance. We'd like to see something other than gray.</td></tr>
+            <tr><td><b>Amount</b></td><td>Where you are compared to the rest of us.</td></tr>
+            <tr><td><b>Ilvl %</b></td><td>Spec knowledge: how you rank among players at a similar item level. Again, other than gray.</td></tr>
+          </tbody></table>
+          <p class="hint">Item level, enchants and gems are checked elsewhere, not in logs.</p>
+          <h3>Rotation</h3>
+          <p>We don't quiz you on your rotation; we aren't that hardcore. We may run your logs through <a href="https://wowanalyzer.com/" target="_blank" rel="noopener">WoWAnalyzer</a> to see if anything major stands out. It's a guideline, not a test.</p>
+          <ul class="rules-eg"><li class="bad">"Kona's Guardian Druid doesn't press Ironfur, the most important spell." Not good.</li><li class="ok">"Kona wasted 20 rage in a 3-minute fight." Whatever, nobody cares that much.</li></ul></div>
+      </div>
+    </div>
+
+    <!-- Groups -->
+    <div class="card" id="r-groups"><div class="card-head"><h2>Raid groups</h2><span class="hint">how each night is built</span></div>
+      <div class="rules-cols">
+        <div><h3>Each raid night</h3>
+          <ol><li>We start with <b>everyone</b> (Core, Farm, Community, Alts) and go as far as we can.</li>
+            <li>If progression hits a wall, groups step out in this order:
+              <ol type="a"><li>Core members' alts swap to their mains</li><li>Community (friends &amp; family) drop</li><li>Farm members drop</li><li>Core members swap secondary mains to primaries</li></ol></li></ol></div>
+        <div class="rules-groups">
+          <div class="grp core"><h4>Core</h4><p>You made it through the trial. See <a data-jump="r-core">Core rules</a>.</p></div>
+          <div class="grp farm"><h4>Farm <span class="tag">DPS only</span></h4><p>The more casual part of the raid team. "Farm" isn't forever: you're invited every week and on our roster. It's a safe place to improve your gear and performance, and we invest in your gearing too.</p>
+            <ul><li>You have loot priority, though not as high as Core.</li><li>You get vault slots each week for a guaranteed upgrade option.</li><li>Apply for Core again whenever you're ready: you'll redo the Initiate trial. Tanks can trial as tank, but weekly runs are as DPS.</li></ul></div>
+          <div class="grp fam"><h4>Friends, family &amp; community <span class="tag">DPS only</span></h4><p>No list for this. If you'd like to see content, reach out to an officer and we'll get you in for as much as we can. We won't know unless you ask. Near the end of each season we often run AOTC community carries, depending on our gear and the fight. You must come as DPS: we have dedicated healers and tanks for our raid dynamics.</p></div>
+          <div class="grp alts"><h4>Alts</h4><p>Once a tier is on farm, Core members can bring alts. The bar is lower than for secondary mains, but there is one. It's not a free-for-all: sign up, follow the instructions, and meet the requirements on the alt.</p></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Core -->
+    <div class="card" id="r-core"><div class="card-head"><h2>Core rules</h2><span class="hint">congrats, but you're not out of hot water yet</span></div>
+      <div class="rules-cols">
+        <div><h3>Guidelines</h3>
+          <p>We're not a hardcore Mythic team, but you'll be held to high standards.</p>
+          <ul><li>Know the fights.</li><li>Know your class, spec and role.</li><li>Be appropriately geared and pull appropriate numbers.</li><li>Gemmed and enchanted (within reason: don't drop 20k on an enchant).</li><li>Reliability and communication are a big factor.</li></ul></div>
+        <div><h3>Rules</h3>
+          <ul><li>All primary and secondary changes, swaps and additions need officer approval.</li><li>Primary mains <b>do not</b> need a trial each tier.</li><li>Secondary mains <b>do</b> need a trial each tier, like an Initiate. See <a data-jump="r-secondary">Secondary mains</a>.</li><li>We clear all secondary mains from the roster each tier.</li><li>Secondary mains are traditionally frowned on during progression bosses or once we hit a wall.</li><li>If we ask you to swap, be respectful. There's always a reason.</li></ul></div>
+      </div>
+    </div>
+
+    <!-- Secondary mains -->
+    <div class="card" id="r-secondary"><div class="card-head"><h2>Secondary mains</h2><span class="hint">"alt" was poorly received, so we say secondary main</span></div>
+      <p class="lead">An accommodation for players who are competitive on more than one character. Bring the player, not the class&hellip; but imagine if the player brought the class.</p>
+      <div class="rules-cols">
+        <div><h3>Rules &amp; requirements</h3>
+          <ul><li>Every rule for a primary applies to secondaries.</li><li><b>Same role as your primary</b> (DPS for DPS).</li><li>Comparable gear and spec knowledge to your primary. We judge it with the same metrics as Initiates.</li><li>We won't start a trial on a character that isn't near a competitive item level for the tier. If you're not at Normal raid item level while we raid Heroic, it's just awkward. Don't ask to bring something that isn't ready.</li></ul>
+          <h3>Is it a secondary main?</h3>
+          <ul class="rules-eg"><li class="ok"><b>Yes:</b> Kona's primary is a Guardian Druid doing raid and competitive M+ weekly. His Vengeance Demon Hunter has similar gear and spec knowledge and also runs competitive keys.</li>
+            <li class="bad"><b>No:</b> His Blood Death Knight's gear and spec knowledge aren't comparable, and it can't tank similar keys.</li></ul></div>
+        <div><h3>Adding a secondary main</h3>
+          <p>A character new to this tier:</p>
+          <ul><li>Trial of at least 1 week less than the Initiate trial.</li><li>Non-progression bosses only.</li><li>Once passed, it's your secondary main.</li></ul>
+          <h3>Changing your primary main</h3>
+          <p>E.g. Kona switching his primary from Druid to Demon Hunter:</p>
+          <ul><li><b>New to this tier, no trial yet:</b> same trial as above. Once passed, it's the primary.</li><li><b>Already a secondary main that passed its trial:</b> just swap, but tell an officer so we can update our sheet.</li></ul>
+          <p class="hint">Either way, your old main can become a secondary or come off the roster. If you remove it, it needs a trial again to come back.</p></div>
+      </div>
+      <p class="rules-warn-line">&#9888; We do not tolerate drama with secondary mains.</p>
+    </div>
+
+    <!-- Loot -->
+    <div class="card" id="r-loot"><div class="card-head"><h2>Loot &amp; rolls</h2><span class="hint">we're always happy to explain how this works</span></div>
+      <p class="lead">You don't have to work out whether to roll. If you roll, this is how we decide who wins the item, transparently.</p>
+      <div class="rules-rolls">
+        <div class="roll r101"><b>/roll 101</b><h4>Super-Roll</h4><p>Primary main, main-spec only. One contested win per week.</p></div>
+        <div class="roll r100"><b>/roll 100</b><h4>Main-spec</h4><p>You'll use it in your regular role.</p></div>
+        <div class="roll r99"><b>/roll 99</b><h4>Minor upgrade</h4><p>Main-spec, but a small upgrade or tertiary stats. Helps everyone prioritize.</p></div>
+        <div class="roll r50"><b>/roll 50</b><h4>Off-spec</h4><p>You'll use it for an off-spec.</p></div>
+        <div class="roll r25"><b>/roll 25</b><h4>Transmog</h4><p>Cool new looks. Go new boot goofin'.</p></div>
+      </div>
+      <h3>Who gets which roll</h3>
+      <p class="hint" style="margin-top:-4px">1 = first priority, 2 = after them.</p>
+      <div class="table-wrap"><table class="logs-table rules-matrix">
+        <thead><tr><th>Group</th><th>Character</th><th>Role</th><th>Super-Roll</th><th>Main-spec</th><th>Off-spec</th><th>Transmog</th></tr></thead>
+        <tbody>
+          <tr class="g-core"><td rowspan="3"><b>Core</b></td><td rowspan="2">Primary</td><td>Main-spec</td><td class="p1">1</td><td class="p1">1</td><td class="p2">2</td><td rowspan="3">Equippable 1<br>Non-equippable 2</td></tr>
+          <tr class="g-core"><td><a data-jump="r-utility">Guild utility off-spec</a></td><td></td><td></td><td class="p1">1</td></tr>
+          <tr class="g-core"><td>Secondary mains</td><td>Main-spec</td><td></td><td class="p1">1</td><td class="p2">2</td></tr>
+          <tr><td><b>Initiate</b></td><td>Player / character</td><td>Main-spec</td><td></td><td class="p2">2</td><td class="p2">2</td><td></td></tr>
+          <tr><td rowspan="3"><b>Casual</b></td><td>Alts</td><td>Coordinated</td><td></td><td class="p2">2</td><td class="p2">2</td><td></td></tr>
+          <tr><td>Farm</td><td>Damage</td><td></td><td class="p2">2</td><td class="p2">2</td><td></td></tr>
+          <tr><td>Friends &amp; family</td><td>Damage</td><td></td><td class="p2">2</td><td class="p2">2</td><td></td></tr>
+          <tr class="roll-row"><td colspan="3">What to type in game</td><td>/roll 101</td><td>/roll 100 &middot; 99</td><td>/roll 50</td><td>/roll 25</td></tr>
+        </tbody></table></div>
+
+      <div class="rules-cols">
+        <div><h3>Super-Rolls</h3>
+          <p>Make it easier to win that one piece you <i>really</i> need on your primary main. They beat ordinary main-spec rolls (/roll 100).</p>
+          <ul><li>Win a super-roll when anyone else rolled main-spec (super or regular): that's your <b>contested win</b> for the week.</li>
+            <li>Lose to another super-roll: you can still use yours on a later item that week.</li>
+            <li>Nobody else rolls main-spec: you can still use it on a later item that week.</li>
+            <li>Super-roll when you're not eligible: it counts as (your roll &minus; 1) at main-spec priority.</li></ul>
+          <h3 id="r-utility">Guild utility off-spec</h3>
+          <p>A spec a Core member keeps up for progression, fill-ins, or competitive guild activities like Mythic+ groups.</p>
+          <ul><li>No trial, but we prioritize competitive tank and healer fill-ins for raid and help gear them. They help the raid, so we help them.</li><li>These specs are recorded on our sheet; it's not willy-nilly.</li><li>They may not play these specs all the time, but they're who keeps the raid going each week. Without them we'd cancel raids often, and nobody wants that.</li></ul></div>
+        <div><h3>Is it main-spec for me?</h3>
+          <p>"Why didn't I win that item?" We won't check every guide. Our rule is simple:</p>
+          <p class="rules-big">Does the <b>Dungeon Journal</b> list the item for your spec?</p>
+          <ul><li><b>Yes:</b> it's a main-spec roll.</li><li><b>No:</b> we'll ask you to change it to off-spec (/roll 50).</li></ul>
+          <p>Tanks and healers are handled differently: some BiS tank and healer trinkets are listed only for damage roles. And DPS have rolled on tank or healer trinkets because "it does damage when you use it". Examples:</p>
+          <ul class="rules-eg"><li>"On use: deals 100,000 damage and gives you a 1,500,000 absorb." Listed only for tanks, so it goes to main-spec tanks, or guild-utility off-spec tanks.</li>
+            <li>"On use: deals 100,000 damage and heals a nearby ally for 1,500,000." Listed for healers, so it goes to main-spec healers, or guild-utility off-spec healers.</li>
+            <li><b>Foul Behemoth's Chelicera</b> shows in the Adventure Guide for tank specs (Guardian shown) but not for damage specs, so for DPS it's off-spec (/roll 50).</li></ul></div>
+      </div>
+      <p class="rules-warn-line">&#9888; We do not tolerate loot drama, but we're always available for questions about how this works.</p>
+    </div>
+
+    <!-- Resources -->
+    <div class="card" id="r-resources"><div class="card-head"><h2>Resources</h2></div>
+      <div class="rules-links">
+        <div><h3>General</h3><a href="https://www.wowhead.com" target="_blank" rel="noopener">Wowhead</a><a href="https://www.icy-veins.com" target="_blank" rel="noopener">Icy Veins</a><a href="https://raider.io" target="_blank" rel="noopener">Raider.io</a></div>
+        <div><h3>Logging</h3><a href="https://www.warcraftlogs.com" target="_blank" rel="noopener">Warcraft Logs</a><a href="https://wowanalyzer.com" target="_blank" rel="noopener">WoWAnalyzer <span>rotation help from your logs</span></a></div>
+        <div><h3>Class &amp; spec basics</h3><a href="https://www.archon.gg/wow" target="_blank" rel="noopener">Archon <span>gear, talents, tier lists</span></a><a href="https://murlok.io" target="_blank" rel="noopener">Murlok.io <span>gear, talents</span></a><a href="https://www.skill-capped.com/wow/browse" target="_blank" rel="noopener">Skill-Capped <span>PvP guides</span></a><a href="https://thelootdistrict.com" target="_blank" rel="noopener">The Loot District <span>PvP guides</span></a></div>
+        <div><h3>Specific</h3><a href="https://mythicpl.us" target="_blank" rel="noopener">mythicpl.us <span>M+ affixes &amp; rotation</span></a><a href="https://questionablyepic.com" target="_blank" rel="noopener">Questionably Epic <span>healers &amp; M+</span></a><a href="https://www.raidbots.com/simbot" target="_blank" rel="noopener">Raidbots <span>sims are your friend</span></a><a href="https://www.wowhead.com/guide/how-to-use-raidbots-and-run-character-simulations-6050" target="_blank" rel="noopener">How to use Raidbots <span>Wowhead guide</span></a></div>
+      </div>
+      <h3>Class Discords</h3>
+      <div class="rules-discords">
+        <a href="https://discord.gg/Acherus" target="_blank" rel="noopener" style="--c:#C41E3A">Death Knight</a>
+        <a href="https://discord.gg/felhammer" target="_blank" rel="noopener" style="--c:#A330C9">Demon Hunter</a>
+        <a href="https://discord.gg/Dreamgrove" target="_blank" rel="noopener" style="--c:#FF7C0A">Druid</a>
+        <a href="https://discord.com/invite/evoker" target="_blank" rel="noopener" style="--c:#33937F">Evoker</a>
+        <a href="https://discord.gg/Trueshot" target="_blank" rel="noopener" style="--c:#AAD372">Hunter <span>Trueshot Lodge</span></a>
+        <a href="https://discord.gg/uHgMzcH" target="_blank" rel="noopener" style="--c:#AAD372">Hunter <span>Hunter's Union</span></a>
+        <a href="https://discord.me/alteredtime" target="_blank" rel="noopener" style="--c:#3FC7EB">Mage</a>
+        <a href="https://discord.gg/PeakOfSerenity" target="_blank" rel="noopener" style="--c:#00FF98">Monk <span>Peak of Serenity</span></a>
+        <a href="https://discord.gg/FWMkqPu" target="_blank" rel="noopener" style="--c:#00FF98">Monk <span>Peak of Xuen</span></a>
+        <a href="https://discord.gg/HammerOfWrath" target="_blank" rel="noopener" style="--c:#F48CBA">Paladin</a>
+        <a href="https://discord.gg/WarcraftPriests" target="_blank" rel="noopener" style="--c:#FFFFFF">Priest <span>Warcraft Priests</span></a>
+        <a href="https://discord.gg/FocusedWill" target="_blank" rel="noopener" style="--c:#FFFFFF">Priest <span>Focused Will</span></a>
+        <a href="https://discord.gg/Ravenholdt" target="_blank" rel="noopener" style="--c:#FFF468">Rogue</a>
+        <a href="https://discord.gg/Earthshrine" target="_blank" rel="noopener" style="--c:#0070DD">Shaman <span>Earth Shrine</span></a>
+        <a href="https://discord.gg/AcTek6e" target="_blank" rel="noopener" style="--c:#0070DD">Shaman <span>Ancestral Guidance</span></a>
+        <a href="https://discord.gg/BlackHarvest" target="_blank" rel="noopener" style="--c:#8788EE">Warlock</a>
+        <a href="https://discord.gg/SkyHold" target="_blank" rel="noopener" style="--c:#C69B6D">Warrior</a>
+      </div>
+    </div>
+  </section>
+
   <section class="tab" id="tab-approvals"><div id="appr-body"></div></section>
   <section class="tab" id="tab-upload">
     <div class="sim-tabs upload-kinds" id="upload-kinds"></div>
@@ -116,6 +304,6 @@
 </div>
 <div class="tip" id="tip"></div>
 <script src="shared.js?v=2"></script>
-<script src="app.js?v=63"></script>
+<script src="app.js?v=64"></script>
 </body>
 </html>
