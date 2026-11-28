@@ -172,14 +172,18 @@ function groundOf(b) {
   });
   return out.sort((x, y) => GE_TYPES.findIndex(t => t[0] === x.k) - GE_TYPES.findIndex(t => t[0] === y.k));
 }
+const GE_GROUP = { soak: 'Soaks', line: 'Lines & frontals', pool: 'Pools & puddles', spread: 'Spreads', stack: 'Stacks', dodge: 'Dodges' };
 function groundHtml(b) {
   const g = groundOf(b); if (!g.length) return '';
+  const tile = x => { const pic = abilPic(b, x.a.n);
+    return `<div class="ge"><div class="ge-top"><span class="ge-type">${x.label}</span>${x.hc ? HC_TAG : ''}</div>
+      <div class="ge-name"><span class="ab" data-tip="${esc(abilTip(b, x.a))}">${x.a.i ? `<img src="${abIcon(esc(x.a.i))}" alt="">` : ''}${esc(x.a.n)}</span></div>
+      <div class="ge-look">${pic ? `<img src="${esc(pic)}" alt="${esc(x.a.n)}" loading="lazy">` : `<svg viewBox="0 0 40 40">${GE_GLYPH[x.k]}</svg><span>${officerKey ? 'No screenshot yet' : 'Screenshot coming'}</span>`}</div>
+      <p class="ge-do">${esc(x.do)}</p></div>`; };
+  const groups = GE_TYPES.map(t => ({ t, items: g.filter(x => x.k === t[0]) })).filter(x => x.items.length);
   return `<div class="card ground"><div class="card-head"><h2>🎯 Ground effects</h2><span class="hint">every soak, dodge, line and pool in this guide &middot; hover the name for the in-game text${officerKey ? ' &middot; add screenshots in Strat Notes → Ability pictures' : ''}</span></div>
-    <div class="ge-grid">${g.map(x => { const pic = abilPic(b, x.a.n);
-      return `<div class="ge" style="--ge:${x.col}"><div class="ge-top"><span class="ge-type">${x.label}</span>${x.hc ? HC_TAG : ''}</div>
-        <div class="ge-name"><span class="ab" data-tip="${esc(abilTip(b, x.a))}">${x.a.i ? `<img src="${abIcon(esc(x.a.i))}" alt="">` : ''}${esc(x.a.n)}</span></div>
-        <div class="ge-look">${pic ? `<img src="${esc(pic)}" alt="${esc(x.a.n)}" loading="lazy">` : `<svg viewBox="0 0 40 40">${GE_GLYPH[x.k]}</svg><span>${officerKey ? 'No screenshot yet' : 'Screenshot coming'}</span>`}</div>
-        <p class="ge-do">${esc(x.do)}</p></div>`; }).join('')}</div></div>`;
+    <div class="ge-groups">${groups.map(({ t, items }) => `<div class="ge-group" style="--ge:${t[2]}"><div class="ge-gh"><svg viewBox="0 0 40 40">${GE_GLYPH[t[0]]}</svg><h3>${GE_GROUP[t[0]]}</h3><span class="ge-count">${items.length}</span></div>
+      <div class="ge-grid">${items.map(tile).join('')}</div></div>`).join('')}</div></div>`;
 }
 function stratBossHtml(cur) {
   loadAbil(); glBoss = cur.b;

@@ -561,8 +561,16 @@ li.hc { list-style: none; margin-left: -18px; display: flex; gap: 0; align-items
 .map-key i { display: inline-grid; place-items: center; width: 15px; height: 15px; border-radius: 50%; color: #fff; font-style: normal; font-size: 9px; font-weight: 700; }
 .map-key i.dots { border: 1px dashed #8b8b8b; background: rgba(139,139,139,.15); }
 
-.ge-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(230px, 1fr)); gap: 10px; }
-.ge { background: #141518; border: 1px solid #2c2d33; border-top: 3px solid var(--ge); border-radius: 10px; padding: 10px; display: flex; flex-direction: column; gap: 7px; }
+.ge-groups { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; align-items: start; }
+@media (max-width: 900px) { .ge-groups { grid-template-columns: 1fr; } }
+.ge-group { background: #17181c; border: 1px solid #2c2d33; border-top: 3px solid var(--ge); border-radius: 12px; padding: 12px; }
+.ge-gh { display: flex; align-items: center; gap: 8px; margin-bottom: 10px; }
+.ge-gh svg { width: 26px; height: 26px; }
+.ge-gh h3 { margin: 0; font-size: 15px; color: var(--ge); }
+.ge-count { margin-left: auto; font-size: 12px; color: #999; background: #222; border-radius: 10px; padding: 1px 8px; }
+.ge-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+@media (max-width: 520px) { .ge-grid { grid-template-columns: 1fr; } }
+.ge { background: #111215; border: 1px solid #2a2b31; border-radius: 10px; padding: 10px; display: flex; flex-direction: column; gap: 7px; }
 .ge-top { display: flex; align-items: center; gap: 6px; }
 .ge-type { font-size: 11px; font-weight: 800; letter-spacing: .04em; text-transform: uppercase; color: var(--ge); }
 .ge-name { font-size: 14px; font-weight: 700; }
