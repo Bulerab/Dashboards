@@ -176,7 +176,7 @@ const GE_GROUP = { soak: 'Soaks', line: 'Lines & frontals', pool: 'Pools & puddl
 function groundHtml(b) {
   const g = groundOf(b); if (!g.length) return '';
   const tile = x => { const pic = abilPic(b, x.a.n);
-    return `<div class="ge"><div class="ge-top"><span class="ge-type">${x.label}</span>${x.hc ? HC_TAG : ''}</div>
+    return `<div class="ge"><div class="ge-top"><span class="ge-type">${({ soak: 'Soak', line: 'Line', pool: 'Pool', spread: 'Spread', stack: 'Stack', dodge: 'Dodge' })[x.k]}</span>${x.hc ? HC_TAG : ''}</div>
       <div class="ge-name"><span class="ab" data-tip="${esc(abilTip(b, x.a))}">${x.a.i ? `<img src="${abIcon(esc(x.a.i))}" alt="">` : ''}${esc(x.a.n)}</span></div>
       <div class="ge-look">${pic ? `<img src="${esc(pic)}" alt="${esc(x.a.n)}" loading="lazy">` : `<svg viewBox="0 0 40 40">${GE_GLYPH[x.k]}</svg><span>${officerKey ? 'No screenshot yet' : 'Screenshot coming'}</span>`}</div>
       <p class="ge-do">${esc(x.do)}</p></div>`; };
