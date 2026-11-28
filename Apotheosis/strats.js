@@ -31,7 +31,7 @@ function abilLink(b, html) {
     return pre + `<span class="ab${abilPic(b, a.n) ? ' has-pic' : ''}" data-tip="${esc(abilTip(b, a))}">${a.i ? `<img src="${ICON_BASE}${esc(a.i)}.jpg" alt="">` : ''}${name}</span>`; });
 }
 
-fetch('strats.json?v=6', { cache: 'no-cache' }).then(r => r.json()).then(j => { STRATS = j; if (typeof render === 'function' && STATE) render(); else stratsRender(); })
+fetch('strats.json?v=7', { cache: 'no-cache' }).then(r => r.json()).then(j => { STRATS = j; if (typeof render === 'function' && STATE) render(); else stratsRender(); })
   .catch(e => { stratErr = e.message; stratsRender(); });
 
 const stratAll = () => (STRATS ? STRATS.seasons : []).flatMap(s => s.raids.flatMap(r => r.bosses.map(b => ({ s, r, b }))));
@@ -74,6 +74,40 @@ function noteHtml(n, b, canEdit, i, total) {
   </div>`;
 }
 
+/* ---------- Overhead maps (our own simple diagrams, not to scale) ----------
+   b.map = [{t: panel title, floor: 'circle'|'rect'|'none', n: caption, s: [shapes]}] on a 100 x 70 grid.
+   Shapes: {k:'boss'|'add'|'T'|'H'|'D'|'raid'|'zone'|'ring'|'arrow'|'x'|'text'|'line', x, y, ...} */
+const MAPC = { red: '#e5484d', green: '#46a758', blue: '#3e8ef7', purple: '#a26cf0', gold: '#f0c24b', orange: '#f08a3c', teal: '#2fb5a8', grey: '#8b8b8b', white: '#e6e6e6' };
+const mc = c => MAPC[c] || c || MAPC.grey;
+const mtx = (x, y, l, o) => l ? `<text x="${x}" y="${y}" text-anchor="${(o && o.a) || 'middle'}" font-size="${(o && o.fs) || 3.4}" fill="${(o && o.fill) || '#ddd'}" font-weight="${(o && o.fw) || 600}" paint-order="stroke" stroke="#111" stroke-width=".9">${esc(l)}</text>` : '';
+function mapShape(z) {
+  const c = mc(z.c);
+  switch (z.k) {
+    case 'boss': return `<circle cx="${z.x}" cy="${z.y}" r="${z.r || 5}" fill="#6b1d1d" stroke="#ff6b6b" stroke-width=".8"/><text x="${z.x}" y="${z.y + 1.4}" text-anchor="middle" font-size="4" fill="#fff">💀</text>${mtx(z.x, z.y - (z.r || 5) - 1.5, z.l, { fill: '#ffb4b4' })}`;
+    case 'add': return `<circle cx="${z.x}" cy="${z.y}" r="${z.r || 2.6}" fill="${c}" fill-opacity=".85" stroke="#111" stroke-width=".4"/>${mtx(z.x, z.y + (z.r || 2.6) + 3.6, z.l, { fs: 3 })}`;
+    case 'T': case 'H': case 'D': { const col = { T: '#3e8ef7', H: '#46a758', D: '#e5484d' }[z.k];
+      return `<circle cx="${z.x}" cy="${z.y}" r="2.6" fill="${col}" stroke="#111" stroke-width=".4"/><text x="${z.x}" y="${z.y + 1.2}" text-anchor="middle" font-size="3.2" font-weight="700" fill="#fff">${z.k}</text>${mtx(z.x, z.y + 6, z.l, { fs: 3 })}`; }
+    case 'raid': { const r = z.r || 6, dots = [[0, 0], [-.5, -.45], [.5, -.45], [-.55, .4], [.55, .4], [0, -.85], [0, .8]];
+      return `<circle cx="${z.x}" cy="${z.y}" r="${r}" fill="${c}" fill-opacity=".14" stroke="${c}" stroke-width=".5" stroke-dasharray="1.2 1"/>${dots.map(d => `<circle cx="${z.x + d[0] * r * .7}" cy="${z.y + d[1] * r * .7}" r=".95" fill="${c}"/>`).join('')}${mtx(z.x, z.y + r + 3.6, z.l, { fs: 3 })}`; }
+    case 'zone': return `<rect x="${z.x}" y="${z.y}" width="${z.w}" height="${z.h}" rx="1.5" fill="${c}" fill-opacity="${z.o || .22}" stroke="${c}" stroke-width=".5"${z.dash ? ' stroke-dasharray="1.5 1"' : ''}/>${mtx(z.x + z.w / 2, z.y + z.h / 2 + 1.2, z.l, { fs: 3 })}`;
+    case 'ring': return `<circle cx="${z.x}" cy="${z.y}" r="${z.r}" fill="${c}" fill-opacity="${z.o == null ? .15 : z.o}" stroke="${c}" stroke-width=".6"${z.dash ? ' stroke-dasharray="1.5 1"' : ''}/>${mtx(z.x, z.y + (z.ly || 1.2), z.l, { fs: 3 })}`;
+    case 'line': return `<line x1="${z.x}" y1="${z.y}" x2="${z.x2}" y2="${z.y2}" stroke="${c}" stroke-width="${z.w || .7}"${z.dash ? ' stroke-dasharray="1.6 1.2"' : ''}/>${mtx((z.x + z.x2) / 2, (z.y + z.y2) / 2 - 1.5, z.l, { fs: 3 })}`;
+    case 'arrow': return `<line x1="${z.x}" y1="${z.y}" x2="${z.x2}" y2="${z.y2}" stroke="${c}" stroke-width="${z.w || .8}" marker-end="url(#ah-${(z.c || 'grey')})"${z.dash ? ' stroke-dasharray="1.6 1.2"' : ''}/>${mtx((z.x + z.x2) / 2 + (z.lx || 0), (z.y + z.y2) / 2 + (z.ly || -1.6), z.l, { fs: 3 })}`;
+    case 'x': return `<text x="${z.x}" y="${z.y + 2}" text-anchor="middle" font-size="6" font-weight="800" fill="${MAPC.red}">✕</text>${mtx(z.x, z.y + 6.5, z.l, { fs: 2.9, fill: '#ffb4b4' })}`;
+    case 'text': return mtx(z.x, z.y, z.l, { fs: z.fs || 3.2, a: z.a, fill: z.c ? c : '#bbb', fw: 500 });
+  }
+  return '';
+}
+function stratMapHtml(b) {
+  if (!b.map || !b.map.length) return '';
+  const markers = Object.keys(MAPC).map(k => `<marker id="ah-${k}" viewBox="0 0 6 6" refX="5" refY="3" markerWidth="4" markerHeight="4" orient="auto"><path d="M0 0L6 3L0 6z" fill="${MAPC[k]}"/></marker>`).join('');
+  const floor = p => p.floor === 'none' ? '' : p.floor === 'rect' ? '<rect x="3" y="3" width="94" height="64" rx="4" fill="#1c1d22" stroke="#3a3b42" stroke-width=".6"/>' : '<circle cx="50" cy="35" r="32" fill="#1c1d22" stroke="#3a3b42" stroke-width=".6"/>';
+  return `<div class="card strat-map"><div class="card-head"><h2>🗺️ Positioning map</h2><span class="hint">simple overhead view &middot; not to scale</span></div>
+    <div class="map-row">${b.map.map((p, i) => `<figure class="map-panel"><figcaption><span class="map-n">${i + 1}</span>${esc(p.t)}</figcaption>
+      <svg viewBox="0 0 100 70" role="img" aria-label="${esc(p.t)}"><defs>${markers}</defs>${floor(p)}${(p.s || []).map(mapShape).join('')}</svg>
+      ${p.n ? `<p>${abilLink(b, esc(p.n))}</p>` : ''}</figure>`).join('')}</div>
+    <div class="map-key"><span><i style="background:#3e8ef7">T</i>Tank</span><span><i style="background:#46a758">H</i>Healer</span><span><i style="background:#e5484d">D</i>DPS</span><span><i class="dots"></i>Raid / group</span><span><b style="color:#ff6b6b">💀</b>Boss</span><span><b style="color:#e5484d">✕</b>Don't stand here</span></div></div>`;
+}
 function stratBossHtml(cur) {
   loadAbil(); glBoss = cur.b;
   const b = cur.b, notes = stratNotes(b.id), cl = stratCliff(b), art = stratArt(b);
@@ -102,6 +136,7 @@ function stratBossHtml(cur) {
         ${officerKey ? `<a class="toggle-btn sn-add" data-tab="stratnotes" data-snboss="${esc(b.id)}" href="#stratnotes">+ Add a note or picture</a>` : ''}</div>
     </div>
     ${diffHtml}
+    ${stratMapHtml(b)}
     ${b.summary ? `<div class="card"><div class="card-head"><h2>Overview</h2><span class="hint">Heroic guide &middot; ${HC_TAG} = Heroic addition</span></div><p class="lead">${esc(b.summary)}</p>
       ${(b.phases || []).map(p => `<div class="sg-phase"><h3>${esc(p.t)}</h3><ul>${p.items.map(gl).join('')}</ul></div>`).join('')}</div>` : ''}
     ${(b.tank || b.healer || b.raid) ? `<div class="sg-roles">

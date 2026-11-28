@@ -549,3 +549,14 @@ li.hc { list-style: none; margin-left: -18px; display: flex; gap: 0; align-items
 .ap-form { display: grid; gap: 10px; }
 .ap-form > label { display: grid; gap: 4px; font-size: 12.5px; color: #aaa; }
 .ap-form select, .ap-form input[name=imageUrl] { height: 34px; background: #1a1a1a; color: #eee; border: 1px solid #3a3a3a; border-radius: 6px; padding: 0 8px; max-width: 420px; }
+
+.strat-map .map-row { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 12px; }
+.map-panel { margin: 0; background: #141518; border: 1px solid #2c2d33; border-radius: 10px; padding: 10px; display: flex; flex-direction: column; gap: 6px; }
+.map-panel figcaption { font-weight: 700; font-size: 13.5px; color: #f0d58a; display: flex; align-items: center; gap: 8px; }
+.map-n { display: inline-grid; place-items: center; width: 20px; height: 20px; border-radius: 50%; background: #f0c24b; color: #111; font-size: 12px; }
+.map-panel svg { width: 100%; height: auto; display: block; }
+.map-panel p { margin: 0; font-size: 12.5px; color: #cfcfcf; line-height: 1.45; }
+.map-key { display: flex; flex-wrap: wrap; gap: 14px; margin-top: 10px; font-size: 12px; color: #aaa; }
+.map-key span { display: inline-flex; align-items: center; gap: 5px; }
+.map-key i { display: inline-grid; place-items: center; width: 15px; height: 15px; border-radius: 50%; color: #fff; font-style: normal; font-size: 9px; font-weight: 700; }
+.map-key i.dots { border: 1px dashed #8b8b8b; background: rgba(139,139,139,.15); }

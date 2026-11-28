@@ -106,7 +106,369 @@
         "pre": [
          "Three players pick up the banners on the way in, before the boss arena."
         ]
-       }
+       },
+       "map": [
+        {
+         "t": "The board",
+         "n": "A 3×3 board. Three claimed tiles in a line = March of the Endless (wipe). Decide each wave which ONE tile he gets.",
+         "floor": "rect",
+         "s": [
+          {
+           "k": "zone",
+           "x": 26.0,
+           "y": 7,
+           "w": 15,
+           "h": 17.5,
+           "c": "grey",
+           "o": 0.08
+          },
+          {
+           "k": "zone",
+           "x": 42.5,
+           "y": 7,
+           "w": 15,
+           "h": 17.5,
+           "c": "grey",
+           "o": 0.08
+          },
+          {
+           "k": "zone",
+           "x": 59.0,
+           "y": 7,
+           "w": 15,
+           "h": 17.5,
+           "c": "grey",
+           "o": 0.08
+          },
+          {
+           "k": "zone",
+           "x": 26.0,
+           "y": 26,
+           "w": 15,
+           "h": 17.5,
+           "c": "grey",
+           "o": 0.08
+          },
+          {
+           "k": "zone",
+           "x": 42.5,
+           "y": 26,
+           "w": 15,
+           "h": 17.5,
+           "c": "grey",
+           "o": 0.08
+          },
+          {
+           "k": "zone",
+           "x": 59.0,
+           "y": 26,
+           "w": 15,
+           "h": 17.5,
+           "c": "grey",
+           "o": 0.08
+          },
+          {
+           "k": "zone",
+           "x": 26.0,
+           "y": 45,
+           "w": 15,
+           "h": 17.5,
+           "c": "grey",
+           "o": 0.08
+          },
+          {
+           "k": "zone",
+           "x": 42.5,
+           "y": 45,
+           "w": 15,
+           "h": 17.5,
+           "c": "grey",
+           "o": 0.08
+          },
+          {
+           "k": "zone",
+           "x": 59.0,
+           "y": 45,
+           "w": 15,
+           "h": 17.5,
+           "c": "grey",
+           "o": 0.08
+          },
+          {
+           "k": "zone",
+           "x": 26,
+           "y": 7,
+           "w": 15,
+           "h": 17.5,
+           "c": "purple",
+           "o": 0.45,
+           "l": "claimed"
+          },
+          {
+           "k": "zone",
+           "x": 42.5,
+           "y": 26,
+           "w": 15,
+           "h": 17.5,
+           "c": "purple",
+           "o": 0.45,
+           "l": "claimed"
+          },
+          {
+           "k": "x",
+           "x": 66.5,
+           "y": 50,
+           "l": "never this one"
+          },
+          {
+           "k": "line",
+           "x": 33.5,
+           "y": 16,
+           "x2": 66.5,
+           "y2": 54,
+           "c": "red",
+           "dash": 1
+          }
+         ]
+        },
+        {
+         "t": "Umbral Collapse soak",
+         "n": "The soak target runs onto the Abyssal Voidshaper on the called tile and everyone stacks: the soak strips its 99% damage reduction.",
+         "floor": "rect",
+         "s": [
+          {
+           "k": "zone",
+           "x": 26.0,
+           "y": 7,
+           "w": 15,
+           "h": 17.5,
+           "c": "grey",
+           "o": 0.08
+          },
+          {
+           "k": "zone",
+           "x": 42.5,
+           "y": 7,
+           "w": 15,
+           "h": 17.5,
+           "c": "grey",
+           "o": 0.08
+          },
+          {
+           "k": "zone",
+           "x": 59.0,
+           "y": 7,
+           "w": 15,
+           "h": 17.5,
+           "c": "grey",
+           "o": 0.08
+          },
+          {
+           "k": "zone",
+           "x": 26.0,
+           "y": 26,
+           "w": 15,
+           "h": 17.5,
+           "c": "grey",
+           "o": 0.08
+          },
+          {
+           "k": "zone",
+           "x": 42.5,
+           "y": 26,
+           "w": 15,
+           "h": 17.5,
+           "c": "grey",
+           "o": 0.08
+          },
+          {
+           "k": "zone",
+           "x": 59.0,
+           "y": 26,
+           "w": 15,
+           "h": 17.5,
+           "c": "grey",
+           "o": 0.08
+          },
+          {
+           "k": "zone",
+           "x": 26.0,
+           "y": 45,
+           "w": 15,
+           "h": 17.5,
+           "c": "grey",
+           "o": 0.08
+          },
+          {
+           "k": "zone",
+           "x": 42.5,
+           "y": 45,
+           "w": 15,
+           "h": 17.5,
+           "c": "grey",
+           "o": 0.08
+          },
+          {
+           "k": "zone",
+           "x": 59.0,
+           "y": 45,
+           "w": 15,
+           "h": 17.5,
+           "c": "grey",
+           "o": 0.08
+          },
+          {
+           "k": "add",
+           "x": 50,
+           "y": 34.5,
+           "c": "purple",
+           "l": "Voidshaper"
+          },
+          {
+           "k": "ring",
+           "x": 50,
+           "y": 34.5,
+           "r": 9,
+           "c": "gold",
+           "o": 0.18
+          },
+          {
+           "k": "raid",
+           "x": 50,
+           "y": 34.5,
+           "r": 6,
+           "c": "gold"
+          },
+          {
+           "k": "boss",
+           "x": 84,
+           "y": 16,
+           "r": 4.5,
+           "l": "Averzian"
+          }
+         ]
+        },
+        {
+         "t": "Then the next tile",
+         "n": "As soon as the first soak goes off, the whole raid sprints to the second tile and soaks again. Gateways and speed help.",
+         "floor": "rect",
+         "s": [
+          {
+           "k": "zone",
+           "x": 26.0,
+           "y": 7,
+           "w": 15,
+           "h": 17.5,
+           "c": "grey",
+           "o": 0.08
+          },
+          {
+           "k": "zone",
+           "x": 42.5,
+           "y": 7,
+           "w": 15,
+           "h": 17.5,
+           "c": "grey",
+           "o": 0.08
+          },
+          {
+           "k": "zone",
+           "x": 59.0,
+           "y": 7,
+           "w": 15,
+           "h": 17.5,
+           "c": "grey",
+           "o": 0.08
+          },
+          {
+           "k": "zone",
+           "x": 26.0,
+           "y": 26,
+           "w": 15,
+           "h": 17.5,
+           "c": "grey",
+           "o": 0.08
+          },
+          {
+           "k": "zone",
+           "x": 42.5,
+           "y": 26,
+           "w": 15,
+           "h": 17.5,
+           "c": "grey",
+           "o": 0.08
+          },
+          {
+           "k": "zone",
+           "x": 59.0,
+           "y": 26,
+           "w": 15,
+           "h": 17.5,
+           "c": "grey",
+           "o": 0.08
+          },
+          {
+           "k": "zone",
+           "x": 26.0,
+           "y": 45,
+           "w": 15,
+           "h": 17.5,
+           "c": "grey",
+           "o": 0.08
+          },
+          {
+           "k": "zone",
+           "x": 42.5,
+           "y": 45,
+           "w": 15,
+           "h": 17.5,
+           "c": "grey",
+           "o": 0.08
+          },
+          {
+           "k": "zone",
+           "x": 59.0,
+           "y": 45,
+           "w": 15,
+           "h": 17.5,
+           "c": "grey",
+           "o": 0.08
+          },
+          {
+           "k": "raid",
+           "x": 50,
+           "y": 34.5,
+           "r": 5,
+           "c": "grey"
+          },
+          {
+           "k": "arrow",
+           "x": 50,
+           "y": 40,
+           "x2": 33.5,
+           "y2": 52,
+           "c": "gold",
+           "w": 1.1,
+           "l": "run together",
+           "lx": -6
+          },
+          {
+           "k": "add",
+           "x": 33.5,
+           "y": 54,
+           "c": "purple"
+          },
+          {
+           "k": "ring",
+           "x": 33.5,
+           "y": 54,
+           "r": 8,
+           "c": "gold",
+           "o": 0.18
+          }
+         ]
+        }
+       ]
       },
       {
        "id": "vorasius",
@@ -200,7 +562,178 @@
         ],
         "note": "If you die you lose your hatchling and the group has to reset.",
         "pre": []
-       }
+       },
+       "map": [
+        {
+         "t": "Stack for Primordial Roar",
+         "n": "Everyone stacks in front of the boss with the tank so healers can cover the pull-in, the hit and the knockback.",
+         "floor": "rect",
+         "s": [
+          {
+           "k": "boss",
+           "x": 50,
+           "y": 16,
+           "l": "Vorasius"
+          },
+          {
+           "k": "T",
+           "x": 50,
+           "y": 27
+          },
+          {
+           "k": "raid",
+           "x": 50,
+           "y": 41,
+           "r": 8,
+           "c": "gold",
+           "l": "raid stack"
+          },
+          {
+           "k": "zone",
+           "x": 6,
+           "y": 8,
+           "w": 6,
+           "h": 54,
+           "c": "purple",
+           "o": 0.35
+          },
+          {
+           "k": "zone",
+           "x": 88,
+           "y": 8,
+           "w": 6,
+           "h": 54,
+           "c": "purple",
+           "o": 0.35
+          },
+          {
+           "k": "text",
+           "x": 9,
+           "y": 66,
+           "l": "crystal wall"
+          },
+          {
+           "k": "text",
+           "x": 91,
+           "y": 66,
+           "l": "crystal wall"
+          }
+         ]
+        },
+        {
+         "t": "Shadowclaw Slam",
+         "n": "Step INTO the impact spot after it lands: it is safe from the Aftershock rings. Otherwise run through a gap in a ring.",
+         "floor": "rect",
+         "s": [
+          {
+           "k": "boss",
+           "x": 50,
+           "y": 14,
+           "r": 4.5
+          },
+          {
+           "k": "ring",
+           "x": 50,
+           "y": 40,
+           "r": 6,
+           "c": "green",
+           "o": 0.35,
+           "l": "impact: safe"
+          },
+          {
+           "k": "ring",
+           "x": 50,
+           "y": 40,
+           "r": 14,
+           "c": "red",
+           "o": 0
+          },
+          {
+           "k": "ring",
+           "x": 50,
+           "y": 40,
+           "r": 22,
+           "c": "red",
+           "o": 0
+          },
+          {
+           "k": "arrow",
+           "x": 70,
+           "y": 57,
+           "x2": 55,
+           "y2": 44,
+           "c": "green",
+           "l": "step in",
+           "lx": 7
+          }
+         ]
+        },
+        {
+         "t": "Blistercreeps break the walls",
+         "n": "Kill each add ON its marker at the wall, back ones first (the goo spreads). HC: two explosions per wall.",
+         "floor": "rect",
+         "s": [
+          {
+           "k": "boss",
+           "x": 50,
+           "y": 14,
+           "r": 4.5
+          },
+          {
+           "k": "zone",
+           "x": 6,
+           "y": 8,
+           "w": 6,
+           "h": 54,
+           "c": "purple",
+           "o": 0.35
+          },
+          {
+           "k": "zone",
+           "x": 88,
+           "y": 8,
+           "w": 6,
+           "h": 54,
+           "c": "purple",
+           "o": 0.35
+          },
+          {
+           "k": "add",
+           "x": 16,
+           "y": 20,
+           "c": "orange",
+           "l": "1st"
+          },
+          {
+           "k": "add",
+           "x": 16,
+           "y": 45,
+           "c": "orange",
+           "l": "2nd"
+          },
+          {
+           "k": "add",
+           "x": 84,
+           "y": 20,
+           "c": "orange",
+           "l": "1st"
+          },
+          {
+           "k": "add",
+           "x": 84,
+           "y": 45,
+           "c": "orange",
+           "l": "2nd"
+          },
+          {
+           "k": "x",
+           "x": 50,
+           "y": 40,
+           "l": "never in the raid"
+          }
+         ]
+        }
+       ]
       },
       {
        "id": "salhadaar",
@@ -294,7 +827,144 @@
         "pre": [
          "Before the pull timer, everyone kneels to Salhadaar, one at a time (it gives you a debuff)."
         ]
-       }
+       },
+       "map": [
+        {
+         "t": "Void Convergence",
+         "n": "Two orbs leave the Riftlabs and drift to the king. Kill them on the way: one reaching him is a wipe. HC: kill one, let Dark Radiation fall off, then the other.",
+         "floor": "circle",
+         "s": [
+          {
+           "k": "boss",
+           "x": 50,
+           "y": 35,
+           "l": "Salhadaar"
+          },
+          {
+           "k": "zone",
+           "x": 8,
+           "y": 28,
+           "w": 10,
+           "h": 14,
+           "c": "purple",
+           "o": 0.4,
+           "l": "Rift"
+          },
+          {
+           "k": "zone",
+           "x": 82,
+           "y": 28,
+           "w": 10,
+           "h": 14,
+           "c": "purple",
+           "o": 0.4,
+           "l": "Rift"
+          },
+          {
+           "k": "add",
+           "x": 24,
+           "y": 35,
+           "c": "purple",
+           "l": "orb"
+          },
+          {
+           "k": "add",
+           "x": 76,
+           "y": 35,
+           "c": "purple",
+           "l": "orb"
+          },
+          {
+           "k": "arrow",
+           "x": 27,
+           "y": 35,
+           "x2": 43,
+           "y2": 35,
+           "c": "red",
+           "dash": 1
+          },
+          {
+           "k": "arrow",
+           "x": 73,
+           "y": 35,
+           "x2": 57,
+           "y2": 35,
+           "c": "red",
+           "dash": 1
+          },
+          {
+           "k": "raid",
+           "x": 50,
+           "y": 56,
+           "r": 6,
+           "c": "gold",
+           "l": "cleave the orbs"
+          }
+         ]
+        },
+        {
+         "t": "Puddles go to the edge",
+         "n": "The fight only gets hard when the room fills up: drop every puddle at the edges.",
+         "floor": "circle",
+         "s": [
+          {
+           "k": "boss",
+           "x": 50,
+           "y": 35,
+           "r": 4.5
+          },
+          {
+           "k": "ring",
+           "x": 22,
+           "y": 12,
+           "r": 4,
+           "c": "purple",
+           "o": 0.4
+          },
+          {
+           "k": "ring",
+           "x": 78,
+           "y": 12,
+           "r": 4,
+           "c": "purple",
+           "o": 0.4
+          },
+          {
+           "k": "ring",
+           "x": 20,
+           "y": 58,
+           "r": 4,
+           "c": "purple",
+           "o": 0.4
+          },
+          {
+           "k": "ring",
+           "x": 80,
+           "y": 58,
+           "r": 4,
+           "c": "purple",
+           "o": 0.4
+          },
+          {
+           "k": "zone",
+           "x": 36,
+           "y": 22,
+           "w": 28,
+           "h": 26,
+           "c": "green",
+           "o": 0.1,
+           "dash": 1
+          },
+          {
+           "k": "text",
+           "x": 50,
+           "y": 52,
+           "l": "keep the middle clean",
+           "c": "green"
+          }
+         ]
+        }
+       ]
       },
       {
        "id": "vaelgor",
@@ -393,7 +1063,162 @@
         "pre": [
          "Bring raid speed: Stampeding Roar (Druid), Wind Rush Totem (Shaman) or similar, so everyone can break tethers together."
         ]
-       }
+       },
+       "map": [
+        {
+         "t": "Main phase",
+         "n": "Dragons 15+ yards apart. Raid stands between them and hits from the sides. Never behind (Tail Lash).",
+         "floor": "circle",
+         "s": [
+          {
+           "k": "boss",
+           "x": 24,
+           "y": 30,
+           "l": "Vaelgor"
+          },
+          {
+           "k": "boss",
+           "x": 76,
+           "y": 30,
+           "l": "Ezzorak"
+          },
+          {
+           "k": "T",
+           "x": 32,
+           "y": 36
+          },
+          {
+           "k": "T",
+           "x": 68,
+           "y": 36
+          },
+          {
+           "k": "raid",
+           "x": 50,
+           "y": 44,
+           "r": 8,
+           "c": "gold",
+           "l": "raid between"
+          },
+          {
+           "k": "line",
+           "x": 30,
+           "y": 20,
+           "x2": 70,
+           "y2": 20,
+           "c": "teal",
+           "dash": 1,
+           "l": "15+ yd apart"
+          },
+          {
+           "k": "x",
+           "x": 10,
+           "y": 26,
+           "l": "tail"
+          },
+          {
+           "k": "x",
+           "x": 90,
+           "y": 26,
+           "l": "tail"
+          }
+         ]
+        },
+        {
+         "t": "Gloom soak",
+         "n": "The first Gloom goes to the blue marker: 5+ ranged soak it to shrink the puddle. Rotate markers and teams (HC: Diminish).",
+         "floor": "circle",
+         "s": [
+          {
+           "k": "boss",
+           "x": 24,
+           "y": 30,
+           "r": 4.5
+          },
+          {
+           "k": "boss",
+           "x": 76,
+           "y": 30,
+           "r": 4.5
+          },
+          {
+           "k": "ring",
+           "x": 50,
+           "y": 56,
+           "r": 7,
+           "c": "blue",
+           "o": 0.3,
+           "l": "blue marker"
+          },
+          {
+           "k": "D",
+           "x": 45,
+           "y": 54
+          },
+          {
+           "k": "D",
+           "x": 55,
+           "y": 54
+          },
+          {
+           "k": "H",
+           "x": 50,
+           "y": 60
+          },
+          {
+           "k": "raid",
+           "x": 50,
+           "y": 36,
+           "r": 5,
+           "c": "grey"
+          }
+         ]
+        },
+        {
+         "t": "Intermission",
+         "n": "Both fly up for Midnight Flames: everyone inside the Radiant Barrier in the middle. Purple circles step to the edge of it. Kill the Manifestation fast.",
+         "floor": "circle",
+         "s": [
+          {
+           "k": "ring",
+           "x": 50,
+           "y": 35,
+           "r": 13,
+           "c": "gold",
+           "o": 0.22,
+           "l": "",
+           "dash": 0
+          },
+          {
+           "k": "raid",
+           "x": 50,
+           "y": 35,
+           "r": 7,
+           "c": "gold"
+          },
+          {
+           "k": "text",
+           "x": 50,
+           "y": 19,
+           "l": "Radiant Barrier",
+           "c": "gold"
+          },
+          {
+           "k": "add",
+           "x": 50,
+           "y": 58,
+           "c": "purple",
+           "l": "Manifestation"
+          },
+          {
+           "k": "x",
+           "x": 20,
+           "y": 35,
+           "l": "outside = heavy dmg"
+          }
+         ]
+        }
+       ]
       },
       {
        "id": "vanguard",
@@ -721,7 +1546,107 @@
          "Find Sergeant Quackers on the left side of the first platform and talk to him so he joins the fight.",
          "Put a raid marker on him: he runs around."
         ]
-       }
+       },
+       "map": [
+        {
+         "t": "Two groups take turns",
+         "n": "Each group has 1 tank, half the healers and half the DPS. The group on turn soaks Alndust Upheaval and drops into the Rift.",
+         "floor": "circle",
+         "s": [
+          {
+           "k": "boss",
+           "x": 50,
+           "y": 22,
+           "l": "Chimaerus"
+          },
+          {
+           "k": "T",
+           "x": 44,
+           "y": 32
+          },
+          {
+           "k": "T",
+           "x": 56,
+           "y": 32
+          },
+          {
+           "k": "ring",
+           "x": 44,
+           "y": 32,
+           "r": 6,
+           "c": "teal",
+           "o": 0.2
+          },
+          {
+           "k": "raid",
+           "x": 30,
+           "y": 48,
+           "r": 7,
+           "c": "teal",
+           "l": "Group A (soak)"
+          },
+          {
+           "k": "raid",
+           "x": 70,
+           "y": 48,
+           "r": 7,
+           "c": "orange",
+           "l": "Group B"
+          }
+         ]
+        },
+        {
+         "t": "Puddles at the edge",
+         "n": "Manifestations walk from the Rift to the boss and leave growing Alndust Essence where they die: kill them near the edges.",
+         "floor": "circle",
+         "s": [
+          {
+           "k": "boss",
+           "x": 50,
+           "y": 35,
+           "r": 4.5
+          },
+          {
+           "k": "add",
+           "x": 20,
+           "y": 20,
+           "c": "purple"
+          },
+          {
+           "k": "arrow",
+           "x": 22,
+           "y": 22,
+           "x2": 44,
+           "y2": 32,
+           "c": "red",
+           "dash": 1,
+           "l": "walks to boss"
+          },
+          {
+           "k": "ring",
+           "x": 20,
+           "y": 20,
+           "r": 6,
+           "c": "purple",
+           "o": 0.25
+          },
+          {
+           "k": "ring",
+           "x": 80,
+           "y": 52,
+           "r": 6,
+           "c": "purple",
+           "o": 0.25
+          },
+          {
+           "k": "text",
+           "x": 80,
+           "y": 63,
+           "l": "kill here"
+          }
+         ]
+        }
+       ]
       }
      ]
     },
@@ -1019,7 +1944,105 @@
          "Funglings join the adds.",
          "Cross Fertilization: where adds die matters; a corpse placement check."
         ]
-       }
+       },
+       "map": [
+        {
+         "t": "Kill adds by the boss",
+         "n": "Kill Shroomlings and the Sporecap close to the boss so the Bursting Shrooms spawn together after Fungal Bloom.",
+         "floor": "circle",
+         "s": [
+          {
+           "k": "boss",
+           "x": 50,
+           "y": 35,
+           "l": "Rotmire"
+          },
+          {
+           "k": "T",
+           "x": 50,
+           "y": 45
+          },
+          {
+           "k": "add",
+           "x": 38,
+           "y": 28,
+           "c": "orange",
+           "l": "Sporecap"
+          },
+          {
+           "k": "add",
+           "x": 62,
+           "y": 28,
+           "c": "green",
+           "r": 2
+          },
+          {
+           "k": "add",
+           "x": 60,
+           "y": 42,
+           "c": "green",
+           "r": 2
+          },
+          {
+           "k": "raid",
+           "x": 50,
+           "y": 56,
+           "r": 6,
+           "c": "gold",
+           "l": "raid grouped"
+          },
+          {
+           "k": "x",
+           "x": 18,
+           "y": 20,
+           "l": "add spawn"
+          }
+         ]
+        },
+        {
+         "t": "Vines to the side",
+         "n": "Festering Vines: step out to the side. When it snaps into Writhing Vines it must be outside the middle.",
+         "floor": "circle",
+         "s": [
+          {
+           "k": "boss",
+           "x": 50,
+           "y": 35,
+           "r": 4.5
+          },
+          {
+           "k": "D",
+           "x": 50,
+           "y": 52
+          },
+          {
+           "k": "arrow",
+           "x": 52,
+           "y": 52,
+           "x2": 74,
+           "y2": 52,
+           "c": "green",
+           "l": "step aside"
+          },
+          {
+           "k": "zone",
+           "x": 74,
+           "y": 46,
+           "w": 12,
+           "h": 12,
+           "c": "green",
+           "o": 0.25,
+           "l": "vines"
+          },
+          {
+           "k": "x",
+           "x": 50,
+           "y": 22,
+           "l": "not here"
+          }
+         ]
+        }
+       ]
       }
      ]
     }
@@ -1138,7 +2161,203 @@
         "mythic": [
          "Our sources haven't listed the Mythic changes yet: see the full guides."
         ]
-       }
+       },
+       "map": [
+        {
+         "t": "Positions",
+         "n": "Boss at the entrance facing away. Tank 30+ yards out for Possession Barrage, with nobody in that line. Amani march from the sides to the well.",
+         "floor": "circle",
+         "s": [
+          {
+           "k": "ring",
+           "x": 50,
+           "y": 35,
+           "r": 7,
+           "c": "purple",
+           "o": 0.35,
+           "l": "well"
+          },
+          {
+           "k": "boss",
+           "x": 50,
+           "y": 60,
+           "r": 4.5,
+           "l": ""
+          },
+          {
+           "k": "text",
+           "x": 50,
+           "y": 68.5,
+           "l": "entrance"
+          },
+          {
+           "k": "T",
+           "x": 50,
+           "y": 16,
+           "l": "30+ yd"
+          },
+          {
+           "k": "line",
+           "x": 50,
+           "y": 56,
+           "x2": 50,
+           "y2": 20,
+           "c": "red",
+           "dash": 1
+          },
+          {
+           "k": "raid",
+           "x": 30,
+           "y": 48,
+           "r": 5,
+           "c": "gold"
+          },
+          {
+           "k": "add",
+           "x": 10,
+           "y": 30,
+           "c": "orange",
+           "l": "Amani"
+          },
+          {
+           "k": "add",
+           "x": 90,
+           "y": 30,
+           "c": "orange",
+           "l": "Amani"
+          },
+          {
+           "k": "arrow",
+           "x": 13,
+           "y": 31,
+           "x2": 40,
+           "y2": 34,
+           "c": "orange",
+           "dash": 1
+          },
+          {
+           "k": "arrow",
+           "x": 87,
+           "y": 31,
+           "x2": 60,
+           "y2": 34,
+           "c": "orange",
+           "dash": 1
+          }
+         ]
+        },
+        {
+         "t": "Essence Rend at the side",
+         "n": "Dispel at the side of the room: each one leaves a Latent Cultist puddle that comes back to life in Phase 2.",
+         "floor": "circle",
+         "s": [
+          {
+           "k": "ring",
+           "x": 50,
+           "y": 35,
+           "r": 7,
+           "c": "purple",
+           "o": 0.35
+          },
+          {
+           "k": "ring",
+           "x": 18,
+           "y": 52,
+           "r": 3.5,
+           "c": "purple",
+           "o": 0.5
+          },
+          {
+           "k": "ring",
+           "x": 82,
+           "y": 52,
+           "r": 3.5,
+           "c": "purple",
+           "o": 0.5
+          },
+          {
+           "k": "ring",
+           "x": 20,
+           "y": 18,
+           "r": 3.5,
+           "c": "purple",
+           "o": 0.5
+          },
+          {
+           "k": "text",
+           "x": 18,
+           "y": 60,
+           "l": "puddles here"
+          },
+          {
+           "k": "x",
+           "x": 50,
+           "y": 50,
+           "l": "not in paths"
+          }
+         ]
+        },
+        {
+         "t": "Intermission",
+         "n": "Melee soak Hungering Pyre. Others kite Slithering Flame over the Amani corpses to burn them. Kill both Echoes.",
+         "floor": "circle",
+         "s": [
+          {
+           "k": "boss",
+           "x": 50,
+           "y": 35,
+           "r": 4.5
+          },
+          {
+           "k": "ring",
+           "x": 36,
+           "y": 48,
+           "r": 7,
+           "c": "orange",
+           "o": 0.3,
+           "l": "Pyre: melee"
+          },
+          {
+           "k": "add",
+           "x": 70,
+           "y": 22,
+           "c": "purple",
+           "l": "Echo"
+          },
+          {
+           "k": "add",
+           "x": 30,
+           "y": 22,
+           "c": "purple",
+           "l": "Echo"
+          },
+          {
+           "k": "add",
+           "x": 74,
+           "y": 52,
+           "c": "grey",
+           "r": 2,
+           "l": ""
+          },
+          {
+           "k": "arrow",
+           "x": 86,
+           "y": 62,
+           "x2": 76,
+           "y2": 55,
+           "c": "orange",
+           "l": "flame",
+           "lx": 6
+          },
+          {
+           "k": "text",
+           "x": 74,
+           "y": 48,
+           "l": "corpse"
+          }
+         ]
+        }
+       ]
       },
       {
        "id": "sentinels",
@@ -1238,7 +2457,196 @@
          "Shifting Protovenom: affected players touch each other to cancel it.",
          "Protovenom Eruption: touching an unaffected player knocks back everyone nearby."
         ]
-       }
+       },
+       "map": [
+        {
+         "t": "Two teams, opposite sides",
+         "n": "Each team takes one golem. Keep them 40+ yards apart or both take 99% less damage. Keep their health even.",
+         "floor": "rect",
+         "s": [
+          {
+           "k": "boss",
+           "x": 18,
+           "y": 35,
+           "l": "Green"
+          },
+          {
+           "k": "boss",
+           "x": 82,
+           "y": 35,
+           "l": "Red"
+          },
+          {
+           "k": "T",
+           "x": 26,
+           "y": 41
+          },
+          {
+           "k": "T",
+           "x": 74,
+           "y": 41
+          },
+          {
+           "k": "raid",
+           "x": 28,
+           "y": 54,
+           "r": 6,
+           "c": "green",
+           "l": "Team 1"
+          },
+          {
+           "k": "raid",
+           "x": 72,
+           "y": 54,
+           "r": 6,
+           "c": "red",
+           "l": "Team 2"
+          },
+          {
+           "k": "line",
+           "x": 24,
+           "y": 22,
+           "x2": 76,
+           "y2": 22,
+           "c": "teal",
+           "dash": 1,
+           "l": "40+ yards"
+          }
+         ]
+        },
+        {
+         "t": "Red side: soak then spread",
+         "n": "Everyone soaks Unstable Miasma together (8 yards), then spreads for Clinging Murk. HC: pools go along the wall.",
+         "floor": "rect",
+         "s": [
+          {
+           "k": "boss",
+           "x": 80,
+           "y": 35,
+           "r": 4.5
+          },
+          {
+           "k": "ring",
+           "x": 58,
+           "y": 35,
+           "r": 8,
+           "c": "red",
+           "o": 0.25
+          },
+          {
+           "k": "raid",
+           "x": 58,
+           "y": 35,
+           "r": 5,
+           "c": "red"
+          },
+          {
+           "k": "arrow",
+           "x": 58,
+           "y": 43,
+           "x2": 50,
+           "y2": 56,
+           "c": "gold"
+          },
+          {
+           "k": "arrow",
+           "x": 58,
+           "y": 27,
+           "x2": 50,
+           "y2": 14,
+           "c": "gold"
+          },
+          {
+           "k": "ring",
+           "x": 92,
+           "y": 8,
+           "r": 3,
+           "c": "red",
+           "o": 0.5
+          },
+          {
+           "k": "ring",
+           "x": 92,
+           "y": 62,
+           "r": 3,
+           "c": "red",
+           "o": 0.5
+          },
+          {
+           "k": "text",
+           "x": 80,
+           "y": 66,
+           "l": "pools on the wall"
+          }
+         ]
+        },
+        {
+         "t": "Vitriolic Stasis",
+         "n": "Golems meet in the middle. Pair up: your orbs + your partner's orbs = exactly 4. Then swap sides.",
+         "floor": "rect",
+         "s": [
+          {
+           "k": "boss",
+           "x": 45,
+           "y": 30,
+           "r": 4.5
+          },
+          {
+           "k": "boss",
+           "x": 55,
+           "y": 30,
+           "r": 4.5
+          },
+          {
+           "k": "D",
+           "x": 30,
+           "y": 50,
+           "l": "1 orb"
+          },
+          {
+           "k": "H",
+           "x": 42,
+           "y": 50,
+           "l": "3 orbs"
+          },
+          {
+           "k": "line",
+           "x": 32.6,
+           "y": 50,
+           "x2": 39.4,
+           "y2": 50,
+           "c": "green"
+          },
+          {
+           "k": "D",
+           "x": 60,
+           "y": 50,
+           "l": "2 orbs"
+          },
+          {
+           "k": "T",
+           "x": 72,
+           "y": 50,
+           "l": "2 orbs"
+          },
+          {
+           "k": "line",
+           "x": 62.6,
+           "y": 50,
+           "x2": 69.4,
+           "y2": 50,
+           "c": "green"
+          },
+          {
+           "k": "text",
+           "x": 50,
+           "y": 64,
+           "l": "= 4 each pair",
+           "c": "green"
+          }
+         ]
+        }
+       ]
       },
       {
        "id": "explorers",
@@ -1333,7 +2741,167 @@
          "Breaking a crate gives the whole raid Splinters.",
          "An unbroken crate does extra raid damage at 25 seconds."
         ]
-       }
+       },
+       "map": [
+        {
+         "t": "Turtle positions",
+         "n": "Two turtles together for cleave, the third 30+ yards away (United Defense). Don't stand in front of Nama (Shell Spin).",
+         "floor": "rect",
+         "s": [
+          {
+           "k": "boss",
+           "x": 30,
+           "y": 30,
+           "l": "Iku"
+          },
+          {
+           "k": "boss",
+           "x": 42,
+           "y": 30,
+           "l": "Nama"
+          },
+          {
+           "k": "boss",
+           "x": 80,
+           "y": 30,
+           "l": "Gebbo"
+          },
+          {
+           "k": "line",
+           "x": 48,
+           "y": 22,
+           "x2": 76,
+           "y2": 22,
+           "c": "teal",
+           "dash": 1,
+           "l": "30+ yards"
+          },
+          {
+           "k": "raid",
+           "x": 36,
+           "y": 48,
+           "r": 6,
+           "c": "gold"
+          },
+          {
+           "k": "x",
+           "x": 42,
+           "y": 14,
+           "l": "Nama front"
+          }
+         ]
+        },
+        {
+         "t": "Frostfire Volley",
+         "n": "Fire debuff: clear it in a FROST patch. Frost debuff: clear it in a FIRE patch.",
+         "floor": "rect",
+         "s": [
+          {
+           "k": "ring",
+           "x": 28,
+           "y": 35,
+           "r": 8,
+           "c": "orange",
+           "o": 0.35,
+           "l": "fire patch"
+          },
+          {
+           "k": "ring",
+           "x": 72,
+           "y": 35,
+           "r": 8,
+           "c": "blue",
+           "o": 0.35,
+           "l": "frost patch"
+          },
+          {
+           "k": "D",
+           "x": 48,
+           "y": 22,
+           "l": "frost debuff",
+           "c": "blue"
+          },
+          {
+           "k": "arrow",
+           "x": 45,
+           "y": 24,
+           "x2": 33,
+           "y2": 31,
+           "c": "blue"
+          },
+          {
+           "k": "D",
+           "x": 52,
+           "y": 52,
+           "l": "fire debuff"
+          },
+          {
+           "k": "arrow",
+           "x": 55,
+           "y": 50,
+           "x2": 67,
+           "y2": 40,
+           "c": "orange"
+          }
+         ]
+        },
+        {
+         "t": "Explosive Surprise",
+         "n": "A Blast Wave runs out from the bomb at the edge: jump a Bouncy Mushroom or blink/leap over it.",
+         "floor": "rect",
+         "s": [
+          {
+           "k": "add",
+           "x": 10,
+           "y": 35,
+           "c": "orange",
+           "l": "bomb"
+          },
+          {
+           "k": "line",
+           "x": 30,
+           "y": 6,
+           "x2": 30,
+           "y2": 64,
+           "c": "red",
+           "w": 1.4,
+           "l": ""
+          },
+          {
+           "k": "arrow",
+           "x": 14,
+           "y": 35,
+           "x2": 28,
+           "y2": 35,
+           "c": "red"
+          },
+          {
+           "k": "ring",
+           "x": 56,
+           "y": 35,
+           "r": 4,
+           "c": "green",
+           "o": 0.35,
+           "l": "shroom"
+          },
+          {
+           "k": "raid",
+           "x": 66,
+           "y": 48,
+           "r": 5,
+           "c": "gold"
+          },
+          {
+           "k": "arrow",
+           "x": 62,
+           "y": 44,
+           "x2": 57,
+           "y2": 39,
+           "c": "green"
+          }
+         ]
+        }
+       ]
       },
       {
        "id": "vashnik",
@@ -1416,7 +2984,114 @@
         "mythic": [
          "Our sources haven't listed the Mythic changes yet: see the full guides."
         ]
-       }
+       },
+       "map": [
+        {
+         "t": "Tank between fountains",
+         "n": "Imbibe drains the two fountains nearest him. Simplest plan: tank him between Shadow and Fire. Default order: Blood + Shadow, Shadow + Fire, Fire + Blood.",
+         "floor": "circle",
+         "s": [
+          {
+           "k": "ring",
+           "x": 20,
+           "y": 14,
+           "r": 5,
+           "c": "red",
+           "o": 0.4,
+           "l": "Blood"
+          },
+          {
+           "k": "ring",
+           "x": 80,
+           "y": 14,
+           "r": 5,
+           "c": "purple",
+           "o": 0.4,
+           "l": "Shadow"
+          },
+          {
+           "k": "ring",
+           "x": 50,
+           "y": 62,
+           "r": 5,
+           "c": "orange",
+           "o": 0.4,
+           "l": "Fire",
+           "ly": 1.2
+          },
+          {
+           "k": "boss",
+           "x": 64,
+           "y": 38,
+           "r": 4.5,
+           "l": "Vashnik"
+          },
+          {
+           "k": "raid",
+           "x": 50,
+           "y": 30,
+           "r": 5,
+           "c": "gold"
+          }
+         ]
+        },
+        {
+         "t": "Adds never reach the center",
+         "n": "Kill every venom add before it gets to the middle. Burning Venoms: CC one, kill the other, never both at once.",
+         "floor": "circle",
+         "s": [
+          {
+           "k": "ring",
+           "x": 50,
+           "y": 35,
+           "r": 6,
+           "c": "red",
+           "o": 0.2
+          },
+          {
+           "k": "x",
+           "x": 50,
+           "y": 33,
+           "l": ""
+          },
+          {
+           "k": "add",
+           "x": 22,
+           "y": 20,
+           "c": "red"
+          },
+          {
+           "k": "add",
+           "x": 80,
+           "y": 22,
+           "c": "purple"
+          },
+          {
+           "k": "add",
+           "x": 40,
+           "y": 58,
+           "c": "orange",
+           "l": "CC"
+          },
+          {
+           "k": "add",
+           "x": 62,
+           "y": 58,
+           "c": "orange",
+           "l": "kill"
+          },
+          {
+           "k": "arrow",
+           "x": 25,
+           "y": 22,
+           "x2": 42,
+           "y2": 31,
+           "c": "red",
+           "dash": 1
+          }
+         ]
+        }
+       ]
       },
       {
        "id": "sszorak",
@@ -1525,7 +3200,182 @@
          "To the Slaughter charge with Virulence spread beams.",
          "Crosswinds come from four directions."
         ]
-       }
+       },
+       "map": [
+        {
+         "t": "Mutilate: two groups",
+         "n": "Soak groups of 5+ alternate on every Mutilate. Ravage goes to the tank at the platform edge.",
+         "floor": "circle",
+         "s": [
+          {
+           "k": "boss",
+           "x": 50,
+           "y": 30,
+           "l": "Sszorak"
+          },
+          {
+           "k": "T",
+           "x": 50,
+           "y": 14
+          },
+          {
+           "k": "raid",
+           "x": 34,
+           "y": 48,
+           "r": 6,
+           "c": "teal",
+           "l": "Group 1"
+          },
+          {
+           "k": "raid",
+           "x": 66,
+           "y": 48,
+           "r": 6,
+           "c": "orange",
+           "l": "Group 2"
+          },
+          {
+           "k": "arrow",
+           "x": 46,
+           "y": 36,
+           "x2": 37,
+           "y2": 43,
+           "c": "teal",
+           "l": "1st",
+           "lx": -4
+          },
+          {
+           "k": "arrow",
+           "x": 54,
+           "y": 36,
+           "x2": 63,
+           "y2": 43,
+           "c": "orange",
+           "l": "2nd",
+           "lx": 4
+          }
+         ]
+        },
+        {
+         "t": "Cysts opposite the tunnel",
+         "n": "Venomous Surge targets run out and drop the Viscous Cyst at the marker OPPOSITE the active wind tunnel.",
+         "floor": "circle",
+         "s": [
+          {
+           "k": "zone",
+           "x": 4,
+           "y": 28,
+           "w": 8,
+           "h": 14,
+           "c": "teal",
+           "o": 0.4,
+           "l": ""
+          },
+          {
+           "k": "text",
+           "x": 8,
+           "y": 48,
+           "l": "tunnel"
+          },
+          {
+           "k": "arrow",
+           "x": 13,
+           "y": 35,
+           "x2": 30,
+           "y2": 35,
+           "c": "teal",
+           "l": "wind"
+          },
+          {
+           "k": "boss",
+           "x": 50,
+           "y": 35,
+           "r": 4.5
+          },
+          {
+           "k": "ring",
+           "x": 84,
+           "y": 35,
+           "r": 4,
+           "c": "green",
+           "o": 0.45,
+           "l": "cyst"
+          },
+          {
+           "k": "D",
+           "x": 70,
+           "y": 22
+          },
+          {
+           "k": "arrow",
+           "x": 72,
+           "y": 24,
+           "x2": 81,
+           "y2": 31,
+           "c": "green"
+          }
+         ]
+        },
+        {
+         "t": "Intermission stack",
+         "n": "Pixel-stack in the middle and burn (Dig In: +30% damage). The wind pushes you into the cyst, which knocks you back in.",
+         "floor": "circle",
+         "s": [
+          {
+           "k": "boss",
+           "x": 50,
+           "y": 35,
+           "r": 4.5
+          },
+          {
+           "k": "raid",
+           "x": 50,
+           "y": 46,
+           "r": 4,
+           "c": "gold",
+           "l": "pixel stack"
+          },
+          {
+           "k": "zone",
+           "x": 4,
+           "y": 28,
+           "w": 8,
+           "h": 14,
+           "c": "teal",
+           "o": 0.4
+          },
+          {
+           "k": "ring",
+           "x": 86,
+           "y": 46,
+           "r": 4,
+           "c": "green",
+           "o": 0.45,
+           "l": "cyst"
+          },
+          {
+           "k": "arrow",
+           "x": 56,
+           "y": 46,
+           "x2": 80,
+           "y2": 46,
+           "c": "teal",
+           "dash": 1,
+           "l": "pushed"
+          },
+          {
+           "k": "arrow",
+           "x": 80,
+           "y": 50,
+           "x2": 56,
+           "y2": 50,
+           "c": "green",
+           "l": "knocked back",
+           "ly": 4
+          }
+         ]
+        }
+       ]
       },
       {
        "id": "twinfangs",
@@ -1630,7 +3480,137 @@
          "Barbed Bulwark shields on globules must be interrupted.",
          "Rouse the Brood adds to interrupt; Tainted Blood soaks after each Feast."
         ]
-       }
+       },
+       "map": [
+        {
+         "t": "Spread loosely",
+         "n": "The serpents can't move. Tanks stay in range of their serpent or it spits at the raid. Kill both together.",
+         "floor": "circle",
+         "s": [
+          {
+           "k": "boss",
+           "x": 28,
+           "y": 22,
+           "l": "Vexhul"
+          },
+          {
+           "k": "boss",
+           "x": 72,
+           "y": 22,
+           "l": "Ithraz"
+          },
+          {
+           "k": "T",
+           "x": 30,
+           "y": 34
+          },
+          {
+           "k": "T",
+           "x": 70,
+           "y": 34
+          },
+          {
+           "k": "raid",
+           "x": 50,
+           "y": 50,
+           "r": 10,
+           "c": "gold",
+           "l": "loose spread"
+          }
+         ]
+        },
+        {
+         "t": "Ravenous Feast: three teams",
+         "n": "Each soak removes one Eternal Venom stack. HC: nobody soaks twice (Feasted), so three teams take one each.",
+         "floor": "circle",
+         "s": [
+          {
+           "k": "ring",
+           "x": 25,
+           "y": 40,
+           "r": 7,
+           "c": "teal",
+           "o": 0.3,
+           "l": "Team 1"
+          },
+          {
+           "k": "ring",
+           "x": 50,
+           "y": 40,
+           "r": 7,
+           "c": "orange",
+           "o": 0.3,
+           "l": "Team 2"
+          },
+          {
+           "k": "ring",
+           "x": 75,
+           "y": 40,
+           "r": 7,
+           "c": "purple",
+           "o": 0.3,
+           "l": "Team 3"
+          },
+          {
+           "k": "text",
+           "x": 50,
+           "y": 16,
+           "l": "10 Eternal Venom = dead",
+           "c": "red"
+          }
+         ]
+        },
+        {
+         "t": "Vile Flood",
+         "n": "Vexhul's laser rotates: move against the rotation and cross it early.",
+         "floor": "circle",
+         "s": [
+          {
+           "k": "boss",
+           "x": 50,
+           "y": 35,
+           "r": 4.5
+          },
+          {
+           "k": "line",
+           "x": 50,
+           "y": 35,
+           "x2": 78,
+           "y2": 14,
+           "c": "red",
+           "w": 1.6
+          },
+          {
+           "k": "arrow",
+           "x": 80,
+           "y": 24,
+           "x2": 78,
+           "y2": 38,
+           "c": "red",
+           "dash": 1,
+           "l": "rotation",
+           "lx": 8
+          },
+          {
+           "k": "raid",
+           "x": 70,
+           "y": 52,
+           "r": 5,
+           "c": "gold"
+          },
+          {
+           "k": "arrow",
+           "x": 66,
+           "y": 47,
+           "x2": 58,
+           "y2": 30,
+           "c": "green",
+           "l": "cross early",
+           "lx": -9
+          }
+         ]
+        }
+       ]
       },
       {
        "id": "coiledaltar",
@@ -1747,7 +3727,145 @@
          "Guillotined becomes permanent; axes don't despawn.",
          "Ghosts only visible to their target; Spiteful Soulcoiler shield."
         ]
-       }
+       },
+       "map": [
+        {
+         "t": "Stack behind the boss",
+         "n": "Every phase starts from the same spot: the raid stacked behind the boss, tank in front.",
+         "floor": "rect",
+         "s": [
+          {
+           "k": "boss",
+           "x": 50,
+           "y": 30,
+           "l": ""
+          },
+          {
+           "k": "T",
+           "x": 50,
+           "y": 16
+          },
+          {
+           "k": "raid",
+           "x": 50,
+           "y": 46,
+           "r": 7,
+           "c": "gold",
+           "l": "raid stack"
+          },
+          {
+           "k": "ring",
+           "x": 84,
+           "y": 12,
+           "r": 4,
+           "c": "purple",
+           "o": 0.4,
+           "l": "corner"
+          }
+         ]
+        },
+        {
+         "t": "Guillotine soak",
+         "n": "The target goes to the purple corner marker with their soak group (5+); everyone gates out when it lands. HC: groups alternate.",
+         "floor": "rect",
+         "s": [
+          {
+           "k": "boss",
+           "x": 50,
+           "y": 40,
+           "r": 4.5
+          },
+          {
+           "k": "ring",
+           "x": 80,
+           "y": 16,
+           "r": 8,
+           "c": "purple",
+           "o": 0.3
+          },
+          {
+           "k": "raid",
+           "x": 80,
+           "y": 16,
+           "r": 5,
+           "c": "teal",
+           "l": ""
+          },
+          {
+           "k": "text",
+           "x": 80,
+           "y": 30,
+           "l": "Group 1 (then 2)"
+          },
+          {
+           "k": "arrow",
+           "x": 74,
+           "y": 22,
+           "x2": 58,
+           "y2": 36,
+           "c": "green",
+           "l": "gate out",
+           "lx": -6
+          }
+         ]
+        },
+        {
+         "t": "Gloombomb",
+         "n": "Three targets detonate away from the group, then collect their Soul Fragments within 15 seconds.",
+         "floor": "rect",
+         "s": [
+          {
+           "k": "boss",
+           "x": 50,
+           "y": 30,
+           "r": 4.5
+          },
+          {
+           "k": "raid",
+           "x": 50,
+           "y": 44,
+           "r": 5,
+           "c": "gold"
+          },
+          {
+           "k": "D",
+           "x": 14,
+           "y": 16
+          },
+          {
+           "k": "D",
+           "x": 86,
+           "y": 16
+          },
+          {
+           "k": "H",
+           "x": 50,
+           "y": 62
+          },
+          {
+           "k": "add",
+           "x": 20,
+           "y": 24,
+           "c": "purple",
+           "r": 1.6
+          },
+          {
+           "k": "add",
+           "x": 80,
+           "y": 24,
+           "c": "purple",
+           "r": 1.6
+          },
+          {
+           "k": "text",
+           "x": 50,
+           "y": 10,
+           "l": "grab fragments in 15 sec",
+           "c": "purple"
+          }
+         ]
+        }
+       ]
       },
       {
        "id": "ulatek",
@@ -1934,7 +4052,119 @@
          "Bubblefin Frostscale's Waterfog Shield gives nearby murlocs 99% damage reduction: kill it first.",
          "Frost Burst: every orb soak hits the raid, so stagger soaks."
         ]
-       }
+       },
+       "map": [
+        {
+         "t": "Protect the bubble",
+         "n": "Shorerunners run at the Alluring Bubble: stop them. Berserkers die on sight.",
+         "floor": "rect",
+         "s": [
+          {
+           "k": "ring",
+           "x": 50,
+           "y": 35,
+           "r": 7,
+           "c": "blue",
+           "o": 0.35,
+           "l": "bubble"
+          },
+          {
+           "k": "boss",
+           "x": 50,
+           "y": 14,
+           "r": 4.5,
+           "l": "Nymrissa"
+          },
+          {
+           "k": "add",
+           "x": 14,
+           "y": 50,
+           "c": "teal",
+           "l": "Shorerunners"
+          },
+          {
+           "k": "arrow",
+           "x": 18,
+           "y": 48,
+           "x2": 42,
+           "y2": 38,
+           "c": "red",
+           "dash": 1
+          },
+          {
+           "k": "raid",
+           "x": 30,
+           "y": 46,
+           "r": 5,
+           "c": "gold"
+          },
+          {
+           "k": "zone",
+           "x": 4,
+           "y": 58,
+           "w": 92,
+           "h": 8,
+           "c": "blue",
+           "o": 0.25,
+           "l": "water: sharks"
+          }
+         ]
+        },
+        {
+         "t": "Whirlpools and Pop!",
+         "n": "Run to the gap between whirlpools and stack. On Pop!, stand close to the bubble so the knockback doesn't throw you in the water.",
+         "floor": "rect",
+         "s": [
+          {
+           "k": "ring",
+           "x": 50,
+           "y": 35,
+           "r": 7,
+           "c": "blue",
+           "o": 0.35
+          },
+          {
+           "k": "ring",
+           "x": 28,
+           "y": 22,
+           "r": 6,
+           "c": "teal",
+           "o": 0.2
+          },
+          {
+           "k": "ring",
+           "x": 72,
+           "y": 22,
+           "r": 6,
+           "c": "teal",
+           "o": 0.2
+          },
+          {
+           "k": "raid",
+           "x": 50,
+           "y": 22,
+           "r": 4,
+           "c": "gold",
+           "l": "gap"
+          },
+          {
+           "k": "zone",
+           "x": 4,
+           "y": 58,
+           "w": 92,
+           "h": 8,
+           "c": "blue",
+           "o": 0.25
+          },
+          {
+           "k": "x",
+           "x": 50,
+           "y": 52,
+           "l": "knocked into water"
+          }
+         ]
+        }
+       ]
       }
      ]
     },
@@ -2037,7 +4267,168 @@
          "Nullify kills at 3 stacks.",
          "More health and damage."
         ]
-       }
+       },
+       "map": [
+        {
+         "t": "Adds 25+ yards away",
+         "n": "Keep every add 25+ yards from Kith'ix. Park the Hulk on a Voidweaver for cleave.",
+         "floor": "rect",
+         "s": [
+          {
+           "k": "boss",
+           "x": 30,
+           "y": 35,
+           "l": "Kith'ix"
+          },
+          {
+           "k": "T",
+           "x": 30,
+           "y": 47
+          },
+          {
+           "k": "add",
+           "x": 72,
+           "y": 30,
+           "c": "purple",
+           "l": "Voidweaver"
+          },
+          {
+           "k": "add",
+           "x": 76,
+           "y": 38,
+           "c": "orange",
+           "r": 3.4,
+           "l": ""
+          },
+          {
+           "k": "T",
+           "x": 84,
+           "y": 44,
+           "l": "Hulk tank"
+          },
+          {
+           "k": "line",
+           "x": 37,
+           "y": 22,
+           "x2": 68,
+           "y2": 22,
+           "c": "teal",
+           "dash": 1,
+           "l": "25+ yards"
+          },
+          {
+           "k": "raid",
+           "x": 62,
+           "y": 52,
+           "r": 5,
+           "c": "gold"
+          }
+         ]
+        },
+        {
+         "t": "Intermission: the Bulwark",
+         "n": "All adds dead first. Everyone inside Liadrin's Refulgent Bulwark: the darkness outside kills. HC: soak the Eclipse Fragments.",
+         "floor": "rect",
+         "s": [
+          {
+           "k": "ring",
+           "x": 50,
+           "y": 35,
+           "r": 14,
+           "c": "gold",
+           "o": 0.22
+          },
+          {
+           "k": "raid",
+           "x": 50,
+           "y": 37,
+           "r": 7,
+           "c": "gold"
+          },
+          {
+           "k": "add",
+           "x": 50,
+           "y": 27,
+           "c": "gold",
+           "l": ""
+          },
+          {
+           "k": "text",
+           "x": 50,
+           "y": 18,
+           "l": "Liadrin",
+           "c": "gold"
+          },
+          {
+           "k": "zone",
+           "x": 4,
+           "y": 4,
+           "w": 92,
+           "h": 10,
+           "c": "purple",
+           "o": 0.25,
+           "l": "darkness"
+          },
+          {
+           "k": "zone",
+           "x": 4,
+           "y": 56,
+           "w": 92,
+           "h": 10,
+           "c": "purple",
+           "o": 0.25,
+           "l": "darkness"
+          }
+         ]
+        },
+        {
+         "t": "Phase 2: Null Gates by role",
+         "n": "One melee, one ranged and one healer each get a gate: drop them in the assigned spots. Tanks run into a gate on Negation.",
+         "floor": "rect",
+         "s": [
+          {
+           "k": "boss",
+           "x": 50,
+           "y": 30,
+           "r": 4.5
+          },
+          {
+           "k": "ring",
+           "x": 20,
+           "y": 52,
+           "r": 5,
+           "c": "purple",
+           "o": 0.35,
+           "l": "melee gate"
+          },
+          {
+           "k": "ring",
+           "x": 50,
+           "y": 58,
+           "r": 5,
+           "c": "purple",
+           "o": 0.35,
+           "l": "healer gate"
+          },
+          {
+           "k": "ring",
+           "x": 80,
+           "y": 52,
+           "r": 5,
+           "c": "purple",
+           "o": 0.35,
+           "l": "ranged gate"
+          },
+          {
+           "k": "text",
+           "x": 50,
+           "y": 10,
+           "l": "8th Eightfold Eclipse = wipe",
+           "c": "red"
+          }
+         ]
+        }
+       ]
       }
      ]
     }
