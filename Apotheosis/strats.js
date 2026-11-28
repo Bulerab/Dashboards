@@ -8,7 +8,7 @@ let stratPick = (location.hash.split('/')[1] || '');       // boss id from #stra
 let stratSeason = '', stratRaid = '';
 let snPick = '', snMsg = '', snImg = null, snEdit = '', snBusy = false;  // officer form state
 
-fetch('strats.json?v=5', { cache: 'no-cache' }).then(r => r.json()).then(j => { STRATS = j; if (typeof render === 'function' && STATE) render(); else stratsRender(); })
+fetch('strats.json?v=6', { cache: 'no-cache' }).then(r => r.json()).then(j => { STRATS = j; if (typeof render === 'function' && STATE) render(); else stratsRender(); })
   .catch(e => { stratErr = e.message; stratsRender(); });
 
 const stratAll = () => (STRATS ? STRATS.seasons : []).flatMap(s => s.raids.flatMap(r => r.bosses.map(b => ({ s, r, b }))));

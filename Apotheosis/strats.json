@@ -952,14 +952,74 @@
        "id": "rotmire",
        "name": "Rotmire",
        "journal": "Rotmire",
-       "status": "todo",
-       "summary": "A fungal giant in Harandar's Grudge Pit, added in 12.0.7. Mythic is flexible (15–25 players). Full guide coming.",
+       "status": "ready",
+       "summary": "One phase on a loop: Rotmire builds to 100 energy and casts Fungal Bloom. Everything between Blooms is getting ready for the next one: every fungal add dead, corpses near the boss, vines out of the middle.",
        "links": [
         {
-         "t": "Method overview",
-         "u": "https://www.method.gg/guides/sporefall-raid-overview-wow-midnight-season-1"
+         "t": "Method (Heroic)",
+         "u": "https://www.method.gg/guides/sporefall/rotmire-heroic"
+        },
+        {
+         "t": "Icy Veins",
+         "u": "https://www.icy-veins.com/wow/rotmire-raid-guide"
         }
-       ]
+       ],
+       "setup": "2 tanks · 4 healers · 14 DPS",
+       "lust": "On pull",
+       "hero": "Pop Hero on pull",
+       "style": "Add control · energy loop",
+       "cliff": [
+        "[D] EVERY ADD DEAD BEFORE FUNGAL BLOOM.",
+        "[D] Interrupt every Poison Burst.",
+        "[D] After Bloom: kill Bursting Shrooms one at a time.",
+        "[THD] Festering Vines? Step out to the side, never in the middle.",
+        "[T] Swap on every Putrid Fist."
+       ],
+       "phases": [
+        {
+         "t": "The loop",
+         "items": [
+          "Pull him where he stands and keep the raid grouped for interrupts and add swaps.",
+          "Awaken Fungi spawns Shroomlings that fixate random players. Stay away from the spawn spots: they explode and knock back.",
+          "HC: A stationary Sporecap spawns too. Interrupt its Poison Burst every time, kill it, and cleave Shroomlings on top of it. Heroic doesn't punish where corpses land.",
+          "At 100 energy, Fungal Bloom: heavy raid hit, 16-second DoT and knockback. Any fungal add still alive heals to full and gets Fungal Frenzy (+25% damage and speed, immune to CC and interrupts).",
+          "After Bloom, dead add corpses become Bursting Shrooms: swap and kill them; one explosion is fine, several are not. Kill adds near the boss so these spawn together.",
+          "Festering Vines: step to the side; when it expires it snaps into Writhing Vines. Keep those out of the middle."
+         ]
+        }
+       ],
+       "tank": [
+        "Putrid Fist: heavy Physical hit with a knock-up and 75% more Physical damage taken for 14 seconds. Swap every cast."
+       ],
+       "healer": [
+        "Fungal Bloom: the big cooldown each cycle.",
+        "Poison Burst (if missed): raid damage plus a stacking DoT.",
+        "Bursting Pustules add Rotting Pustules stacks, a raid DoT that ramps all fight."
+       ],
+       "raid": [
+        "Order: interrupt Poison Burst, kill the Sporecap, clean up Shroomlings on top of it.",
+        "Kill adds close to the boss."
+       ],
+       "wipes": [
+        "Adds alive at Fungal Bloom (Fungal Frenzy).",
+        "Several Bursting Shrooms at once.",
+        "Missed Poison Burst interrupts.",
+        "Vines in the middle.",
+        "Holding Putrid Fist stacks.",
+        "Healing falling behind Rotting Pustules."
+       ],
+       "diff": {
+        "normal": [
+         "No Sporecaps or Poison Burst: just Shroomlings."
+        ],
+        "heroic": [
+         "Sporecaps spawn and cast Poison Burst: interrupt it every time."
+        ],
+        "mythic": [
+         "Funglings join the adds.",
+         "Cross Fertilization: where adds die matters; a corpse placement check."
+        ]
+       }
       }
      ]
     }
@@ -977,8 +1037,13 @@
        "id": "nekzali",
        "name": "Nek'zali the Soulcoiler",
        "journal": "Nek'zali the Soulcoiler",
-       "status": "todo",
-       "links": [],
+       "status": "ready",
+       "links": [
+        {
+         "t": "Method (Heroic)",
+         "u": "https://www.method.gg/guides/the-venomous-abyss/nekzali-the-soulcoiler-heroic"
+        }
+       ],
        "ach": {
         "name": "Well, Well, Little Sky",
         "req": "Defeat Nek'zali after returning Kupamanduka to the Soulcoil Well.",
@@ -990,14 +1055,106 @@
         "pre": [
          "Find Kupamanduka the frog (location not confirmed yet)."
         ]
+       },
+       "setup": "2 tanks · 4 healers · 14 DPS (magic dispels, strong AoE)",
+       "lust": "Phase 2",
+       "hero": "Pop Hero in Phase 2 (after the intermission): it is a race against her energy",
+       "style": "Add control, then a race",
+       "summary": "Add control first: every add that reaches the Soulcoil Well gives Nek'zali 5 energy, and at 100 she enrages. At 50% she retreats to the well for an intermission, then Phase 2 is a damage race with constant raid damage.",
+       "cliff": [
+        "[D] NOTHING REACHES THE WELL. Strip Amani shields with magic, then kill.",
+        "[T] Tank 30+ yards out, nobody in the Possession Barrage line.",
+        "[H] Dispel Essence Rend at the SIDE: the puddles come back in Phase 2.",
+        "[THD] Zero Ritual Burn stacks going into Soulcoil Ignition. Healer cooldowns.",
+        "[D] Intermission: melee soak Hungering Pyre, burn corpses, kill both Echoes."
+       ],
+       "phases": [
+        {
+         "t": "Phase 1",
+         "items": [
+          "Pull her to the entrance and face her away from the raid.",
+          "Possession Barrage on the current tank: four spirits hit the raid, less damage with distance. The tank stands 30+ yards away and nobody stands in the line.",
+          "Essence Rend: targets are pulled, knocked back and get a 15-second dispellable DoT. When it ends or is dispelled, a Latent Cultist puddle spawns under them. Put those somewhere harmless: they come back in Phase 2.",
+          "Restless Amani march from the sides toward the well. Their Gravebound Advance shield only absorbs magic damage: casters strip it, then everyone kills them before they arrive.",
+          "HC: Each Soulcoil Rite applies Ritual Burn: 15% more damage taken from later Rites for 60 seconds, stacking.",
+          "Soulcoil Ignition: four Soulcoil Rites in a row plus Anguished Echoes circles. The main healing check of Phase 1: go in with zero Ritual Burn stacks.",
+          "HC: Dead Amani leave corpses (Vessel of Awakening) that come back as empowered Amani in the intermission.",
+          "At 50% she goes back to the well and the intermission starts."
+         ]
+        },
+        {
+         "t": "Intermission: Ritual of Awakening",
+         "items": [
+          "Soul Transfer: a 15-second channel that spawns an Echo of Jawae. Don't stand in the beam when it finishes.",
+          "Hungering Pyre: a group soak within 10 yards, split between everyone inside. Melee soak it. It also burns away corpses it sits on.",
+          "Slithering Flame chases non-soakers and sets them on fire; walk it over corpses to burn them away.",
+          "HC: Cremation: an expiring Slithering Flame explodes and burns corpses and Amani within 4 yards.",
+          "Kill both Echoes of Jawae to end it."
+         ]
+        },
+        {
+         "t": "Phase 2",
+         "items": [
+          "Uncoiling: Shadow damage to the raid every second for the rest of the fight. It's a race.",
+          "Invoke: the Phase 1 Latent Cultist puddles start moving around the well. Dodge them; fewer puddles from Phase 1 makes this easy.",
+          "Phase 1 abilities continue. Hero, potions and cooldowns: kill her before 100 energy."
+         ]
+        }
+       ],
+       "tank": [
+        "Hollowing Strikes: each stack is 5% less healing and absorbs on you. Swap at about 30–40%.",
+        "Stay 30+ yards out for Possession Barrage, with the line to you clear of players."
+       ],
+       "healer": [
+        "Soulcoil Ignition is the big Phase 1 cooldown moment; each Soulcoil Rite is a raid Shadow hit with a stacking DoT.",
+        "Corpse Blight: dead Amani explode for raid Plague damage plus a stacking DoT.",
+        "Uncoiling is constant raid damage in Phase 2.",
+        "Dispel Essence Rend (magic) away from the raid: dispelling in the middle drops puddles where people need to walk."
+       ],
+       "raid": [
+        "Break Restless Amani shields with magic damage, then kill them before the well.",
+        "Melee soak Hungering Pyre; everyone else kites Slithering Flame over corpses.",
+        "Kill both Echoes of Jawae to end the intermission.",
+        "Keep the Possession Barrage line clear, stay out of Soul Transfer, dodge Anguished Echoes and the moving puddles."
+       ],
+       "wipes": [
+        "Several Amani reach the well.",
+        "Going into Soulcoil Ignition with Ritual Burn stacks.",
+        "Standing in the Possession Barrage line, or the tank too close.",
+        "Weak AoE in the intermission so corpses pile up.",
+        "Puddles left in walking paths for Phase 2.",
+        "Too slow: she reaches 100 energy."
+       ],
+       "diff": {
+        "normal": [
+         "Soulcoil Rites don't stack Ritual Burn.",
+         "No corpses to clean up and no Cremation."
+        ],
+        "heroic": [
+         "Ritual Burn: each Rite makes the next ones hit 15% harder, stacking.",
+         "Dead Amani leave corpses that come back in the intermission.",
+         "Cremation: expiring Slithering Flames burn nearby corpses and Amani."
+        ],
+        "mythic": [
+         "Our sources haven't listed the Mythic changes yet: see the full guides."
+        ]
        }
       },
       {
        "id": "sentinels",
        "name": "Entombed Sentinels",
        "journal": "Entombed Sentinels",
-       "status": "todo",
-       "links": [],
+       "status": "ready",
+       "links": [
+        {
+         "t": "Method (Heroic)",
+         "u": "https://www.method.gg/guides/the-venomous-abyss/entombed-sentinels-heroic"
+        },
+        {
+         "t": "Icy Veins",
+         "u": "https://www.icy-veins.com/wow/entombed-sentinels-raid-guide"
+        }
+       ],
        "ach": {
         "name": "Is Venom Stasis A Joke To You?",
         "req": "Defeat the Entombed Sentinels after each one uses Vitriolic Stasis to restore more than half its total health.",
@@ -1006,14 +1163,93 @@
          "Do the same with the other.",
          "Once both have healed up, finish the fight."
         ]
+       },
+       "setup": "2 tanks · 4 healers · 14 DPS, two teams",
+       "lust": "On pull",
+       "hero": "Pop Hero on pull",
+       "style": "Two golems · keep health even",
+       "summary": "Two golems that buff each other when they're within 40 yards. Each team kills one on opposite sides of the room. At 100 energy they meet in the middle for Vitriolic Stasis, where the weaker one heals up to match the stronger, and everyone pairs up to make exactly 4 orbs.",
+       "cliff": [
+        "[T] GOLEMS 40+ YARDS APART. Together they take 99% less damage.",
+        "[D] Keep their health even: Stasis refunds the difference.",
+        "[THD] Stasis pairs: your orbs + partner's orbs = exactly 4.",
+        "[THD] Red side: soak Unstable Miasma together, then spread.",
+        "[H] Dispel Blood Venom at the edge, NOT on cooldown."
+       ],
+       "phases": [
+        {
+         "t": "Council phase",
+         "items": [
+          "Split into two teams, one per golem, tanked 40+ yards apart on opposite sides. Ula'tek's Dominance gives both 99% damage reduction if they get within 40 yards of each other.",
+          "Keep their health close: in each intermission the weaker one heals up to the stronger.",
+          "Teams swap sides at every intermission.",
+          "Green (Breath of Ula'tek): pop Toxic Droplets by stepping on them, one or two per player. Kill Venom Coagulation's slime first: its Contaminate hits the raid every 3 seconds until it dies.",
+          "HC: Living Venom: destroyed Toxic Droplets send venom back to the golem after 4 seconds, hitting anyone in the line.",
+          "Red (Blood of Ula'tek): Unstable Miasma is a mandatory group soak within 8 yards. Everyone hit gets Clinging Murk, so spread afterwards.",
+          "HC: Blood Venom: Clinging Murk and undispelled Blighted Blood leave pools when they expire. Start in a corner and line pools along the wall."
+         ]
+        },
+        {
+         "t": "Intermission: Vitriolic Stasis (100 energy)",
+         "items": [
+          "Both golems meet in the middle for 30 seconds with 99% damage reduction; the weaker heals to match.",
+          "Everyone gets Helical Toxins: pair with exactly one other player so your green orbs add up to 4. Wrong pairs cause Cultivated Burst.",
+          "HC: Going over 4 when you collide kills both players instead of knocking you apart."
+         ]
+        }
+       ],
+       "tank": [
+        "Green golem: Empowering Slam adds 15% Physical damage per slam on the same target and only resets on a new target: swap hard.",
+        "Red golem: Bloodvenom Injection is a Physical hit plus a stacking 40-second Shadow DoT. Swap before the stacks get scary.",
+        "The red tank drops a big puddle when Bloodvenom Injection expires: walk somewhere safe first.",
+        "Trade golems at every intermission."
+       ],
+       "healer": [
+        "Contaminate (from Venom Coagulation) hits the raid every 3 seconds until the slime dies.",
+        "Noxious Blast from ignored Toxic Droplets and Cultivated Burst from bad pairs are huge.",
+        "Blighted Blood is a dispellable Shadow DoT. HC: it leaves a growing pool, so don't dispel on cooldown: dispel players at the edge."
+       ],
+       "raid": [
+        "Spread the Toxic Droplets out: one or two each.",
+        "Kill the Venom Coagulation slime first on the green side.",
+        "HC: Stay out of the Living Venom return line.",
+        "Soak Unstable Miasma together, then spread."
+       ],
+       "wipes": [
+        "Golems within 40 yards.",
+        "Uneven health that Stasis refunds.",
+        "Wrong Stasis pairs.",
+        "Late or missed Unstable Miasma soaks.",
+        "Venom Coagulation left alive.",
+        "Blood Venom pools in the playable space."
+       ],
+       "diff": {
+        "normal": [
+         "No Living Venom return line.",
+         "No Blood Venom pools.",
+         "A bad Stasis pair knocks you apart instead of killing you."
+        ],
+        "heroic": [
+         "Living Venom returns to the golem through anyone in the way.",
+         "Blood Venom pools from Clinging Murk and Blighted Blood.",
+         "Going over 4 in Stasis kills both players."
+        ],
+        "mythic": [
+         "Shifting Protovenom: affected players touch each other to cancel it.",
+         "Protovenom Eruption: touching an unaffected player knocks back everyone nearby."
+        ]
        }
       },
       {
        "id": "explorers",
        "name": "The Lost Explorers",
        "journal": "The Lost Explorers",
-       "status": "todo",
+       "status": "ready",
        "links": [
+        {
+         "t": "Method (Heroic)",
+         "u": "https://www.method.gg/guides/the-venomous-abyss/the-lost-explorers-heroic"
+        },
         {
          "t": "Icy Veins",
          "u": "https://www.icy-veins.com/wow/lost-explorers-raid-guide"
@@ -1029,14 +1265,87 @@
         "pre": [
          "Get a Disgusting Fish to feed to Hoji (where it comes from isn't confirmed yet)."
         ]
+       },
+       "setup": "2 tanks · 4 healers · 14 DPS (bleed removal, mobility)",
+       "lust": "On pull",
+       "hero": "Pop Hero on pull",
+       "style": "Three turtles · fish timer",
+       "summary": "Three turtles (Nama, Iku, Gebbo) and Mor'zahi. Mor'zahi's energy builds to Final Ascension; feeding a Disgusting Fish to a turtle resets it and empowers that turtle's ultimate. You get three fish: the fourth time he reaches 100 energy is the enrage, so all three turtles must be dead by then.",
+       "cliff": [
+        "[THD] THREE FISH, THEN IT'S OVER. All turtles dead before the 4th 100 energy.",
+        "[T] Never all three turtles within 30 yards: United Defense makes them immune.",
+        "[D] Box crew pops every crate inside 25 seconds.",
+        "[THD] Fire/frost debuff? Clear it in the OTHER element's patch.",
+        "[THD] Bomb wave: jump a mushroom, blink, or leap."
+       ],
+       "phases": [
+        {
+         "t": "The loop",
+         "items": [
+          "Mor'zahi's energy builds to Final Ascension. Feed a Disgusting Fish to a turtle to reset it; that turtle then does its big ultimate.",
+          "Keep explorer health balanced: early deaths set off Smashing Shovel, Cataclysmic Invocation and Relentless Escalation, which snowball.",
+          "Each fish breaks Mor'zahi and causes Fishy Feedback (raid damage plus a 12-second DoT): don't line it up with other big hits.",
+          "Crates: a permanent cleanup crew breaks every crate before the 25-second Relic Rupture timer."
+         ]
+        },
+        {
+         "t": "Ultimates after a fish",
+         "items": [
+          "Nama, Mighty Thud: three marked players, each needs bodies within 6 yards. An empty mark hits the whole raid. Avoid the Aftershock craters after.",
+          "Iku, Frostfire Volley: fire and frost missiles leave patches. Clear your debuff by standing in the OTHER element's patch before the next set. Frost targets melee, fire targets ranged.",
+          "Gebbo, Explosive Surprise: a bomb at the edge sends out a Blast Wave. Jump a Bouncy Mushroom, or blink, teleport or leap over it."
+         ]
+        }
+       ],
+       "tank": [
+        "Iku tank: Shredding Shards stacks 50% more damage taken for 80 seconds: swap on it.",
+        "Nama tank: Steady Strikes stacks 4% Physical damage per hit: swap on it.",
+        "Two turtles together for cleave, the third 30+ yards away (United Defense).",
+        "Don't stand in front of Nama: Shell Spin stuns for 4 seconds."
+       ],
+       "healer": [
+        "Big hits: Relic Rupture, Cataclysmic Invocation, Blast Wave, Fishy Feedback.",
+        "Malevolent Presence: raid Shadow damage every 2 seconds.",
+        "Dispel: Splinters bleeds from crates, Icebound Flames DoTs, and Burning Flames / Piercing Frost if not cleared in time (or Elemental Explosion)."
+       ],
+       "raid": [
+        "Interrupt Icebound Flames.",
+        "Spread 30 yards for Blink Nova; stay 6+ yards from Mighty Thud landings.",
+        "Avoid Evil Eyes puddles.",
+        "If you must stagger kills: Gebbo, then Nama, then Iku."
+       ],
+       "wipes": [
+        "Out of fish: Final Ascension.",
+        "Fire or frost debuff not cleared (Elemental Explosion).",
+        "A crate left 25 seconds (Relic Rupture).",
+        "Turtle deaths out of sync.",
+        "Empty Mighty Thud marks.",
+        "Touching the Blast Wave."
+       ],
+       "diff": {
+        "normal": [
+         "Same mechanics as Heroic: our sources cover them together."
+        ],
+        "heroic": [
+         "Same fight as Normal with more damage and health."
+        ],
+        "mythic": [
+         "Breaking a crate gives the whole raid Splinters.",
+         "An unbroken crate does extra raid damage at 25 seconds."
+        ]
        }
       },
       {
        "id": "vashnik",
        "name": "Vashnik the Malignant",
        "journal": "Vashnik the Malignant",
-       "status": "todo",
-       "links": [],
+       "status": "ready",
+       "links": [
+        {
+         "t": "Method (Heroic)",
+         "u": "https://www.method.gg/guides/the-venomous-abyss/vashnik-the-malignant-heroic"
+        }
+       ],
        "ach": {
         "name": "Kept You Waiting Huh?",
         "req": "Defeat Vashnik after killing the Solidified Snake Venom.",
@@ -1045,14 +1354,85 @@
          "Kill it, then finish Vashnik."
         ],
         "note": "Expect heavy healing."
+       },
+       "setup": "2 tanks · 4 healers · 14 DPS (CC, staggered dispels)",
+       "lust": "On pull",
+       "hero": "Pop Hero on pull",
+       "style": "Single target · venom adds",
+       "summary": "At 100 energy Vashnik Imbibes from the two nearest fountains, which spawns their venom adds and adds a permanent stack of Toxic Vapor. The default fountain order is Blood + Shadow, Shadow + Fire, Fire + Blood. Simplest plan: tank him between the Shadow and Fire fountains.",
+       "cliff": [
+        "[D] KILL EVERY ADD BEFORE IT REACHES THE CENTER.",
+        "[D] Burning Venom: CC one, kill the other, never both at once.",
+        "[T] Swap on EVERY Dripping Fangs.",
+        "[H] Exploding Infection blows up when dispelled: one at a time, never at low health.",
+        "[THD] Catalytic Bile: someone within 6 yards of every impact."
+       ],
+       "phases": [
+        {
+         "t": "The loop",
+         "items": [
+          "Each Imbibe at 100 energy drains the two nearest fountains, spawns their adds, and adds a stack of Toxic Vapor (permanent, growing raid Nature damage).",
+          "Tanks walk him to the right fountains before each Imbibe.",
+          "Blood (Clotting Venom): can't be crowd controlled. Burn down every split.",
+          "Shadow (Shrouded Venom): can be CC'd. Lock extras and kill them where the Umbral Ejection circles are safe.",
+          "Fire (Burning Venom): CC one, kill the other, never let both die together. Death Knight grips pull them away from the middle; ranged keep them CC'd if there aren't enough grips.",
+          "HC: A Burning Venom explosion leaves a stacking DoT on the raid.",
+          "After 60 seconds, Hardened Venom makes surviving adds immune to CC and 50% faster."
+         ]
+        }
+       ],
+       "tank": [
+        "Dripping Fangs: big Physical hit plus a Nature DoT and +100% Physical damage taken for 32 seconds. Swap on every cast; never take it twice."
+       ],
+       "healer": [
+        "Imbibe at 100 energy: healer cooldowns and defensives.",
+        "Malignant Burst (an add reached the center) and Malignant Catalyst (a bile not covered).",
+        "Caustic Surge / Explosion from Burning Venom deaths and dispelled Exploding Infection.",
+        "Siphoning (Blood) and Stygian (Shadow) Infections soak up healing and cut healing received to zero while active.",
+        "Exploding Infection (Fire) explodes on the raid when removed: stagger dispels and hold them when the raid is low."
+       ],
+       "raid": [
+        "Kill adds on spawn: top priority.",
+        "Catalytic Bile: at least one player within 6 yards of each impact, without stacking.",
+        "Plague Froth: affected players spread and move away; everyone dodges the plus-shaped Plague Wave lines.",
+        "Stygian Infection: spread (6-yard bursts). Siphoning Infection: stand in the siphon circle."
+       ],
+       "wipes": [
+        "Adds reaching the center (stacking Malignant Bursts).",
+        "Fight dragging on with too many Toxic Vapor stacks.",
+        "Fountain order drifting.",
+        "Uncovered Catalytic Bile.",
+        "Exploding Infection dispelled at low health, or several at once.",
+        "Burning Venoms dying together.",
+        "Missed Dripping Fangs swaps."
+       ],
+       "diff": {
+        "normal": [
+         "Burning Venom explosions don't leave a DoT."
+        ],
+        "heroic": [
+         "Burning Venom explosions leave a stacking raid DoT."
+        ],
+        "mythic": [
+         "Our sources haven't listed the Mythic changes yet: see the full guides."
+        ]
        }
       },
       {
        "id": "sszorak",
        "name": "Sszorak",
        "journal": "Sszorak",
-       "status": "todo",
-       "links": [],
+       "status": "ready",
+       "links": [
+        {
+         "t": "Method (Heroic)",
+         "u": "https://www.method.gg/guides/the-venomous-abyss/sszorak-heroic"
+        },
+        {
+         "t": "Icy Veins",
+         "u": "https://www.icy-veins.com/wow/sszorak-raid-guide"
+        }
+       ],
        "ach": {
         "name": "Jumping Through Hoops",
         "req": "Defeat Sszorak while jumping through each ring that appears.",
@@ -1060,14 +1440,108 @@
          "Use the wind knockbacks to fly through the rings."
         ],
         "note": "Personal achievement: people can get it on different weeks."
+       },
+       "setup": "2 tanks · 4–5 healers · 13–14 DPS, two soak groups of 5+",
+       "lust": "On pull",
+       "hero": "Pop Hero on pull (or in the intermission Dig In window if the raid moves well)",
+       "style": "Single phase · winds and soaks",
+       "summary": "A loop of Apex Predator, Venomous Surge, two Raging Crosswinds, then an intermission at 100 energy. Mark the possible wind tunnel spots around the room before the pull.",
+       "cliff": [
+        "[THD] MUTILATE: 5 OR MORE, groups alternate. Never the same group twice.",
+        "[T] Swap between every Ravage.",
+        "[THD] Venomous Surge: run out, drop the cyst OPPOSITE the active tunnel.",
+        "[THD] Crosswinds: aim your arrow at another marked player.",
+        "[THD] Intermission: pixel stack in the middle and burn."
+       ],
+       "phases": [
+        {
+         "t": "Apex Predator",
+         "items": [
+          "A 5-hit combo in random order: two Ravage, two Mutilate, one Tempest. All cones aim at the current tank; tanks taunt mid-combo.",
+          "Ravage (tank frontal): tanks alternate and take it at the platform edge.",
+          "HC: Mutilate (raid frontal): soak groups alternate. Soaking gives 500% more damage taken, so it needs two groups. Fewer than 5 soakers is lethal.",
+          "Tempest: roaming tornadoes; don't touch them."
+         ]
+        },
+        {
+         "t": "Venomous Surge",
+         "items": [
+          "Two players get a 10-second venom DoT that detonates on the raid with distance falloff: run away from the group first.",
+          "Each detonation leaves a Viscous Cyst. Place cysts at the markers opposite the active tunnels; the tunnel's orb count gives the wind order.",
+          "Four cysts for three winds: one spare.",
+          "HC: Caustic Claws during Surge leaves Caustic Residue pools (30% more damage taken): dodge them, and tanks move the boss to clean ground."
+         ]
+        },
+        {
+         "t": "Raging Crosswinds (x2)",
+         "items": [
+          "Marked players get arrow circles and are launched in that direction.",
+          "Point your arrow at another marked player and collide mid-air to land safely (touching circles counts). Miss and you drift toward the edge.",
+          "Knockback immunity can strand your partner."
+         ]
+        },
+        {
+         "t": "Intermission (100 energy)",
+         "items": [
+          "Dig In: Sszorak takes 30% more damage for 25 seconds: the burn window.",
+          "Everyone pixel-stacks in the middle. Wind pushes you into the cyst opposite the tunnel, which knocks you back toward the boss and gives wind resistance.",
+          "Three winds; after the third, pop the spare cyst as a group."
+         ]
+        }
+       ],
+       "tank": [
+        "Ravage: massive Physical hit and 400% more damage taken for 25 seconds: swap between casts.",
+        "Corroding Venom: 3% more Physical damage taken per melee hit, stacking: swap on stacks."
+       ],
+       "healer": [
+        "Ula'tek's Presence: raid Nature damage every 2 seconds all fight.",
+        "Venomous Surge detonations, Mutilate splits plus Mutilated Gash DoTs, and Ravage on the tank.",
+        "A fifth healer is optional."
+       ],
+       "raid": [
+        "Two soak groups (for example melee and ranged).",
+        "Stay out of Ravage and Tempest.",
+        "Use the edge markers for cysts.",
+        "Stack tight in the intermission: one bad push starts a chain."
+       ],
+       "wipes": [
+        "Mutilate soaked by fewer than 5, or the same group twice.",
+        "Missed Ravage or Corroding Venom swaps.",
+        "Two misplaced cysts (only one spare).",
+        "Intermission misstacks.",
+        "Touching Tempest, standing in Caustic Residue, or falling off in Crosswinds."
+       ],
+       "diff": {
+        "normal": [
+         "Mutilate doesn't need two groups.",
+         "No Caustic Claws or Caustic Residue pools."
+        ],
+        "heroic": [
+         "Mutilate soakers take 500% more damage: two alternating groups.",
+         "Caustic Claws leaves Caustic Residue (30% more damage taken)."
+        ],
+        "mythic": [
+         "Serpent's Fury builds rage toward Unbound Ferocity (a wipe).",
+         "To the Slaughter charge with Virulence spread beams.",
+         "Crosswinds come from four directions."
+        ]
        }
       },
       {
        "id": "twinfangs",
        "name": "The Twin Fangs",
        "journal": "The Twin Fangs",
-       "status": "todo",
-       "links": [],
+       "status": "ready",
+       "links": [
+        {
+         "t": "Method (Heroic)",
+         "u": "https://www.method.gg/guides/the-venomous-abyss/the-twin-fangs-heroic"
+        },
+        {
+         "t": "Icy Veins",
+         "u": "https://www.icy-veins.com/wow/twin-fangs-raid-guide"
+        }
+       ],
        "ach": {
         "name": "Taking a Bite out of Slime",
         "req": "Defeat the Twin Fangs after feeding Ithraz four slimes in order during Ravenous Feast: Crunchy Appetizer, Sumptuous Soup, Tasty Blob, Jiggly Dessert.",
@@ -1079,14 +1553,100 @@
          "Assign one player per slime: Crunchy Appetizer, Sumptuous Soup, Tasty Blob, Jiggly Dessert.",
          "Each slimekeeper finds their slime before the pull."
         ]
+       },
+       "setup": "2 tanks · 4 healers · 14 DPS (multi-target)",
+       "lust": "On pull",
+       "hero": "Pop Hero on pull",
+       "style": "Two serpents · kill together",
+       "summary": "Vexhul and Ithraz don't share health and can't be moved: spread loosely and kill both at the same time. The loop runs twice per cycle, then they Submerge at 100 energy. The third Submerge is the hard enrage (Caustic Rain).",
+       "cliff": [
+        "[THD] 10 ETERNAL VENOM = DEAD. Ravenous Feast is the only cleanse.",
+        "[THD] Three Feast groups. Nobody soaks twice.",
+        "[THD] One low-stack player per Caustic Globule.",
+        "[D] Both serpents die together.",
+        "[THD] Vile Flood: move against the rotation, cross early."
+       ],
+       "phases": [
+        {
+         "t": "Phase 1 (twice per cycle)",
+         "items": [
+          "Caustic Deluge: Vexhul's tank channels; globules spawn around the room, one soaker each. An unsoaked globule gives the whole raid a stack.",
+          "Stone Breaker: Ithraz's tank soaks three swirls.",
+          "Venomous Emergence: a raid-wide Eternal Venom stack and three serpents in the middle.",
+          "Coiling Ichor: targets walk to the edge and drop slowing pools there.",
+          "Stir the Depths: raid damage and green waves to dodge.",
+          "Ravenous Feast: three explosions; each soaker loses one Eternal Venom stack.",
+          "HC: Soaking applies Feasted (800% more Feast damage for 8 seconds), so each player soaks only one hit: three teams.",
+          "HC: Eternal Venom kills you at 10 stacks."
+         ]
+        },
+        {
+         "t": "Intermission: Submerge (100 energy)",
+         "items": [
+          "Vile Flood: Vexhul's rotating laser. Move against its rotation and cross early.",
+          "Sanguine Storm: gore impacts and slowing pools; dodge while rotating.",
+          "HC: Congealed Gore pools slow you by 60%.",
+          "Noxious Slick puddles from Submerge raise damage taken: stay out.",
+          "The third Submerge casts Caustic Rain and ends the pull: both must die before it."
+         ]
+        }
+       ],
+       "tank": [
+        "Vexhul: Caustic Deluge stacks Envenomed for 90 seconds: swap as it builds.",
+        "Ithraz: Stone Breaker adds damage per soak for 90 seconds: tanks alternate swirl sets and run back in after the roar knockback.",
+        "Stay in range of your serpent or it spits at the raid (Concentrated Spittle / Clotted Bolt)."
+       ],
+       "healer": [
+        "Toxic Fumes: raid Nature damage every 2 seconds.",
+        "Spikes: Ravenous Feast, Venomous Emergence, Stir the Depths, and missed Stone Breaker slams (armor-ignoring raid damage plus knockback).",
+        "No dispels: Eternal Venom only comes off through Feast."
+       ],
+       "raid": [
+        "Corrosive Spit targets: aim the line away from the raid.",
+        "Kill Spawns of Vexhul fast: they fixate players.",
+        "Coiling Ichor: let the pool expire away from the group."
+       ],
+       "wipes": [
+        "Eternal Venom reaching 10.",
+        "Double-soaking Feast or not enough groups.",
+        "Uneven health: the survivor gets Uncoiled Wrath.",
+        "Missed Stone Breaker slams.",
+        "Caught in Vile Flood or Noxious Slick.",
+        "Too slow: third Submerge."
+       ],
+       "diff": {
+        "normal": [
+         "Eternal Venom doesn't kill at 10.",
+         "No Feasted: players can soak more than one Feast hit.",
+         "Congealed Gore doesn't slow."
+        ],
+        "heroic": [
+         "10 Eternal Venom stacks kills you.",
+         "Feasted: three Feast soak teams.",
+         "Congealed Gore pools slow by 60%."
+        ],
+        "mythic": [
+         "Dying with Eternal Venom spawns more globules.",
+         "Barbed Bulwark shields on globules must be interrupted.",
+         "Rouse the Brood adds to interrupt; Tainted Blood soaks after each Feast."
+        ]
        }
       },
       {
        "id": "coiledaltar",
        "name": "The Coiled Altar",
        "journal": "The Coiled Altar",
-       "status": "todo",
-       "links": [],
+       "status": "ready",
+       "links": [
+        {
+         "t": "Method (Heroic)",
+         "u": "https://www.method.gg/guides/the-venomous-abyss/the-coiled-altar-heroic"
+        },
+        {
+         "t": "Icy Veins",
+         "u": "https://www.icy-veins.com/wow/coiled-altar-raid-guide"
+        }
+       ],
        "ach": {
         "name": "Watch Out Behind You",
         "req": "Defeat The Coiled Altar while all players are afflicted by Unnerving Fixation.",
@@ -1095,14 +1655,115 @@
          "Keep it going until everyone has Unnerving Fixation, without getting possessed."
         ],
         "note": "Can take some luck."
+       },
+       "setup": "2 tanks · 5 healers · 13 DPS (poison dispels, interrupts, raid cooldowns)",
+       "lust": "Soulbinding intermission (on Zul'jan)",
+       "hero": "Pop Hero in the intermission after Phase 2, on Zul'jan",
+       "style": "Three phases · two bosses",
+       "summary": "Zul'jan in Phase 1, Malacrass in Phase 2, an intermission where you burn Zul'jan, then both together in Phase 3. Stay stacked behind the boss all fight: you come back to that formation every phase.",
+       "cliff": [
+        "[THD] STACK BEHIND THE BOSS. Every phase.",
+        "[THD] Guillotine: 5+ soak, groups alternate, gate out.",
+        "[THD] Gloombomb: detonate away, collect your Soul Fragments within 15 seconds.",
+        "[D] Kick Wail of Terror LATE; Spiritcackle dead before 100 energy.",
+        "[D] Phase 3: kill both bosses together."
+       ],
+       "phases": [
+        {
+         "t": "Phase 1: Serpent's Bargain (Zul'jan)",
+         "items": [
+          "Toxic Deluge loop: orb carriers pick up Coalesced Venom and pile it in the middle; the Sever tank clears the pile. Don't stack while carrying an orb: it pulses and drops after 5 seconds.",
+          "HC: Venom Rupture stacks as a DoT: don't pop too many orbs at once.",
+          "Dodge Axegrinder axes, dispel Venomfang (poison).",
+          "Guillotine: 5+ soakers. HC: Guillotined soakers take 500% more from the next one, so two groups alternate.",
+          "At 0% Zul'jan detonates the remaining orbs: raid cooldown."
+         ]
+        },
+        {
+         "t": "Phase 2: Usurper's Reprisal (Malacrass)",
+         "items": [
+          "Dreadmarch mind-controls players: free them with AoE and pull back anyone near the edge. Freed players spawn Manifestation of Dread ghosts. HC: a ghost that reaches its target reapplies Dreadmarch.",
+          "Fixated players kite ghosts to the middle and face them to freeze them; the tank clears them with Soul Sever.",
+          "Spiritcackle: bring the boss and raid to the add. Kick Wail of Terror late (each kick blinks it). Kill it before 100 energy or it fears the raid.",
+          "Gloombomb: three players spread, detonate away from the group, then collect Soul Fragments within 15 seconds. HC: anyone hit gets Gravebound.",
+          "Eternal Nightfall: break the Veil of Twilight shield to interrupt it. Its Suffocating Darkness absorbs can't be healed through.",
+          "Push after a Soul Sever and before the next Dreadmarch; stand toward the middle for the 0% knockback."
+         ]
+        },
+        {
+         "t": "Intermission: The Claimed Vessel",
+         "items": [
+          "Malacrass is immune. Zul'jan takes 100% more damage and heals himself: Hero, everything on Zul'jan.",
+          "Block Fragments of Malacrass to stop his healing. Each block causes Spirit Erasure (raid hit, stacking damage taken), so spread the blocks out."
+         ]
+        },
+        {
+         "t": "Phase 3: Coiled Union",
+         "items": [
+          "Keep the bosses together for cleave and kill them at the same time: Soulbound berserks the survivor.",
+          "Open like Phase 1 with orbs in the middle; after the first Defilement of the Coiled Altar, ignore orbs and kill both evenly.",
+          "Grim Guillotine, Gloombomb, Eternal Nightfall and Dreadmarch all layer together. Every cooldown for the final push."
+         ]
+        }
+       ],
+       "tank": [
+        "Phase 1: Sever, a Physical cone with 200% more damage taken for 45 seconds. Swap every cast; use it to clear orbs.",
+        "Phase 2: Soul Sever, a Shadow cone with stacking damage taken and a DoT; clears ghosts. Swap on stacks.",
+        "Phase 3: Blighted Sever clears orbs and ghosts; Corrupted Toxin stacks a Shadow DoT from Zul'jan's melee. Swap to shed stacks."
+       ],
+       "healer": [
+        "Venom Rupture stacks and the Phase 1 push, Guillotine and Grim Guillotine, Eternal Nightfall, Defilement in Phase 3, Spirit Erasure stacks.",
+        "Dreadful Presence: raid Shadow damage all of Phase 2.",
+        "Poison-dispel Venomfang or it ticks for 14 seconds.",
+        "Suffocating Darkness, Grim Guillotine and Defiled Ground absorb healing."
+       ],
+       "raid": [
+        "Guillotine: the target goes to the purple corner marker with their group; everyone gates out when it lands.",
+        "Soul Fragments within 15 seconds or you die; Gravebound fragments must be reclaimed too.",
+        "Burn Zul'jan in the intermission."
+       ],
+       "wipes": [
+        "Failed Guillotine soak.",
+        "Missed Soul Fragments.",
+        "Spiritcackle reaching 100 energy.",
+        "Eternal Nightfall shield not broken.",
+        "One boss dies first in Phase 3.",
+        "Too many fragment blocks at once."
+       ],
+       "diff": {
+        "normal": [
+         "Venom Rupture isn't a DoT.",
+         "One Guillotine group is enough.",
+         "No Gravebound from Gloombomb; ghosts don't reapply Dreadmarch."
+        ],
+        "heroic": [
+         "Venom Rupture stacks as a DoT.",
+         "Guillotined: two alternating soak groups.",
+         "Gloombomb gives Gravebound; ghosts reaching their target reapply Dreadmarch.",
+         "Spiritcackle's Wail of Terror to interrupt."
+        ],
+        "mythic": [
+         "Virulent Cyst and Virulent Mutation orbs.",
+         "Guillotined becomes permanent; axes don't despawn.",
+         "Ghosts only visible to their target; Spiteful Soulcoiler shield."
+        ]
        }
       },
       {
        "id": "ulatek",
        "name": "Ula'tek",
        "journal": "Ula'tek",
-       "status": "todo",
-       "links": [],
+       "status": "ready",
+       "links": [
+        {
+         "t": "Method (Heroic)",
+         "u": "https://www.method.gg/guides/the-venomous-abyss/ulatek-heroic"
+        },
+        {
+         "t": "Icy Veins",
+         "u": "https://www.icy-veins.com/wow/ulatek-raid-guide"
+        }
+       ],
        "ach": {
         "name": "No Egg Scramble",
         "req": "Defeat Ula'tek before the Greasy Hatchling breaks.",
@@ -1112,6 +1773,91 @@
         "note": "Method not confirmed yet. Also gives the Ula'took battle pet.",
         "pre": [
          "Find the Greasy Hatchling egg (pickup spot not confirmed yet)."
+        ]
+       },
+       "setup": "2 tanks · 5 healers · 13 DPS, two equal groups",
+       "lust": "First damage amp (Phase 1)",
+       "hero": "Pop Hero on the first Rage of the Shackled damage amp in Phase 1",
+       "style": "Three phases · eggs and platforms",
+       "summary": "The Serpent Mother. Phase 1 loops coils, waves and eggs into a damage amp; Phase 2 splits the raid to clear the Doomscale corridors; an intermission shatters the platform; Phase 3 is spread across breaking platforms until the final burn.",
+       "cliff": [
+        "[T] MELEE AND TAIL ALWAYS COVERED. Empty = Mother's Wrath / Rattler Slam.",
+        "[THD] Spectral Coils: your group's soak only.",
+        "[D] No uncontrolled egg hatches.",
+        "[H] Every Serpent's Bite fully soaked, then spread for Volatile Purge.",
+        "[THD] Off the platform before Circling Prey."
+       ],
+       "phases": [
+        {
+         "t": "Phase 1: Fury of the Serpent Mother",
+         "items": [
+          "Grab the 3 starting eggs on pull (touching them pulls the boss).",
+          "Loop: Spectral Coils, then Caustic Waves (run opposite the wing she pulls back), a submerge at the bubble marks, then an egg wave.",
+          "HC: Soak Spectral Coils in two groups (Normal lets everyone soak each one). Soaking pops your eggs, which is intended.",
+          "The first damage amp follows: Hero and all cooldowns on the Venomous Heart while dodging Falling Debris."
+         ]
+        },
+        {
+         "t": "Phase 2: Children of the Doomscale",
+         "items": [
+          "Cross to your assigned side with grips and rescues; save the Warlock gate for the way back.",
+          "Kill the Doomscale Warden in the corridor and cleave the Blightscale Clutch eggs it spawns. Interrupt Malice.",
+          "Snap Grasping Fangs two at a time, letting the DoT fall off between pairs.",
+          "Feed eggs into the Doomscale Cauldron, small first, the big Doomscale Egg last.",
+          "Interrupt the Weakened Doomscale's Anguished Cry, then gate back and stack for the second damage amp."
+         ]
+        },
+        {
+         "t": "Intermission: The Shattering",
+         "items": [
+          "Pick up all eggs. HC: Spectral Coils alternate: Group 1 takes casts 1, 3, 5; Group 2 takes 2, 4, 6.",
+          "The platform breaks into four: stand to the side, avoid the middle, and ride the knock-up into Phase 3."
+         ]
+        },
+        {
+         "t": "Phase 3: Ula'tek's Ascension",
+         "items": [
+          "Melee on the boss platform; ranged and healers counter-clockwise.",
+          "Serpent's Bite hits one melee, one healer and one ranged: three soak groups, fully soak, then spread for Volatile Purge.",
+          "Move off the platform before Circling Prey breaks it.",
+          "Each Call of the Serpent spawns a Blightscale Shrieker: taunt and kill fast, interrupt Vicious Echoes, never let Acidic Expulsion pass 2 stacks.",
+          "The second platform break is the hardest moment: every defensive.",
+          "Last platform: final Bite, dodge the last wave, spread for the Purge, then burn her before the final break."
+         ]
+        }
+       ],
+       "tank": [
+        "Keep the boss's melee AND the tail covered at all times: an empty melee triggers Mother's Wrath, an empty tail triggers Rattler Slam.",
+        "Swap during casts or waves, never on open GCDs. Swap on high Stone Venom stacks.",
+        "Cooldowns for both damage amps, and big personals for the second Phase 3 platform break."
+       ],
+       "healer": [
+        "Necrotic Vapors: constant, growing raid Nature DoT.",
+        "Spikes: Spectral Coils, Mother's Wrath, Rattler Slam, Calcified Corpse, Putrid Membrane, Fury Unleashed.",
+        "Poison dispels needed. An untended Serpent's Bite becomes a Calcified Corpse that kills the raid."
+       ],
+       "raid": [
+        "Interrupts: Malice (Warden), Anguished Cry (Weakened Doomscale), Vicious Echoes (Shrieker).",
+        "Run opposite the Caustic Waves wing; dodge Falling Debris and Virulent Spit.",
+        "Snap Grasping Fangs in pairs to avoid Blight Vein."
+       ],
+       "wipes": [
+        "An untended Serpent's Bite (Calcified Corpse).",
+        "Uncontrolled egg hatches (Blightscale Vipers).",
+        "Empty tail or melee.",
+        "Not off the platform before Circling Prey.",
+        "Shrieker stacks over 2.",
+        "Reaching Fury Unleashed with the boss not nearly dead."
+       ],
+       "diff": {
+        "normal": [
+         "The whole raid soaks each Spectral Coils together."
+        ],
+        "heroic": [
+         "Spectral Coils split into two groups; in the intermission they alternate 1-3-5 / 2-4-6."
+        ],
+        "mythic": [
+         "Our sources haven't listed the Mythic changes yet: see the full guides."
         ]
        }
       }
@@ -1125,37 +1871,70 @@
        "id": "nymrissa",
        "name": "Nymrissa Wavecaller",
        "journal": "Nymrissa Wavecaller",
-       "status": "draft",
-       "setup": "Flexible 15–30 (Heroic)",
-       "style": "Lair boss · healing check",
-       "summary": "Nymrissa makes an Alluring Bubble that pulls murlocs in, then sends Swirling Whirlpools to burst it. When a whirlpool reaches the bubble it pops for raid damage and a knockback. Her Frost damage keeps growing, so slow pulls get harder.",
+       "status": "ready",
+       "setup": "2 tanks · 4 healers · 14 DPS (flexible 15–30)",
+       "style": "Lair boss · adds and soaks",
+       "summary": "A repeating loop: a Shorerunner swarm runs at the Alluring Bubble, then Swirling Whirlpools head for it and Pop! the bubble, with Frost Orb soaks and Water Jet swaps throughout. Wavecaller's Might (3% more Frost damage per stack) is the soft enrage; Unending Tides is the hard enrage.",
        "cliff": [
-        "[THD] DON'T STAND IN A WHIRLPOOL'S PATH.",
-        "[H] Whirlpool hits the bubble = Pop!: healer cooldown and brace for the knockback.",
-        "[D] Wavecaller's Might keeps stacking: kill her fast.",
-        "",
-        ""
+        "[D] SHORERUNNERS NEVER REACH THE BUBBLE. Berserkers die on sight.",
+        "[THD] Whirlpools: run to the gap and stack together.",
+        "[THD] Pop!: stand close to the bubble, not toward the water (sharks).",
+        "[THD] Soak Frost Orbs, don't dodge them. Leave Lingering Frost off the paths.",
+        "[T] Swap on Water Jet stacks."
        ],
        "phases": [
         {
-         "t": "Mechanics",
+         "t": "The loop",
          "items": [
-          "Alluring Bubble: a big bubble of water that draws murlocs in.",
-          "Swirling Whirlpools: surge toward the bubble and damage players in their path.",
-          "Pop!: when a whirlpool reaches the bubble, raid-wide damage and a knockback. Predictable, so plan a healing cooldown and your position for every pop.",
-          "Wavecaller's Might: her Frost damage goes up with every stack. This is the soft enrage."
+          "Shorerunners run at the bubble: stop them first. Bring the boss to the spawn with the most adds; ranged take single spawns. Any CC works.",
+          "Berserkers: kill on sight. They pulse raid Frost damage every 3 seconds (Pulsing Tides).",
+          "Swirling Whirlpools head for the bubble: run to the single gap and stack.",
+          "Pop!: when a whirlpool reaches the bubble, raid Frost damage and a knockback. Stand close to the bubble so you're not knocked into the water, where sharks eat you. A Warlock Gateway cancels the knockback.",
+          "Abyssal Rain: a 4-second raid channel with a lingering DoT: a healing check.",
+          "HC: Frost Orbs must be soaked (an untouched orb Shatters for massive raid damage). Soaking leaves Lingering Frost that ticks and makes you slide: keep it off paths and away from the bubble.",
+          "Unending Tides is the hard enrage: kill her before it channels."
          ]
         }
        ],
        "healer": [
-        "Each Pop! is a planned cooldown, worst when it overlaps other raid damage."
+        "Cooldowns for Pop! and Abyssal Rain, especially when they land with Berserker Pulsing Tides.",
+        "Orb soakers take heavy Frost damage, a stacking DoT and 20% more Frost damage for 16 seconds."
        ],
        "links": [
         {
          "t": "Method (Heroic)",
          "u": "https://www.method.gg/guides/the-tidebound-grotto/nymrissa-wavecaller"
         }
-       ]
+       ],
+       "hero": "",
+       "tank": [
+        "Water Jet: Frost damage and a push; each hit adds 20% more Water Jet damage taken for 35 seconds. Swap on stacks.",
+        "Water Jet washes away Lingering Frost: aim pushes across icy floor.",
+        "Tanks are the best Frost Orb soakers."
+       ],
+       "raid": [
+        "Kill order: Berserkers, then Shorerunners.",
+        "Soak orbs; never dodge them."
+       ],
+       "wipes": [
+        "Pulsing Tides overlapping Abyssal Rain or Pop!.",
+        "Knocked into the water.",
+        "Untouched Frost Orbs (Shatter).",
+        "Water Jet stacks too high.",
+        "A slow kill into Unending Tides."
+       ],
+       "diff": {
+        "normal": [
+         "Frost Orbs don't need to be soaked."
+        ],
+        "heroic": [
+         "Frost Orbs must be soaked; soaking leaves Lingering Frost."
+        ],
+        "mythic": [
+         "Bubblefin Frostscale's Waterfog Shield gives nearby murlocs 99% damage reduction: kill it first.",
+         "Frost Burst: every orb soak hits the raid, so stagger soaks."
+        ]
+       }
       }
      ]
     },
@@ -1167,9 +1946,98 @@
        "id": "kithix",
        "name": "Kith'ix",
        "journal": "Kith'ix",
-       "status": "todo",
-       "summary": "With Ula'tek dead, the restraints the Amani put on Kith'ix are failing. Full guide coming.",
-       "links": []
+       "status": "ready",
+       "summary": "Phase 1 is add control: Voidswarm sends Venomous Hulks, Voidweavers and Bomber Beetles. At 100 energy Lady Liadrin holds up the Refulgent Bulwark through an intermission. At 25% Phase 2 starts: Eightfold Eclipse counts to eight, and the eighth cast wipes.",
+       "links": [
+        {
+         "t": "Icy Veins",
+         "u": "https://www.icy-veins.com/wow/kithix-raid-guide"
+        }
+       ],
+       "setup": "2 tanks · 4 healers · 14 DPS (fear dispels, CC for beetles)",
+       "lust": "Phase 2 (25%)",
+       "hero": "Pop Hero when Phase 2 starts at 25%: about a minute before the enrage",
+       "style": "Adds, then a final burn",
+       "cliff": [
+        "[THD] ADDS 25+ YARDS FROM KITH'IX. Voidweavers first.",
+        "[THD] Grab a Light's Embrace orb before every Extinguish.",
+        "[H] Overwhelming Fear: stagger the dispels.",
+        "[D] All adds dead before the intermission, then stay inside the Bulwark.",
+        "[THD] Phase 2: Hero, gates by role, kill before the 8th Eclipse."
+       ],
+       "phases": [
+        {
+         "t": "Phase 1: adds",
+         "items": [
+          "Keep adds 25+ yards from Kith'ix.",
+          "Venomous Hulk: the off-tank parks it on a Voidweaver for cleave.",
+          "Voidweavers: top priority; they can't be moved.",
+          "Bomber Beetles: CC them and set them off one at a time (Death Knight grips help; otherwise root them and have an assigned player run into each). Each detonation adds a stacking raid DoT.",
+          "HC: Voidweavers drop two Mind Stinger Eggs and the Hulk drops four: kill the eggs right after the adds die, before they hatch.",
+          "Extinguish: an 8-second raid cast. Everyone collects one Light's Embrace orb for damage reduction; missed it? Use a defensive.",
+          "Dodge Twisted Appendages slam circles."
+         ]
+        },
+        {
+         "t": "Intermission (100 energy)",
+         "items": [
+          "Kill every add first or they enrage.",
+          "Stay inside the Refulgent Bulwark; the darkness outside kills.",
+          "HC: Soak Eclipse Fragments, including ones aimed at Liadrin, so the Bulwark holds. Soaking gives a stacking 6-second DoT to you and those nearby.",
+          "HC: Soak Voidscar orbs from the tank puddles.",
+          "Liadrin reaching 100 energy ends it. Each intermission adds an Exhausted stack that weakens the Bulwark."
+         ]
+        },
+        {
+         "t": "Phase 2: Eightfold Eclipse (25% to 0%)",
+         "items": [
+          "Remaining adds are destroyed; Luminous Grace gives the raid 50% more damage.",
+          "Every Eightfold Eclipse hits the raid: the eighth wipes it.",
+          "Null Gates: one melee, one ranged and one healer get a gate. Drop them in assigned spots by role, dodge Nullshards and watch Nullify stacks (lethal at 5 on Heroic)."
+         ]
+        }
+       ],
+       "tank": [
+        "Dark Devastation: Physical and Shadow hit that applies Devastated (more damage taken): cooldown for it and swap after each.",
+        "Venom Roar (Hulk): Physical and Nature cone knockback; Death's Advance or Charge negates it.",
+        "HC: Voidscar explosions leave a puddle that spawns an orb: drop them near the edge and soak in the intermission.",
+        "Phase 2 Negation: taunt swap immediately and run into a Null Gate within 8 seconds. Explosive Restabilization hits hard and destroys gates within 10 yards: defensive."
+       ],
+       "healer": [
+        "Big hits: Extinguish, Eightfold Eclipse, and Nightfall stacks from Voidweavers.",
+        "Overwhelming Fear: stagger dispels; each one deals raid damage by distance.",
+        "Abyssal Grasp: heal the absorb off within 8 seconds or the player is pulled into the darkness and dies."
+       ],
+       "raid": [
+        "Priority: Voidweavers, then the Hulk through cleave, then eggs.",
+        "Use a defensive when channeled by Voidweave with high Nightfall stacks.",
+        "Follow your role's Null Gate spot in Phase 2."
+       ],
+       "wipes": [
+        "Adds alive at the intermission.",
+        "Missed Light's Embrace orbs before Extinguish.",
+        "Abyssal Grasp not removed in 8 seconds.",
+        "Fear dispels all at once.",
+        "Missed Null Gate on Negation, or too many Nullify stacks.",
+        "Eggs hatching.",
+        "The eighth Eightfold Eclipse."
+       ],
+       "diff": {
+        "normal": [
+         "No Mind Stinger Eggs, Voidscar orbs or Eclipse Fragments.",
+         "Nullify kills at 6 stacks."
+        ],
+        "heroic": [
+         "Mind Stinger Eggs from Voidweavers and the Hulk.",
+         "Voidscar orbs and Eclipse Fragments in the intermission.",
+         "Nullify kills at 5 stacks."
+        ],
+        "mythic": [
+         "Bomber Beetles also drop eggs.",
+         "Nullify kills at 3 stacks.",
+         "More health and damage."
+        ]
+       }
       }
      ]
     }
