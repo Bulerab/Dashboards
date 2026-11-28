@@ -1211,6 +1211,7 @@ document.addEventListener('mousemove', e => {
   tip.style.left = Math.max(8, Math.min(e.clientX + 14, window.innerWidth - tip.offsetWidth - 8)) + 'px';
   tip.style.top = (e.clientY + 18 + tip.offsetHeight > window.innerHeight ? e.clientY - tip.offsetHeight - 10 : e.clientY + 18) + 'px';
 });
+document.addEventListener('click', () => { const tip = document.getElementById('tip'); if (tip) tip.style.display = 'none'; }, true);
 const info = t => `<span class="info" data-tip="${esc(t)}">i</span>`;
 // Row of number tiles at the top of a tab: [{k: label, v: value, c: color, sub: small text, tip, jump: card id}]
 const strip = items => `<div class="stat-strip">${items.filter(Boolean).map(x => `<div class="stat${x.jump ? ' jump' : ''}"${x.jump ? ` data-jump="${x.jump}"` : ''}${x.tip ? ` data-tip="${esc(x.tip)}"` : ''}>

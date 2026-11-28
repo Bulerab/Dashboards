@@ -7,6 +7,29 @@ let STRATS = null, stratErr = '';
 let stratPick = (location.hash.split('/')[1] || '');       // boss id from #strats/<id>
 let stratSeason = '', stratRaid = '';
 let snPick = '', snMsg = '', snImg = null, snEdit = '', snBusy = false;  // officer form state
+let ABIL = null, abilLoading = false, apImg = null, apPick = '';          // Adventure Guide abilities (from the web app, ?part=abil)
+function loadAbil() {
+  if (ABIL || abilLoading || typeof WEBAPP_URL === 'undefined' || !WEBAPP_URL) return;
+  abilLoading = true;
+  fetch(WEBAPP_URL + '?part=abil').then(r => r.json()).then(j => { ABIL = j.bosses || {}; abilLoading = false; stratsRender(); stratNotesTabRender(); })
+    .catch(() => { ABIL = {}; abilLoading = false; });
+}
+const abilsOf = b => { if (!ABIL) return []; const n = b.journal || b.name; return ABIL[n] || ABIL[b.name] || []; };
+const abilPic = (b, n) => (((STATE && STATE.strat && STATE.strat.pics) || {})[b.id] || {})[n] || '';
+const abilTip = (b, a) => `<div class="abtip"><div class="abt-h">${a.i ? `<img src="${ICON_BASE}${esc(a.i)}.jpg" alt="">` : ''}<b>${esc(a.n)}</b></div>${a.d ? `<p>${esc(a.d)}</p>` : ''}${abilPic(b, a.n) ? `<img class="abt-pic" src="${esc(abilPic(b, a.n))}" alt="">` : ''}</div>`;
+// Wrap known ability names in already-escaped guide text with an icon + hover tooltip
+let abRx = null, abRxBoss = '', abMap = {};
+function abilLink(b, html) {
+  const list = abilsOf(b); if (!list.length) return html;
+  if (abRxBoss !== b.id) {
+    abMap = {}; list.forEach(a => { if (a.n.length >= 4) abMap[esc(a.n).toLowerCase()] = a; });
+    const keys = Object.keys(abMap).sort((x, y) => y.length - x.length).map(k => k.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'));
+    abRx = keys.length ? new RegExp('(^|[^A-Za-z])(' + keys.join('|') + ')(?![A-Za-z])', 'gi') : null; abRxBoss = b.id;
+  }
+  if (!abRx) return html;
+  return html.replace(abRx, (m, pre, name) => { const a = abMap[name.toLowerCase()]; if (!a) return m;
+    return pre + `<span class="ab${abilPic(b, a.n) ? ' has-pic' : ''}" data-tip="${esc(abilTip(b, a))}">${a.i ? `<img src="${ICON_BASE}${esc(a.i)}.jpg" alt="">` : ''}${name}</span>`; });
+}
 
 fetch('strats.json?v=6', { cache: 'no-cache' }).then(r => r.json()).then(j => { STRATS = j; if (typeof render === 'function' && STATE) render(); else stratsRender(); })
   .catch(e => { stratErr = e.message; stratsRender(); });
@@ -25,7 +48,8 @@ const cliffIcons = roles => roles === 'THD' || !roles ? `<span class="cl-roles a
   : `<span class="cl-roles" data-tip="${CLIFF_ROLES.filter(r => roles.includes(r[0])).map(r => r[2]).join(' &amp; ')}">${CLIFF_ROLES.filter(r => roles.includes(r[0])).map(r => roleIcon(r[1])).join('')}</span>`;
 // Guide lines starting with "HC: " are Heroic additions
 const HC_TAG = '<span class="hc-tag" data-tip="Heroic addition: not on Normal">Heroic</span>';
-const gl = x => { const h = /^HC:\s*/.test(x); return `<li${h ? ' class="hc"' : ''}>${h ? HC_TAG : ''}${esc(String(x).replace(/^HC:\s*/, ''))}</li>`; };
+let glBoss = null;
+const gl = x => { const h = /^HC:\s*/.test(x), t = esc(String(x).replace(/^HC:\s*/, '')); return `<li${h ? ' class="hc"' : ''}>${h ? HC_TAG : ''}<span>${glBoss ? abilLink(glBoss, t) : t}</span></li>`; };
 const stratArt = b => STATE ? (artOf(b.journal || b.name) || artOf(b.name)) : '';
 const linkify = s => esc(s).replace(/(https:\/\/[^\s<]+)/g, '<a href="$1" target="_blank" rel="noopener">$1</a>').replace(/\n/g, '<br>');
 const statusTag = b => b.status === 'ready' ? '' : b.status === 'draft' ? '<span class="st-tag draft">draft</span>' : '<span class="st-tag todo">guide coming</span>';
@@ -51,6 +75,7 @@ function noteHtml(n, b, canEdit, i, total) {
 }
 
 function stratBossHtml(cur) {
+  loadAbil(); glBoss = cur.b;
   const b = cur.b, notes = stratNotes(b.id), cl = stratCliff(b), art = stratArt(b);
   const list = (title, items, cls) => items && items.length ? `<div class="sg-sec ${cls || ''}"><h3>${title}</h3><ul>${items.map(gl).join('')}</ul></div>` : '';
   const df = b.diff, meta = STRATS.metas && STRATS.metas[cur.s.id];
@@ -70,7 +95,7 @@ function stratBossHtml(cur) {
     <div class="sb-top">
       <div class="card cliff-card"><div class="card-head"><h2>&#9889; Before the pull</h2><span class="hint">${cl.custom ? 'officer version' : 'say these every pull'}</span></div>
         ${cl.hero ? `<div class="hero-line">${HERO_ICON}<div><b>Heroism / Bloodlust</b><span>${esc(cl.hero)}</span></div></div>` : ''}
-        ${cl.lines.length ? `<ol class="cliff">${cl.lines.map(x => { const c = cliffParse(x); return `<li><span class="cl-text">${esc(c.text)}</span>${cliffIcons(c.roles)}</li>`; }).join('')}</ol>` : '<p class="empty">No cliff notes yet.</p>'}
+        ${cl.lines.length ? `<ol class="cliff">${cl.lines.map(x => { const c = cliffParse(x); return `<li><span class="cl-text">${abilLink(b, esc(c.text))}</span>${cliffIcons(c.roles)}</li>`; }).join('')}</ol>` : '<p class="empty">No cliff notes yet.</p>'}
         ${officerKey ? `<a class="hint" data-tab="stratnotes" data-snboss="${esc(b.id)}" href="#stratnotes">Edit cliff notes</a>` : ''}</div>
       <div class="card notes-card"><div class="card-head"><h2>&#128221; Officer notes</h2><span class="hint">${notes.length ? notes.length + ' note' + (notes.length === 1 ? '' : 's') : 'our own strat'}</span></div>
         ${notes.length ? notes.map((n, i) => noteHtml(n, b, !!officerKey, i, notes.length)).join('') : '<p class="empty">No officer notes for this boss yet.</p>'}
@@ -85,6 +110,9 @@ function stratBossHtml(cur) {
       ${list(`${roleIcon('DPS')} Raid &amp; DPS <span class="hint">soaks, positioning, adds</span>`, b.raid, 'dps')}</div>` : ''}
     ${b.wipes && b.wipes.length ? `<div class="card wipes"><div class="card-head"><h2>&#9888; What wipes us</h2></div><ul>${b.wipes.map(x => `<li>${esc(x)}</li>`).join('')}</ul></div>` : ''}
     ${ach}
+    ${abilsOf(b).length ? `<div class="card"><div class="card-head"><h2>Boss abilities</h2><span class="hint">from the Adventure Guide &middot; hover for details${officerKey ? ' &middot; add pictures in Strat Notes' : ''}</span></div>
+      <div class="ab-grid">${abilsOf(b).map(a => `<span class="ab chip${abilPic(b, a.n) ? ' has-pic' : ''}" data-tip="${esc(abilTip(b, a))}">${a.i ? `<img src="${ICON_BASE}${esc(a.i)}.jpg" alt="">` : ''}${esc(a.n)}</span>`).join('')}</div></div>`
+      : ABIL ? '' : `<div class="card"><p class="empty">Loading boss abilities…</p></div>`}
     ${b.status !== 'ready' ? `<div class="card"><p class="empty">${b.status === 'draft' ? 'This guide is a short draft.' : 'The full guide for this boss isn\'t written yet.'} ${(b.links || []).length ? 'In the meantime, the guides below cover it.' : ''}</p></div>` : ''}
     ${(b.links || []).length ? `<p class="sg-links">Full guides: ${b.links.map(l => `<a href="${esc(l.u)}" target="_blank" rel="noopener">${esc(l.t)}</a>`).join(' &middot; ')}</p>` : ''}`;
 }
@@ -140,12 +168,29 @@ function stratNotesTabRender() {
           <div class="cl-row hero-edit">${HERO_ICON}<input name="hero" maxlength="120" placeholder="When to pop Hero, e.g. On pull, or Phase 3 start (~40%)" value="${esc(cl.hero)}"></div>
           <div><button type="submit" class="toggle-btn">Save cliff notes</button>${cl.custom ? ' <button type="button" class="toggle-btn" data-cliffreset="1">Back to default</button>' : ''}</div></form></div>
     </div>
+    ${abilPicCard(b)}
     <div class="card"><div class="card-head"><h2>${esc(b.name)}: notes on the page</h2><span class="hint">${notes.length}</span></div>
       ${notes.length ? notes.map((n, i) => noteHtml(n, b, true, i, notes.length)).join('') : '<p class="empty">None yet.</p>'}</div>`;
 }
 
+function abilPicCard(b) {
+  loadAbil();
+  const list = abilsOf(b), pics = ((STATE && STATE.strat && STATE.strat.pics) || {})[b.id] || {};
+  if (!list.length) return `<div class="card"><div class="card-head"><h2>Ability pictures</h2></div><p class="empty">${ABIL ? 'No Adventure Guide abilities loaded for this boss yet (Apotheosis → Load boss abilities now).' : 'Loading abilities…'}</p></div>`;
+  if (!apPick || !list.some(a => a.n === apPick)) apPick = list[0].n;
+  const cur = pics[apPick];
+  return `<div class="card"><div class="card-head"><h2>Ability pictures</h2><span class="hint">what it looks like in game &middot; shows in the hover tooltip</span></div>
+    <form id="ap-form" class="ap-form">
+      <label>Ability<select data-appick="1">${list.map(a => `<option value="${esc(a.n)}"${a.n === apPick ? ' selected' : ''}>${esc(a.n)}${pics[a.n] ? ' ✓' : ''}</option>`).join('')}</select></label>
+      <div class="sn-drop" id="ap-drop">${apImg ? `<img src="${apImg}" alt=""><button type="button" data-apclear="1">Remove</button>` : cur ? `<img src="${esc(cur)}" alt=""><span class="hint">Current picture</span>` : '<span>Drop or paste a screenshot, or</span>'}
+        <label class="toggle-btn">Choose picture<input type="file" accept="image/*" id="ap-file" style="display:none"></label></div>
+      <label>or a picture link<input name="imageUrl" placeholder="https://"></label>
+      <div><button type="submit" class="toggle-btn">Save picture</button>${cur ? ' <button type="button" class="toggle-btn" data-apdel="1">Remove picture</button>' : ''}</div>
+    </form>
+    ${Object.keys(pics).length ? `<p class="hint" style="margin:8px 0 0">With pictures: ${Object.keys(pics).map(esc).join(', ')}</p>` : ''}</div>`;
+}
 /* Shrink pictures before upload (max 1600 px wide) */
-function snReadImage(file) {
+function snReadImage(file, target) {
   if (!file || !/^image\//.test(file.type)) return;
   const r = new FileReader();
   r.onload = () => {
@@ -154,7 +199,8 @@ function snReadImage(file) {
       const scale = Math.min(1, 1600 / img.width), c = document.createElement('canvas');
       c.width = Math.round(img.width * scale); c.height = Math.round(img.height * scale);
       c.getContext('2d').drawImage(img, 0, 0, c.width, c.height);
-      snImg = file.type === 'image/png' && file.size < 900000 && scale === 1 ? r.result : c.toDataURL('image/jpeg', 0.86);
+      const out = file.type === 'image/png' && file.size < 900000 && scale === 1 ? r.result : c.toDataURL('image/jpeg', 0.86);
+      if (target === 'ap') apImg = out; else snImg = out;
       stratNotesTabRender();
     };
     img.src = r.result;
@@ -180,6 +226,8 @@ document.addEventListener('click', e => {
   const ed = t.closest('[data-snedit]'); if (ed) { e.preventDefault(); const [id, boss] = ed.dataset.snedit.split('|'); snPick = boss; snEdit = id; snImg = null; snMsg = ''; tab = 'stratnotes'; history.replaceState(null, '', '#stratnotes'); render(); window.scrollTo({ top: 0, behavior: 'smooth' }); return; }
   if (t.closest('[data-sncancel]')) { snEdit = ''; snImg = null; stratNotesTabRender(); return; }
   if (t.closest('[data-snclear]')) { snImg = null; stratNotesTabRender(); return; }
+  if (t.closest('[data-apclear]')) { apImg = null; stratNotesTabRender(); return; }
+  if (t.closest('[data-apdel]')) { if (confirm('Remove the picture for ' + apPick + '?')) snPost({ action: 'stratAbilPic', boss: snPick, abil: apPick, imageUrl: '' }); return; }
   if (t.closest('[data-cliffreset]')) { if (confirm('Go back to the website\'s cliff notes for this boss?')) snPost({ action: 'stratCliff', boss: snPick, lines: [] }); return; }
 }, true);
 
@@ -192,14 +240,16 @@ document.addEventListener('change', e => {
     snEdit = ''; snImg = null; snMsg = ''; stratNotesTabRender(); return;
   }
   if (e.target.id === 'sn-file') snReadImage(e.target.files[0]);
+  if (e.target.id === 'ap-file') snReadImage(e.target.files[0], 'ap');
+  if (e.target.dataset && e.target.dataset.appick) { apPick = e.target.value; apImg = null; stratNotesTabRender(); }
 });
 document.addEventListener('paste', e => {
   if (tab !== 'stratnotes') return;
   const f = [...(e.clipboardData && e.clipboardData.files || [])].find(x => /^image\//.test(x.type));
-  if (f) { e.preventDefault(); snReadImage(f); }
+  if (f) { e.preventDefault(); snReadImage(f, document.activeElement && document.activeElement.closest && document.activeElement.closest('#ap-form') ? 'ap' : ''); }
 });
-document.addEventListener('dragover', e => { if (e.target.closest && e.target.closest('#sn-drop')) e.preventDefault(); });
-document.addEventListener('drop', e => { const z = e.target.closest && e.target.closest('#sn-drop'); if (!z) return; e.preventDefault(); snReadImage(e.dataTransfer.files[0]); });
+document.addEventListener('dragover', e => { if (e.target.closest && e.target.closest('#sn-drop, #ap-drop')) e.preventDefault(); });
+document.addEventListener('drop', e => { const z = e.target.closest && e.target.closest('#sn-drop, #ap-drop'); if (!z) return; e.preventDefault(); snReadImage(e.dataTransfer.files[0], z.id === 'ap-drop' ? 'ap' : ''); });
 document.addEventListener('submit', e => {
   if (e.target.id === 'sn-form') {
     e.preventDefault(); if (snBusy) return;
@@ -207,6 +257,13 @@ document.addEventListener('submit', e => {
     if (snImg) body.image = snImg;
     if (snEdit) body.id = snEdit;
     snPost(body).then(() => { if (!/^Not saved/.test(snMsg)) { snEdit = ''; snImg = null; render(); } });
+  }
+  if (e.target.id === 'ap-form') {
+    e.preventDefault();
+    const f = new FormData(e.target), body = { action: 'stratAbilPic', boss: snPick, abil: apPick, imageUrl: String(f.get('imageUrl') || '') };
+    if (apImg) body.image = apImg;
+    if (!apImg && !body.imageUrl) { snMsg = 'Choose a picture first.'; stratNotesTabRender(); return; }
+    snPost(body).then(() => { if (!/^Not saved/.test(snMsg)) { apImg = null; render(); } });
   }
   if (e.target.id === 'cliff-form') {
     e.preventDefault();

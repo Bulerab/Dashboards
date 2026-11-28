@@ -535,3 +535,17 @@ li.hc { list-style: none; margin-left: -18px; display: flex; gap: 0; align-items
 .ach-pre h3 { margin: 0 0 4px !important; color: #e3b341; }
 .ach-pre ul { margin: 0; padding-left: 20px; } .ach-pre li { font-size: 13.5px; line-height: 1.55; color: #e6e6e6; margin: 2px 0; }
 .ach-pre p { margin: 0; }
+
+.ab { display: inline-flex; align-items: center; gap: 3px; color: #f0d58a; border-bottom: 1px dotted #a08a4a; cursor: help; white-space: nowrap; }
+.ab img { width: 16px; height: 16px; border-radius: 3px; vertical-align: -3px; }
+.ab.has-pic::after { content: '\1F4F7'; font-size: 10px; margin-left: 2px; opacity: .8; }
+.ab-grid { display: flex; flex-wrap: wrap; gap: 6px; }
+.ab.chip { border: 1px solid #333; border-radius: 6px; padding: 4px 8px; background: #1a1a1a; color: #e6e6e6; font-size: 12.5px; }
+.ab.chip img { width: 20px; height: 20px; }
+.tip .abtip { max-width: 330px; }
+.abt-h { display: flex; align-items: center; gap: 8px; margin-bottom: 4px; } .abt-h img { width: 30px; height: 30px; border-radius: 5px; border: 1px solid #555; } .abt-h b { font-size: 14px; color: #ffd100; }
+.abtip p { margin: 0; color: #ddd; font-size: 12.5px; line-height: 1.45; }
+.abt-pic { display: block; margin-top: 8px; max-width: 320px; max-height: 220px; border-radius: 6px; border: 1px solid #444; }
+.ap-form { display: grid; gap: 10px; }
+.ap-form > label { display: grid; gap: 4px; font-size: 12.5px; color: #aaa; }
+.ap-form select, .ap-form input[name=imageUrl] { height: 34px; background: #1a1a1a; color: #eee; border: 1px solid #3a3a3a; border-radius: 6px; padding: 0 8px; max-width: 420px; }
