@@ -7,7 +7,7 @@
 <link rel="preconnect" href="https://script.google.com">
 <link rel="preconnect" href="https://script.googleusercontent.com" crossorigin>
 <link rel="stylesheet" href="app.css?v=1">
-<link rel="stylesheet" href="apo.css?v=55">
+<link rel="stylesheet" href="apo.css?v=57">
 </head>
 <body>
 <div class="container">
@@ -18,11 +18,11 @@
       <p class="generated"><span id="src" class="src snap">Loading</span><span id="when"></span></p>
     </div>
     <div class="top-right"><button class="lock" id="lock" type="button" data-lock="1">&#128274; Officer</button>
-      <nav class="nav apo-tabs off-nav"><span class="off-tabs" id="off-tabs"><a href="#approvals" data-tab="approvals" class="off-tab">&#128275; Approvals<span class="off-count" id="appr-count"></span></a><a href="#upload" data-tab="upload" class="off-tab">&#128275; Upload Sims</a><a href="#attendance" data-tab="attendance" class="off-tab">&#128275; Attendance</a><a href="#performance" data-tab="performance" class="off-tab">&#128275; Performance</a></span></nav></div>
+      <nav class="nav apo-tabs off-nav"><span class="off-tabs" id="off-tabs"><a href="#approvals" data-tab="approvals" class="off-tab">&#128275; Approvals<span class="off-count" id="appr-count"></span></a><a href="#upload" data-tab="upload" class="off-tab">&#128275; Upload Sims</a><a href="#attendance" data-tab="attendance" class="off-tab">&#128275; Attendance</a><a href="#performance" data-tab="performance" class="off-tab">&#128275; Performance</a><a href="#stratnotes" data-tab="stratnotes" class="off-tab">&#128275; Strat Notes</a></span></nav></div>
   </div>
   <div class="guild-links" id="guild-links"></div>
   <nav class="nav apo-tabs" id="tabs">
-    <a href="#guild" data-tab="guild">Guild</a><a href="#roster" data-tab="roster">Roster</a><a href="#loot" data-tab="loot">Loot Targets</a><a href="#priority" data-tab="priority">BiS Priority</a><a href="#sims" data-tab="sims">Sims Priority</a><a href="#talents" data-tab="talents">Talents Check</a><a href="#vault" data-tab="vault">Great Vault</a><a href="#mplus" data-tab="mplus">Mythic+</a><a href="#requests" data-tab="requests">Requests</a><a href="#rules" data-tab="rules">Raiding &amp; Loot Rules</a>
+    <a href="#guild" data-tab="guild">Guild</a><a href="#roster" data-tab="roster">Roster</a><a href="#loot" data-tab="loot">Loot Targets</a><a href="#priority" data-tab="priority">BiS Priority</a><a href="#sims" data-tab="sims">Sims Priority</a><a href="#talents" data-tab="talents">Talents Check</a><a href="#vault" data-tab="vault">Great Vault</a><a href="#mplus" data-tab="mplus">Mythic+</a><a href="#requests" data-tab="requests">Requests</a><a href="#strats" data-tab="strats">Raid Boss Strats</a><a href="#rules" data-tab="rules">Raiding &amp; Loot Rules</a>
   </nav>
 
   <section class="tab" id="tab-guild">
@@ -93,6 +93,9 @@
       <p class="lead">Add a secondary main or alt, swap to a new main, or join the raid. An officer approves it, then it shows on the roster.</p></div>
     <div class="req-grid" id="req-forms"></div>
   </section>
+
+  <section class="tab" id="tab-strats"><div id="strats-body"></div></section>
+  <section class="tab" id="tab-stratnotes"><div id="sn-body"></div></section>
 
   <section class="tab" id="tab-rules">
     <div class="rules-nav">
@@ -306,6 +309,7 @@
 </div>
 <div class="tip" id="tip"></div>
 <script src="shared.js?v=2"></script>
-<script src="app.js?v=65"></script>
+<script src="app.js?v=66"></script>
+  <script src="strats.js?v=2"></script>
 </body>
 </html>

@@ -7,7 +7,7 @@ const store = (k, d) => { try { return JSON.parse(localStorage.getItem(k) || 'nu
 const save = (k, v) => { try { localStorage.setItem(k, JSON.stringify(v)); } catch (e) { /* storage blocked */ } };
 
 let STATE = null, WHEN = '';
-let tab = (location.hash || '#guild').slice(1);
+let tab = (location.hash || '#guild').slice(1).split('/')[0];
 const rosterPick = store('apoRosterPick', {});           // player -> picked toon name
 ['apoTileOpen', 'apoLootOpen', 'apoDropOpen', 'apoTalOpen', 'apoOpenTeam', 'apoOpenDungeon'].forEach(k => { try { localStorage.removeItem(k); } catch (e) { /* blocked */ } });
 const tileOpen = new Set();   // open tiles are not remembered: everything starts collapsed
@@ -767,7 +767,7 @@ const tierHead = c => c.tier ? `<div class="headline" data-tip="${esc(c.tier.nam
 
 /* ------------------------------------------------------------------ Officer tabs: hidden until the officer key is entered.
    Their data (requests, attendance, performance) only comes from the script with the key, never in the public page data. */
-const OFF_TABS = ['approvals', 'upload', 'attendance', 'performance'];
+const OFF_TABS = ['approvals', 'upload', 'attendance', 'performance', 'stratnotes'];
 let OFF = null, offErr = '', offLoading = false;
 let offAgain = false;
 async function loadOfficer() {
@@ -1275,6 +1275,7 @@ function render() {
   if (officerKey) { uploadHtml(); approvalsHtml(); attendanceHtml(); performanceHtml(); }
   guildHtml();
   mplusHtml();
+  if (typeof stratsRender === 'function') { stratsRender(); stratNotesTabRender(); }
   tidyHeads();
 }
 
