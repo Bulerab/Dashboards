@@ -560,3 +560,14 @@ li.hc { list-style: none; margin-left: -18px; display: flex; gap: 0; align-items
 .map-key span { display: inline-flex; align-items: center; gap: 5px; }
 .map-key i { display: inline-grid; place-items: center; width: 15px; height: 15px; border-radius: 50%; color: #fff; font-style: normal; font-size: 9px; font-weight: 700; }
 .map-key i.dots { border: 1px dashed #8b8b8b; background: rgba(139,139,139,.15); }
+
+.ge-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(230px, 1fr)); gap: 10px; }
+.ge { background: #141518; border: 1px solid #2c2d33; border-top: 3px solid var(--ge); border-radius: 10px; padding: 10px; display: flex; flex-direction: column; gap: 7px; }
+.ge-top { display: flex; align-items: center; gap: 6px; }
+.ge-type { font-size: 11px; font-weight: 800; letter-spacing: .04em; text-transform: uppercase; color: var(--ge); }
+.ge-name { font-size: 14px; font-weight: 700; }
+.ge-name .ab img { width: 20px; height: 20px; }
+.ge-look { display: flex; align-items: center; gap: 10px; min-height: 64px; background: #0e0f12; border-radius: 8px; padding: 6px 10px; color: #888; font-size: 11.5px; }
+.ge-look svg { width: 52px; height: 52px; flex: none; }
+.ge-look img { width: 100%; max-height: 170px; object-fit: cover; border-radius: 6px; }
+.ge-do { margin: 0; font-size: 12.5px; color: #cfcfcf; line-height: 1.45; }

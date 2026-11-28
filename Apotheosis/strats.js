@@ -16,17 +16,27 @@ function loadAbil() {
 }
 // Icons + descriptions for boss spells come from Wowhead's public tooltip feed (Blizzard's API has none for boss spells), kept in this browser
 let WH = {}; try { WH = JSON.parse(localStorage.getItem('apoWH') || '{}'); } catch (e) { WH = {}; }
-const whPending = new Set(); let whTimer = 0;
+Object.keys(WH).forEach(k => { if (!WH[k] || !WH[k].i) delete WH[k]; });            // drop blanks saved by the first version
+const whQueue = [], whQueued = new Set(), whTries = {}; let whActive = 0, whTimer = 0;
+const abIcon = n => n ? 'https://wow.zamimg.com/images/wow/icons/large/' + n + '.jpg' : '';  // Wowhead's icon server has the newest icons
 function whFill(list) {
-  const want = list.filter(a => a.s && !WH[a.s] && !whPending.has(a.s)).slice(0, 60);
-  want.forEach(a => { whPending.add(a.s);
-    fetch('https://nether.wowhead.com/tooltip/spell/' + a.s + '?dataEnv=1&locale=0').then(r => r.json()).then(j => {
+  list.forEach(a => { if (a.s && !WH[a.s] && !whQueued.has(a.s) && (whTries[a.s] || 0) < 3) { whQueued.add(a.s); whQueue.push(a.s); } });
+  whPump();
+}
+function whPump() {
+  while (whActive < 6 && whQueue.length) {
+    const id = whQueue.shift(); whActive++;
+    fetch('https://nether.wowhead.com/tooltip/spell/' + id + '?dataEnv=1&locale=0').then(r => { if (!r.ok) throw new Error(r.status); return r.json(); }).then(j => {
       const div = document.createElement('div'); div.innerHTML = String(j.tooltip || '').replace(/<br\s*\/?>/gi, ' ');
-      const q = div.querySelector('.q'); WH[a.s] = { i: j.icon || '', d: ((q || div).textContent || '').replace(/\s+/g, ' ').trim().slice(0, 420) };
-    }).catch(() => { WH[a.s] = { i: '', d: '' }; }).finally(() => {
-      whPending.delete(a.s); clearTimeout(whTimer);
-      whTimer = setTimeout(() => { try { localStorage.setItem('apoWH', JSON.stringify(WH)); } catch (e) { /* full */ } abRxBoss = ''; stratsRender(); }, 250);
-    }); });
+      const q = div.querySelector('.q'); WH[id] = { i: j.icon || '', d: ((q || div).textContent || '').replace(/\s+/g, ' ').trim().slice(0, 420) };
+    }).catch(() => { whTries[id] = (whTries[id] || 0) + 1; }).finally(() => {
+      whActive--; whQueued.delete(id);
+      if (!WH[id] && (whTries[id] || 0) < 3) setTimeout(() => { whQueued.add(id); whQueue.push(id); whPump(); }, 1500 * (whTries[id] || 1));
+      clearTimeout(whTimer);
+      whTimer = setTimeout(() => { try { localStorage.setItem('apoWH', JSON.stringify(WH)); } catch (e) { /* full */ } abRxBoss = ''; stratsRender(); }, 300);
+      whPump();
+    });
+  }
 }
 const abilsOf = b => {
   if (!ABIL) return [];
@@ -35,7 +45,7 @@ const abilsOf = b => {
   return raw.map(a => { const w = WH[a.s] || {}; return { n: a.n, s: a.s, i: a.i || w.i || '', d: a.d || w.d || '' }; });
 };
 const abilPic = (b, n) => (((STATE && STATE.strat && STATE.strat.pics) || {})[b.id] || {})[n] || '';
-const abilTip = (b, a) => `<div class="abtip"><div class="abt-h">${a.i ? `<img src="${ICON_BASE}${esc(a.i)}.jpg" alt="">` : ''}<b>${esc(a.n)}</b></div>${a.d ? `<p>${esc(a.d)}</p>` : ''}${abilPic(b, a.n) ? `<img class="abt-pic" src="${esc(abilPic(b, a.n))}" alt="">` : ''}</div>`;
+const abilTip = (b, a) => `<div class="abtip"><div class="abt-h">${a.i ? `<img src="${abIcon(esc(a.i))}" alt="">` : ''}<b>${esc(a.n)}</b></div>${a.d ? `<p>${esc(a.d)}</p>` : ''}${abilPic(b, a.n) ? `<img class="abt-pic" src="${esc(abilPic(b, a.n))}" alt="">` : ''}</div>`;
 // Wrap known ability names in already-escaped guide text with an icon + hover tooltip
 let abRx = null, abRxBoss = '', abMap = {};
 function abilLink(b, html) {
@@ -47,7 +57,7 @@ function abilLink(b, html) {
   }
   if (!abRx) return html;
   return html.replace(abRx, (m, pre, name) => { const a = abMap[name.toLowerCase()]; if (!a) return m;
-    return pre + `<span class="ab${abilPic(b, a.n) ? ' has-pic' : ''}" data-tip="${esc(abilTip(b, a))}">${a.i ? `<img src="${ICON_BASE}${esc(a.i)}.jpg" alt="">` : ''}${name}</span>`; });
+    return pre + `<span class="ab${abilPic(b, a.n) ? ' has-pic' : ''}" data-tip="${esc(abilTip(b, a))}">${a.i ? `<img src="${abIcon(esc(a.i))}" alt="">` : ''}${name}</span>`; });
 }
 
 fetch('strats.json?v=7', { cache: 'no-cache' }).then(r => r.json()).then(j => { STRATS = j; if (typeof render === 'function' && STATE) render(); else stratsRender(); })
@@ -127,6 +137,50 @@ function stratMapHtml(b) {
       ${p.n ? `<p>${abilLink(b, esc(p.n))}</p>` : ''}</figure>`).join('')}</div>
     <div class="map-key"><span><i style="background:#3e8ef7">T</i>Tank</span><span><i style="background:#46a758">H</i>Healer</span><span><i style="background:#e5484d">D</i>DPS</span><span><i class="dots"></i>Raid / group</span><span><b style="color:#ff6b6b">💀</b>Boss</span><span><b style="color:#e5484d">✕</b>Don't stand here</span></div></div>`;
 }
+/* ---------- Ground effects: every soak / dodge / line / pool / spread / stack the guide mentions ----------
+   Built from the guide text: each sentence that names an ability is sorted by what it asks you to do. */
+const GE_TYPES = [
+  ['soak', 'Soak', '#f0c24b', /\bsoak/i],
+  ['line', 'Line / frontal', '#e5484d', /\b(line|lines|beam|laser|frontal|cone|breath|charge|arrow)\b/i],
+  ['pool', 'Pool / puddle', '#a26cf0', /\b(pool|pools|puddle|puddles|patch|patches|goo)\b/i],
+  ['spread', 'Spread', '#3e8ef7', /\bspread\b/i],
+  ['stack', 'Stack', '#46a758', /\b(pixel-)?stack(ed)?\b(?! of)/i],
+  ['dodge', 'Dodge', '#f08a3c', /\b(dodge|avoid|swirls?|circles?|waves?|tornado(es)?|don't stand|stay out|step out|run out|move off|out of)\b/i]
+];
+const GE_GLYPH = {
+  soak: '<circle cx="20" cy="20" r="15" fill="#f0c24b33" stroke="#f0c24b" stroke-width="1.5"/><circle cx="15" cy="17" r="2.2" fill="#fff"/><circle cx="24" cy="16" r="2.2" fill="#fff"/><circle cx="20" cy="24" r="2.2" fill="#fff"/><circle cx="13" cy="25" r="2.2" fill="#fff"/><circle cx="27" cy="24" r="2.2" fill="#fff"/>',
+  line: '<circle cx="8" cy="20" r="5" fill="#6b1d1d" stroke="#ff6b6b"/><path d="M12 20 L37 9 L37 31 Z" fill="#e5484d44" stroke="#e5484d" stroke-width="1.2"/><circle cx="25" cy="34" r="2.4" fill="#46a758"/>',
+  pool: '<ellipse cx="15" cy="16" rx="9" ry="6" fill="#a26cf066" stroke="#a26cf0"/><ellipse cx="27" cy="27" rx="8" ry="5.5" fill="#a26cf066" stroke="#a26cf0"/><circle cx="31" cy="11" r="2.4" fill="#46a758"/>',
+  spread: '<circle cx="20" cy="20" r="2.4" fill="#3e8ef7"/><path d="M20 20 L7 8 M20 20 L33 8 M20 20 L7 32 M20 20 L33 32" stroke="#3e8ef7" stroke-width="1.4" stroke-dasharray="2 2"/><circle cx="7" cy="8" r="2.4" fill="#fff"/><circle cx="33" cy="8" r="2.4" fill="#fff"/><circle cx="7" cy="32" r="2.4" fill="#fff"/><circle cx="33" cy="32" r="2.4" fill="#fff"/>',
+  stack: '<circle cx="20" cy="20" r="7" fill="#46a75844" stroke="#46a758"/><circle cx="18" cy="18" r="2" fill="#fff"/><circle cx="22" cy="18" r="2" fill="#fff"/><circle cx="20" cy="22" r="2" fill="#fff"/><path d="M5 5 L12 12 M35 5 L28 12 M5 35 L12 28 M35 35 L28 28" stroke="#46a758" stroke-width="1.4"/>',
+  dodge: '<circle cx="18" cy="18" r="11" fill="#f08a3c33" stroke="#f08a3c" stroke-width="1.4" stroke-dasharray="3 2"/><path d="M14 14 L22 22 M22 14 L14 22" stroke="#e5484d" stroke-width="2"/><circle cx="33" cy="33" r="2.6" fill="#46a758"/><path d="M26 27 L31 31" stroke="#46a758" stroke-width="1.3"/>'
+};
+function groundOf(b) {
+  const list = abilsOf(b); if (!list.length) return [];
+  const lines = [];
+  (b.phases || []).forEach(p => p.items.forEach(x => lines.push(x)));
+  ['raid', 'tank', 'healer'].forEach(k => (b[k] || []).forEach(x => lines.push(x)));
+  (b.cliff || []).forEach(x => lines.push(cliffParse(x).text));
+  const sents = [];
+  lines.forEach(l => { const hc = /^HC:\s*/.test(l); String(l).replace(/^HC:\s*/, '').split(/(?<=[.;!?])\s+|:\s+(?=[A-Z])/).forEach(t => t.trim() && sents.push({ t: t.trim(), hc })); });
+  const out = [];
+  list.forEach(a => {
+    if (a.n.length < 4) return;
+    const rx = new RegExp('(^|[^A-Za-z])' + a.n.replace(/[.*+?^${}()|[\]\\]/g, '\\$&') + '(?![A-Za-z])', 'i');
+    const hits = sents.filter(x => rx.test(x.t)); if (!hits.length) return;
+    for (const [k, label, col, re] of GE_TYPES) { const h = hits.find(x => re.test(x.t)); if (h) { out.push({ a, k, label, col, do: h.t, hc: h.hc }); return; } }
+  });
+  return out.sort((x, y) => GE_TYPES.findIndex(t => t[0] === x.k) - GE_TYPES.findIndex(t => t[0] === y.k));
+}
+function groundHtml(b) {
+  const g = groundOf(b); if (!g.length) return '';
+  return `<div class="card ground"><div class="card-head"><h2>🎯 Ground effects</h2><span class="hint">every soak, dodge, line and pool in this guide &middot; hover the name for the in-game text${officerKey ? ' &middot; add screenshots in Strat Notes → Ability pictures' : ''}</span></div>
+    <div class="ge-grid">${g.map(x => { const pic = abilPic(b, x.a.n);
+      return `<div class="ge" style="--ge:${x.col}"><div class="ge-top"><span class="ge-type">${x.label}</span>${x.hc ? HC_TAG : ''}</div>
+        <div class="ge-name"><span class="ab" data-tip="${esc(abilTip(b, x.a))}">${x.a.i ? `<img src="${abIcon(esc(x.a.i))}" alt="">` : ''}${esc(x.a.n)}</span></div>
+        <div class="ge-look">${pic ? `<img src="${esc(pic)}" alt="${esc(x.a.n)}" loading="lazy">` : `<svg viewBox="0 0 40 40">${GE_GLYPH[x.k]}</svg><span>${officerKey ? 'No screenshot yet' : 'Screenshot coming'}</span>`}</div>
+        <p class="ge-do">${esc(x.do)}</p></div>`; }).join('')}</div></div>`;
+}
 function stratBossHtml(cur) {
   loadAbil(); glBoss = cur.b;
   const b = cur.b, notes = stratNotes(b.id), cl = stratCliff(b), art = stratArt(b);
@@ -156,6 +210,7 @@ function stratBossHtml(cur) {
     </div>
     ${diffHtml}
     ${stratMapHtml(b)}
+    ${groundHtml(b)}
     ${b.summary ? `<div class="card"><div class="card-head"><h2>Overview</h2><span class="hint">Heroic guide &middot; ${HC_TAG} = Heroic addition</span></div><p class="lead">${esc(b.summary)}</p>
       ${(b.phases || []).map(p => `<div class="sg-phase"><h3>${esc(p.t)}</h3><ul>${p.items.map(gl).join('')}</ul></div>`).join('')}</div>` : ''}
     ${(b.tank || b.healer || b.raid) ? `<div class="sg-roles">
@@ -165,7 +220,7 @@ function stratBossHtml(cur) {
     ${b.wipes && b.wipes.length ? `<div class="card wipes"><div class="card-head"><h2>&#9888; What wipes us</h2></div><ul>${b.wipes.map(x => `<li>${esc(x)}</li>`).join('')}</ul></div>` : ''}
     ${ach}
     ${abilsOf(b).length ? `<div class="card"><div class="card-head"><h2>Boss abilities</h2><span class="hint">from the Adventure Guide &middot; hover for details${officerKey ? ' &middot; add pictures in Strat Notes' : ''}</span></div>
-      <div class="ab-grid">${abilsOf(b).map(a => `<span class="ab chip${abilPic(b, a.n) ? ' has-pic' : ''}" data-tip="${esc(abilTip(b, a))}">${a.i ? `<img src="${ICON_BASE}${esc(a.i)}.jpg" alt="">` : ''}${esc(a.n)}</span>`).join('')}</div></div>`
+      <div class="ab-grid">${abilsOf(b).map(a => `<span class="ab chip${abilPic(b, a.n) ? ' has-pic' : ''}" data-tip="${esc(abilTip(b, a))}">${a.i ? `<img src="${abIcon(esc(a.i))}" alt="">` : ''}${esc(a.n)}</span>`).join('')}</div></div>`
       : ABIL ? '' : `<div class="card"><p class="empty">Loading boss abilities…</p></div>`}
     ${b.status !== 'ready' ? `<div class="card"><p class="empty">${b.status === 'draft' ? 'This guide is a short draft.' : 'The full guide for this boss isn\'t written yet.'} ${(b.links || []).length ? 'In the meantime, the guides below cover it.' : ''}</p></div>` : ''}
     ${(b.links || []).length ? `<p class="sg-links">Full guides: ${b.links.map(l => `<a href="${esc(l.u)}" target="_blank" rel="noopener">${esc(l.t)}</a>`).join(' &middot; ')}</p>` : ''}`;
@@ -231,11 +286,12 @@ function abilPicCard(b) {
   loadAbil();
   const list = abilsOf(b), pics = ((STATE && STATE.strat && STATE.strat.pics) || {})[b.id] || {};
   if (!list.length) return `<div class="card"><div class="card-head"><h2>Ability pictures</h2></div><p class="empty">${ABIL ? 'No Adventure Guide abilities loaded for this boss yet (Apotheosis → Load boss abilities now).' : 'Loading abilities…'}</p></div>`;
-  if (!apPick || !list.some(a => a.n === apPick)) apPick = list[0].n;
+  if (!apPick || !list.some(a => a.n === apPick)) apPick = (groundOf(b)[0] || { a: list[0] }).a.n;
   const cur = pics[apPick];
   return `<div class="card"><div class="card-head"><h2>Ability pictures</h2><span class="hint">what it looks like in game &middot; shows in the hover tooltip</span></div>
     <form id="ap-form" class="ap-form">
-      <label>Ability<select data-appick="1">${list.map(a => `<option value="${esc(a.n)}"${a.n === apPick ? ' selected' : ''}>${esc(a.n)}${pics[a.n] ? ' ✓' : ''}</option>`).join('')}</select></label>
+      <label>Ability<select data-appick="1">${(() => { const ge = groundOf(b), gn = new Set(ge.map(x => x.a.n)), opt = (a, extra) => `<option value="${esc(a.n)}"${a.n === apPick ? ' selected' : ''}>${esc(a.n)}${extra || ''}${pics[a.n] ? ' ✓' : ''}</option>`;
+        return (ge.length ? `<optgroup label="Ground effects">${ge.map(x => opt(x.a, ' (' + x.label.toLowerCase() + ')')).join('')}</optgroup>` : '') + `<optgroup label="All abilities">${list.filter(a => !gn.has(a.n)).map(a => opt(a)).join('')}</optgroup>`; })()}</select></label>
       <div class="sn-drop" id="ap-drop">${apImg ? `<img src="${apImg}" alt=""><button type="button" data-apclear="1">Remove</button>` : cur ? `<img src="${esc(cur)}" alt=""><span class="hint">Current picture</span>` : '<span>Drop or paste a screenshot, or</span>'}
         <label class="toggle-btn">Choose picture<input type="file" accept="image/*" id="ap-file" style="display:none"></label></div>
       <label>or a picture link<input name="imageUrl" placeholder="https://"></label>
