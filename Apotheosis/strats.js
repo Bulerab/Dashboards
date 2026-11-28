@@ -14,7 +14,26 @@ function loadAbil() {
   fetch(WEBAPP_URL + '?part=abil').then(r => r.json()).then(j => { ABIL = j.bosses || {}; abilLoading = false; stratsRender(); stratNotesTabRender(); })
     .catch(() => { ABIL = {}; abilLoading = false; });
 }
-const abilsOf = b => { if (!ABIL) return []; const n = b.journal || b.name; return ABIL[n] || ABIL[b.name] || []; };
+// Icons + descriptions for boss spells come from Wowhead's public tooltip feed (Blizzard's API has none for boss spells), kept in this browser
+let WH = {}; try { WH = JSON.parse(localStorage.getItem('apoWH') || '{}'); } catch (e) { WH = {}; }
+const whPending = new Set(); let whTimer = 0;
+function whFill(list) {
+  const want = list.filter(a => a.s && !WH[a.s] && !whPending.has(a.s)).slice(0, 60);
+  want.forEach(a => { whPending.add(a.s);
+    fetch('https://nether.wowhead.com/tooltip/spell/' + a.s + '?dataEnv=1&locale=0').then(r => r.json()).then(j => {
+      const div = document.createElement('div'); div.innerHTML = String(j.tooltip || '').replace(/<br\s*\/?>/gi, ' ');
+      const q = div.querySelector('.q'); WH[a.s] = { i: j.icon || '', d: ((q || div).textContent || '').replace(/\s+/g, ' ').trim().slice(0, 420) };
+    }).catch(() => { WH[a.s] = { i: '', d: '' }; }).finally(() => {
+      whPending.delete(a.s); clearTimeout(whTimer);
+      whTimer = setTimeout(() => { try { localStorage.setItem('apoWH', JSON.stringify(WH)); } catch (e) { /* full */ } abRxBoss = ''; stratsRender(); }, 250);
+    }); });
+}
+const abilsOf = b => {
+  if (!ABIL) return [];
+  const raw = (ABIL[b.journal || b.name] || ABIL[b.name] || []).filter(a => a.s);
+  whFill(raw);
+  return raw.map(a => { const w = WH[a.s] || {}; return { n: a.n, s: a.s, i: a.i || w.i || '', d: a.d || w.d || '' }; });
+};
 const abilPic = (b, n) => (((STATE && STATE.strat && STATE.strat.pics) || {})[b.id] || {})[n] || '';
 const abilTip = (b, a) => `<div class="abtip"><div class="abt-h">${a.i ? `<img src="${ICON_BASE}${esc(a.i)}.jpg" alt="">` : ''}<b>${esc(a.n)}</b></div>${a.d ? `<p>${esc(a.d)}</p>` : ''}${abilPic(b, a.n) ? `<img class="abt-pic" src="${esc(abilPic(b, a.n))}" alt="">` : ''}</div>`;
 // Wrap known ability names in already-escaped guide text with an icon + hover tooltip
