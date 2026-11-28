@@ -530,3 +530,8 @@ li.hc { list-style: none; margin-left: -18px; display: flex; gap: 0; align-items
 .ach-card h3 { font-size: 14px; margin: 10px 0 4px; }
 .ach-how { margin: 0 0 8px; padding-left: 20px; } .ach-how li { font-size: 13.5px; line-height: 1.55; color: #cfcfcf; margin: 3px 0; }
 .ach-meta { font-size: 12.5px; color: #999; border-top: 1px solid #2a2a2a; padding-top: 8px; margin: 8px 0 0; }
+
+.ach-pre { background: rgba(227,179,65,.07); border: 1px solid rgba(227,179,65,.3); border-radius: 8px; padding: 8px 12px; margin: 6px 0 4px; }
+.ach-pre h3 { margin: 0 0 4px !important; color: #e3b341; }
+.ach-pre ul { margin: 0; padding-left: 20px; } .ach-pre li { font-size: 13.5px; line-height: 1.55; color: #e6e6e6; margin: 2px 0; }
+.ach-pre p { margin: 0; }

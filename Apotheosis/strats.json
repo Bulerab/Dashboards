@@ -98,12 +98,14 @@
         "name": "The Only Winning Move Is Not To Play",
         "req": "Defeat Imperator Averzian after he destroys your banners.",
         "how": [
-         "Three players pick up the banners before the boss arena.",
          "Place them in a row on the board.",
          "Let Umbral Collapse destroy them.",
          "Still never let him get three Voidshapers in a row."
         ],
-        "note": "Method not fully confirmed."
+        "note": "Method not fully confirmed.",
+        "pre": [
+         "Three players pick up the banners on the way in, before the boss arena."
+        ]
        }
       },
       {
@@ -196,7 +198,8 @@
          "In the wall phase, kill Blistercreeps: they drop meat the hatchlings eat.",
          "When a hatchling has enough it falls asleep and shows a heart. Once all are asleep, kill the boss."
         ],
-        "note": "If you die you lose your hatchling and the group has to reset."
+        "note": "If you die you lose your hatchling and the group has to reset.",
+        "pre": []
        }
       },
       {
@@ -285,9 +288,11 @@
         "name": "It's Treason Then",
         "req": "Defeat Salhadaar after everyone kneels to him before the fight.",
         "how": [
-         "Before the pull, everyone kneels to him one at a time (gives a debuff).",
          "During the fight a shade of each player spawns now and then.",
          "Face your own shade or it kills you; otherwise play the fight normally."
+        ],
+        "pre": [
+         "Before the pull timer, everyone kneels to Salhadaar, one at a time (it gives you a debuff)."
         ]
        }
       },
@@ -384,7 +389,10 @@
          "Use group speed (Stampeding Roar, Wind Rush Totem) so everyone breaks the tether at the same moment.",
          "Healing cooldowns for each Nullsnap, since each one hits the raid."
         ],
-        "note": "A big step up even on Normal. More item level makes it easier (faster kill, fewer Nullzones)."
+        "note": "A big step up even on Normal. More item level makes it easier (faster kill, fewer Nullzones).",
+        "pre": [
+         "Bring raid speed: Stampeding Roar (Druid), Wind Rush Totem (Shaman) or similar, so everyone can break tethers together."
+        ]
        }
       },
       {
@@ -471,12 +479,14 @@
         "name": "Aura Farming",
         "req": "Defeat the Vanguard while the whole raid has Maximum Aura.",
         "how": [
-         "Before the arena, click the Tome of Divinity on the small hill to the right of the stairs (everyone gets Aura Farming).",
          "Pull normally and stand in each boss's aura when they hit 100 energy.",
          "Keep going until everyone has Maximum Aura.",
          "Capped players step aside: Maximum Aura stuns nearby players with less."
         ],
-        "note": "An extra healer helps."
+        "pre": [
+         "Everyone clicks the Tome of Divinity on the small hill to the right of the stairs, before the arena (gives Aura Farming).",
+         "Consider an extra healer."
+        ]
        }
       },
       {
@@ -600,7 +610,8 @@
          "Stand in the void puddle behind Umbric's portal until you have 10 Clinging Void stacks: you get a Lump of Flesh (10 minutes).",
          "After Morium, Demair and Vorelus die, Alleria starts the intermission: get close enough to use the extra action button, but don't get pulled into the middle.",
          "Once the whole raid has thrown their lumps, a Fleshy Monstrosity spawns: kill it, then finish the fight."
-        ]
+        ],
+        "pre": []
        }
       }
      ]
@@ -702,11 +713,14 @@
         "name": "Falling Between The Quacks",
         "req": "Defeat Chimaerus after plucking all Corrupted Feathers from Sergeant Quackers and rescuing him from the Aln.",
         "how": [
-         "Find Sergeant Quackers on the left of the first platform and talk to him to bring him along. Mark him: he runs around.",
          "At the first Alndust Upheaval on the tank, Quackers goes downstairs and stays until every player has plucked a feather.",
          "He comes back and attacks the boss; finish normally."
         ],
-        "note": "After a wipe, collect him from the first platform again."
+        "note": "After a wipe, collect him from the first platform again.",
+        "pre": [
+         "Find Sergeant Quackers on the left side of the first platform and talk to him so he joins the fight.",
+         "Put a raid marker on him: he runs around."
+        ]
        }
       }
      ]
@@ -799,11 +813,13 @@
         "name": "Eggsistential Crisis",
         "req": "Defeat Belo'ren after infusing the Sunwell Egg with Light and Void magic.",
         "how": [
-         "The egg is on a terrace to the left of the arena, up the stairs. Tanks carry it.",
          "Each tank charges it fully with their colour before handing it over: dropping it early resets progress.",
          "Not done in Phase 1? Tanks can hold it through the egg phases to finish."
         ],
-        "note": "Reported to be buggy at times."
+        "note": "Reported to be buggy at times.",
+        "pre": [
+         "Pick up the Sunwell Egg on the terrace to the left of the arena, up the stairs. A tank carries it into the pull."
+        ]
        }
       },
       {
@@ -918,9 +934,11 @@
         "name": "All The Things She Said",
         "req": "Defeat Midnight Falls after returning 12 Memories of Alleria to L'ura.",
         "how": [
-         "Before the fight, light the Void Torch in the alcove to the right of the boss room.",
          "In Phase 3, find the 12 Memories around the room, interact with each and push them into L'ura before they despawn.",
          "Move fast enough to beat the enrage."
+        ],
+        "pre": [
+         "Light the Void Torch in the alcove to the right of the boss room."
         ]
        }
       }
@@ -968,7 +986,10 @@
          "Get the frog Kupamanduka into the well in the middle of the room.",
          "Keep mobs out of the well for the rest of the fight."
         ],
-        "note": "Where Kupamanduka is wasn't confirmed when our source was written."
+        "note": "Where Kupamanduka is wasn't confirmed when our source was written.",
+        "pre": [
+         "Find Kupamanduka the frog (location not confirmed yet)."
+        ]
        }
       },
       {
@@ -1004,6 +1025,9 @@
         "how": [
          "Feed Hoji a Disgusting Fish so he becomes one of Mor'zahi's possession targets.",
          "Then play the fight normally while handling his mechanics."
+        ],
+        "pre": [
+         "Get a Disgusting Fish to feed to Hoji (where it comes from isn't confirmed yet)."
         ]
        }
       },
@@ -1048,10 +1072,13 @@
         "name": "Taking a Bite out of Slime",
         "req": "Defeat the Twin Fangs after feeding Ithraz four slimes in order during Ravenous Feast: Crunchy Appetizer, Sumptuous Soup, Tasty Blob, Jiggly Dessert.",
         "how": [
-         "Assign one player per slime and have them find it before the pull.",
          "Slimekeepers don't soak Ravenous Feast until it's their turn to feed."
         ],
-        "note": "Slimes reportedly follow their player through death for about an hour."
+        "note": "Slimes reportedly follow their player through death for about an hour.",
+        "pre": [
+         "Assign one player per slime: Crunchy Appetizer, Sumptuous Soup, Tasty Blob, Jiggly Dessert.",
+         "Each slimekeeper finds their slime before the pull."
+        ]
        }
       },
       {
@@ -1082,7 +1109,10 @@
         "how": [
          "The raid picks up the Greasy Hatchling egg and passes it every 20 seconds (the debuff's length) until the boss dies."
         ],
-        "note": "Method not confirmed yet. Also gives the Ula'took battle pet."
+        "note": "Method not confirmed yet. Also gives the Ula'took battle pet.",
+        "pre": [
+         "Find the Greasy Hatchling egg (pickup spot not confirmed yet)."
+        ]
        }
       }
      ]

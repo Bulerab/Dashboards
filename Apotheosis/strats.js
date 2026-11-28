@@ -8,7 +8,7 @@ let stratPick = (location.hash.split('/')[1] || '');       // boss id from #stra
 let stratSeason = '', stratRaid = '';
 let snPick = '', snMsg = '', snImg = null, snEdit = '', snBusy = false;  // officer form state
 
-fetch('strats.json?v=4', { cache: 'no-cache' }).then(r => r.json()).then(j => { STRATS = j; if (typeof render === 'function' && STATE) render(); else stratsRender(); })
+fetch('strats.json?v=5', { cache: 'no-cache' }).then(r => r.json()).then(j => { STRATS = j; if (typeof render === 'function' && STATE) render(); else stratsRender(); })
   .catch(e => { stratErr = e.message; stratsRender(); });
 
 const stratAll = () => (STRATS ? STRATS.seasons : []).flatMap(s => s.raids.flatMap(r => r.bosses.map(b => ({ s, r, b }))));
@@ -58,7 +58,8 @@ function stratBossHtml(cur) {
     `<div class="diff-tile ${k}"><div class="dt-head"><b>${l}</b><span class="hint">${h}</span></div><ul>${(df[k] || []).map(x => `<li>${esc(x)}</li>`).join('') || '<li class="hint">No changes listed.</li>'}</ul></div>`).join('')}</div>` : '';
   const ach = b.ach ? `<div class="card ach-card"><div class="card-head"><h2>&#127942; Achievement: ${esc(b.ach.name)}</h2><span class="hint">${meta ? 'part of ' + esc(meta.name) : ''}</span></div>
       <p class="ach-req">${esc(b.ach.req)}</p>
-      <h3>How we do it</h3><ol class="ach-how">${b.ach.how.map(x => `<li>${esc(x)}</li>`).join('')}</ol>
+      <div class="ach-pre"><h3>&#128230; Pre-encounter</h3>${(b.ach.pre || []).length ? `<ul>${b.ach.pre.map(x => `<li>${esc(x)}</li>`).join('')}</ul>` : '<p class="hint">Nothing to grab or click before the pull.</p>'}</div>
+      <h3>During the fight</h3><ol class="ach-how">${b.ach.how.map(x => `<li>${esc(x)}</li>`).join('')}</ol>
       ${b.ach.note ? `<p class="hint">&#9432; ${esc(b.ach.note)}</p>` : ''}
       ${meta ? `<p class="ach-meta">${esc(meta.name)}: ${esc(meta.note)} Reward: <b>${esc(meta.reward)}</b>.</p>` : ''}</div>` : '';
   const facts = [b.setup && ['Setup', b.setup], b.lust && ['Lust', b.lust], b.style && ['Fight', b.style]].filter(Boolean);
