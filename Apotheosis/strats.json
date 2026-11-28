@@ -105,7 +105,12 @@
         "note": "Method not fully confirmed.",
         "pre": [
          "Three players pick up the banners on the way in, before the boss arena."
-        ]
+        ],
+        "pace": {
+         "k": "slow",
+         "l": "Slow and controlled",
+         "t": "Don't push him low until all three banners are destroyed: you need Umbral Collapses to land on them, so expect a few extra soak cycles. Once the banners are gone, kill him normally. The usual rule still applies: never three Voidshapers in a row."
+        }
        },
        "map": [
         {
@@ -561,7 +566,12 @@
          "When a hatchling has enough it falls asleep and shows a heart. Once all are asleep, kill the boss."
         ],
         "note": "If you die you lose your hatchling and the group has to reset.",
-        "pre": []
+        "pre": [],
+        "pace": {
+         "k": "hold",
+         "l": "Hold damage, longer pull",
+         "t": "Most of the damage goes into Blistercreeps so the hatchlings get fed through the wall phases. Hold the boss around 30% until every hatchling is asleep, then burn. Every extra Roar adds raid damage, so plan healer cooldowns for a long pull."
+        }
        },
        "map": [
         {
@@ -826,7 +836,12 @@
         ],
         "pre": [
          "Before the pull timer, everyone kneels to Salhadaar, one at a time (it gives you a debuff)."
-        ]
+        ],
+        "pace": {
+         "k": "normal",
+         "l": "Normal kill",
+         "t": "Kneel before the pull, then it's a normal kill: everyone just turns to face their own shade when it appears."
+        }
        },
        "map": [
         {
@@ -1062,7 +1077,12 @@
         "note": "A big step up even on Normal. More item level makes it easier (faster kill, fewer Nullzones).",
         "pre": [
          "Bring raid speed: Stampeding Roar (Druid), Wind Rush Totem (Shaman) or similar, so everyone can break tethers together."
-        ]
+        ],
+        "pace": {
+         "k": "burn",
+         "l": "Burn as fast as you can",
+         "t": "Every Nullzone is another chance for one player to fail the 3-second snap, so the fewer Nullzones the better. Full damage from the pull, stay stacked and move together with raid speed."
+        }
        },
        "map": [
         {
@@ -1311,7 +1331,12 @@
         "pre": [
          "Everyone clicks the Tome of Divinity on the small hill to the right of the stairs, before the arena (gives Aura Farming).",
          "Consider an extra healer."
-        ]
+        ],
+        "pace": {
+         "k": "hold",
+         "l": "Long pull: farm the auras",
+         "t": "Let every boss reach 100 energy and stand in each aura until the whole raid has Maximum Aura. Ease off if any boss drops toward 30% before everyone is capped. Capped players step away from the group. Expect a long, healer-heavy pull."
+        }
        }
       },
       {
@@ -1436,7 +1461,12 @@
          "After Morium, Demair and Vorelus die, Alleria starts the intermission: get close enough to use the extra action button, but don't get pulled into the middle.",
          "Once the whole raid has thrown their lumps, a Fleshy Monstrosity spawns: kill it, then finish the fight."
         ],
-        "pre": []
+        "pre": [],
+        "pace": {
+         "k": "normal",
+         "l": "Normal pace, one detour",
+         "t": "Build your 10 Clinging Void stacks early and kill Phase 1 at normal pace. In the intermission everyone throws their lump, the raid kills the Fleshy Monstrosity, then finish the fight as usual."
+        }
        }
       }
      ]
@@ -1545,7 +1575,12 @@
         "pre": [
          "Find Sergeant Quackers on the left side of the first platform and talk to him so he joins the fight.",
          "Put a raid marker on him: he runs around."
-        ]
+        ],
+        "pace": {
+         "k": "hold",
+         "l": "Hold early, then burn",
+         "t": "Go easy on the boss after the first Alndust Upheaval until every player has plucked a feather from Quackers. Once he's back attacking the boss, burn normally."
+        }
        },
        "map": [
         {
@@ -1744,7 +1779,12 @@
         "note": "Reported to be buggy at times.",
         "pre": [
          "Pick up the Sunwell Egg on the terrace to the left of the arena, up the stairs. A tank carries it into the pull."
-        ]
+        ],
+        "pace": {
+         "k": "normal",
+         "l": "Normal kill",
+         "t": "Play the fight normally while the tanks fully charge the egg with their colour. If it isn't done by the end of Phase 1, keep going through the egg phases: no need to hold damage."
+        }
        }
       },
       {
@@ -1864,7 +1904,12 @@
         ],
         "pre": [
          "Light the Void Torch in the alcove to the right of the boss room."
-        ]
+        ],
+        "pace": {
+         "k": "burn",
+         "l": "Burn early, race at the end",
+         "t": "Push Phases 1 and 2 hard to bank time: Phase 3 becomes a race between collecting all 12 Memories and the enrage. Assign who grabs which Memory."
+        }
        }
       }
      ]
@@ -2077,7 +2122,12 @@
         "note": "Where Kupamanduka is wasn't confirmed when our source was written.",
         "pre": [
          "Find Kupamanduka the frog (location not confirmed yet)."
-        ]
+        ],
+        "pace": {
+         "k": "normal",
+         "l": "Normal kill",
+         "t": "Once the frog is in the well it's a normal kill: add control is what matters, since nothing may reach the well for the rest of the fight."
+        }
        },
        "setup": "2 tanks · 4 healers · 14 DPS (magic dispels, strong AoE)",
        "lust": "Phase 2",
@@ -2381,7 +2431,12 @@
          "Bring one Sentinel low before its Stasis and let the Stasis play out.",
          "Do the same with the other.",
          "Once both have healed up, finish the fight."
-        ]
+        ],
+        "pace": {
+         "k": "hold",
+         "l": "Long pull: two extra heals",
+         "t": "Before each Vitriolic Stasis, bring one Sentinel low while the other stays high, so Stasis heals the low one for over half its health. Do that for both Sentinels, two separate intermissions, then kill them evenly. Expect a long pull."
+        }
        },
        "setup": "2 tanks · 4 healers · 14 DPS, two teams",
        "lust": "On pull",
@@ -2672,7 +2727,12 @@
         ],
         "pre": [
          "Get a Disgusting Fish to feed to Hoji (where it comes from isn't confirmed yet)."
-        ]
+        ],
+        "pace": {
+         "k": "normal",
+         "l": "Normal kill, tighter timer",
+         "t": "Feed Hoji first, then it's the normal fight with his mechanics on top. Treat the fish timer as tighter than usual and push damage."
+        }
        },
        "setup": "2 tanks · 4 healers · 14 DPS (bleed removal, mobility)",
        "lust": "On pull",
@@ -2921,7 +2981,12 @@
          "Hold Vashnik at the venom fountain until the venoms he spawns merge into one giant Solidified Snake Venom.",
          "Kill it, then finish Vashnik."
         ],
-        "note": "Expect heavy healing."
+        "note": "Expect heavy healing.",
+        "pace": {
+         "k": "hold",
+         "l": "Slow and heal-heavy",
+         "t": "Hold Vashnik at the fountain and let the venom adds merge instead of killing them, until the Solidified Snake Venom forms. Kill it, then burn Vashnik. Expect heavy raid damage: healer cooldowns."
+        }
        },
        "setup": "2 tanks · 4 healers · 14 DPS (CC, staggered dispels)",
        "lust": "On pull",
@@ -3114,7 +3179,12 @@
         "how": [
          "Use the wind knockbacks to fly through the rings."
         ],
-        "note": "Personal achievement: people can get it on different weeks."
+        "note": "Personal achievement: people can get it on different weeks.",
+        "pace": {
+         "k": "normal",
+         "l": "Normal kill (personal)",
+         "t": "A normal kill: each player flies through the rings during Crosswinds knockbacks. It's personal, so whoever misses can get it another week."
+        }
        },
        "setup": "2 tanks · 4–5 healers · 13–14 DPS, two soak groups of 5+",
        "lust": "On pull",
@@ -3402,7 +3472,12 @@
         "pre": [
          "Assign one player per slime: Crunchy Appetizer, Sumptuous Soup, Tasty Blob, Jiggly Dessert.",
          "Each slimekeeper finds their slime before the pull."
-        ]
+        ],
+        "pace": {
+         "k": "normal",
+         "l": "Normal kill, careful Feasts",
+         "t": "Normal pace, but you need four Ravenous Feasts with the slimekeepers feeding in order. Keepers skip Feast soaks until their turn, so the other teams cover more: watch Eternal Venom stacks. Don't kill them before the fourth feed."
+        }
        },
        "setup": "2 tanks · 4 healers · 14 DPS (multi-target)",
        "lust": "On pull",
@@ -3634,7 +3709,12 @@
          "In the later phases, DPS off Dreadmarch so Manifestations of Dread spawn and fixate random players.",
          "Keep it going until everyone has Unnerving Fixation, without getting possessed."
         ],
-        "note": "Can take some luck."
+        "note": "Can take some luck.",
+        "pace": {
+         "k": "hold",
+         "l": "Hold damage late in the fight",
+         "t": "Play the early phases normally. In the later phases, go easy on damage during Dreadmarch so ghosts keep spawning and fixate everyone, then burn once the whole raid has Unnerving Fixation."
+        }
        },
        "setup": "2 tanks · 5 healers · 13 DPS (poison dispels, interrupts, raid cooldowns)",
        "lust": "Soulbinding intermission (on Zul'jan)",
@@ -3891,7 +3971,12 @@
         "note": "Method not confirmed yet. Also gives the Ula'took battle pet.",
         "pre": [
          "Find the Greasy Hatchling egg (pickup spot not confirmed yet)."
-        ]
+        ],
+        "pace": {
+         "k": "burn",
+         "l": "Burn as fast as you can",
+         "t": "The egg has to be passed every 20 seconds for the whole fight, so every minute is three more passes to miss. Full damage and a tight pass order."
+        }
        },
        "setup": "2 tanks · 5 healers · 13 DPS, two equal groups",
        "lust": "First damage amp (Phase 1)",

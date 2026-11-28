@@ -60,7 +60,7 @@ function abilLink(b, html) {
     return pre + `<span class="ab${abilPic(b, a.n) ? ' has-pic' : ''}" data-tip="${esc(abilTip(b, a))}">${a.i ? `<img src="${abIcon(esc(a.i))}" alt="">` : ''}${name}</span>`; });
 }
 
-fetch('strats.json?v=7', { cache: 'no-cache' }).then(r => r.json()).then(j => { STRATS = j; if (typeof render === 'function' && STATE) render(); else stratsRender(); })
+fetch('strats.json?v=8', { cache: 'no-cache' }).then(r => r.json()).then(j => { STRATS = j; if (typeof render === 'function' && STATE) render(); else stratsRender(); })
   .catch(e => { stratErr = e.message; stratsRender(); });
 
 const stratAll = () => (STRATS ? STRATS.seasons : []).flatMap(s => s.raids.flatMap(r => r.bosses.map(b => ({ s, r, b }))));
@@ -194,6 +194,7 @@ function stratBossHtml(cur) {
     `<div class="diff-tile ${k}"><div class="dt-head"><b>${l}</b><span class="hint">${h}</span></div><ul>${(df[k] || []).map(x => `<li>${esc(x)}</li>`).join('') || '<li class="hint">No changes listed.</li>'}</ul></div>`).join('')}</div>` : '';
   const ach = b.ach ? `<div class="card ach-card"><div class="card-head"><h2>&#127942; Achievement: ${esc(b.ach.name)}</h2><span class="hint">${meta ? 'part of ' + esc(meta.name) : ''}</span></div>
       <p class="ach-req">${esc(b.ach.req)}</p>
+      ${b.ach.pace ? `<div class="ach-pace ${esc(b.ach.pace.k)}"><span class="pace-chip">${({ burn: '🔥', hold: '✋', slow: '🐢', normal: '✅' })[b.ach.pace.k] || ''} ${esc(b.ach.pace.l)}</span><p><b>What to expect:</b> ${esc(b.ach.pace.t)}</p></div>` : ''}
       <div class="ach-pre"><h3>&#128230; Pre-encounter</h3>${(b.ach.pre || []).length ? `<ul>${b.ach.pre.map(x => `<li>${esc(x)}</li>`).join('')}</ul>` : '<p class="hint">Nothing to grab or click before the pull.</p>'}</div>
       <h3>During the fight</h3><ol class="ach-how">${b.ach.how.map(x => `<li>${esc(x)}</li>`).join('')}</ol>
       ${b.ach.note ? `<p class="hint">&#9432; ${esc(b.ach.note)}</p>` : ''}
