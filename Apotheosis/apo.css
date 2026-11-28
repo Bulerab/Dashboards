@@ -509,3 +509,9 @@ ol.cliff li .cl-text { flex: 1; min-width: 0; }
 .cl-pick label:has(input:checked) { opacity: 1; border-color: #666; background: #262626; }
 .cl-pick input { display: none; }
 .cl-pick svg, .cl-pick img { width: 17px; height: 17px; }
+
+.hero-line { display: flex; gap: 10px; align-items: center; background: linear-gradient(90deg, rgba(255,128,0,.16), rgba(255,128,0,.04)); border: 1px solid rgba(255,128,0,.45); border-radius: 8px; padding: 7px 10px; margin-bottom: 8px; }
+.hero-line .hero-ic { width: 30px; height: 30px; border-radius: 6px; border: 1px solid #ff8000; flex: none; }
+.hero-line b { display: block; font-size: 11px; text-transform: uppercase; letter-spacing: .5px; color: #ffae5c; }
+.hero-line span { font-size: 14.5px; font-weight: 700; color: #fff; }
+.hero-edit .hero-ic { width: 22px; height: 22px; border-radius: 5px; flex: none; }

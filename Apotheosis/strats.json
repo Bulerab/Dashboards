@@ -73,7 +73,8 @@
          "t": "Icy Veins",
          "u": "https://www.icy-veins.com/wow/imperator-averzian-raid-guide"
         }
-       ]
+       ],
+       "hero": "Pop Hero on pull"
       },
       {
        "id": "vorasius",
@@ -140,7 +141,8 @@
          "t": "Icy Veins",
          "u": "https://www.icy-veins.com/wow/vorasius-raid-guide"
         }
-       ]
+       ],
+       "hero": "Pop Hero on pull"
       },
       {
        "id": "salhadaar",
@@ -205,7 +207,8 @@
          "t": "Icy Veins",
          "u": "https://www.icy-veins.com/wow/fallen-king-salhadaar-raid-guide"
         }
-       ]
+       ],
+       "hero": "Pop Hero on pull"
       },
       {
        "id": "vaelgor",
@@ -276,7 +279,8 @@
          "t": "Icy Veins",
          "u": "https://www.icy-veins.com/wow/vaelgor-and-ezzorak-raid-guide"
         }
-       ]
+       ],
+       "hero": "Pop Hero on pull"
       },
       {
        "id": "vanguard",
@@ -343,7 +347,8 @@
          "t": "Icy Veins",
          "u": "https://www.icy-veins.com/wow/lightblinded-vanguard-raid-guide"
         }
-       ]
+       ],
+       "hero": "Pop Hero on pull, but hold some cooldowns: Bellamy and Senn bubble for 8 seconds"
       },
       {
        "id": "crown",
@@ -439,7 +444,8 @@
          "t": "Icy Veins",
          "u": "https://icy-veins.com/wow/crown-of-the-cosmos-raid-guide"
         }
-       ]
+       ],
+       "hero": "Pop Hero at the start of Phase 3, when Alleria lands"
       }
      ]
     },
@@ -519,7 +525,8 @@
          "t": "Icy Veins",
          "u": "https://icy-veins.com/wow/chimaerus-raid-guide"
         }
-       ]
+       ],
+       "hero": "Pop Hero on pull"
       }
      ]
     },
