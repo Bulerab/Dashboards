@@ -140,7 +140,7 @@ function stratMapHtml(b) {
 /* ---------- Ground effects: every soak / dodge / line / pool / spread / stack the guide mentions ----------
    Built from the guide text: each sentence that names an ability is sorted by what it asks you to do. */
 const GE_TYPES = [
-  ['soak', 'Soak', '#f0c24b', /\bsoak/i],
+  ['soak', 'Soak', '#f0c24b', /\b(soak|soaks|soaked|soakers?|step(ping)? on|collect|pick up|grab)\b/i],
   ['line', 'Line / frontal', '#e5484d', /\b(line|lines|beam|laser|frontal|cone|breath|charge|arrow)\b/i],
   ['pool', 'Pool / puddle', '#a26cf0', /\b(pool|pools|puddle|puddles|patch|patches|goo)\b/i],
   ['spread', 'Spread', '#3e8ef7', /\bspread\b/i],
