@@ -496,3 +496,16 @@ ol.cliff li::before { content: counter(c); flex: none; width: 24px; height: 24px
 .cliff-form input { flex: 1; height: 32px; background: #1a1a1a; color: #eee; border: 1px solid #3a3a3a; border-radius: 6px; padding: 0 9px; }
 .sb-title h2 .st-tag { display: inline-block; white-space: nowrap; line-height: 1.5; }
 .sn-drop label.toggle-btn { display: inline-block; cursor: pointer; }
+
+ol.cliff li .cl-text { flex: 1; min-width: 0; }
+.cl-roles { flex: none; display: inline-flex; gap: 3px; align-items: center; margin-left: 6px; padding: 2px 5px; border-radius: 6px; background: #222; cursor: help; }
+.cl-roles svg, .cl-roles img { width: 17px; height: 17px; }
+.cl-roles.all { opacity: .7; }
+.cl-row { display: flex; gap: 8px; align-items: center; }
+.cl-row > b { width: 22px; height: 22px; border-radius: 50%; background: #e3b341; color: #111; display: flex; align-items: center; justify-content: center; font-size: 12px; flex: none; }
+.cl-row > input { flex: 1; min-width: 0; height: 32px; background: #1a1a1a; color: #eee; border: 1px solid #3a3a3a; border-radius: 6px; padding: 0 9px; }
+.cl-pick { display: inline-flex; gap: 3px; flex: none; }
+.cl-pick label { display: inline-flex; align-items: center; justify-content: center; width: 28px; height: 28px; border: 1px solid #333; border-radius: 6px; cursor: pointer; opacity: .35; }
+.cl-pick label:has(input:checked) { opacity: 1; border-color: #666; background: #262626; }
+.cl-pick input { display: none; }
+.cl-pick svg, .cl-pick img { width: 17px; height: 17px; }

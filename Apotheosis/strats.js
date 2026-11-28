@@ -8,13 +8,18 @@ let stratPick = (location.hash.split('/')[1] || '');       // boss id from #stra
 let stratSeason = '', stratRaid = '';
 let snPick = '', snMsg = '', snImg = null, snEdit = '', snBusy = false;  // officer form state
 
-fetch('strats.json?v=1', { cache: 'no-cache' }).then(r => r.json()).then(j => { STRATS = j; if (typeof render === 'function' && STATE) render(); else stratsRender(); })
+fetch('strats.json?v=2', { cache: 'no-cache' }).then(r => r.json()).then(j => { STRATS = j; if (typeof render === 'function' && STATE) render(); else stratsRender(); })
   .catch(e => { stratErr = e.message; stratsRender(); });
 
 const stratAll = () => (STRATS ? STRATS.seasons : []).flatMap(s => s.raids.flatMap(r => r.bosses.map(b => ({ s, r, b }))));
 const stratFind = id => stratAll().find(x => x.b.id === id);
 const stratNotes = id => ((STATE && STATE.strat && STATE.strat.notes) || {})[id] || [];
 const stratCliff = b => { const c = ((STATE && STATE.strat && STATE.strat.cliff) || {})[b.id]; return { lines: (c && c.some(Boolean) ? c : (b.cliff || [])).filter(Boolean), custom: !!(c && c.some(Boolean)) }; };
+// Cliff note roles: a line can start with [T], [H], [D] or a mix ("[TH] text")
+const cliffParse = line => { const m = String(line || '').match(/^\s*\[([THD]{1,3})\]\s*/i); return { roles: m ? m[1].toUpperCase() : '', text: m ? String(line).slice(m[0].length) : String(line || '') }; };
+const CLIFF_ROLES = [['T', 'Tank', 'Tanks'], ['H', 'Healer', 'Healers'], ['D', 'DPS', 'DPS']];
+const cliffIcons = roles => roles === 'THD' || !roles ? `<span class="cl-roles all" data-tip="Everyone">${CLIFF_ROLES.map(r => roleIcon(r[1])).join('')}</span>`
+  : `<span class="cl-roles" data-tip="${CLIFF_ROLES.filter(r => roles.includes(r[0])).map(r => r[2]).join(' &amp; ')}">${CLIFF_ROLES.filter(r => roles.includes(r[0])).map(r => roleIcon(r[1])).join('')}</span>`;
 const stratArt = b => STATE ? (artOf(b.journal || b.name) || artOf(b.name)) : '';
 const linkify = s => esc(s).replace(/(https:\/\/[^\s<]+)/g, '<a href="$1" target="_blank" rel="noopener">$1</a>').replace(/\n/g, '<br>');
 const statusTag = b => b.status === 'ready' ? '' : b.status === 'draft' ? '<span class="st-tag draft">draft</span>' : '<span class="st-tag todo">guide coming</span>';
@@ -49,7 +54,7 @@ function stratBossHtml(cur) {
     </div>
     <div class="sb-top">
       <div class="card cliff-card"><div class="card-head"><h2>&#9889; Before the pull</h2><span class="hint">${cl.custom ? 'officer version' : 'say these every pull'}</span></div>
-        ${cl.lines.length ? `<ol class="cliff">${cl.lines.map(x => `<li>${esc(x)}</li>`).join('')}</ol>` : '<p class="empty">No cliff notes yet.</p>'}
+        ${cl.lines.length ? `<ol class="cliff">${cl.lines.map(x => { const c = cliffParse(x); return `<li><span class="cl-text">${esc(c.text)}</span>${cliffIcons(c.roles)}</li>`; }).join('')}</ol>` : '<p class="empty">No cliff notes yet.</p>'}
         ${officerKey ? `<a class="hint" data-tab="stratnotes" data-snboss="${esc(b.id)}" href="#stratnotes">Edit cliff notes</a>` : ''}</div>
       <div class="card notes-card"><div class="card-head"><h2>&#128221; Officer notes</h2><span class="hint">${notes.length ? notes.length + ' note' + (notes.length === 1 ? '' : 's') : 'our own strat'}</span></div>
         ${notes.length ? notes.map((n, i) => noteHtml(n, b, !!officerKey, i, notes.length)).join('') : '<p class="empty">No officer notes for this boss yet.</p>'}
@@ -111,8 +116,9 @@ function stratNotesTabRender() {
           <div class="wide"><button type="submit" class="toggle-btn"${snBusy ? ' disabled' : ''}>${snBusy ? 'Saving…' : editing ? 'Save changes' : 'Add note'}</button></div>
         </form></div>
       <div class="card"><div class="card-head"><h2>&#9889; Cliff notes</h2><span class="hint">${cl.custom ? 'officer version' : 'website default'}</span></div>
-        <p class="hint" style="margin:0 0 8px">5 short lines to say before every pull: catchy, and the things that wipe us if we forget them.</p>
-        <form id="cliff-form" class="cliff-form">${[0, 1, 2, 3, 4].map(i => `<label><b>${i + 1}</b><input name="l${i}" maxlength="120" value="${esc(cl.lines[i] || '')}"></label>`).join('')}
+        <p class="hint" style="margin:0 0 8px">5 short lines to say before every pull: catchy, and the things that wipe us if we forget them. Tick the roles each one is for.</p>
+        <form id="cliff-form" class="cliff-form">${[0, 1, 2, 3, 4].map(i => { const c = cliffParse(cl.lines[i]), r = c.text ? (c.roles || 'THD') : 'THD';
+          return `<div class="cl-row"><b>${i + 1}</b><input name="l${i}" maxlength="120" value="${esc(c.text)}"><span class="cl-pick">${CLIFF_ROLES.map(x => `<label title="${x[2]}"><input type="checkbox" name="r${i}${x[0]}"${r.includes(x[0]) ? ' checked' : ''}>${roleIcon(x[1])}</label>`).join('')}</span></div>`; }).join('')}
           <div><button type="submit" class="toggle-btn">Save cliff notes</button>${cl.custom ? ' <button type="button" class="toggle-btn" data-cliffreset="1">Back to default</button>' : ''}</div></form></div>
     </div>
     <div class="card"><div class="card-head"><h2>${esc(b.name)}: notes on the page</h2><span class="hint">${notes.length}</span></div>
@@ -186,6 +192,7 @@ document.addEventListener('submit', e => {
   if (e.target.id === 'cliff-form') {
     e.preventDefault();
     const f = new FormData(e.target);
-    snPost({ action: 'stratCliff', boss: snPick, lines: [0, 1, 2, 3, 4].map(i => String(f.get('l' + i) || '')) });
+    snPost({ action: 'stratCliff', boss: snPick, lines: [0, 1, 2, 3, 4].map(i => { const t = String(f.get('l' + i) || '').trim(), r = CLIFF_ROLES.filter(x => f.get('r' + i + x[0])).map(x => x[0]).join('');
+      return t ? (r ? '[' + r + '] ' : '') + t : ''; }) });
   }
 }, true);
